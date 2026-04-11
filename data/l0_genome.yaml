@@ -1,0 +1,101 @@
+agents:
+  critic_angel:
+    model: deepseek-chat
+    prompt_version: angel_v1
+    provider: deepseek
+  critic_devil:
+    model: deepseek-chat
+    prompt_version: devil_v1
+    provider: deepseek
+  curator:
+    model: deepseek-chat
+    parameters:
+      top_percent: 0.15
+    prompt_version: curator_v1
+    provider: deepseek
+  explorer:
+    model: deepseek-chat
+    parameters:
+      collisions_per_cycle: 50
+    prompt_version: explorer_v1
+    provider: deepseek
+  gate:
+    model: deepseek-chat
+    prompt_version: gate_v1
+    provider: deepseek
+  multi_reviewer_panel:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 2000
+    prompt_version: reviewer_panel_v1
+    provider: deepseek
+  research_brief:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 5000
+    prompt_version: research_brief_v1
+    provider: deepseek
+  impact:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 2000
+    prompt_version: impact_v1
+    provider: deepseek
+  literature_grounding:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 4000
+    prompt_version: literature_grounding_v1
+    provider: deepseek
+  hypothesis_sharpening:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 4000
+    prompt_version: hypothesis_sharpening_v1
+    provider: deepseek
+  experimental_protocol:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 5000
+    prompt_version: experimental_protocol_v1
+    provider: deepseek
+  reviewer:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 1000
+    prompt_version: reviewer_v1
+    provider: deepseek
+  synthesis:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 3000
+      no_bridge_allowed: true
+      temperature: 0.8
+    prompt_version: synthesis_v1
+    provider: deepseek
+genome_version: l0_v1
+last_mutated: '2026-04-09T07:01:07.892216'
+mutated_by: L1-MUT-20260409-059f89
+randomness:
+  chaos_floor: 0.15
+  cross_discipline_ratio: 0.7
+  distance_max: 0.8
+  distance_min: 0.35
+  strategy_weights:
+    anomaly_guided: 0.25
+    historical_template: 0.15
+    semantic_distance: 0.35
+    structural_analogy: 0.25
+  temperature: 0.7
+schedule:
+  active_hours: 00:00-23:59
+  frequency: manual
+score_weights:
+  coherence: 0.3
+  hallucination_risk: -0.15
+  impact_potential: 0.15
+  novelty: 0.25
+  testability: 0.35
+sources:
+- semantic_scholar
+- arxiv

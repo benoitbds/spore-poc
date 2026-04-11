@@ -1,0 +1,1032 @@
+bridge:
+  mechanism: Ferroelectric domain walls are mobile interfaces that can migrate under
+    applied fields with much lower energy barriers than bulk polarization switching.
+    In ceramics, the brittleness problem stems from crack propagation through rigid
+    ionic networks. By incorporating ferroelectric phases as intergranular films or
+    nanoscale inclusions within ceramic matrices, stress concentration at crack tips
+    could trigger domain wall migration that induces local strain fields opposing
+    crack propagation. The key insight is that domain walls in 2D ferroelectrics like
+    GeS/GeSe require only ~0.1 eV migration barriers, orders of magnitude lower than
+    ceramic bond breaking energies (~3-5 eV). This creates a responsive mechanism
+    where mechanical stress preferentially drives domain wall motion rather than catastrophic
+    fracture.
+  summary: Domain wall migration mechanisms in ferroelectrics can be engineered into
+    ceramic microstructures to create self-healing materials that autonomously repair
+    stress-induced cracks through localized polarization switching.
+  type: causal_transfer
+collision:
+  distance_score: 0.5668838024139404
+  domain_a:
+    context_abstracts:
+    - '[Successful production of Solution Blow Spun YBCO+Ag complex ceramics (arXiv:2004.07287,
+      2020)]
+
+      YBCO fabrics composed of nanowires, produced by solution blow spinning (SBS)
+      are so brittle that the Lorentz force produced by induced currents can be strong
+      enough to damage them. On the other hand, it is known that silver addition improves
+      the mechanical and flux pinning properties of ceramic superconductors. Thus,
+      in this work, we show how we successfully obtained a polymeric precursor solution
+      containing YBCO$+$Ag salts, which can be spun by the SBS route to produce ceramic
+      samples. Yttrium, barium, copper, and silver metal acetates, and polyvinylpyrrolidone
+      (PVP) (in a ratio of 5:1wt [PVP:acetates]) were dissolved in a solution with
+      61.5 wt\% of methanol, 12 wt\% of propionic acid, and 26.5 wt\% of ammonium
+      hydroxide, together with 6 wt\% of PVP in solution. Three different amounts
+      of silver (10 wt\%, 20 wt\%, and 30 wt\%) were used in YBa$_2$Cu$_3$O$_{7-x}$.
+      The TGA characterizations revealed a lowering of crystallization and partial
+      melting temperatures by about \SI{30}{\celsius}. SEM images show that after
+      burning out the polymer, a fabric composed of nanowires of diameters up to \SI{380}{\nano
+      \metre} is produced. However, after the sintering process at \SI{925}{\celsius}
+      for \SI{1}{\hour}, the nanowires shrink into a porous-like sample.'
+    - '[Influence of CaO and SiO2 additives on the sintering behavior of Cr,Ca:YAG
+      ceramics prepared by solid-state reaction sintering (arXiv:2601.06721, 2026)]
+
+      Optical ceramics of yttrium aluminum garnet (Y3-xCaxAl4.95Cr0.05O12) doped with
+      0.1 at.% of chromium ions and 0.5, 0.8, and 1.2 at.% of calcium ions were prepared
+      by reactive sintering in vacuum at 1750 degrees C. The influence of SiO2 and
+      CaO sintering aids on the optical properties and microstructure of Cr,Ca:YAG
+      ceramics was investigated. A decrease in CaO concentration led to a reduction
+      of Cr,Ca:YAG transparency from 81 to 0 percent at 1064 nm; moreover, ceramics
+      with lower CaO content exhibited abnormal grains and high porosity. These features
+      were attributed to interactions between silica and calcium oxide during vacuum
+      sintering. Two mechanisms are proposed to explain the effect of CaO and SiO2
+      on the formation of Ca,Cr:YAG ceramics. The first involves the formation of
+      a liquid phase due to the CaO-SiO2 interaction during the heating stage, resulting
+      in abnormal grain growth. The second mechanism is the mutual consumption of
+      Si4+ and Ca2+ ions during the isothermal stage of sintering, which leads to
+      a decrease in Cr4+ concentration. Both mechanisms negatively affect the optical
+      and laser properties of the ceramics.'
+    - '[Analytical modelling of thermal residual stresses and optimal design of ZrO2/(ZrO2+Ni)
+      sandwich ceramics (arXiv:1907.09259, 2019)]
+
+      The joining of ceramics with metals have been extensively used in applications
+      requiring high strength and excellent heat insulation. However, evaluating the
+      residual stress generated inevitably due to the mismatch in coefficients of
+      thermal expansion of ceramic and metal is challenging, which is very important
+      for fabrication and characterization of layered inhomogeneous material. A simplified
+      analytical model considering the overall deformation compatibility is established
+      to compute the interlaminar residual stresses of the ZrO2/(ZrO2+Ni) sandwich
+      ceramics, which agrees well with the results obtained by the commercial finite
+      element package. The effects of the thickness ratio of the transitional layer
+      to the middle layer, and the number of transitional layers on the properties
+      of the ZrO2/(ZrO2+Ni) sandwich ceramics are researched to obtain the optimal
+      structure.'
+    embedding:
+    - -0.007550774607807398
+    - -0.068594790995121
+    - -0.03962399438023567
+    - 0.025608425959944725
+    - -0.0004116603813599795
+    - -0.007516875863075256
+    - 0.04056841507554054
+    - 0.02060386724770069
+    - -0.12699168920516968
+    - 0.044688742607831955
+    - 2.3636768673895858e-05
+    - -0.08768901228904724
+    - -0.0009994860738515854
+    - 0.043225497007369995
+    - 0.015793560072779655
+    - -0.11510986089706421
+    - 0.13934434950351715
+    - 0.02327696420252323
+    - 0.013542943634092808
+    - 0.07146532088518143
+    - 0.12395654618740082
+    - 0.007505972869694233
+    - -0.0020403158850967884
+    - -0.001833212561905384
+    - 0.06895074248313904
+    - 0.0941394716501236
+    - 0.07200882583856583
+    - 0.03842822462320328
+    - 0.024500032886862755
+    - -0.0637730062007904
+    - -0.07681869715452194
+    - 0.02532091550529003
+    - 0.03726574778556824
+    - 0.003620806382969022
+    - 0.019160738214850426
+    - 0.014231648296117783
+    - 0.00789042841643095
+    - -0.006179584190249443
+    - 0.0021252238657325506
+    - -0.01163116842508316
+    - -0.025247398763895035
+    - 0.00709467614069581
+    - 0.0705568790435791
+    - -0.025152189657092094
+    - 0.08189304172992706
+    - 0.022804170846939087
+    - 0.05344951152801514
+    - -0.04838996008038521
+    - -0.04838269203901291
+    - 0.006763995625078678
+    - 0.009868340566754341
+    - 0.007112057879567146
+    - -0.023236744105815887
+    - 0.03068658895790577
+    - -0.027499970048666
+    - -0.06792452931404114
+    - -0.019954809918999672
+    - 0.07819118350744247
+    - 0.018420668318867683
+    - 0.006764229387044907
+    - -0.041602302342653275
+    - -0.027188410982489586
+    - 0.013505911454558372
+    - 0.012459151446819305
+    - 0.05935990437865257
+    - 0.006263525690883398
+    - 0.015675483271479607
+    - 0.042910974472761154
+    - -0.01117042638361454
+    - 0.0411483496427536
+    - 0.05816033110022545
+    - 0.0006101970793679357
+    - 0.04609943926334381
+    - 0.02691481076180935
+    - 0.05129651352763176
+    - 0.05100049823522568
+    - 0.08694656193256378
+    - 0.01979038491845131
+    - -0.051735300570726395
+    - -0.010211651213467121
+    - -0.05114404112100601
+    - -0.021225983276963234
+    - -0.04591284692287445
+    - 0.030465658754110336
+    - -0.015073458664119244
+    - 0.04902423545718193
+    - -0.013761661015450954
+    - -0.022840281948447227
+    - -0.00012510277156252414
+    - -0.07135846465826035
+    - 0.009823407046496868
+    - 0.11037831753492355
+    - 0.019514508545398712
+    - -0.06086237356066704
+    - 0.008909149095416069
+    - 0.01085495762526989
+    - -0.02550637349486351
+    - 0.06496682018041611
+    - 0.0032140538096427917
+    - -0.022878287360072136
+    - -0.04063086584210396
+    - 0.014268552884459496
+    - 0.028706908226013184
+    - 0.05235921964049339
+    - -0.0404774472117424
+    - -0.04852518439292908
+    - -0.017216714099049568
+    - -0.006898471154272556
+    - 0.04773561656475067
+    - 0.08427918702363968
+    - -0.11840109527111053
+    - -0.020775828510522842
+    - -0.04070040211081505
+    - -0.10791147500276566
+    - 0.016193026676774025
+    - -0.12041177600622177
+    - -0.11555029451847076
+    - 0.02707803249359131
+    - 0.044606585055589676
+    - 0.006547192111611366
+    - 0.01719059608876705
+    - -0.08354435861110687
+    - -0.0036250236444175243
+    - -0.015469050034880638
+    - -0.10631070286035538
+    - -0.10631059855222702
+    - -0.05318307876586914
+    - 1.1712204186665908e-33
+    - -0.0062954421155154705
+    - 0.06896044313907623
+    - -0.03891605883836746
+    - -0.001708946074359119
+    - -0.03163369745016098
+    - -0.038062743842601776
+    - -0.03983938321471214
+    - -0.026224829256534576
+    - -0.04848755896091461
+    - 0.011452162638306618
+    - 0.08353609591722488
+    - 0.09717366844415665
+    - 0.01985592395067215
+    - 0.06956839561462402
+    - 0.009442713111639023
+    - 0.10012936592102051
+    - 0.022631386294960976
+    - -0.022831542417407036
+    - 0.024792473763227463
+    - -0.0013354605762287974
+    - -0.06458024680614471
+    - 0.0402413047850132
+    - 0.06810363382101059
+    - 0.1356067955493927
+    - 0.009074230678379536
+    - -0.009246178902685642
+    - -0.027825351804494858
+    - -0.07497797906398773
+    - -0.1620393842458725
+    - -0.042799707502126694
+    - -0.010357101447880268
+    - 0.07487353682518005
+    - 0.027602193877100945
+    - -0.017787717282772064
+    - -0.073643259704113
+    - -0.0005925387958995998
+    - -0.07636350393295288
+    - -0.014905449002981186
+    - 0.033227529376745224
+    - -0.026178700849413872
+    - -0.011754435487091541
+    - -0.03522792086005211
+    - 0.008815339766442776
+    - 0.14919215440750122
+    - 0.03719403222203255
+    - -0.0818207710981369
+    - -0.02622614987194538
+    - 0.04151265695691109
+    - 0.09355779737234116
+    - -0.007635500282049179
+    - 0.0013960093492642045
+    - -0.0007824013591744006
+    - 0.004930336959660053
+    - 0.02258802391588688
+    - -0.006474923808127642
+    - -0.021349383518099785
+    - 0.006819669622927904
+    - -0.028170237317681313
+    - -0.054873932152986526
+    - -0.06471046060323715
+    - 0.018571162596344948
+    - -0.001501429476775229
+    - 0.022810621187090874
+    - -0.05472978204488754
+    - -0.06815700978040695
+    - 0.028759105131030083
+    - -0.06563664972782135
+    - 0.06023469567298889
+    - 0.0683756023645401
+    - -0.06163806840777397
+    - 0.002969366265460849
+    - -0.04775393381714821
+    - 0.023417843505740166
+    - -0.005068907979875803
+    - -0.01800156943500042
+    - 0.006947136949747801
+    - 0.037550341337919235
+    - -0.05781373754143715
+    - 0.027022119611501694
+    - 0.0008408426074311137
+    - -0.010396474972367287
+    - -0.05497312545776367
+    - -0.031971096992492676
+    - -0.06589923799037933
+    - -0.060026444494724274
+    - 0.062472112476825714
+    - 0.0829768180847168
+    - -0.02389555796980858
+    - 0.03513567894697189
+    - 0.04413747414946556
+    - -0.016138460487127304
+    - -0.05204641446471214
+    - 0.007181782741099596
+    - -0.032257504761219025
+    - -0.019986866042017937
+    - -1.6375339766855035e-33
+    - 0.04895982891321182
+    - 0.01604047790169716
+    - -0.0638425201177597
+    - 0.07742759585380554
+    - 0.000958508811891079
+    - -0.08560977131128311
+    - -0.08195916563272476
+    - -0.03195018321275711
+    - 0.028455818071961403
+    - -0.06534147262573242
+    - 0.005919876508414745
+    - -0.09832147508859634
+    - 0.09179498255252838
+    - -0.050303421914577484
+    - -0.09225019812583923
+    - 0.060549065470695496
+    - 0.056984394788742065
+    - -0.055749084800481796
+    - 0.06736752390861511
+    - -0.0869734063744545
+    - -0.0071561746299266815
+    - 0.06636375933885574
+    - -0.021327976137399673
+    - -0.0307883583009243
+    - -0.02211909554898739
+    - 0.015168214216828346
+    - 0.002183808945119381
+    - -0.0631500780582428
+    - -0.024187425151467323
+    - -0.011051847599446774
+    - 0.055704083293676376
+    - -0.00999617949128151
+    - 0.03577560931444168
+    - 0.011257712729275227
+    - 0.03161945566534996
+    - -0.006556302309036255
+    - 0.00133458839263767
+    - 0.0008762188372202218
+    - -0.03520439565181732
+    - -0.017408862709999084
+    - 0.06389880925416946
+    - 0.03179355338215828
+    - 0.0948447436094284
+    - 0.029791181907057762
+    - -0.014292797073721886
+    - 0.03175479173660278
+    - 0.009633153676986694
+    - 0.03966504707932472
+    - 0.021014221012592316
+    - 0.07553895562887192
+    - 0.1691831350326538
+    - -0.07232829928398132
+    - -0.043321724981069565
+    - -0.04858950525522232
+    - 0.006565260700881481
+    - -0.008986977860331535
+    - -0.04133886098861694
+    - 0.015175960958003998
+    - 0.019925791770219803
+    - -0.022126272320747375
+    - 0.08369935303926468
+    - 0.011390048079192638
+    - 0.05654978007078171
+    - 0.0723944827914238
+    - 0.007272779010236263
+    - -0.007406565360724926
+    - 0.014570987783372402
+    - -0.007412587758153677
+    - 0.032976217567920685
+    - 0.02132374979555607
+    - 0.05737069994211197
+    - 0.05431152507662773
+    - 0.044663138687610626
+    - 0.0057287258096039295
+    - 0.05177229642868042
+    - -0.022051848471164703
+    - -0.03288423269987106
+    - 0.05421875789761543
+    - -0.04175378754734993
+    - -0.07197626680135727
+    - -0.005713251419365406
+    - 0.06607683002948761
+    - 0.002172870794311166
+    - 0.06845340877771378
+    - -0.02218630351126194
+    - 0.07446971535682678
+    - -0.052740078419446945
+    - 0.043892309069633484
+    - 0.07753697037696838
+    - -0.01900133676826954
+    - -0.010750521905720234
+    - -0.024625463411211967
+    - 0.11663240194320679
+    - 0.028029194101691246
+    - -0.02561904303729534
+    - -2.265493215247716e-08
+    - 0.020320720970630646
+    - 0.004732252098619938
+    - -0.015768934041261673
+    - -0.044452130794525146
+    - 0.029434004798531532
+    - 0.024387920275330544
+    - 0.0415337011218071
+    - -0.05718876048922539
+    - -0.0007887338288128376
+    - 0.004578819032758474
+    - 0.014626814983785152
+    - -0.03202580288052559
+    - 0.039140887558460236
+    - -0.027810735628008842
+    - 0.04867751896381378
+    - -0.02716103568673134
+    - -0.04022093862295151
+    - 0.07744305580854416
+    - -0.03426508605480194
+    - -0.0889592245221138
+    - 0.009882483631372452
+    - -0.00046674723853357136
+    - 0.03145776689052582
+    - 0.023657461628317833
+    - 0.00033612578408792615
+    - -0.011640073731541634
+    - -0.02618195116519928
+    - -0.04625143110752106
+    - -0.07790319621562958
+    - 0.026939503848552704
+    - -0.11624439060688019
+    - -0.0896042138338089
+    - 0.05332029610872269
+    - -0.10678502917289734
+    - -0.0012846126919612288
+    - 0.08836864680051804
+    - 0.00649506039917469
+    - -0.09465394169092178
+    - -0.07659535109996796
+    - -0.0772547721862793
+    - 0.046465158462524414
+    - -0.03708801418542862
+    - 0.016053680330514908
+    - 0.05221094936132431
+    - -0.005767375696450472
+    - -0.1218314915895462
+    - -0.01091595459729433
+    - 0.0051107690669596195
+    - 0.027632450684905052
+    - -0.02718350663781166
+    - -0.06645140796899796
+    - 0.09158255159854889
+    - -0.02567811869084835
+    - -0.05342656001448631
+    - -0.04223642870783806
+    - -0.019187478348612785
+    - 0.0102427639067173
+    - 0.054770611226558685
+    - 0.09066320955753326
+    - 0.0002711825945880264
+    - 0.02276500128209591
+    - -0.021766621619462967
+    - 0.022547082975506783
+    - -0.017035210505127907
+    id: MS-007
+    key_concepts:
+    - sintering
+    - ionic bonding
+    - brittleness
+    - thermal shock
+    - piezoelectricity
+    - refractory materials
+    - oxide ceramics
+    name: Ceramics
+    parent_domain: materials_science
+    recent_anomalies: []
+    taxonomy_source: custom
+  domain_b:
+    context_abstracts:
+    - '[Polarization switching induced by domain wall sliding in two-dimensional ferroelectric
+      monochalcogenides (arXiv:2204.12209, 2022)]
+
+      The ability to switch between distinct states of polarization comprises the
+      defining property of ferroelectrics. However, the microscopic mechanism responsible
+      for switching is not well understood and theoretical estimates based on coherent
+      monodomain switching typically overestimate experimentally determined coercive
+      fields by orders of magnitude. In this work we present a detailed first principles
+      characterization of domain walls (DWs) in two-dimensional ferroelectric GeS,
+      GeSe, SnS and SnSe. In particular, we calculate the formation energies and migration
+      barriers for 180 and 90 DWs, and then derive a general expression for the coercive
+      field assuming that polarization switching is mediated by DW migration. We apply
+      our approach to the materials studied and obtain good agreement with experimental
+      coercive fields. The calculated coercive fields are up to two orders of magnitude
+      smaller than those predicted from coherent monodomain switching in GeSe, SnS
+      and SnSe. Finally, we study the optical properties of the compounds and find
+      that the presence of 180 DWs leads to a significant red shift of the absorption
+      spectrum, implying that the density of DWs may be determined by means of simple
+      optical probes.'
+    - '[Intrinsic inverse band gap versus polarization relation in ferroelectric materials
+      (arXiv:2411.03462, 2024)]
+
+      Ferroelectric materials have promising applications in solar-energy conversion
+      and electro-optic devices. The internal gradient fields produced by the macroscopic
+      polarization may improve electronic and transport semiconducting properties.
+      However, ferroelectrics tend to display relatively large band gaps and hence
+      low solar-energy conversion efficiencies. In this work, we explore materials
+      with an intrinsic inverse relation between band gap and polarization in a single
+      ferroelectric phase. Ferroelectrics with an inverse band gap versus polarization
+      relation are characterized by low density of states contribution at the conduction
+      states and negligible orbital hybridization at the valence states. We use high-throughput
+      and first principles methods to find 15 ferroelectric materials with an inverse
+      band gap versus polarization relation in the Materials Project database. Our
+      work provides a new pathway to design small-band gap large-polarization ferroelectrics,
+      by simultaneously tailoring the band gap and polarization of ferroelectrics
+      with an inverse relation through an external tuning parameter.'
+    - '[Inducing Spontaneous Electric Polarizations in Double Perovskite Iodide Superlattices
+      for New Ferroelectric Photovoltaic Materials (arXiv:1804.06685, 2018)]
+
+      In this work, we use density functional theory calculations to demonstrate how
+      spontaneous electric polarizations can be induced \textit{via} a hybrid improper
+      ferroelectric mechanism in iodide perovskites, a family well-known to display
+      solar-optimal band gaps, to create new materials for photoferroic applications.
+      We first assemble three chemically distinct ($A$$A^{\prime}$)($B$$B^{\prime}$)I$_6$
+      double perovskites using centrosymmetric $AB$I$_3$ perovskite iodides (where
+      $A$ = Cs, Rb, K and $B$ = Sn, Ge) as building units. In each superlattice, we
+      investigate the effects of three types of $A$- and $B$-site cation ordering
+      schemes and three different $B$I$_6$ octahedral rotation patterns. Out of these
+      27 combinations, we find that 15 produce polar space groups and display spontaneous
+      electric polarizations ranging from 0.26 to 23.33 $μ$C/cm$^2$. Furthermore,
+      we find that a layered $A$-site/rock salt $B$-site ordering, in the presence
+      of an $a^0a^0c^+$ rotation pattern, produces a chiral "vortex-like" $A$-site
+      displacement pattern. We then investigate the effect of epitaxial strain on
+      one of these systems, (CsRb)(SnGe)I$_6$, in layered and rock salt ordered configurations.
+      In both phases, we find strong competition between the cation ordering schemes
+      as well as an enhancement of the spontaneous polarization magnitude under tensile
+      strain. Finally, using advanced functionals, we demonstrate that these compounds
+      display low band gaps ranging from 0.2 to 1.3 eV. These results demonstrate
+      that cation ordering and epitaxial strain are powerful ways to induce and control
+      new functionalities in technologically-useful families of materials.'
+    embedding:
+    - -0.07148240506649017
+    - -0.05072513595223427
+    - -0.07108232378959656
+    - 0.0655423253774643
+    - 0.027954138815402985
+    - -0.016589278355240822
+    - 0.0890316367149353
+    - 0.06850127875804901
+    - -0.06054501235485077
+    - 0.021979590877890587
+    - 0.009625299833714962
+    - 0.007415968459099531
+    - 0.011861320585012436
+    - 0.03266601264476776
+    - 0.037227075546979904
+    - 0.010021902620792389
+    - -0.05199643224477768
+    - -0.029789099469780922
+    - 0.08554498851299286
+    - 0.05281863361597061
+    - 0.11600454896688461
+    - -0.05778788775205612
+    - 0.07854589819908142
+    - -0.02150912955403328
+    - -0.10239239037036896
+    - 0.10832428187131882
+    - 0.09365980327129364
+    - -0.013210495933890343
+    - -0.05604078620672226
+    - -0.07688210904598236
+    - -0.10184478014707565
+    - -0.002814040519297123
+    - -0.0008521311683580279
+    - 0.030501708388328552
+    - 0.015688950195908546
+    - 0.07814478129148483
+    - -0.04995965585112572
+    - -0.02682529389858246
+    - -0.039379652589559555
+    - -0.02544412575662136
+    - 0.025122297927737236
+    - 0.08825596421957016
+    - 0.07220891863107681
+    - -0.02538766711950302
+    - 0.00034650269662961364
+    - 0.01071222685277462
+    - 0.09799478203058243
+    - -0.03438607603311539
+    - -0.01847226172685623
+    - -0.017437022179365158
+    - -0.02825036458671093
+    - 0.00947583094239235
+    - 0.05567864328622818
+    - 0.030150024220347404
+    - 0.004055599216371775
+    - 0.016692887991666794
+    - 0.09605701267719269
+    - 0.0671110525727272
+    - -0.010694975964725018
+    - -0.01960626430809498
+    - -0.02298354171216488
+    - -0.032423146069049835
+    - -0.007523840293288231
+    - -0.08393896371126175
+    - 0.07193087041378021
+    - -0.0419694259762764
+    - 0.025444848462939262
+    - -0.018856283277273178
+    - -0.026911674067378044
+    - 0.011335858143866062
+    - 0.010526461526751518
+    - 0.048934079706668854
+    - 0.046214595437049866
+    - -0.01506778784096241
+    - 0.03362703323364258
+    - 0.0806640237569809
+    - 0.09407644718885422
+    - 0.04051998630166054
+    - 0.006252517458051443
+    - -0.021778924390673637
+    - -0.0852324441075325
+    - -0.09892954677343369
+    - -0.01624174788594246
+    - -0.008648467250168324
+    - 0.060690730810165405
+    - -0.009526867419481277
+    - -0.04746752604842186
+    - -0.04346596822142601
+    - -0.07810304313898087
+    - -0.03936930000782013
+    - -0.009085514582693577
+    - 0.07966821640729904
+    - -0.08219335973262787
+    - -0.03884458541870117
+    - -0.045679472386837006
+    - -0.026398861780762672
+    - 0.042381785809993744
+    - 0.00507808942347765
+    - -0.005148186348378658
+    - -0.008355326019227505
+    - 0.07602852582931519
+    - 0.07957161962985992
+    - 0.003894684836268425
+    - 0.02671339362859726
+    - -0.04226429760456085
+    - -0.050082530826330185
+    - 0.030454959720373154
+    - 0.04192790389060974
+    - -0.05112604424357414
+    - 0.0027873606886714697
+    - 0.023317983373999596
+    - 0.07708392292261124
+    - 0.03572019934654236
+    - 0.010261616669595242
+    - -0.0019065879750996828
+    - -0.05353906378149986
+    - -0.07007193565368652
+    - 0.008895858190953732
+    - 0.018521862104535103
+    - 0.06631238758563995
+    - -0.04259198531508446
+    - 0.0435255728662014
+    - -0.00528549263253808
+    - -0.0035079463850706816
+    - -0.13679376244544983
+    - -0.005112515762448311
+    - -0.006945459637790918
+    - 2.6352392150497356e-33
+    - 0.0016134035540744662
+    - 0.01520268153399229
+    - -0.04443511366844177
+    - 0.032302360981702805
+    - -0.0743546411395073
+    - 0.02543451450765133
+    - -0.04819457232952118
+    - -0.02578573301434517
+    - 0.011076361872255802
+    - -0.06559301167726517
+    - 0.07868944108486176
+    - 0.09531351923942566
+    - 0.057757068425416946
+    - -0.03971424326300621
+    - 0.03458082303404808
+    - -0.04663236439228058
+    - -0.046915970742702484
+    - -0.052653759717941284
+    - 0.09969265013933182
+    - -0.006785070523619652
+    - 0.047175873070955276
+    - 0.07967226207256317
+    - 0.05600770190358162
+    - 0.08914735168218613
+    - 0.018645960837602615
+    - -0.004593240097165108
+    - -0.02294396422803402
+    - -0.03814229369163513
+    - -0.07215874642133713
+    - -0.0020999673288315535
+    - 0.0307703148573637
+    - 0.08973579108715057
+    - -0.007407314609736204
+    - -0.03525247424840927
+    - 0.13014942407608032
+    - 0.018707329407334328
+    - -0.011808915063738823
+    - -0.013389479368925095
+    - 0.005803954321891069
+    - -0.05680729076266289
+    - -0.00826770905405283
+    - -0.10750972479581833
+    - 0.0331890694797039
+    - 0.07593172788619995
+    - -0.056934621185064316
+    - -0.1590280830860138
+    - -0.0018890233477577567
+    - 0.06355135142803192
+    - 0.0744914785027504
+    - 0.023736869916319847
+    - -0.022172780707478523
+    - -0.06400644034147263
+    - -0.047304295003414154
+    - -0.02151993289589882
+    - 0.04057878255844116
+    - -0.013035396113991737
+    - 0.009202527813613415
+    - 0.01290273666381836
+    - 0.05993627384305
+    - -0.006844243500381708
+    - 0.0701560229063034
+    - 0.03067883662879467
+    - 0.04802895709872246
+    - -0.06298955529928207
+    - -0.0008815981564112008
+    - 0.019067756831645966
+    - 0.03405638039112091
+    - -0.016431229189038277
+    - 0.014293582178652287
+    - -0.025493841618299484
+    - 0.07975336164236069
+    - 0.03243191912770271
+    - -0.051375068724155426
+    - 0.050781771540641785
+    - -0.006396378856152296
+    - 0.037166107445955276
+    - -0.0017530056647956371
+    - -0.11614564806222916
+    - 0.05084872990846634
+    - -0.07119928300380707
+    - -0.02840384468436241
+    - -0.08445031195878983
+    - -0.013265936635434628
+    - -0.04184984043240547
+    - -0.09717357903718948
+    - -0.00863597635179758
+    - 0.0585026778280735
+    - 0.008859165012836456
+    - -0.06648808717727661
+    - -0.0143676046282053
+    - 0.017563579604029655
+    - -0.02798927202820778
+    - 0.051193080842494965
+    - -0.015573011711239815
+    - -0.044522013515233994
+    - -3.938017747217991e-33
+    - -0.054171107709407806
+    - 0.005017069634050131
+    - -0.037040986120700836
+    - -0.006434665992856026
+    - 0.008990716189146042
+    - -0.041151080280542374
+    - -0.0005462286644615233
+    - -0.00782494992017746
+    - -0.06008052080869675
+    - -0.04856845736503601
+    - 0.03376101702451706
+    - -0.06552914530038834
+    - 0.03207466006278992
+    - -0.06775964051485062
+    - -0.05604947730898857
+    - 0.05548568069934845
+    - 0.0190180242061615
+    - -0.06655879318714142
+    - 0.08240774273872375
+    - -0.02472335286438465
+    - -0.051029425114393234
+    - 0.06506878137588501
+    - -0.001540414523333311
+    - 0.09539690613746643
+    - -0.08748625218868256
+    - 0.060451168566942215
+    - -0.036123234778642654
+    - -0.015068252570927143
+    - -0.0018532477552071214
+    - 0.0531032532453537
+    - 0.003386125434190035
+    - 0.08368157595396042
+    - 0.038330238312482834
+    - 0.10103964060544968
+    - -0.04309583455324173
+    - -0.009897605516016483
+    - -4.1597002564230934e-05
+    - -0.015446124598383904
+    - 0.06778154522180557
+    - 0.018646445125341415
+    - 0.06888150423765182
+    - 0.0411994494497776
+    - 0.08947126567363739
+    - 0.00576623622328043
+    - -0.05737384036183357
+    - 0.03486442565917969
+    - -0.07347157597541809
+    - 0.023063451051712036
+    - 0.0003759441606234759
+    - 0.08624367415904999
+    - 0.00047923135571181774
+    - -0.08857732266187668
+    - -0.016099484637379646
+    - -0.0958322137594223
+    - -0.01264571025967598
+    - -0.026066979393363
+    - -0.09129234403371811
+    - -0.011822898872196674
+    - 0.008564488962292671
+    - -0.006256370339542627
+    - 0.04744653403759003
+    - -0.019067751243710518
+    - 0.04510558396577835
+    - 0.007517463527619839
+    - -0.026988673955202103
+    - -0.03999965637922287
+    - 0.03252668306231499
+    - -0.027566280215978622
+    - 0.0696299821138382
+    - 0.013646393083035946
+    - 0.05073050409555435
+    - 0.10591460019350052
+    - -0.01803777553141117
+    - -0.1315428614616394
+    - -0.020804988220334053
+    - -0.014776271767914295
+    - 0.03241272270679474
+    - 0.06621822714805603
+    - -0.037644170224666595
+    - -0.12106824666261673
+    - 0.06619904190301895
+    - 0.06550770252943039
+    - 0.004684390500187874
+    - 0.0062364209443330765
+    - -0.008241756819188595
+    - -0.00923094991594553
+    - -0.06401710212230682
+    - 0.03487304598093033
+    - 0.026626180857419968
+    - -0.05971043184399605
+    - -0.0006625475361943245
+    - -0.04952528700232506
+    - 0.04498928412795067
+    - 0.006710412446409464
+    - 0.02650742046535015
+    - -2.823596645384896e-08
+    - -0.019339796155691147
+    - 0.054327331483364105
+    - 0.040238481014966965
+    - 0.007234514690935612
+    - 0.004295096732676029
+    - -0.10595324635505676
+    - -0.008167224004864693
+    - -0.038876935839653015
+    - 0.05177523195743561
+    - -0.02890363708138466
+    - -0.023749537765979767
+    - 0.006767704151570797
+    - 5.332757791620679e-05
+    - -0.0804416686296463
+    - 0.058546267449855804
+    - 0.04945521801710129
+    - 0.009650780819356441
+    - 0.09087283909320831
+    - 0.04030805453658104
+    - -0.011910101398825645
+    - -0.014669328927993774
+    - -0.06418698281049728
+    - -0.015284438617527485
+    - 0.04566546529531479
+    - 0.08027301728725433
+    - 0.01270498987287283
+    - -0.01448312122374773
+    - -0.08949623256921768
+    - -0.009952373802661896
+    - 0.02120678313076496
+    - -0.033587150275707245
+    - -0.05346718430519104
+    - 0.015051244758069515
+    - -0.021168511360883713
+    - 0.03328516334295273
+    - 0.06298773735761642
+    - 0.0071728527545928955
+    - -0.046264875680208206
+    - -0.028254440054297447
+    - -0.08418068289756775
+    - 0.0324789322912693
+    - -0.010300164110958576
+    - -0.06857727468013763
+    - 0.018492624163627625
+    - -0.11024871468544006
+    - -0.050395432859659195
+    - -0.08094736188650131
+    - 0.04232648387551308
+    - 0.016361437737941742
+    - 0.024473676458001137
+    - -0.11070813983678818
+    - 0.013873296789824963
+    - 0.01608632691204548
+    - -0.0059459395706653595
+    - -0.027844902127981186
+    - 0.04291694238781929
+    - -0.022626889869570732
+    - 0.04751012474298477
+    - -0.01711299829185009
+    - 0.012025555595755577
+    - 0.027948414906859398
+    - -0.013746500015258789
+    - -0.0708291083574295
+    - -0.016357623040676117
+    id: MS-027
+    key_concepts:
+    - spontaneous polarization
+    - domain switching
+    - hysteresis loop
+    - Curie temperature
+    - BaTiO3
+    - PZT
+    - ferroelectric memory
+    name: Ferroelectric Materials
+    parent_domain: materials_science
+    recent_anomalies: []
+    taxonomy_source: custom
+  strategy: semantic_distance
+gap_manifest:
+  competence_gaps:
+  - confidence_degradation: 0.2
+    description: Detailed understanding of stress transfer between ceramic grains
+      and ferroelectric inclusions
+    type: interfacial mechanics
+    workaround_used: Assumed continuum mechanics scaling laws apply
+  data_gaps:
+  - criticality: high
+    description: Domain wall behavior under ceramic matrix constraints and interfacial
+      strain states
+    domain: ferroelectric-ceramic interfaces
+    recurrence: 1
+  - criticality: medium
+    description: Integration methods for 2D ferroelectrics into ceramic processing
+      routes (sintering, pressing)
+    domain: 2D ferroelectric processing
+    recurrence: 1
+  epistemic_gaps:
+  - exploration_priority: high
+    signal: Unclear how ceramic grain boundaries will affect domain wall mobility
+    zone: domain wall pinning
+  - exploration_priority: medium
+    signal: Unknown if ferroelectric properties survive ceramic sintering temperatures
+    zone: thermal stability
+generated_at: '2026-04-05T10:38:54.997756'
+genome_version: l0_v1
+id: SPORE-2026-04-05-e2ea2161
+impact_analysis:
+  horizon_temporel: Long terme (10-20 ans)
+  impact_concret: Des tuiles de protection thermique qui ne cassent plus sur les navettes
+    spatiales, des prothèses dentaires qui durent toute une vie, des composants d'avions
+    qui ne nécessitent plus de maintenance préventive, des carrelages qui résistent
+    aux chocs et tremblements de terre. Les objets du quotidien en céramique deviendraient
+    quasi-indestructibles et beaucoup plus sûrs.
+  industries_impactees:
+  - Aérospatial
+  - Automobile
+  - Médical et dentaire
+  - Construction
+  - Électronique
+  - Défense
+  - Énergie
+  one_liner: Des céramiques qui se réparent toutes seules pourraient révolutionner
+    la sécurité aéronautique et spatiale en éliminant les pannes catastrophiques.
+  score_impact: transformatif
+  solutions_existantes: Actuellement, on renforce les céramiques avec des fibres,
+    on fait des traitements de surface, ou on accepte qu'elles cassent et on les remplace
+    régulièrement. Cette approche permettrait une auto-réparation en temps réel, éliminant
+    le besoin de maintenance et les pannes catastrophiques.
+  taille_marche_estimee: Centaines de milliards - le marché global des céramiques
+    techniques représente 130 milliards de dollars, avec un potentiel de transformation
+    majeure
+  vulgarisation: Imaginez des objets en céramique qui se réparent automatiquement
+    quand ils se fissurent, comme une peau qui cicatrise. Les chercheurs veulent intégrer
+    des nano-matériaux spéciaux qui bougent quand ils détectent une fissure, créant
+    une force qui l'empêche de grandir. C'est comme avoir des micro-muscles qui se
+    contractent pour refermer une plaie.
+kill_condition: If domain wall migration barriers exceed 1 eV in ceramic-constrained
+  ferroelectric phases, making them uncompetitive with crack propagation kinetics
+next_steps:
+- Synthesize Al2O3-GeS nanocomposites with controlled ferroelectric volume fractions
+  using solution processing
+- Perform in-situ piezoresponse force microscopy during controlled crack propagation
+  experiments
+- Map domain wall density evolution around propagating cracks under applied electric
+  fields
+predictions:
+- differs_from_consensus: true
+  expected_range: 6-12 MPa⋅m^0.5 vs baseline 2-3 MPa⋅m^0.5
+  metric: Fracture toughness (KIC)
+  statement: Ceramics with 5-15 vol% ferroelectric GeS nanosheets will show fracture
+    toughness improvements of 200-400% compared to baseline ceramics
+- differs_from_consensus: true
+  expected_range: 10^-8 to 10^-6 m/s at 1-10 kV/cm fields
+  metric: Crack velocity under constant stress intensity
+  statement: Crack propagation velocity will decrease exponentially with applied electric
+    field in ferroelectric-ceramic composites
+- differs_from_consensus: true
+  expected_range: 10^3 to 10^5 walls/mm^2 within 10 μm of crack tips
+  metric: Domain wall density measured by piezoresponse force microscopy near crack
+    tips
+  statement: Domain wall density will correlate inversely with crack tip stress intensity
+    factor in situ
+relevant_datasets:
+- Materials Project ferroelectric database for screening 2D candidates
+- NIMS ceramics fracture database for baseline toughness values
+- Piezoelectric coefficient databases for domain wall mobility correlations
+relevant_labs: []
+scores:
+  coherence: 0.39999999999999997
+  composite: 0.33
+  hallucination_risk: 0.5
+  impact_potential: 0.45
+  novelty: 0.5
+  testability: 0.55
+sources_used:
+- arXiv:2204.12209
+- arXiv:2004.07287
+- arXiv:1907.09259
+status: curated

@@ -1,0 +1,318 @@
+{
+  "domain": "materials_science",
+  "description": "Science des matériaux - domaine principal pour le PoC SPORE",
+  "subdomains": [
+    {
+      "id": "MS-001",
+      "name": "Crystallography",
+      "parent_domain": "materials_science",
+      "key_concepts": ["crystal structure", "X-ray diffraction", "lattice parameters", "unit cell", "symmetry groups", "Bragg's law", "reciprocal space"]
+    },
+    {
+      "id": "MS-002",
+      "name": "Polymer Science",
+      "parent_domain": "materials_science",
+      "key_concepts": ["polymerization", "molecular weight", "glass transition", "viscoelasticity", "chain conformation", "crosslinking", "copolymers"]
+    },
+    {
+      "id": "MS-003",
+      "name": "Nanomaterials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["quantum dots", "nanoparticles", "surface-to-volume ratio", "quantum confinement", "self-assembly", "nanotubes", "nanowires"]
+    },
+    {
+      "id": "MS-004",
+      "name": "Superconductivity",
+      "parent_domain": "materials_science",
+      "key_concepts": ["Cooper pairs", "critical temperature", "Meissner effect", "BCS theory", "flux pinning", "type-II superconductors", "high-Tc cuprates"]
+    },
+    {
+      "id": "MS-005",
+      "name": "Biomaterials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["biocompatibility", "tissue engineering", "scaffolds", "biodegradation", "surface functionalization", "implants", "drug delivery"]
+    },
+    {
+      "id": "MS-006",
+      "name": "Metallurgy",
+      "parent_domain": "materials_science",
+      "key_concepts": ["alloys", "heat treatment", "phase diagrams", "grain boundaries", "precipitation hardening", "work hardening", "annealing"]
+    },
+    {
+      "id": "MS-007",
+      "name": "Ceramics",
+      "parent_domain": "materials_science",
+      "key_concepts": ["sintering", "ionic bonding", "brittleness", "thermal shock", "piezoelectricity", "refractory materials", "oxide ceramics"]
+    },
+    {
+      "id": "MS-008",
+      "name": "Composites",
+      "parent_domain": "materials_science",
+      "key_concepts": ["fiber reinforcement", "matrix materials", "interfacial bonding", "laminate theory", "load transfer", "carbon fiber", "glass fiber"]
+    },
+    {
+      "id": "MS-009",
+      "name": "Thin Films",
+      "parent_domain": "materials_science",
+      "key_concepts": ["deposition techniques", "epitaxial growth", "sputtering", "CVD", "PVD", "substrate effects", "film stress"]
+    },
+    {
+      "id": "MS-010",
+      "name": "Corrosion Science",
+      "parent_domain": "materials_science",
+      "key_concepts": ["electrochemical reactions", "passivation", "pitting", "galvanic corrosion", "cathodic protection", "oxidation", "corrosion inhibitors"]
+    },
+    {
+      "id": "MS-011",
+      "name": "Semiconductor Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["band gap", "doping", "carrier mobility", "p-n junction", "silicon", "III-V compounds", "defect engineering"]
+    },
+    {
+      "id": "MS-012",
+      "name": "Magnetic Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["ferromagnetism", "magnetic domains", "hysteresis", "coercivity", "Curie temperature", "rare earth magnets", "spintronics"]
+    },
+    {
+      "id": "MS-013",
+      "name": "Optical Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["refractive index", "photonic crystals", "nonlinear optics", "luminescence", "laser materials", "optical fibers", "metamaterials"]
+    },
+    {
+      "id": "MS-014",
+      "name": "Energy Storage Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["lithium-ion batteries", "solid electrolytes", "electrode materials", "capacitors", "hydrogen storage", "intercalation", "cycling stability"]
+    },
+    {
+      "id": "MS-015",
+      "name": "Catalytic Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["active sites", "surface area", "selectivity", "turnover frequency", "heterogeneous catalysis", "catalyst poisoning", "support materials"]
+    },
+    {
+      "id": "MS-016",
+      "name": "Smart Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["shape memory alloys", "piezoelectric actuators", "electrochromic materials", "self-healing", "stimuli-responsive", "adaptive structures"]
+    },
+    {
+      "id": "MS-017",
+      "name": "Tribology",
+      "parent_domain": "materials_science",
+      "key_concepts": ["friction", "wear mechanisms", "lubrication", "surface roughness", "contact mechanics", "adhesive wear", "abrasive wear"]
+    },
+    {
+      "id": "MS-018",
+      "name": "Fracture Mechanics",
+      "parent_domain": "materials_science",
+      "key_concepts": ["stress intensity factor", "crack propagation", "toughness", "fatigue", "brittle fracture", "ductile fracture", "Griffith criterion"]
+    },
+    {
+      "id": "MS-019",
+      "name": "Thermomechanics",
+      "parent_domain": "materials_science",
+      "key_concepts": ["thermal expansion", "creep", "thermal stress", "heat capacity", "thermal conductivity", "thermoelasticity", "phase transformations"]
+    },
+    {
+      "id": "MS-020",
+      "name": "Surface Science",
+      "parent_domain": "materials_science",
+      "key_concepts": ["adsorption", "surface energy", "wettability", "surface reconstruction", "STM", "AFM", "surface segregation"]
+    },
+    {
+      "id": "MS-021",
+      "name": "Amorphous Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["metallic glasses", "glass forming ability", "short-range order", "relaxation", "crystallization kinetics", "bulk amorphous alloys"]
+    },
+    {
+      "id": "MS-022",
+      "name": "High-Entropy Alloys",
+      "parent_domain": "materials_science",
+      "key_concepts": ["configurational entropy", "multi-principal elements", "lattice distortion", "sluggish diffusion", "cocktail effect", "severe lattice distortion"]
+    },
+    {
+      "id": "MS-023",
+      "name": "2D Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["graphene", "transition metal dichalcogenides", "exfoliation", "van der Waals heterostructures", "MoS2", "hexagonal boron nitride"]
+    },
+    {
+      "id": "MS-024",
+      "name": "Additive Manufacturing Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["powder bed fusion", "selective laser melting", "feedstock materials", "microstructure control", "residual stress", "post-processing"]
+    },
+    {
+      "id": "MS-025",
+      "name": "Thermoelectric Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["Seebeck coefficient", "figure of merit ZT", "thermal conductivity reduction", "power factor", "Bi2Te3", "skutterudites", "phonon scattering"]
+    },
+    {
+      "id": "MS-026",
+      "name": "Photovoltaic Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["solar cells", "perovskites", "quantum efficiency", "band alignment", "carrier lifetime", "tandem cells", "defect passivation"]
+    },
+    {
+      "id": "MS-027",
+      "name": "Ferroelectric Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["spontaneous polarization", "domain switching", "hysteresis loop", "Curie temperature", "BaTiO3", "PZT", "ferroelectric memory"]
+    },
+    {
+      "id": "MS-028",
+      "name": "Multiferroics",
+      "parent_domain": "materials_science",
+      "key_concepts": ["magnetoelectric coupling", "BiFeO3", "coupled order parameters", "domain walls", "spin-lattice coupling", "electric field control"]
+    },
+    {
+      "id": "MS-029",
+      "name": "Topological Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["topological insulators", "surface states", "Dirac fermions", "spin-momentum locking", "Weyl semimetals", "quantum anomalous Hall effect"]
+    },
+    {
+      "id": "MS-030",
+      "name": "MOFs and Porous Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["metal-organic frameworks", "surface area", "gas adsorption", "pore size distribution", "linker chemistry", "COFs", "zeolites"]
+    },
+    {
+      "id": "MS-031",
+      "name": "Hydrogels",
+      "parent_domain": "materials_science",
+      "key_concepts": ["swelling behavior", "crosslink density", "stimuli-responsive", "network structure", "water retention", "mechanical properties", "biomedical applications"]
+    },
+    {
+      "id": "MS-032",
+      "name": "Elastomers",
+      "parent_domain": "materials_science",
+      "key_concepts": ["rubber elasticity", "vulcanization", "strain crystallization", "Mullins effect", "hyperelasticity", "natural rubber", "silicone"]
+    },
+    {
+      "id": "MS-033",
+      "name": "Liquid Crystals",
+      "parent_domain": "materials_science",
+      "key_concepts": ["mesophases", "nematic ordering", "smectic phases", "director field", "electro-optic effects", "LCD technology", "cholesteric"]
+    },
+    {
+      "id": "MS-034",
+      "name": "Colloidal Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["nanoparticle synthesis", "colloidal stability", "DLVO theory", "self-assembly", "Brownian motion", "surface functionalization"]
+    },
+    {
+      "id": "MS-035",
+      "name": "Granular Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["jamming", "force chains", "avalanche dynamics", "packing fraction", "segregation", "powder flow", "discrete element modeling"]
+    },
+    {
+      "id": "MS-036",
+      "name": "Foams and Cellular Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["cell structure", "relative density", "energy absorption", "thermal insulation", "acoustic damping", "metal foams", "polymer foams"]
+    },
+    {
+      "id": "MS-037",
+      "name": "Refractory Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["high temperature stability", "thermal shock resistance", "slag resistance", "alumina", "magnesia", "zirconia", "silicon carbide"]
+    },
+    {
+      "id": "MS-038",
+      "name": "Nuclear Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["radiation damage", "swelling", "transmutation", "fuel cladding", "neutron absorption", "activation", "ODS steels"]
+    },
+    {
+      "id": "MS-039",
+      "name": "Aerospace Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["titanium alloys", "nickel superalloys", "thermal barrier coatings", "lightweight structures", "fatigue resistance", "oxidation resistance"]
+    },
+    {
+      "id": "MS-040",
+      "name": "Biomedical Coatings",
+      "parent_domain": "materials_science",
+      "key_concepts": ["hydroxyapatite", "antimicrobial surfaces", "protein adsorption", "osseointegration", "hemocompatibility", "wear resistance"]
+    },
+    {
+      "id": "MS-041",
+      "name": "Conductive Polymers",
+      "parent_domain": "materials_science",
+      "key_concepts": ["conjugated backbone", "doping", "PEDOT", "polyaniline", "charge transport", "electrochemical sensors", "organic electronics"]
+    },
+    {
+      "id": "MS-042",
+      "name": "Phase Change Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["latent heat", "thermal energy storage", "melting enthalpy", "PCM encapsulation", "paraffins", "salt hydrates", "thermal regulation"]
+    },
+    {
+      "id": "MS-043",
+      "name": "Superhard Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["diamond", "cubic boron nitride", "hardness mechanisms", "covalent bonding", "cutting tools", "abrasives", "ultrahard coatings"]
+    },
+    {
+      "id": "MS-044",
+      "name": "Acoustic Metamaterials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["phononic crystals", "negative effective mass", "sound attenuation", "band gaps", "resonant structures", "noise control"]
+    },
+    {
+      "id": "MS-045",
+      "name": "Self-Healing Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["autonomous repair", "microcapsules", "vascular networks", "reversible bonds", "shape memory assisted", "intrinsic healing"]
+    },
+    {
+      "id": "MS-046",
+      "name": "Biomimetic Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["nacre-inspired", "lotus effect", "gecko adhesion", "structural coloration", "hierarchical structures", "spider silk"]
+    },
+    {
+      "id": "MS-047",
+      "name": "Cement and Concrete",
+      "parent_domain": "materials_science",
+      "key_concepts": ["hydration", "C-S-H gel", "porosity", "durability", "alkali-silica reaction", "supplementary cementitious materials", "self-compacting"]
+    },
+    {
+      "id": "MS-048",
+      "name": "Wood Science",
+      "parent_domain": "materials_science",
+      "key_concepts": ["cellulose", "lignin", "anisotropy", "moisture content", "wood modification", "engineered wood", "delignification"]
+    },
+    {
+      "id": "MS-049",
+      "name": "Glass Science",
+      "parent_domain": "materials_science",
+      "key_concepts": ["glass transition", "network formers", "modifiers", "thermal tempering", "chemical strengthening", "optical properties", "viscosity"]
+    },
+    {
+      "id": "MS-050",
+      "name": "Intermetallics",
+      "parent_domain": "materials_science",
+      "key_concepts": ["ordered structures", "NiAl", "TiAl", "brittleness", "high-temperature strength", "environmental embrittlement", "ductility improvement"]
+    },
+    {
+      "id": "MS-051",
+      "name": "Quasicrystals",
+      "parent_domain": "materials_science",
+      "key_concepts": ["aperiodic order", "forbidden symmetries", "icosahedral phase", "Penrose tiling", "phasons", "Al-Mn alloys", "diffraction patterns"]
+    },
+    {
+      "id": "MS-052",
+      "name": "Electrorheological Materials",
+      "parent_domain": "materials_science",
+      "key_concepts": ["electric field response", "yield stress", "particle chains", "dielectric properties", "smart dampers", "haptic devices"]
+    }
+  ]
+}

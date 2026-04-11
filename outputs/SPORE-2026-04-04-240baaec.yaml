@@ -1,0 +1,971 @@
+id: SPORE-2026-04-04-240baaec
+generated_at: '2026-04-04T16:43:17.875383'
+genome_version: l0_v1
+collision:
+  domain_a:
+    id: MS-009
+    name: Thin Films
+    parent_domain: materials_science
+    taxonomy_source: custom
+    embedding:
+    - -0.0450093150138855
+    - 0.006089147180318832
+    - -0.0016383820911869407
+    - -0.003852842142805457
+    - 0.06315788626670837
+    - -0.024616695940494537
+    - 0.05065041780471802
+    - 0.06519467383623123
+    - -0.06618337333202362
+    - 0.006502962205559015
+    - 0.034207865595817566
+    - -0.02862953580915928
+    - 0.025013582780957222
+    - 0.026891205459833145
+    - 0.05419909954071045
+    - 0.010983175598084927
+    - 0.011174488812685013
+    - 0.0054735965095460415
+    - 0.0822242945432663
+    - -0.0006269931327551603
+    - 0.11816318333148956
+    - -0.04872486740350723
+    - -0.00824714358896017
+    - 0.10098301619291306
+    - -0.01095148827880621
+    - 0.0039143976755440235
+    - 0.05430351570248604
+    - 0.005481421481817961
+    - -0.024243656545877457
+    - 0.008186416700482368
+    - -0.019690388813614845
+    - 0.01763039082288742
+    - -0.054316770285367966
+    - 0.030621392652392387
+    - 0.015830466523766518
+    - 0.02513665147125721
+    - 0.06453172862529755
+    - 0.01729443483054638
+    - -0.03546037897467613
+    - -0.034163735806941986
+    - -0.0331704318523407
+    - -0.00444487389177084
+    - -0.0033464946318417788
+    - 0.017746081575751305
+    - 0.02295627072453499
+    - -0.051497187465429306
+    - 0.0393567755818367
+    - 0.011792854405939579
+    - -0.0260776374489069
+    - -0.14958904683589935
+    - 0.06116623431444168
+    - 0.02829333022236824
+    - 0.055776197463274
+    - -0.04780583456158638
+    - 0.03873882442712784
+    - -0.06345604360103607
+    - -0.03942186012864113
+    - 0.042007092386484146
+    - -0.006945261266082525
+    - 0.04285746440291405
+    - 0.02179112657904625
+    - -0.025034187361598015
+    - 0.04312782362103462
+    - 0.005206264089792967
+    - 0.07001492381095886
+    - -0.015174128115177155
+    - -0.044370200484991074
+    - 0.00324527476914227
+    - -0.04881224408745766
+    - -0.039228394627571106
+    - 0.005251038819551468
+    - 0.04836001247167587
+    - -0.10891077667474747
+    - 0.015213590115308762
+    - -0.03885415196418762
+    - -0.029730482026934624
+    - -0.05227508768439293
+    - -0.03769626095890999
+    - -0.046636831015348434
+    - -0.02869349904358387
+    - -0.0737081989645958
+    - 0.02459990605711937
+    - -0.04322117567062378
+    - 0.019718071445822716
+    - -0.06259287148714066
+    - -0.007008838467299938
+    - 0.03405432403087616
+    - -0.006180031690746546
+    - -0.02889201231300831
+    - 0.004113537259399891
+    - 0.05384913831949234
+    - 0.07119521498680115
+    - -0.1476326882839203
+    - 0.04334615170955658
+    - -0.048180144280195236
+    - -0.04547141119837761
+    - -0.0939427837729454
+    - -0.025030817836523056
+    - -0.012097112834453583
+    - 0.02380603365600109
+    - -0.01095125637948513
+    - 0.00362684135325253
+    - -0.04306790977716446
+    - 0.06151755154132843
+    - -0.05515659973025322
+    - 0.029199587181210518
+    - -0.010858358815312386
+    - 0.017635071650147438
+    - -0.051406413316726685
+    - 0.03042748011648655
+    - -0.049076348543167114
+    - 0.013012796640396118
+    - -0.0038469929713755846
+    - 0.03340544551610947
+    - 0.03267394378781319
+    - 0.02694936841726303
+    - -0.01930246129631996
+    - 0.008334862999618053
+    - -0.05886116996407509
+    - 0.008612943813204765
+    - -0.017025060951709747
+    - -0.040444161742925644
+    - -0.08197285234928131
+    - 0.051526106894016266
+    - -0.03688526153564453
+    - -0.01503673568367958
+    - 0.006265143398195505
+    - 1.0217614547473217e-33
+    - 0.04075836390256882
+    - -0.01736454665660858
+    - -0.07257340103387833
+    - 0.04309416934847832
+    - -0.08281401544809341
+    - 0.02168189361691475
+    - 0.08491085469722748
+    - -0.009506245143711567
+    - -0.0583605132997036
+    - -0.08377770334482193
+    - 0.00507243350148201
+    - -0.04894475266337395
+    - 0.027635106816887856
+    - 0.055196505039930344
+    - 0.047898903489112854
+    - 0.004689218942075968
+    - -0.018552491441369057
+    - 0.05926016345620155
+    - 0.0648217648267746
+    - -0.05178876593708992
+    - -0.1175234392285347
+    - -0.012492937967181206
+    - 0.03320034593343735
+    - 0.07732196152210236
+    - 0.09241504222154617
+    - -0.08762652426958084
+    - 0.013322285376489162
+    - -0.04636657238006592
+    - -0.04077077656984329
+    - 0.0072149657644331455
+    - 0.08778014034032822
+    - 0.023014284670352936
+    - 0.04737924784421921
+    - -0.0521814189851284
+    - 0.006092074792832136
+    - 0.11853893846273422
+    - -0.09117662906646729
+    - 0.02441232092678547
+    - -0.002021106891334057
+    - 0.011832916177809238
+    - 0.0495920367538929
+    - 0.01794876717031002
+    - 0.01250816136598587
+    - 0.04493175074458122
+    - -0.06616687774658203
+    - -0.057165924459695816
+    - 0.020449385046958923
+    - 0.02217445708811283
+    - -0.012158055789768696
+    - 0.0573430210351944
+    - 0.053781453520059586
+    - 0.04493193328380585
+    - -0.05326136574149132
+    - -0.07108117640018463
+    - 0.07460413873195648
+    - 0.023936085402965546
+    - 0.007212028838694096
+    - -0.11007658392190933
+    - 0.018847327679395676
+    - 0.01895616203546524
+    - 0.027229303494095802
+    - 0.05005607008934021
+    - -0.032158005982637405
+    - 0.04461388662457466
+    - -0.05776074156165123
+    - 0.05225203558802605
+    - 0.036867618560791016
+    - 0.015557058155536652
+    - -0.00856810249388218
+    - -0.10258737951517105
+    - 0.03871181607246399
+    - -0.032510239630937576
+    - -0.05813347175717354
+    - -0.03678877651691437
+    - 0.10800961405038834
+    - -0.009237107820808887
+    - -0.0018561327597126365
+    - -0.09518999606370926
+    - 0.05363796278834343
+    - -0.04065734148025513
+    - -0.05603831261396408
+    - -0.040123891085386276
+    - -0.07634230703115463
+    - -0.08641007542610168
+    - -0.13411329686641693
+    - -0.04647869989275932
+    - -0.0017667213687673211
+    - 0.020330248400568962
+    - -0.007615809794515371
+    - -0.021861141547560692
+    - 0.022768383845686913
+    - -0.07051947712898254
+    - 0.08945402503013611
+    - -0.013439053669571877
+    - -0.04916668310761452
+    - -8.030487921623346e-34
+    - 0.02560313232243061
+    - -0.05314941704273224
+    - 0.0348983034491539
+    - -0.10734182596206665
+    - -0.0522952675819397
+    - -0.025361062958836555
+    - -0.013354368507862091
+    - 0.09885726869106293
+    - 0.03464391082525253
+    - -0.040215495973825455
+    - -0.023117167875170708
+    - 0.044414788484573364
+    - -0.053892556577920914
+    - 0.0535888709127903
+    - -0.0745462104678154
+    - 0.043171074241399765
+    - 0.019283438101410866
+    - -0.05357357859611511
+    - 0.06075398996472359
+    - -0.03113495372235775
+    - 0.04203251004219055
+    - -0.021242542192339897
+    - 0.06381050497293472
+    - 0.0494961179792881
+    - 0.0214378722012043
+    - -0.060609374195337296
+    - -0.040122538805007935
+    - -0.025323055684566498
+    - 0.008587228134274483
+    - -0.015494666993618011
+    - -0.0014267358928918839
+    - -0.0036120715085417032
+    - -0.010572552680969238
+    - 0.0631292462348938
+    - 0.006078736856579781
+    - -0.07403390109539032
+    - 0.10310132056474686
+    - -0.07102702558040619
+    - 0.003149854252114892
+    - -0.11705030500888824
+    - -0.03422381728887558
+    - 0.12604285776615143
+    - -0.03330876678228378
+    - -0.03807105869054794
+    - -0.06030953675508499
+    - 0.044491954147815704
+    - 0.016720518469810486
+    - 0.023158935829997063
+    - 0.016817020252346992
+    - 0.008841014467179775
+    - -0.017902258783578873
+    - -0.032485805451869965
+    - 0.07078219205141068
+    - -0.0034901683684438467
+    - 0.06558672338724136
+    - -0.028228988870978355
+    - -0.003456270322203636
+    - 0.09995535016059875
+    - -0.0026862090453505516
+    - -0.04588697850704193
+    - 0.06481074541807175
+    - -0.021550502628087997
+    - -0.025028441101312637
+    - -0.05751175060868263
+    - -0.024414576590061188
+    - -0.018297556787729263
+    - 0.09587223827838898
+    - 0.1008656769990921
+    - 0.01551076490432024
+    - -0.04981261119246483
+    - 0.08518562465906143
+    - 0.05374346300959587
+    - 0.03614483028650284
+    - -0.03486817330121994
+    - -0.10660489648580551
+    - -0.05994069203734398
+    - 0.041355449706315994
+    - 0.023719875141978264
+    - -0.0204673632979393
+    - 0.048686832189559937
+    - 0.10925161838531494
+    - 0.03224163129925728
+    - -0.02182559296488762
+    - 0.02582605555653572
+    - -0.02210851013660431
+    - 0.014887222088873386
+    - -0.0027069225907325745
+    - -0.0022327557671815157
+    - -0.0028827963396906853
+    - 0.1471417099237442
+    - -0.031425729393959045
+    - 0.05204249173402786
+    - 0.1253741979598999
+    - 0.052102454006671906
+    - -0.0243819709867239
+    - -2.8382590500086735e-08
+    - 0.021521013230085373
+    - 0.022428138181567192
+    - 0.06934481859207153
+    - -0.04064476862549782
+    - -0.000873236742336303
+    - -0.03179026022553444
+    - 0.033052995800971985
+    - 0.04214064031839371
+    - 0.11995354294776917
+    - -0.09876275062561035
+    - -0.044582758098840714
+    - -0.041709013283252716
+    - -0.014569003134965897
+    - -0.04837833344936371
+    - 0.10109098255634308
+    - 0.022095175459980965
+    - -0.03785507008433342
+    - 0.05936760827898979
+    - 0.012618972919881344
+    - 0.023759199306368828
+    - 0.0057824887335300446
+    - -0.005356397479772568
+    - 0.07164441794157028
+    - 0.00975047517567873
+    - 0.05163227766752243
+    - -0.03414720669388771
+    - 0.023883573710918427
+    - -0.024236608296632767
+    - 0.060554139316082
+    - -0.0019917236641049385
+    - -0.0380542017519474
+    - 0.024992939084768295
+    - 0.055307239294052124
+    - 0.005351773463189602
+    - 0.10474111884832382
+    - 0.051730167120695114
+    - 0.01167378295212984
+    - -0.029421014711260796
+    - -0.021968772634863853
+    - 0.08340451866388321
+    - -0.03647589683532715
+    - 0.030323266983032227
+    - 0.1151534914970398
+    - -0.06061699241399765
+    - 0.08818647265434265
+    - -0.017641454935073853
+    - 0.03251848742365837
+    - -0.030639318749308586
+    - -0.08579304069280624
+    - -0.06301682442426682
+    - 0.006295780651271343
+    - -0.0007191406330093741
+    - -0.004014653619378805
+    - 0.026653563603758812
+    - -0.08525970578193665
+    - 0.04637244716286659
+    - -0.03806491941213608
+    - 0.016866052523255348
+    - -0.02440769411623478
+    - -0.0568288117647171
+    - 0.04880477115511894
+    - 0.029466090723872185
+    - -0.005083172582089901
+    - 0.07887192070484161
+    key_concepts:
+    - deposition techniques
+    - epitaxial growth
+    - sputtering
+    - CVD
+    - PVD
+    - substrate effects
+    - film stress
+    recent_anomalies: []
+    context_abstracts: []
+  domain_b:
+    id: MS-026
+    name: Photovoltaic Materials
+    parent_domain: materials_science
+    taxonomy_source: custom
+    embedding:
+    - -0.022895298898220062
+    - 0.03164093196392059
+    - -0.028960296884179115
+    - 0.03638331592082977
+    - -0.021680189296603203
+    - 0.020253276452422142
+    - 0.1268213540315628
+    - 0.058659233152866364
+    - 0.022080935537815094
+    - 0.05840689316391945
+    - 0.0205948855727911
+    - 0.05475594848394394
+    - 0.030498091131448746
+    - 0.011114431545138359
+    - 0.04258737713098526
+    - 0.08561137318611145
+    - 0.005211655981838703
+    - 0.011567659676074982
+    - 0.02801627106964588
+    - 0.07330045849084854
+    - -0.019120093435049057
+    - -0.09513330459594727
+    - 0.012376964092254639
+    - -0.059971340000629425
+    - -0.002380991820245981
+    - 0.07149600982666016
+    - -0.03387564793229103
+    - -0.010044797323644161
+    - -0.03360960632562637
+    - -0.04767800495028496
+    - -0.025150597095489502
+    - 0.0632060244679451
+    - -0.026638148352503777
+    - 0.07191582769155502
+    - 0.05508486181497574
+    - 0.06304853409528732
+    - -0.04193606227636337
+    - -0.0063185375183820724
+    - -0.043058842420578
+    - 0.0007229289039969444
+    - 0.013501178473234177
+    - -0.057064834982156754
+    - -0.006970787886530161
+    - -0.004105500411242247
+    - 0.009075640700757504
+    - -0.007054273970425129
+    - 0.0357220321893692
+    - 0.010828210972249508
+    - -0.023817043751478195
+    - -0.10639894753694534
+    - 0.05323595181107521
+    - -0.0029592937789857388
+    - 0.06266213208436966
+    - 0.03646985441446304
+    - -0.020060738548636436
+    - -0.015040043741464615
+    - -0.006401147227734327
+    - 0.13145527243614197
+    - -0.03486970067024231
+    - 0.009508393704891205
+    - 0.015201215632259846
+    - -0.09472126513719559
+    - -0.07226366549730301
+    - -0.027663739398121834
+    - 0.023129865527153015
+    - -0.011091874912381172
+    - 0.029840048402547836
+    - -0.004697989672422409
+    - -0.025257064029574394
+    - 0.02057192660868168
+    - -0.019031768664717674
+    - 0.05870649591088295
+    - -0.059174347668886185
+    - -0.03793201223015785
+    - -0.013110095635056496
+    - 0.055694662034511566
+    - 0.09116917848587036
+    - 0.04595743492245674
+    - 0.07774466276168823
+    - -0.06472853571176529
+    - -0.050849951803684235
+    - -0.008577357977628708
+    - -0.013367083854973316
+    - 0.039011020213365555
+    - 0.04273451864719391
+    - 0.02783924899995327
+    - -0.03062492236495018
+    - 0.062034305185079575
+    - -0.051322128623723984
+    - -0.12775884568691254
+    - -0.07609275728464127
+    - 0.06829506903886795
+    - -0.0382179319858551
+    - -0.009827615693211555
+    - -0.050703976303339005
+    - 0.132679283618927
+    - -0.02048490196466446
+    - -0.0731610506772995
+    - 0.06532973051071167
+    - -0.013973822817206383
+    - 0.07209458202123642
+    - 0.017465809360146523
+    - -0.043664515018463135
+    - -0.030268985778093338
+    - -0.05111267790198326
+    - -0.01434685941785574
+    - -0.026518719270825386
+    - 0.06794767081737518
+    - -0.03188864514231682
+    - -0.029358768835663795
+    - -0.08746285736560822
+    - 0.03711025044322014
+    - 0.01684042625129223
+    - 0.034423500299453735
+    - 0.023049790412187576
+    - 0.007352178450673819
+    - 0.01094233151525259
+    - 0.08446730673313141
+    - 0.052637889981269836
+    - -0.04892190918326378
+    - -0.0732283741235733
+    - 0.003068389371037483
+    - 0.001857754890806973
+    - 0.04126906767487526
+    - -0.0851501077413559
+    - -0.05396299064159393
+    - 0.049656402319669724
+    - -5.960596653458843e-34
+    - -0.024523288011550903
+    - 0.055117107927799225
+    - -0.02391313575208187
+    - 0.006281226873397827
+    - -0.1118515282869339
+    - 0.055714868009090424
+    - 0.014503861777484417
+    - -0.062108803540468216
+    - -0.05227747559547424
+    - -0.07271242141723633
+    - 0.015235566534101963
+    - -0.09419860690832138
+    - 0.1049347072839737
+    - 0.04023728147149086
+    - 0.040974173694849014
+    - -0.020172398537397385
+    - -0.009212583303451538
+    - -0.04069950059056282
+    - 0.03871301934123039
+    - 0.02044927515089512
+    - -0.02186032570898533
+    - 0.06942193955183029
+    - 0.05821843445301056
+    - 0.09750068932771683
+    - 0.03024246357381344
+    - -0.048721928149461746
+    - 0.10812992602586746
+    - -0.06580252945423126
+    - -0.10985012352466583
+    - -0.04861660301685333
+    - 0.056358322501182556
+    - 0.132812961935997
+    - 0.03725168853998184
+    - -0.05096094310283661
+    - 0.007425932213664055
+    - 0.04947619140148163
+    - -0.07239669561386108
+    - 0.06637222319841385
+    - 0.0179600790143013
+    - -0.10754956305027008
+    - -0.0663764551281929
+    - 0.00508569972589612
+    - 0.008023861795663834
+    - 0.07962089776992798
+    - -0.018783023580908775
+    - -0.05457629635930061
+    - 0.014741810038685799
+    - 0.02120552584528923
+    - 0.026749715209007263
+    - -0.054236214607954025
+    - -0.011463404633104801
+    - 0.02353733219206333
+    - -0.07847214490175247
+    - -0.020433856174349785
+    - -0.004259092267602682
+    - 0.071905717253685
+    - 0.06764547526836395
+    - -0.02219865843653679
+    - -0.04155843332409859
+    - 0.013704618439078331
+    - 0.07544531673192978
+    - -0.05381183326244354
+    - -0.05032692477107048
+    - -0.04706747457385063
+    - -0.031345196068286896
+    - -0.008951597847044468
+    - 0.01943643018603325
+    - 0.04656214639544487
+    - -0.027849992737174034
+    - -0.037823401391506195
+    - 0.08356781303882599
+    - -0.08193381130695343
+    - -0.026709767058491707
+    - -0.019509244710206985
+    - 0.04414934664964676
+    - 0.025628315284848213
+    - 0.015548696741461754
+    - -0.10112954676151276
+    - 0.1167416051030159
+    - 0.009867101907730103
+    - -0.06963643431663513
+    - -0.0205076914280653
+    - -0.010308412835001945
+    - -0.111910380423069
+    - -0.1400289684534073
+    - -0.0448896661400795
+    - 0.022579031065106392
+    - -0.06061888858675957
+    - -0.037823811173439026
+    - 0.033641569316387177
+    - 0.07052429020404816
+    - -0.00930522195994854
+    - 0.044284068048000336
+    - -0.005402278620749712
+    - -0.06090807914733887
+    - -1.7003367827590997e-33
+    - 0.012204218655824661
+    - 0.03585672006011009
+    - 0.004512248560786247
+    - -0.023881904780864716
+    - 0.06295747309923172
+    - -0.041067901998758316
+    - -0.060165245085954666
+    - 0.02894408442080021
+    - 0.04339342564344406
+    - 0.03677438199520111
+    - 0.04828054830431938
+    - 0.017703678458929062
+    - -0.04457356780767441
+    - -0.047121066600084305
+    - -0.08158132433891296
+    - 0.039481353014707565
+    - -0.022870192304253578
+    - -0.040412537753582
+    - 0.07161293923854828
+    - -0.053030483424663544
+    - -0.037759244441986084
+    - 0.06425753980875015
+    - 0.027617724612355232
+    - 0.030606595799326897
+    - -0.05427023023366928
+    - -0.010857569985091686
+    - 0.04010837525129318
+    - -0.01836804486811161
+    - 0.018278444185853004
+    - 0.018667608499526978
+    - -0.007844693958759308
+    - 0.027139119803905487
+    - -0.023882318288087845
+    - 0.04094582423567772
+    - 0.060639671981334686
+    - -0.045319586992263794
+    - -0.01775290071964264
+    - -0.01892201602458954
+    - -0.02676660381257534
+    - -0.00891240406781435
+    - 0.045873019844293594
+    - -0.02753402851521969
+    - -0.014704982750117779
+    - -0.05014050379395485
+    - -0.025824740529060364
+    - -0.003960576374083757
+    - -0.02950436808168888
+    - 0.011001269333064556
+    - -0.054520800709724426
+    - 0.059283532202243805
+    - -0.020816238597035408
+    - -0.05242852866649628
+    - 0.02106822468340397
+    - -0.030540233477950096
+    - 0.025977378711104393
+    - 0.001832566224038601
+    - -0.052572451531887054
+    - 0.017864828929305077
+    - 0.02355797402560711
+    - -0.03569658845663071
+    - 0.007248260080814362
+    - -0.039613887667655945
+    - 0.1394403725862503
+    - 0.06795012950897217
+    - -0.05255594477057457
+    - -0.004105731844902039
+    - 0.06911243498325348
+    - 0.03931275010108948
+    - -0.005023075267672539
+    - -0.0661730170249939
+    - 0.04131554439663887
+    - -0.004401292651891708
+    - -0.07117483764886856
+    - -0.049052946269512177
+    - -0.018518516793847084
+    - -0.10154124349355698
+    - -0.04626345634460449
+    - 0.06130538508296013
+    - 0.0005944414297118783
+    - -0.017970314249396324
+    - 0.10351082682609558
+    - 0.048973169177770615
+    - -0.0414431206882
+    - -0.025110512971878052
+    - -0.013738246634602547
+    - -0.010998547077178955
+    - 0.03091706521809101
+    - -0.03836768865585327
+    - 0.004105371423065662
+    - 0.0443696603178978
+    - 0.044484514743089676
+    - 0.02498539164662361
+    - 0.025270376354455948
+    - 0.06092516705393791
+    - -0.06255027651786804
+    - -2.608925520064531e-08
+    - -0.014671193435788155
+    - 0.04879164695739746
+    - 0.03349975496530533
+    - -0.03469843789935112
+    - -0.025371281430125237
+    - -0.13655103743076324
+    - 0.066304512321949
+    - 0.12299031764268875
+    - -0.011410931125283241
+    - 0.04002726823091507
+    - -0.03951573371887207
+    - -0.022556331008672714
+    - 0.03160260617733002
+    - -0.06998251378536224
+    - -0.006949210539460182
+    - 0.029253002256155014
+    - -0.017044199630618095
+    - 0.007593425922095776
+    - 0.002547553740441799
+    - 0.05433236435055733
+    - -0.058530453592538834
+    - -0.014609948731958866
+    - 0.04286898672580719
+    - 0.02353183925151825
+    - -0.03425963222980499
+    - 0.0165165476500988
+    - -0.006454397924244404
+    - -0.05154795199632645
+    - 0.05093684792518616
+    - -0.029398486018180847
+    - 0.04927084222435951
+    - -0.001877486938610673
+    - 0.09724199771881104
+    - -0.07007857412099838
+    - -0.04224212467670441
+    - 0.07066960632801056
+    - 0.009251851588487625
+    - -0.12989751994609833
+    - 0.025397859513759613
+    - 0.047368329018354416
+    - 0.014591444283723831
+    - 0.022442929446697235
+    - 0.11212576925754547
+    - 0.03419077396392822
+    - 0.03680234029889107
+    - -0.025117745622992516
+    - 0.0023890514858067036
+    - -0.012255820445716381
+    - -0.04001700505614281
+    - -0.007792884949594736
+    - -0.026533888652920723
+    - 0.005772587843239307
+    - -0.03570219501852989
+    - -0.09057627618312836
+    - -0.1227451041340828
+    - 0.0066131651401519775
+    - -0.08905976265668869
+    - 0.052394550293684006
+    - 0.09204533696174622
+    - -0.021519983187317848
+    - 0.007502479944378138
+    - -0.022673824802041054
+    - 0.01375819742679596
+    - -0.0032326485961675644
+    key_concepts:
+    - solar cells
+    - perovskites
+    - quantum efficiency
+    - band alignment
+    - carrier lifetime
+    - tandem cells
+    - defect passivation
+    recent_anomalies: []
+    context_abstracts:
+    - '[Dynamic electrical behavior of halide perovskite based solar cells (arXiv:1606.00335,
+      2016)]
+
+      A dynamic electrical model is introduced to investigate the hysteretic effects
+      in the I-V characteristics of perovskite based solar cells. By making a simple
+      ansatz for the polarization relaxation, our model is able to reproduce qualitatively
+      and quantitatively detailed features of measured I-V characteristics. Pre-poling
+      effects are discussed, pointing out the differences between initially over-
+      and under-polarized samples. In particular, the presence of the current over-shoot
+      observed in the reverse characteristics is correlated with the solar cell pre-conditioning.
+      Furthermore, the dynamic hysteresis is analyzed with respect to changing the
+      bias scan rate, the obtained results being consistent with experimentally reported
+      data: the hysteresis amplitude is maximum at intermediate scan rates, while
+      at very slow and very fast ones it becomes negligible. The effects induced by
+      different relaxation time scales are assessed. The proposed dynamic electrical
+      model offers a comprehensive view of the solar cell operation, being a practical
+      tool for future calibration of tentative microscopic descriptions.'
+    - '[Radiation hardness and post irradiation regeneration behavior of GaInAsP solar
+      cells (arXiv:2004.00308, 2020)]
+
+      Recent developments have renewed the demand for solar cells with increased tolerance
+      to radiation damage. To investigate the specific irradiation damage of 1 MeV
+      electron irradiation in GaInAsP lattice matched to InP for varying In and P
+      contents, a simulation based analysis is employed: by fitting the quantum efficiency
+      and open-circuit voltage simultaneously before and after irradiation, the induced
+      changes in lifetime are detected. Furthermore, the reduction of irradiation
+      damage during regeneration under typical satellite operating conditions for
+      GEO missions (60°C and AM0 illumination) is investigated. A clear decrease of
+      the radiation damage is observed after post irradiation regeneration. This regeneration
+      effect is stronger for increasing InP-fraction. It is demonstrated that the
+      irradiation induced defect recombination coefficient for irradiation with 1
+      MeV electrons after regeneration for 216 hours can be described with a linear
+      function of InP-fraction between 1*10$^{-5}$ cm$^2$/s for GaAs and 7*10$^{-7}$
+      cm$^2$/s for InP. The results show that GaInAsP is a promising material for
+      radiation hard space solar cells.'
+    - '[Materials Discovery of Stable and Nontoxic Halide Perovskite Materials for
+      High-Efficiency Solar Cells (arXiv:1904.05690, 2019)]
+
+      Two critical limitations of organic-inorganic lead halide perovskite materials
+      for solar cells are their poor stability in humid environments and inclusion
+      of toxic lead. In this study, high-throughput density functional theory (DFT)
+      methods are used to computationally model and screen 1845 halide perovskites
+      in search of new materials without these limitations that are promising for
+      solar cell applications. This study focuses on finding materials that are comprised
+      of nontoxic elements, stable in a humid operating environment, and have an optimal
+      bandgap for one of single junction, tandem Si-perovskite, or quantum dot-based
+      solar cells. Single junction materials are also screened on predicted single
+      junction photovoltaic (PV) efficiencies exceeding 22.7%, which is the current
+      highest reported PV efficiency for halide perovskites. Generally, these methods
+      qualitatively reproduce the properties of known promising nontoxic halide perovskites
+      that have either been experimentally evaluated or predicted from theory. From
+      a set of 1845 materials, 15 materials pass all screening criteria for single
+      junction cell applications, 13 of which have not been previously investigated,
+      such as (CH3NH3)0.75Cs0.25SnI3, ((NH2)2CH)Ag0.5Sb0.5Br3, CsMn0.875Fe0.125I3,
+      ((CH3)2NH2)Ag0.5Bi0.5I3, and ((NH2)2CH)0.5Rb0.5SnI3. These materials, together
+      with others predicted in this study, may be promising candidate materials for
+      stable, highly efficient, and non-toxic perovskite-based solar cells.'
+  strategy: semantic_distance
+  distance_score: 0.6197184324264526
+bridge:
+  summary: Dynamic thin film growth kinetics during deposition creates spatially-correlated
+    defect distributions that could be engineered to optimize charge carrier pathways
+    in photovoltaic materials.
+  mechanism: Thin film deposition processes like CVD and sputtering inherently create
+    non-random defect distributions due to surface diffusion kinetics, nucleation
+    clustering, and substrate interactions during growth. These spatially-correlated
+    defects could be intentionally engineered to create beneficial charge transport
+    channels or defect passivation networks in photovoltaic materials, rather than
+    treating defects as purely detrimental random occurrences that need to be minimized.
+  type: conceptual_reframe
+scores:
+  novelty: 0.44999999999999996
+  coherence: 0.55
+  testability: 0.6
+  impact_potential: 0.5
+  hallucination_risk: 0.4
+  composite: 0.3925
+predictions:
+- statement: Perovskite solar cells deposited with controlled temperature gradients
+    or pulsed deposition will show anisotropic carrier mobility with preferential
+    transport directions
+  metric: Ratio of carrier mobility parallel vs perpendicular to deposition gradient
+    direction
+  expected_range: 1.5-3.0x enhancement in preferred direction
+  differs_from_consensus: true
+- statement: Films deposited with intentional substrate surface patterning will exhibit
+    quantum efficiency variations that correlate with the underlying growth-induced
+    defect networks
+  metric: Spatial correlation coefficient between local quantum efficiency and substrate
+    pattern periodicity
+  expected_range: 0.6-0.9 correlation coefficient
+  differs_from_consensus: true
+- statement: Post-irradiation regeneration rates will depend on the original deposition
+    kinetics due to pre-existing defect network topology
+  metric: Regeneration time constant as function of deposition rate
+  expected_range: Power law relationship with exponent -0.3 to -0.7
+  differs_from_consensus: true
+kill_condition: If scanning probe microscopy reveals that defect distributions in
+  deposited photovoltaic films are truly random and show no correlation with deposition
+  parameters at length scales from 10nm to 10μm
+next_steps:
+- Map defect distributions in perovskite films using correlative scanning probe microscopy
+  and photoluminescence imaging
+- Perform controlled deposition experiments with varied temperature gradients and
+  measure resulting carrier transport anisotropy
+- Develop kinetic Monte Carlo simulations of film growth that predict defect network
+  topology
+relevant_labs: []
+relevant_datasets:
+- Materials Project database for defect formation energies
+- NREL solar cell efficiency database for correlation analysis
+sources_used:
+- arXiv:1606.00335
+- arXiv:2004.00308
+- arXiv:1904.05690
+gap_manifest:
+  data_gaps:
+  - domain: thin films
+    description: Spatially-resolved defect characterization data during growth processes
+    criticality: high
+    recurrence: 1
+  - domain: photovoltaics
+    description: Microscale carrier transport measurements correlated with local film
+      structure
+    criticality: medium
+    recurrence: 1
+  competence_gaps:
+  - type: kinetic modeling
+    description: Detailed understanding of surface diffusion kinetics during deposition
+    workaround_used: General principles from nucleation theory
+    confidence_degradation: 0.2
+  epistemic_gaps:
+  - zone: length scale coupling
+    signal: Uncertainty about how atomic-scale deposition events create mesoscale
+      defect patterns
+    exploration_priority: high
+impact_analysis:
+  vulgarisation: Quand on fabrique des panneaux solaires en déposant de fines couches
+    de matériau, les défauts qui se forment ne sont pas disposés au hasard mais suivent
+    des motifs prévisibles. Au lieu de considérer ces défauts comme des problèmes
+    à éviter, cette recherche propose de les organiser intelligemment pour créer des
+    'autoroutes' qui aident l'électricité à mieux circuler. C'est comme transformer
+    des nids-de-poule en routes express pour les électrons.
+  impact_concret: Cette approche pourrait permettre de fabriquer des panneaux solaires
+    plus efficaces et moins chers en transformant les défauts de fabrication en avantages.
+    Les particuliers et entreprises pourraient avoir accès à des panneaux solaires
+    avec un meilleur rendement énergétique, accélérant la transition vers l'énergie
+    renouvelable et réduisant les coûts de l'électricité verte.
+  industries_impactees:
+  - Énergie photovoltaïque
+  - Équipements de fabrication de semiconducteurs
+  - Construction et bâtiment
+  - Électronique grand public
+  - Automobile électrique
+  taille_marche_estimee: Marché photovoltaïque mondial de plus de 200 milliards de
+    dollars, avec potentiel d'impact sur l'ensemble de la chaîne de fabrication des
+    panneaux solaires
+  horizon_temporel: Moyen terme (3-10 ans)
+  solutions_existantes: Actuellement, les fabricants de panneaux solaires essaient
+    de minimiser tous les défauts de fabrication par des procédés coûteux et complexes.
+    Cette approche changerait complètement la philosophie en exploitant ces défauts
+    pour améliorer les performances, ce qui pourrait simplifier et réduire les coûts
+    de production.
+  score_impact: significatif
+  one_liner: Transformer les défauts de fabrication en avantages pourrait révolutionner
+    l'efficacité des panneaux solaires tout en réduisant leurs coûts.
+status: curated

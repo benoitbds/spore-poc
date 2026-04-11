@@ -1,0 +1,1013 @@
+id: SPORE-2026-04-04-e227deef
+generated_at: '2026-04-04T15:00:55.951158'
+genome_version: l0_v1
+collision:
+  domain_a:
+    id: MS-031
+    name: Hydrogels
+    parent_domain: materials_science
+    taxonomy_source: custom
+    embedding:
+    - -0.059922199696302414
+    - -0.12395426630973816
+    - 0.090667225420475
+    - 0.021786833181977272
+    - -0.06044657528400421
+    - -0.001610864419490099
+    - 0.06696486473083496
+    - 0.04326185956597328
+    - 0.018661420792341232
+    - -0.014129486866295338
+    - -0.0537889190018177
+    - 0.10036729276180267
+    - 0.045378465205430984
+    - 0.10490153729915619
+    - -0.012892167083919048
+    - 0.04691576212644577
+    - 6.150368426460773e-05
+    - 0.06114547327160835
+    - -0.019596531987190247
+    - 0.08117774873971939
+    - 0.047633275389671326
+    - -0.03563300892710686
+    - -0.03420761972665787
+    - 0.01043397281318903
+    - -0.028974909335374832
+    - 0.03920663893222809
+    - 0.07465095072984695
+    - -0.021906593814492226
+    - -0.020920280367136
+    - -0.05119842663407326
+    - 0.04850509390234947
+    - 0.044287193566560745
+    - -0.021257637068629265
+    - -0.06198999658226967
+    - 0.009069710038602352
+    - 0.02896665222942829
+    - 0.012030175887048244
+    - -0.05760114639997482
+    - 0.025928311049938202
+    - -0.009879550896584988
+    - 0.06694547832012177
+    - 0.0477336049079895
+    - 0.07673779875040054
+    - -0.05352633446455002
+    - 0.03861973062157631
+    - 0.018256530165672302
+    - 0.06119561940431595
+    - -0.01881730929017067
+    - -0.03128490224480629
+    - 0.038035742938518524
+    - -0.0072448584251105785
+    - -0.05784633755683899
+    - 0.022487226873636246
+    - 0.0028454302810132504
+    - -0.11621618270874023
+    - 0.021932650357484818
+    - -0.06598223745822906
+    - -0.00644338084384799
+    - -0.06178444251418114
+    - 0.02573610469698906
+    - 0.024955371394753456
+    - 0.03138512745499611
+    - 0.05718201398849487
+    - 0.02014368772506714
+    - -0.02047918178141117
+    - 0.0069855800829827785
+    - -0.048836614936590195
+    - 0.06286957859992981
+    - 0.01135304942727089
+    - 0.027968252077698708
+    - -0.00788677204400301
+    - 0.028473684564232826
+    - 0.08811072260141373
+    - 0.02274334616959095
+    - 0.02857433445751667
+    - -0.10404450446367264
+    - 0.022906551137566566
+    - 0.018037742003798485
+    - 0.025125212967395782
+    - 0.0830795094370842
+    - -0.02247978001832962
+    - -0.020602306351065636
+    - 0.07960300147533417
+    - 0.09527014195919037
+    - 0.028848843649029732
+    - 0.03498034551739693
+    - 0.11853916198015213
+    - 0.03180800750851631
+    - -0.033308256417512894
+    - -0.024679165333509445
+    - -0.010693308897316456
+    - 0.01615653559565544
+    - -0.06606031209230423
+    - 0.02459782361984253
+    - -0.038368288427591324
+    - -0.06472113728523254
+    - -0.056265126913785934
+    - -0.006446893326938152
+    - -0.049637097865343094
+    - -0.04930468276143074
+    - -0.061756305396556854
+    - 0.03549131006002426
+    - 0.02589695155620575
+    - 0.01447793748229742
+    - 0.08158779889345169
+    - -0.08954030275344849
+    - -0.036332014948129654
+    - 0.06817641109228134
+    - 0.13416127860546112
+    - 0.03480890020728111
+    - -0.05016384273767471
+    - -0.018691308796405792
+    - -0.021729756146669388
+    - 0.09161386638879776
+    - -0.03504451364278793
+    - -0.0003133802383672446
+    - -0.039422422647476196
+    - 0.019437292590737343
+    - 0.033081743866205215
+    - -0.056866325438022614
+    - -0.03146250545978546
+    - -0.026518210768699646
+    - -0.014740406535565853
+    - -0.043411366641521454
+    - -0.08217906206846237
+    - 0.05866951867938042
+    - -0.01348029263317585
+    - -2.5378359164306777e-33
+    - -0.08193159103393555
+    - -0.09748414158821106
+    - 2.923266583820805e-05
+    - 0.056785713881254196
+    - -0.060008034110069275
+    - -0.006548032630234957
+    - -0.031122764572501183
+    - -0.048257697373628616
+    - -0.05021625757217407
+    - -0.05709950625896454
+    - -0.08601778745651245
+    - 0.11667187511920929
+    - 0.008431391790509224
+    - 0.19454427063465118
+    - -0.001575674512423575
+    - -0.029512468725442886
+    - 0.00968822930008173
+    - 0.07183936983346939
+    - 0.027740903198719025
+    - -0.07973764091730118
+    - 0.02983943559229374
+    - -0.012579338625073433
+    - -0.02661801688373089
+    - 0.11992193758487701
+    - -0.012640029191970825
+    - -0.02938520535826683
+    - -0.014189422130584717
+    - -0.03313596919178963
+    - 0.043381642550230026
+    - -0.00509247463196516
+    - -0.03943237289786339
+    - -0.0011728823883458972
+    - 0.0674104392528534
+    - 0.012957152910530567
+    - -0.010625082068145275
+    - 0.1399938017129898
+    - -0.01595907472074032
+    - -0.038892101496458054
+    - 0.013199513778090477
+    - -0.026191363111138344
+    - 0.0027563092298805714
+    - 0.0056431177072227
+    - 0.08355564624071121
+    - -0.07902819663286209
+    - -0.012050915509462357
+    - -0.019735019654035568
+    - 0.009484492242336273
+    - 0.02732147090137005
+    - -0.029329709708690643
+    - -0.052270736545324326
+    - 0.02031540498137474
+    - 0.08486350625753403
+    - 0.026906024664640427
+    - 0.03602021932601929
+    - 0.0029128543101251125
+    - 0.022449910640716553
+    - -0.03539174050092697
+    - 0.07346685230731964
+    - -0.01381301786750555
+    - -0.029982395470142365
+    - -0.070790134370327
+    - -0.03152995556592941
+    - 0.003926130477339029
+    - -0.0034461545292288065
+    - 0.08809692412614822
+    - 0.07474661618471146
+    - 0.02033170498907566
+    - 0.025396142154932022
+    - 0.03393963724374771
+    - 0.06748311221599579
+    - 0.028213689103722572
+    - 0.08297284692525864
+    - 0.025188826024532318
+    - 0.01938631199300289
+    - -0.015582150779664516
+    - 0.023182718083262444
+    - 0.0024227392859756947
+    - -0.04509888216853142
+    - 0.03782424330711365
+    - 0.11159965395927429
+    - 0.03089899569749832
+    - -0.0265046339482069
+    - -0.0202462337911129
+    - 0.002483764663338661
+    - 0.01781521365046501
+    - -0.020923186093568802
+    - 0.09366478770971298
+    - 0.05233180895447731
+    - 0.025890333577990532
+    - -0.005227482412010431
+    - 0.06509380042552948
+    - -0.06008727848529816
+    - 0.01431286707520485
+    - -0.02563558518886566
+    - -0.015550466254353523
+    - 8.832584655197011e-34
+    - 0.025323746725916862
+    - -0.0378512479364872
+    - 0.00315549923107028
+    - 0.015445135533809662
+    - 0.07184169441461563
+    - -0.035932231694459915
+    - -0.030242450535297394
+    - 0.06938567012548447
+    - 0.01952550746500492
+    - -0.040108438581228256
+    - 0.09687066823244095
+    - -0.01871180348098278
+    - -0.07679042220115662
+    - -0.025778353214263916
+    - -0.0409013107419014
+    - 0.016613628715276718
+    - -0.03863174468278885
+    - -0.09993688762187958
+    - -0.0011060228571295738
+    - -0.06901268661022186
+    - 0.03098345547914505
+    - 0.016374824568629265
+    - 0.01572987623512745
+    - 0.01839270070195198
+    - 0.025642920285463333
+    - -0.023771489039063454
+    - -0.015985596925020218
+    - -0.05471920594573021
+    - -0.008993322029709816
+    - 0.049875859171152115
+    - -0.04186830669641495
+    - -0.04575319588184357
+    - 0.004739154130220413
+    - -0.026731031015515327
+    - 0.08997835218906403
+    - 0.057848501950502396
+    - -0.027018018066883087
+    - -0.041155584156513214
+    - 0.043793074786663055
+    - -0.05604696646332741
+    - 0.01629701815545559
+    - -0.11883529275655746
+    - 0.005523037631064653
+    - 0.013460034504532814
+    - 0.038959283381700516
+    - 0.03527550771832466
+    - -0.065800741314888
+    - 0.02628590539097786
+    - -0.04399087652564049
+    - 0.07716768980026245
+    - -0.05559179559350014
+    - -0.014729034155607224
+    - 0.023742107674479485
+    - -0.014021485112607479
+    - -0.0033760403748601675
+    - -0.021692290902137756
+    - -0.07327401638031006
+    - -0.056038789451122284
+    - -0.06440926343202591
+    - -0.023799989372491837
+    - 0.012637811712920666
+    - -0.04146208241581917
+    - 0.0587056428194046
+    - -0.019828367978334427
+    - -0.15521757304668427
+    - 0.03738495707511902
+    - -0.05411273613572121
+    - -0.004915478173643351
+    - -0.05269212648272514
+    - 0.019075891003012657
+    - 0.057074032723903656
+    - -0.006148878019303083
+    - 0.06594710797071457
+    - 0.03141598030924797
+    - 0.056696198880672455
+    - -0.02655131183564663
+    - -0.09241969883441925
+    - -0.03686713054776192
+    - -0.09055756777524948
+    - -0.015581858344376087
+    - 0.02892589010298252
+    - 0.044220976531505585
+    - -0.04593843221664429
+    - -0.014119237661361694
+    - 0.060110487043857574
+    - 0.021660011261701584
+    - 0.011551063507795334
+    - -0.029955513775348663
+    - -0.039287861436605453
+    - -0.0025032886769622564
+    - 0.03958826884627342
+    - -0.06038796529173851
+    - -0.022520551458001137
+    - 0.023775404319167137
+    - -0.0023005064576864243
+    - -2.601172077731917e-08
+    - -0.032911282032728195
+    - -0.002454721601679921
+    - 0.07432062178850174
+    - -0.052643030881881714
+    - -0.016493042930960655
+    - 0.09947457909584045
+    - -0.013653070665895939
+    - 0.056176457554101944
+    - -0.024483799934387207
+    - -0.04241332784295082
+    - -0.041211336851119995
+    - 0.05000549554824829
+    - -0.08516301214694977
+    - 0.02262873947620392
+    - -0.05865253135561943
+    - -0.0579228512942791
+    - -0.012543595395982265
+    - -0.06290457397699356
+    - -0.040836360305547714
+    - -0.12820525467395782
+    - -0.09919590502977371
+    - -0.02440771833062172
+    - 0.06142302602529526
+    - 0.04673468694090843
+    - -0.006783962715417147
+    - 0.06932883709669113
+    - -0.06323956698179245
+    - -0.07809916883707047
+    - -0.06865179538726807
+    - -0.0799427404999733
+    - 0.0645752102136612
+    - 0.03270943462848663
+    - 0.05026552826166153
+    - 0.02185477502644062
+    - -0.0019522096263244748
+    - 0.0946969985961914
+    - 0.0287660863250494
+    - 0.032053083181381226
+    - -0.08976611495018005
+    - 0.0474662147462368
+    - 0.05880596861243248
+    - -0.05843408778309822
+    - 0.034144315868616104
+    - -0.02183217741549015
+    - 0.023533513769507408
+    - -0.0005341721116565168
+    - -0.0029862758237868547
+    - 0.04643396660685539
+    - -0.04321960732340813
+    - 0.04444759339094162
+    - -0.025846397504210472
+    - -0.0347006730735302
+    - -0.07949681580066681
+    - 0.019047964364290237
+    - -0.05446022003889084
+    - 0.03381471335887909
+    - -0.05514928326010704
+    - 0.00025564146926626563
+    - -0.006722046993672848
+    - 0.0015068781794980168
+    - -0.08107089251279831
+    - 0.0006304410635493696
+    - 0.08989017456769943
+    - 0.010352078825235367
+    key_concepts:
+    - swelling behavior
+    - crosslink density
+    - stimuli-responsive
+    - network structure
+    - water retention
+    - mechanical properties
+    - biomedical applications
+    recent_anomalies: []
+    context_abstracts:
+    - '[Under pressure: Hydrogel swelling in a granular medium (arXiv:2103.11476,
+      2021)]
+
+      Hydrogels hold promise in agriculture as reservoirs of water in dry soil, potentially
+      alleviating the burden of irrigation. However, confinement in soil can markedly
+      reduce the ability of hydrogels to absorb water and swell, limiting their widespread
+      adoption. Unfortunately, the underlying reason remains unknown. By directly
+      visualizing the swelling of hydrogels confined in three-dimensional granular
+      media, we demonstrate that the extent of hydrogel swelling is determined by
+      the competition between the force exerted by the hydrogel due to osmotic swelling
+      and the confining force transmitted by the surrounding grains. Furthermore,
+      the medium can itself be restructured by hydrogel swelling, as set by the balance
+      between the osmotic swelling force, the confining force, and intergrain friction.
+      Together, our results provide quantitative principles to predict how hydrogels
+      behave in confinement, potentially improving their use in agriculture as well
+      as informing other applications such as oil recovery, construction, mechanobiology,
+      and filtration.'
+    - '[Scaling laws to predict humidity-induced swelling and stiffness in hydrogels
+      (arXiv:2109.13316, 2021)]
+
+      From pasta to biological tissues to contact lenses, gel and gel-like materials
+      inherently soften as they swell with water. In dry, low-relative-humidity environments,
+      these materials stiffen as they de-swell with water. Here, we use semi-dilute
+      polymer theory to develop a simple power-law relationship between hydrogel elastic
+      modulus and swelling. From this relationship, we predict hydrogel stiffness
+      or swelling at arbitrary relative humidities. Our close predictions of properties
+      of hydrogels across three different polymer mesh families at varying crosslinking
+      densities and relative humidities demonstrate the validity and generality of
+      our understanding. This predictive capability enables more rapid material discovery
+      and selection for hydrogel applications in varying humidity environments.'
+    - '[Hyperelastic swelling of stiff hydrogels (arXiv:2401.04251, 2024)]
+
+      Hydrogels are biphasic, swollen polymer networks where elastic deformation is
+      coupled to nanoscale fluid flow. As a consequence, hydrogels can withstand large
+      strains and exhibit nonlinear, hyperelastic properties. For low-modulus hydrogel
+      and semiflexible biopolymer networks, previous studies have shown that these
+      materials universally contract when sheared on timescales much longer than the
+      poroelastic relaxation timescale. Using rheological and tribological measurements,
+      we find that stiff polyacrylamide and polyacrylic acid hydrogels, with moduli
+      of order ~10-100 kPa, exclusively swell (dilate) when sheared. The poroelastic
+      relaxation process was examined using strain-controlled compression, indicating
+      a volumetric diffusion constant of order 10^-9 m^2/s. Upon shearing, we observed
+      an increase in normal stress that varied quadratically with shear strain, and
+      persisted for hours. Moreover, we show that this dilatant behavior manifests
+      as swelling during tribological sliding, imbibing the hydrogel with fluid. We
+      suggest that this inherent, hyperelastic dilatancy is an important feature in
+      all stiff hydrogels, and may explain rehydration and mechanical rejuvenation
+      in biological tissues such as cartilage.'
+  domain_b:
+    id: MS-040
+    name: Biomedical Coatings
+    parent_domain: materials_science
+    taxonomy_source: custom
+    embedding:
+    - -0.08604808896780014
+    - 0.0017474143533036113
+    - 0.09148693084716797
+    - -0.02937222830951214
+    - 0.0068629588931798935
+    - -0.004897745791822672
+    - 0.05810520797967911
+    - 0.09773293137550354
+    - -0.05163158103823662
+    - 0.024369297549128532
+    - -0.07576347887516022
+    - -0.018375281244516373
+    - 0.007755937520414591
+    - 0.02841680496931076
+    - -0.04252707213163376
+    - -0.030178533867001534
+    - 0.035409875214099884
+    - -0.013006767258048058
+    - 0.06589153409004211
+    - 0.08320306241512299
+    - 0.06928955018520355
+    - -0.003183805849403143
+    - -0.03531920164823532
+    - -0.00017411891894880682
+    - 0.006234865635633469
+    - 0.05981509014964104
+    - 0.02140958420932293
+    - 0.019164331257343292
+    - -0.0026418089400976896
+    - 0.040842246264219284
+    - -0.081061452627182
+    - -0.036721859127283096
+    - 0.014714047312736511
+    - -0.042660996317863464
+    - -0.03063790686428547
+    - -0.010420572943985462
+    - -0.06418827176094055
+    - -0.05511147901415825
+    - -0.01529612299054861
+    - 0.011710702441632748
+    - -0.029644928872585297
+    - -0.03902226313948631
+    - -0.08589507639408112
+    - 0.005361079704016447
+    - 0.12574432790279388
+    - -0.06266237795352936
+    - 0.07623707503080368
+    - -0.0092135239392519
+    - 0.0627145990729332
+    - 0.06171942874789238
+    - -0.04900212585926056
+    - 0.028069067746400833
+    - -0.016212863847613335
+    - 5.932557905907743e-05
+    - -0.051043882966041565
+    - -0.06753859668970108
+    - -0.03370249643921852
+    - 0.008024260401725769
+    - -0.0431520976126194
+    - 0.01644783653318882
+    - 0.023721400648355484
+    - 0.0003408596967346966
+    - 0.02733111009001732
+    - 0.05677921324968338
+    - -0.015995381399989128
+    - -0.06396372616291046
+    - -0.03338935598731041
+    - 0.03482610732316971
+    - 0.01715976744890213
+    - 0.07093330472707748
+    - 0.010424181818962097
+    - -0.0033917815890163183
+    - 0.06980261206626892
+    - 0.05334475263953209
+    - 0.0009292103932239115
+    - 0.0007657033274881542
+    - 0.023106908425688744
+    - -0.01592017151415348
+    - -0.06647135317325592
+    - -0.03021114692091942
+    - -0.002023472683504224
+    - -0.017520280554890633
+    - 0.04931051284074783
+    - 0.12543272972106934
+    - -0.0013758959248661995
+    - 0.005383789073675871
+    - -0.008402341045439243
+    - -0.0240399781614542
+    - -0.04993673413991928
+    - -0.04484578222036362
+    - -0.0009331957553513348
+    - 0.0915883332490921
+    - -0.02123028226196766
+    - 0.01863049529492855
+    - -0.0010197735391557217
+    - -0.024327853694558144
+    - -0.04417477175593376
+    - 0.07712098956108093
+    - -0.002781241200864315
+    - 0.0035398725885897875
+    - -0.06574718654155731
+    - -0.014674121513962746
+    - -0.02875729836523533
+    - -0.0024330962914973497
+    - 0.03422681242227554
+    - -0.0455954447388649
+    - -0.04464913532137871
+    - 0.002321673557162285
+    - 0.03728169947862625
+    - 0.020215580239892006
+    - -0.01995350979268551
+    - 0.0066632553935050964
+    - -0.06670379638671875
+    - 0.018411265686154366
+    - -0.11314570158720016
+    - 0.022403715178370476
+    - 0.03244004771113396
+    - -0.027930952608585358
+    - 0.026504788547754288
+    - 0.06940507143735886
+    - 0.014418486505746841
+    - -0.013532260432839394
+    - -0.004691656678915024
+    - -0.001971268095076084
+    - -0.006834954954683781
+    - -0.11169233173131943
+    - 0.07981743663549423
+    - 2.801617950781153e-33
+    - 0.0024144710041582584
+    - 0.012715582735836506
+    - 0.050856661051511765
+    - -0.06386914849281311
+    - -0.05274823307991028
+    - -0.022563816979527473
+    - 0.060866180807352066
+    - -0.10138808190822601
+    - 0.01129529345780611
+    - 0.055940352380275726
+    - -0.03766263276338577
+    - 0.05840146914124489
+    - -0.022116193547844887
+    - 0.10408692061901093
+    - 0.03936511650681496
+    - 0.03836299106478691
+    - -0.011448430828750134
+    - -0.08316460996866226
+    - 0.06376027315855026
+    - 0.005814750678837299
+    - 0.0572056882083416
+    - 0.015971779823303223
+    - -0.07168668508529663
+    - 0.14562386274337769
+    - -0.02243848145008087
+    - 0.00929595809429884
+    - -0.13039232790470123
+    - -0.05134027078747749
+    - -0.027090931311249733
+    - 0.04481084272265434
+    - 0.024488257244229317
+    - -0.044157031923532486
+    - 0.006697877775877714
+    - -0.07168163359165192
+    - -0.10246076434850693
+    - -0.018993861973285675
+    - -0.026989039033651352
+    - -0.012290951795876026
+    - 0.010044202208518982
+    - -0.11139710247516632
+    - -0.02716834843158722
+    - 0.006905125454068184
+    - 0.09372567385435104
+    - -0.0136311836540699
+    - 0.05606530234217644
+    - -0.04066867008805275
+    - -0.03070547990500927
+    - 0.11751851439476013
+    - -0.04182012751698494
+    - 0.040828242897987366
+    - 0.029242854565382004
+    - 0.024769527837634087
+    - 0.03317376971244812
+    - -0.046666741371154785
+    - -0.03680618107318878
+    - -0.016331404447555542
+    - -0.036083295941352844
+    - -0.031046375632286072
+    - -0.03804629668593407
+    - 0.0990835651755333
+    - 0.023424910381436348
+    - 0.009190894663333893
+    - 0.006166219245642424
+    - 0.02485976554453373
+    - -0.04525640234351158
+    - -0.011180643923580647
+    - 0.07531233876943588
+    - 0.0013562204549089074
+    - -0.015086513012647629
+    - 0.04056511074304581
+    - -0.06811311095952988
+    - 0.035438988357782364
+    - -0.0029085162095725536
+    - 0.04979024454951286
+    - -0.047991588711738586
+    - -0.014049007557332516
+    - 0.06566480547189713
+    - -0.03171396255493164
+    - 0.03823966160416603
+    - 0.010672969743609428
+    - 0.05193832889199257
+    - 0.06698893755674362
+    - -0.03923482075333595
+    - -0.059259817004203796
+    - -0.08203050494194031
+    - 0.00954364612698555
+    - 0.10649687796831131
+    - 0.024210888892412186
+    - 0.02439815178513527
+    - -0.012464381754398346
+    - 0.04709809273481369
+    - -0.05439718812704086
+    - -0.0624576210975647
+    - -0.028600061312317848
+    - -0.13063552975654602
+    - -5.0968189762326484e-33
+    - 0.0670376718044281
+    - -0.050532639026641846
+    - 0.04917218163609505
+    - 0.006252655293792486
+    - 0.006260572466999292
+    - -0.01604488492012024
+    - -0.0226735882461071
+    - 0.061522845178842545
+    - -0.0017321743071079254
+    - 0.04202999174594879
+    - 0.07883112877607346
+    - 0.01921159401535988
+    - -0.03234166279435158
+    - -0.019324196502566338
+    - -0.0786234438419342
+    - 0.09791625291109085
+    - -0.03868406265974045
+    - -0.012458384968340397
+    - -0.05657048895955086
+    - -0.09533233195543289
+    - -0.015859805047512054
+    - 0.10639718919992447
+    - 0.1039246991276741
+    - 0.013044203631579876
+    - 0.005099678412079811
+    - -0.034177858382463455
+    - 0.0018937562126666307
+    - -0.03332054987549782
+    - -0.005153616890311241
+    - 0.06911750137805939
+    - -0.033929385244846344
+    - -0.04420773684978485
+    - -0.024733250960707664
+    - -0.040186356753110886
+    - -0.0031291532795876265
+    - 0.047293636947870255
+    - 0.028418296948075294
+    - -0.060248296707868576
+    - 0.01842382736504078
+    - -0.03007114678621292
+    - 0.08578072488307953
+    - -0.08442509919404984
+    - 0.040278930217027664
+    - 0.1053721085190773
+    - -0.020943311974406242
+    - 0.03875846788287163
+    - -0.13214872777462006
+    - 0.08359545469284058
+    - 0.003203706117346883
+    - -0.028078071773052216
+    - -0.018740810453891754
+    - -0.0019767368212342262
+    - 0.006700376980006695
+    - -0.011081499978899956
+    - 0.03829396516084671
+    - -0.004733188543468714
+    - -0.07913162559270859
+    - -0.05325574427843094
+    - -0.046566419303417206
+    - 0.06890341639518738
+    - 0.11933544278144836
+    - 0.024199893698096275
+    - 0.010236414149403572
+    - 0.016840431839227676
+    - 0.00711747445166111
+    - -0.013996877707540989
+    - 0.04783566668629646
+    - 0.07497755438089371
+    - -0.0398813858628273
+    - -0.024071739986538887
+    - 0.08595506101846695
+    - 0.02559554949402809
+    - 0.03260171040892601
+    - -0.045202191919088364
+    - 0.01855568028986454
+    - -0.010972701944410801
+    - 0.02150827832520008
+    - 0.032480333000421524
+    - -0.09258052706718445
+    - 0.02973518706858158
+    - 0.06880845129489899
+    - 0.011004067026078701
+    - 0.0031834468245506287
+    - 0.006138465832918882
+    - 0.09489813446998596
+    - 0.033105239272117615
+    - -0.029935715720057487
+    - 0.05440469831228256
+    - -0.05427669361233711
+    - -0.0011271688854321837
+    - -0.003716576611623168
+    - -0.009729178622364998
+    - 0.033424120396375656
+    - 0.03389883041381836
+    - -0.026359155774116516
+    - -2.97020079642607e-08
+    - 0.057558830827474594
+    - -0.007553133647888899
+    - 0.11612313240766525
+    - -0.12982086837291718
+    - -0.10164321213960648
+    - 0.08434204012155533
+    - -0.02291318215429783
+    - -0.018293656408786774
+    - 0.055134065449237823
+    - 0.0077485693618655205
+    - -0.05807634815573692
+    - 0.061351317912340164
+    - -0.050650015473365784
+    - -0.043551329523324966
+    - -0.012244270183146
+    - 0.03177451714873314
+    - -0.07485739886760712
+    - 0.02839561738073826
+    - -0.041380625218153
+    - -0.12772035598754883
+    - -0.053822219371795654
+    - -0.03920102119445801
+    - -0.0033954728860408068
+    - -0.015533124096691608
+    - 0.034986063838005066
+    - 0.040686964988708496
+    - 0.011453461833298206
+    - -0.08595927804708481
+    - -0.03884438797831535
+    - 0.06440825015306473
+    - -0.04965097829699516
+    - -0.01642264798283577
+    - 0.005213414318859577
+    - -0.028783349320292473
+    - 0.03329214081168175
+    - -0.006598667707294226
+    - 0.00214217696338892
+    - -0.07979393005371094
+    - -0.052862148731946945
+    - -0.03718371316790581
+    - -0.034139346331357956
+    - -0.04527571052312851
+    - -0.041942767798900604
+    - 0.00527806393802166
+    - 0.04429636150598526
+    - 0.0033193870913237333
+    - 0.0633145123720169
+    - 0.0903189480304718
+    - -0.03797107934951782
+    - -0.0624796524643898
+    - 0.05011477321386337
+    - -0.059621118009090424
+    - -0.08509821444749832
+    - -0.009343978948891163
+    - -0.10107321292161942
+    - 0.0430661104619503
+    - 0.01809794083237648
+    - -0.0005957991234026849
+    - 0.06703465431928635
+    - -0.021506913006305695
+    - -0.05925772711634636
+    - -0.07176835834980011
+    - 0.09554246068000793
+    - 0.039011768996715546
+    key_concepts:
+    - hydroxyapatite
+    - antimicrobial surfaces
+    - protein adsorption
+    - osseointegration
+    - hemocompatibility
+    - wear resistance
+    recent_anomalies: []
+    context_abstracts:
+    - '[Direct creation of micro-domains with positive and negative surface potential
+      on hydroxyapatite coatings (arXiv:1103.4393, 2011)]
+
+      A method for the direct patterning of electrostatic potential at the surface
+      of hydroxyapatite is presented here. Micro-domains of surface potential have
+      been created on hydroxyapatite coatings by a 20 keV focused electron beam with
+      minimal alterations of surface chemistry. The success of such approach has been
+      confirmed by Kelvin Probe Force Microscopy measurements, which show that this
+      method is capable of creating micron sized positive and negative local electrostatic
+      potential. The shape and potential difference of these domains were found to
+      depend on the dose of total injected charge from the electron beam as well as
+      the speed with which such charge is injected.'
+    - '[Mining social media data for biomedical signals and health-related behavior
+      (arXiv:2001.10285, 2020)]
+
+      Social media data has been increasingly used to study biomedical and health-related
+      phenomena. From cohort level discussions of a condition to planetary level analyses
+      of sentiment, social media has provided scientists with unprecedented amounts
+      of data to study human behavior and response associated with a variety of health
+      conditions and medical treatments. Here we review recent work in mining social
+      media for biomedical, epidemiological, and social phenomena information relevant
+      to the multilevel complexity of human health. We pay particular attention to
+      topics where social media data analysis has shown the most progress, including
+      pharmacovigilance, sentiment analysis especially for mental health, and other
+      areas. We also discuss a variety of innovative uses of social media data for
+      health-related applications and important limitations in social media data access
+      and use.'
+    - '[Localising In-Domain Adaptation of Transformer-Based Biomedical Language Models
+      (arXiv:2212.10422, 2022)]
+
+      In the era of digital healthcare, the huge volumes of textual information generated
+      every day in hospitals constitute an essential but underused asset that could
+      be exploited with task-specific, fine-tuned biomedical language representation
+      models, improving patient care and management. For such specialized domains,
+      previous research has shown that fine-tuning models stemming from broad-coverage
+      checkpoints can largely benefit additional training rounds over large-scale
+      in-domain resources. However, these resources are often unreachable for less-resourced
+      languages like Italian, preventing local medical institutions to employ in-domain
+      adaptation. In order to reduce this gap, our work investigates two accessible
+      approaches to derive biomedical language models in languages other than English,
+      taking Italian as a concrete use-case: one based on neural machine translation
+      of English resources, favoring quantity over quality; the other based on a high-grade,
+      narrow-scoped corpus natively written in Italian, thus preferring quality over
+      quantity. Our study shows that data quantity is a harder constraint than data
+      quality for biomedical adaptation, but the concatenation of high-quality data
+      can improve model performance even when dealing with relatively size-limited
+      corpora. The models published from our investigations have the potential to
+      unlock important research opportunities for Italian hospitals and academia.
+      Finally, the set of lessons learned from the study constitutes valuable insights
+      towards a solution to build biomedical language models that are generalizable
+      to other less-resourced languages and different domain settings.'
+  strategy: semantic_distance
+  distance_score: 0.6458995342254639
+bridge:
+  summary: Hydrogel swelling dynamics under mechanical confinement can predict and
+    optimize biomedical coating performance by modeling the interplay between osmotic
+    forces, mechanical constraints, and surface restructuring.
+  mechanism: Both hydrogels in granular media and biomedical coatings on implants
+    experience confined swelling where osmotic/hydration forces compete with mechanical
+    constraints from surrounding materials. The force balance equations governing
+    hydrogel swelling in soil (osmotic swelling force vs. confining force vs. friction)
+    directly apply to coating behavior where hydration-driven volume changes must
+    overcome substrate constraints and interface friction. The granular restructuring
+    observed in hydrogel studies parallels how coating microstructure reorganizes
+    under physiological loading, affecting protein adsorption sites and antimicrobial
+    efficacy. The poroelastic diffusion constants measured in stiff hydrogels (~10^-9
+    m²/s) provide a quantitative framework for predicting fluid transport through
+    biomedical coatings under mechanical stress.
+  type: causal_transfer
+scores:
+  novelty: 0.45
+  coherence: 0.35
+  testability: 0.5
+  impact_potential: 0.35
+  hallucination_risk: 0.6
+  composite: 0.265
+predictions:
+- statement: Biomedical coatings will exhibit predictable changes in protein adsorption
+    capacity based on confined swelling equations from hydrogel theory
+  metric: Protein adsorption density (μg/cm²) vs applied mechanical stress
+  expected_range: 15-40% increase in adsorption sites under 1-10 MPa compressive stress
+  differs_from_consensus: true
+- statement: Antimicrobial efficacy of surface-patterned coatings will follow power-law
+    scaling with humidity-induced swelling
+  metric: Log reduction in bacterial adhesion vs relative humidity
+  expected_range: Power-law exponent between -0.3 to -0.7 matching hydrogel stiffness-swelling
+    relationships
+  differs_from_consensus: true
+- statement: Osseointegration rates will correlate with coating poroelastic diffusion
+    constants under physiological loading
+  metric: Bone-implant contact percentage at 4 weeks vs coating diffusion constant
+  expected_range: Linear correlation with R² > 0.7 for diffusion constants 10^-10
+    to 10^-8 m²/s
+  differs_from_consensus: true
+kill_condition: If biomedical coatings show no measurable volume change or surface
+  restructuring under physiological mechanical loading (within 1% dimensional change),
+  invalidating the confined swelling analogy
+next_steps:
+- Measure poroelastic properties of hydroxyapatite coatings under compression using
+  strain-controlled testing protocols from hydrogel literature
+- Map protein adsorption patterns on mechanically loaded coating surfaces using force
+  microscopy techniques from electrostatic domain studies
+relevant_labs: []
+relevant_datasets:
+- ASTM F1044 implant wear testing data
+- ISO 10993 biocompatibility coating datasets
+sources_used:
+- arXiv:2103.11476
+- arXiv:2109.13316
+- arXiv:2401.04251
+- arXiv:1103.4393
+gap_manifest:
+  data_gaps:
+  - domain: biomedical coatings
+    description: mechanical properties and swelling behavior of hydrated biomedical
+      coatings under physiological loading conditions
+    criticality: high
+    recurrence: 1
+  - domain: hydrogels
+    description: long-term stability and surface chemistry changes in confined hydrogel
+      systems
+    criticality: medium
+    recurrence: 1
+  competence_gaps:
+  - type: biomechanical testing protocols
+    description: specific methodologies for measuring poroelastic properties in thin
+      coating layers
+    workaround_used: extrapolated from bulk hydrogel testing methods
+    confidence_degradation: 0.2
+  epistemic_gaps:
+  - zone: interface mechanics between biological fluids and synthetic coatings
+    signal: limited literature on dynamic coating-fluid interactions under stress
+    exploration_priority: high
+impact_analysis:
+  vulgarisation: 'Imaginez une éponge qui se déforme sous pression : cette recherche
+    étudie comment les revêtements médicaux (sur les prothèses par exemple) se comportent
+    comme des éponges quand ils gonflent au contact des fluides corporels. En comprenant
+    ces déformations, on peut prédire et optimiser leurs propriétés antibactériennes
+    et d''intégration dans le corps. C''est comme prévoir comment une éponge va absorber
+    l''eau selon la pression qu''on lui applique.'
+  impact_concret: Des implants médicaux (prothèses de hanche, stents, pacemakers)
+    avec des revêtements qui s'adaptent automatiquement aux conditions du corps pour
+    mieux lutter contre les infections et favoriser la cicatrisation. Moins de rejets
+    d'implants, moins d'infections post-opératoires, et une durée de vie prolongée
+    des dispositifs médicaux.
+  industries_impactees:
+  - Dispositifs médicaux implantables
+  - Biotechnologies
+  - Chirurgie orthopédique
+  - Cardiologie interventionnelle
+  - Dentaire
+  taille_marche_estimee: 'Dizaines de milliards d''euros (marché mondial des implants
+    médicaux : 100+ milliards USD)'
+  horizon_temporel: Moyen terme (3-10 ans)
+  solutions_existantes: Aujourd'hui, les revêtements d'implants sont conçus de manière
+    statique avec des propriétés fixes. Cette approche permettrait de créer des revêtements
+    'intelligents' qui s'adaptent dynamiquement aux conditions physiologiques, offrant
+    une meilleure performance et durabilité.
+  score_impact: significatif
+  one_liner: Des revêtements d'implants qui s'adaptent comme des éponges intelligentes
+    pourraient diviser par deux les infections post-opératoires.
+status: curated

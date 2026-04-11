@@ -1,0 +1,1003 @@
+bridge:
+  mechanism: 'Both nematic elastomers and remodeling biomaterial scaffolds exhibit
+    systems where structural reorganization is coupled to mechanical deformation.
+    In nematic elastomers, the coupling between director field rotations and network
+    deformation creates soft modes and universal scaling. Similarly, biomaterial scaffolds
+    undergoing tissue remodeling experience coupled processes: cellular forces reorganize
+    the scaffold structure while mechanical loading guides cellular behavior. The
+    key insight is that both systems can be described by rotationally invariant nonlinear
+    elasticity theories where the ''order parameter'' (nematic director in elastomers,
+    local tissue organization in scaffolds) couples to mechanical strain, creating
+    emergent soft modes and scale-dependent elastic moduli.'
+  summary: The nonlinear elasticity theory developed for nematic elastomers with soft
+    modes and universal scaling behaviors can be adapted to model the mechanical response
+    of biomaterial scaffolds undergoing dynamic remodeling.
+  type: causal_transfer
+collision:
+  distance_score: 0.645429790019989
+  domain_a:
+    context_abstracts:
+    - '[Multi-Compartmental Biomaterial Scaffolds for Patterning Neural Tissue Organoids
+      in Models of Neurodevelopment and Tissue Regeneration (arXiv:1610.02543, 2016)]
+
+      Biomaterials are becoming an essential tool in the study and application of
+      stem cell research. Various types of biomaterials enable three-dimensional (3D)
+      culture of stem cells, and, more recently, also enable high-resolution patterning
+      and organization of multicellular architectures. Biomaterials also hold potential
+      to provide many additional advantages over cell transplants alone in regenerative
+      medicine. This paper describes novel designs for functionalized biomaterial
+      constructs that guide tissue development to targeted regional identities and
+      structures. Such designs comprise compartmentalized regions in the biomaterial
+      structure that are functionalized with molecular factors that form concentration
+      gradients through the construct and guide stem cell development, axis patterning,
+      and tissue architecture, including rostral/caudal, ventral/dorsal, or medial/lateral
+      identities of the central nervous system. The ability to recapitulate innate
+      developmental processes in a 3D environment and under specific controlled conditions
+      has vital application to advanced models of neurodevelopment and for repair
+      of specific sites of damaged or diseased neural tissue.'
+    - '[Real-Time Maps of Fluid Flow Fields in Porous Biomaterials (arXiv:1301.2823,
+      2013)]
+
+      Mechanical forces such as fluid shear have been shown to enhance cell growth
+      and differentiation, but knowledge of their mechanistic effect on cells is limited
+      because the local flow patterns and associated metrics are not precisely known.
+      Here we present real-time, noninvasive measures of local hydrodynamics in 3D
+      biomaterials based on nuclear magnetic resonance. Microflow maps were further
+      used to derive pressure, shear and fluid permeability fields. Finally, remodeling
+      of collagen gels in response to precise fluid flow parameters was correlated
+      with structural changes. It is anticipated that accurate flow maps within 3D
+      matrices will be a critical step towards understanding cell behavior in response
+      to controlled flow dynamics.'
+    - '[Biomaterials: A trendy source to engineer functional entities -- An overview
+      (arXiv:1803.05972, 2018)]
+
+      The biomaterials exploitation in a sophisticated manner can provide extensive
+      opportunities for experimentation in the field of interdisciplinary and multidisciplinary
+      scientific research. Owing to the unique features of this trendy area, research
+      scientists have been directed/redirected their interests in bio-based biomaterials
+      for targeted applications in different sectors of the modern world. The present
+      manuscript highlights the novel perspectives of biomaterials as a trendy source
+      to engineer functional entities in numerous geometries for pharmaceuticals,
+      cosmeceuticals, nutraceuticals, and other biotechnological or biomedical applications.'
+    embedding:
+    - -0.03285979852080345
+    - -0.049216993153095245
+    - 0.03493581339716911
+    - -0.031674303114414215
+    - -0.014584955759346485
+    - -0.013680116273462772
+    - 0.03196382150053978
+    - 0.08241314440965652
+    - -0.1040417030453682
+    - 0.05201193690299988
+    - -0.07819539308547974
+    - 0.03854617476463318
+    - -0.06853494048118591
+    - 0.08269567787647247
+    - -0.06369341909885406
+    - -0.017441321164369583
+    - -0.055152758955955505
+    - -0.005806490778923035
+    - 0.028929514810442924
+    - 0.10686434805393219
+    - 0.06551048904657364
+    - -0.011000165715813637
+    - -0.015398811548948288
+    - 0.005744887050241232
+    - -0.026671448722481728
+    - 0.012907402589917183
+    - -0.042297106236219406
+    - -0.08039204776287079
+    - -0.04982057213783264
+    - -0.013764127157628536
+    - -0.06252267956733704
+    - 0.05853656679391861
+    - -0.0116612883284688
+    - -0.038533516228199005
+    - -0.02688751555979252
+    - 0.003086499869823456
+    - -0.011370338499546051
+    - -0.01787729375064373
+    - 0.0561492033302784
+    - -0.0337039940059185
+    - 0.027849864214658737
+    - -0.07438575476408005
+    - -0.04335726797580719
+    - -0.022038603201508522
+    - 0.09594227373600006
+    - -0.0807492733001709
+    - 0.023049108684062958
+    - -0.11036654561758041
+    - -0.003606910817325115
+    - 0.019438214600086212
+    - -0.04356572404503822
+    - 0.01183333434164524
+    - -0.003345002420246601
+    - 0.00817652978003025
+    - -0.011876639910042286
+    - 0.019975218921899796
+    - -0.05805342271924019
+    - 0.016195524483919144
+    - -0.014351673424243927
+    - 0.014568772166967392
+    - 0.02984718233346939
+    - -0.06417109817266464
+    - 0.05780886486172676
+    - 0.023019231855869293
+    - -0.031156469136476517
+    - -0.008910058066248894
+    - -0.043262261897325516
+    - -0.011244774796068668
+    - -0.02460918389260769
+    - 0.06509508937597275
+    - -0.02159433811903
+    - 0.010029515251517296
+    - 0.03238682076334953
+    - 0.04101337864995003
+    - 0.013455993495881557
+    - 0.00499324593693018
+    - 0.10053353756666183
+    - 0.011044349521398544
+    - -0.012591797858476639
+    - 0.021520262584090233
+    - 0.018025580793619156
+    - -0.004071129485964775
+    - 0.03939170390367508
+    - 0.008029095828533173
+    - 0.01945757493376732
+    - 0.051697950810194016
+    - -0.043089017271995544
+    - 0.015418050810694695
+    - -0.06294035166501999
+    - -0.04170140251517296
+    - -0.0026288868393749
+    - 0.06448057293891907
+    - -0.020073655992746353
+    - -0.019131330773234367
+    - -0.07511275261640549
+    - -0.031423162668943405
+    - -0.0551210455596447
+    - 0.051295097917318344
+    - 0.03606283664703369
+    - -0.011281470768153667
+    - -0.018113449215888977
+    - 0.013754049316048622
+    - 0.005805131047964096
+    - -0.05772467330098152
+    - -0.014704751782119274
+    - -0.0862591341137886
+    - -0.049220044165849686
+    - 0.02164326421916485
+    - 0.03531564772129059
+    - 0.07485295832157135
+    - -0.011639603413641453
+    - 0.008449564687907696
+    - -0.04444750398397446
+    - 0.04599897190928459
+    - -0.07391028106212616
+    - 0.10032592713832855
+    - -0.017933964729309082
+    - -0.028963105753064156
+    - 0.037715889513492584
+    - 0.011523224413394928
+    - 0.02707594633102417
+    - 0.017295105382800102
+    - 0.027389075607061386
+    - -0.05813603475689888
+    - -0.11975526064634323
+    - -0.0928928330540657
+    - 0.06488791853189468
+    - 3.2576702237191045e-34
+    - -0.04917208105325699
+    - 0.015558863990008831
+    - 0.01676621288061142
+    - 0.09176159650087357
+    - -0.021909227594733238
+    - -0.023854514583945274
+    - 0.008735373616218567
+    - -0.055575232952833176
+    - -0.013950266875326633
+    - -0.05423871427774429
+    - -0.1208486407995224
+    - 0.03221647068858147
+    - -0.06586183607578278
+    - 0.17246113717556
+    - 0.05770987272262573
+    - 0.009959916584193707
+    - -0.06672259420156479
+    - -0.0350290909409523
+    - 0.03720321133732796
+    - -0.06060758978128433
+    - -0.009298790246248245
+    - 0.017525944858789444
+    - -0.03868521377444267
+    - 0.1266157478094101
+    - 0.04726733639836311
+    - -0.056585803627967834
+    - -0.037767939269542694
+    - -0.03711272031068802
+    - -0.0030351579189300537
+    - -0.010320517234504223
+    - -0.0523529015481472
+    - 0.044019006192684174
+    - 0.04269639030098915
+    - -0.06360193341970444
+    - -0.04986146464943886
+    - 0.03787118196487427
+    - -0.042998362332582474
+    - -0.04606037586927414
+    - 0.03011256456375122
+    - -0.00201931013725698
+    - 0.11131929606199265
+    - 0.007230720017105341
+    - 0.04164278507232666
+    - 0.05996813625097275
+    - 0.04257533326745033
+    - 0.03683750331401825
+    - 0.013058031909167767
+    - 0.09140289574861526
+    - 0.03192996233701706
+    - 0.006326292175799608
+    - -0.053746547549963
+    - 0.019924284890294075
+    - 0.05508020520210266
+    - -0.03384174033999443
+    - 0.02927716076374054
+    - 0.042762260884046555
+    - -0.05745682492852211
+    - -0.0667031854391098
+    - 0.014670740813016891
+    - 0.026540659368038177
+    - -0.045080993324518204
+    - -0.045354314148426056
+    - 0.07259970158338547
+    - 0.024096963927149773
+    - 0.02694232016801834
+    - -0.004835340194404125
+    - 0.005408821627497673
+    - 0.0551399402320385
+    - -0.07495025545358658
+    - 0.011812456883490086
+    - 0.004598074126988649
+    - 0.0719832181930542
+    - 0.020333021879196167
+    - -0.005560700315982103
+    - 0.0306899081915617
+    - 0.010587570257484913
+    - 0.050290413200855255
+    - 0.052997395396232605
+    - 0.013328981585800648
+    - 0.015859480947256088
+    - 0.013956120237708092
+    - 0.08479846268892288
+    - -0.10813380032777786
+    - -0.0370708592236042
+    - 0.006536866072565317
+    - -0.030959028750658035
+    - 0.02230190299451351
+    - 0.006030324846506119
+    - 0.0187432449311018
+    - -0.012989065609872341
+    - 0.019601469859480858
+    - -0.1276906430721283
+    - -0.05161883682012558
+    - -0.013309847563505173
+    - -0.0837901383638382
+    - -2.925834642884452e-33
+    - -0.007063262164592743
+    - -0.012497875839471817
+    - 0.0032503476832062006
+    - 0.02825373411178589
+    - 0.02943344973027706
+    - 0.04411210119724274
+    - -0.01020399946719408
+    - 0.01414352748543024
+    - 0.04757794365286827
+    - 0.03933807462453842
+    - -0.010116904973983765
+    - 0.06611639261245728
+    - 0.08212541788816452
+    - -0.08587928861379623
+    - -0.04885226488113403
+    - -0.01243576779961586
+    - -0.05160432308912277
+    - -0.05916619300842285
+    - -0.04083075746893883
+    - -0.04911445453763008
+    - -0.02063954807817936
+    - 0.06849637627601624
+    - -0.007626557257026434
+    - -0.0038609306793659925
+    - 0.03537663072347641
+    - -0.004362862091511488
+    - -0.03783745691180229
+    - -0.05342542752623558
+    - 0.02514875866472721
+    - 0.07539837062358856
+    - -0.029041528701782227
+    - -0.022386204451322556
+    - -0.09114926308393478
+    - 0.041772712022066116
+    - 0.022667691111564636
+    - 0.04636160284280777
+    - 0.006449677981436253
+    - 0.00022355225519277155
+    - 0.09975019097328186
+    - -0.05415349453687668
+    - 0.1115366518497467
+    - -0.07881201058626175
+    - 8.515571244060993e-05
+    - 0.020854037255048752
+    - -0.05524623766541481
+    - -0.022563448175787926
+    - -0.1071479320526123
+    - 0.02814580500125885
+    - 0.045544955879449844
+    - 0.012559403665363789
+    - 0.009142541326582432
+    - 0.001308239414356649
+    - 0.02247181534767151
+    - -0.03541729971766472
+    - 0.05017494037747383
+    - -0.01373523473739624
+    - -0.05899051949381828
+    - -0.12061166763305664
+    - 0.009826261550188065
+    - 0.01218352373689413
+    - 0.057161107659339905
+    - 0.007670172024518251
+    - 0.0938558578491211
+    - 0.0016194487689062953
+    - -0.02862360328435898
+    - -0.009963036514818668
+    - 0.0037805589381605387
+    - 0.026080751791596413
+    - -0.1583094745874405
+    - -0.009333254769444466
+    - 0.08444265276193619
+    - 0.06474772840738297
+    - -0.014977393671870232
+    - 0.10948745161294937
+    - 0.025583289563655853
+    - -0.027781369164586067
+    - -0.02656695805490017
+    - 0.024284087121486664
+    - -0.12004898488521576
+    - 0.0186008233577013
+    - 0.14653213322162628
+    - -0.023993268609046936
+    - -0.032128870487213135
+    - 0.05457604303956032
+    - 0.06786521524190903
+    - 0.03773803636431694
+    - 0.018438806757330894
+    - 0.023062005639076233
+    - 0.007691057398915291
+    - -0.028781922534108162
+    - -0.006253198254853487
+    - -0.04508083686232567
+    - -0.03601254150271416
+    - 0.07118003070354462
+    - -0.025129755958914757
+    - -2.5491807775779307e-08
+    - 0.039659105241298676
+    - -0.003950368147343397
+    - 0.057957228273153305
+    - -0.13813519477844238
+    - -0.1234288215637207
+    - 0.09700992703437805
+    - -0.02435494400560856
+    - -0.007716676685959101
+    - 0.022301217541098595
+    - -0.03497561812400818
+    - -0.08439266681671143
+    - 0.03617670387029648
+    - 0.0003138421743642539
+    - 0.028495464473962784
+    - 0.017083093523979187
+    - 0.03324517235159874
+    - -0.07925200462341309
+    - -0.007543919607996941
+    - 0.00911500584334135
+    - -0.08915474265813828
+    - -0.12312440574169159
+    - -0.056347064673900604
+    - 0.03747101500630379
+    - 0.015232952311635017
+    - -0.014475023373961449
+    - 0.026590341702103615
+    - 0.04406582936644554
+    - -0.01812458224594593
+    - -0.0583859421312809
+    - -0.017989058047533035
+    - 0.01663624309003353
+    - 0.02122103050351143
+    - 0.06213044375181198
+    - 0.09993886947631836
+    - 0.0038660820573568344
+    - 0.001903761294670403
+    - 0.008356379345059395
+    - -0.022265136241912842
+    - -0.0949120819568634
+    - 0.027484150603413582
+    - 0.014387442730367184
+    - -0.024078981950879097
+    - -0.012412932701408863
+    - -0.007228612434118986
+    - -0.058354202657938004
+    - -0.050117794424295425
+    - 0.0014035147614777088
+    - 0.08413077890872955
+    - -0.014225021004676819
+    - 0.032995957881212234
+    - 0.026496602222323418
+    - -0.0021606083028018475
+    - -0.06059339642524719
+    - -0.040242504328489304
+    - -0.06862124800682068
+    - 0.03054165281355381
+    - 0.03422634303569794
+    - 0.03831084817647934
+    - 0.06415113806724548
+    - -0.01835203915834427
+    - -0.04194636270403862
+    - -0.004283050540834665
+    - 0.1653912216424942
+    - 0.06337672472000122
+    id: MS-005
+    key_concepts:
+    - biocompatibility
+    - tissue engineering
+    - scaffolds
+    - biodegradation
+    - surface functionalization
+    - implants
+    - drug delivery
+    name: Biomaterials
+    parent_domain: materials_science
+    recent_anomalies: []
+    taxonomy_source: custom
+  domain_b:
+    context_abstracts:
+    - '[From Vulcanization to Isotropic and Nematic Rubber Elasticity (arXiv:cond-mat/0411660,
+      2004)]
+
+      A Landau theory is constructed for the vulcanization transition in cross-linked
+      polymer systems with spontaneous nematic ordering. The neo-classical theory
+      of the elasticity of nematic elastomers is derived via the minimization of this
+      Landau free energy; this neo-classical theory contains the classical theory
+      of rubber elasticity as its isotropic limit. Our work not only reveals the statistical-mechanical
+      roots of these elasticity theories, but also demonstrates that they are applicable
+      to a wide class of random solids. It also constitutes a starting-point for the
+      investigation of sample-to-sample fluctuations in various forms of vulcanized
+      matter.'
+    - '[Commentary on: "Unconventional elasticity in smectic-A elastomers" by O. Stenull
+      and T.C. Lubensky (arXiv:0708.2024, 2007)]
+
+      The reorientation behaviour of a smectic-A (SmA) elastomer deformed parallel
+      to the smectic layer normal has been interpreted as a Sm-C like transition by
+      Stenull and Lubensky. Experiments, however, prove that such a transition does
+      not occur.'
+    - '[Nonlinear Elasticity, Fluctuations and Heterogeneity of Nematic Elastomers
+      (arXiv:0709.3665, 2007)]
+
+      Liquid crystal elastomers realize a fascinating new form of soft matter that
+      is a composite of a conventional crosslinked polymer gel (rubber) and a liquid
+      crystal. These {\em solid} liquid crystal amalgams, quite similarly to their
+      (conventional, fluid) liquid crystal counterparts, can spontaneously partially
+      break translational and/or orientational symmetries, accompanied by novel soft
+      Goldstone modes. As a consequence, these materials can exhibit unconventional
+      elasticity characterized by symmetry-enforced vanishing of some elastic moduli.
+      Thus, a proper description of such solids requires an essential modification
+      of the classical elasticity theory. In this work, we develop a {\em rotationally
+      invariant}, {\em nonlinear} theory of elasticity for the nematic phase of ideal
+      liquid crystal elastomers. We show that it is characterized by soft modes, corresponding
+      to a combination of long wavelength shear deformations of the solid network
+      and rotations of the nematic director field. We study thermal fluctuations of
+      these soft modes in the presence of network heterogeneities and show that they
+      lead to a large variety of anomalous elastic properties, such as singular length-scale
+      dependent shear elastic moduli, a divergent elastic constant for splay distortion
+      of the nematic director, long-scale incompressibility, universal Poisson ratios
+      and a nonlinear stress-strain relation fo arbitrary small strains. These long-scale
+      elastic properties are {\em universal}, controlled by a nontrivial zero-temperature
+      fixed point and constitute a qualitative breakdown of the classical elasticity
+      theory in nematic elastomers. Thus, nematic elastomers realize a stable ``critical
+      phase'''', characterized by universal power-law correlations, akin to a critical
+      point of a continuous phase transition, but extending over an entire phase.'
+    embedding:
+    - 0.01360395085066557
+    - -0.07833962887525558
+    - 0.05582677945494652
+    - 0.02257760614156723
+    - 0.060537323355674744
+    - -0.004857359454035759
+    - 0.04831188544631004
+    - 0.102617546916008
+    - -0.03343901038169861
+    - -0.05525309965014458
+    - -0.0013184425188228488
+    - -0.008428430184721947
+    - 0.01763565093278885
+    - 0.021686865016818047
+    - -0.02539406530559063
+    - -0.031728893518447876
+    - -0.034477997571229935
+    - 0.06286374479532242
+    - -0.057832587510347366
+    - 0.012969600968062878
+    - 0.15746378898620605
+    - -0.034809041768312454
+    - -0.0031520607881247997
+    - 0.016199933364987373
+    - -0.004612918943166733
+    - -0.030363254249095917
+    - 0.023448174819350243
+    - 0.03380466252565384
+    - 0.02264474891126156
+    - -0.1061287522315979
+    - -0.045798301696777344
+    - -0.013526269234716892
+    - -0.03224081173539162
+    - -0.017308494076132774
+    - 0.04643005505204201
+    - 0.020399203523993492
+    - 0.005535223986953497
+    - 0.0057357181794941425
+    - -0.007238944061100483
+    - 0.0030951062217354774
+    - 0.05790587514638901
+    - -0.056913942098617554
+    - -0.0054812077432870865
+    - -0.002717863768339157
+    - -0.00020907752332277596
+    - -0.028603777289390564
+    - 0.0007755221449770033
+    - -0.05051383748650551
+    - -0.018361561000347137
+    - 0.0359664112329483
+    - 0.021675173193216324
+    - -0.07679739594459534
+    - 0.04162854701280594
+    - -0.04146498069167137
+    - -0.01604803092777729
+    - -0.04593268409371376
+    - -0.021720750257372856
+    - 0.027854926884174347
+    - 0.08825647830963135
+    - -0.014878064393997192
+    - 0.09899717569351196
+    - 0.0045179808512330055
+    - 0.0646919310092926
+    - 0.05050181224942207
+    - -0.08601600676774979
+    - 0.0433226004242897
+    - 0.12081769108772278
+    - 0.01810394786298275
+    - 0.01160336472094059
+    - 0.025971848517656326
+    - -0.07378805428743362
+    - 0.01183936558663845
+    - -0.041445840150117874
+    - 0.06371554732322693
+    - 0.04427705332636833
+    - -0.0368017815053463
+    - 0.004091288894414902
+    - -0.0027005313895642757
+    - -0.038116518408060074
+    - 0.08328042924404144
+    - -0.06391074508428574
+    - -0.0014584301970899105
+    - -0.005379633512347937
+    - -0.05669914186000824
+    - -0.003916448447853327
+    - 0.03530259057879448
+    - 0.03886979818344116
+    - -0.016302473843097687
+    - -0.003372812643647194
+    - 0.03520982712507248
+    - 0.01211667899042368
+    - 0.024757497012615204
+    - -0.03268904611468315
+    - -0.04155503213405609
+    - -0.009129948914051056
+    - -0.0002123652520822361
+    - -0.07996612787246704
+    - -0.0038038415368646383
+    - 0.03979203477501869
+    - 0.022848863154649734
+    - -0.06381269544363022
+    - 0.006956553552299738
+    - 0.07731033116579056
+    - 0.09380712360143661
+    - -0.0030250928830355406
+    - -0.06924456357955933
+    - -0.055781472474336624
+    - -0.05746404454112053
+    - 0.06010863184928894
+    - 0.08554990589618683
+    - -0.025903070345520973
+    - -0.010834251530468464
+    - 0.0574132464826107
+    - -0.007061906158924103
+    - -0.03195122629404068
+    - -0.05025089159607887
+    - -0.023468315601348877
+    - 0.10214955359697342
+    - 0.060958512127399445
+    - 0.010867210105061531
+    - 0.06564948707818985
+    - -0.0674719586968422
+    - -0.05022446811199188
+    - -0.076013945043087
+    - -0.06171033903956413
+    - -0.057727519422769547
+    - -0.08810179680585861
+    - 1.68321387082945e-33
+    - 0.008249827660620213
+    - -0.00987288635224104
+    - 0.041929833590984344
+    - -0.011418572627007961
+    - -0.042126502841711044
+    - -0.05603575333952904
+    - -0.029306190088391304
+    - 0.04154976084828377
+    - 0.009904230013489723
+    - -0.10149626433849335
+    - -0.01404697634279728
+    - 0.007440618705004454
+    - 0.018729913979768753
+    - 0.07492359727621078
+    - 0.02490336075425148
+    - 0.0027539997827261686
+    - 0.009395161643624306
+    - 0.019926389679312706
+    - -0.027179021388292313
+    - -0.026289427652955055
+    - -0.12052598595619202
+    - 0.006003131158649921
+    - 0.02306019701063633
+    - 0.05490720644593239
+    - 0.011539388447999954
+    - -0.08207979798316956
+    - 0.02645992301404476
+    - -0.056334637105464935
+    - -0.00916959997266531
+    - -0.031669389456510544
+    - -0.016042299568653107
+    - 0.013831126503646374
+    - 0.024534517899155617
+    - 0.11330544203519821
+    - 0.016628311946988106
+    - 0.03686509653925896
+    - -0.025337830185890198
+    - -0.021898625418543816
+    - 0.052132170647382736
+    - -0.0523127056658268
+    - 0.02822263166308403
+    - 0.03498154133558273
+    - 0.08001981675624847
+    - 0.007365300320088863
+    - -0.016187692061066628
+    - 0.0769302025437355
+    - 0.04522106796503067
+    - 0.06318482756614685
+    - 0.032406993210315704
+    - -0.09515602886676788
+    - -0.004383516497910023
+    - 0.0483013354241848
+    - -0.05606460198760033
+    - -0.03180930018424988
+    - 0.06940732151269913
+    - -0.0002709066029638052
+    - -0.07973417639732361
+    - -0.05172676220536232
+    - -0.1095028668642044
+    - 0.00019551129662431777
+    - 0.004063722211867571
+    - -0.002315636957064271
+    - 0.12408733367919922
+    - -0.030237862840294838
+    - 0.006304844282567501
+    - -0.0030580959282815456
+    - -0.06971348822116852
+    - 0.03155289962887764
+    - -0.002262602560222149
+    - -0.03501591831445694
+    - -0.014170294627547264
+    - 0.0008284256909973919
+    - -0.00890340842306614
+    - 0.06465858966112137
+    - 0.02274310402572155
+    - 0.04438074678182602
+    - 0.008869933895766735
+    - -0.08055100589990616
+    - 0.036374133080244064
+    - 0.012169992551207542
+    - -0.03149032965302467
+    - 0.027667511254549026
+    - -0.02277701534330845
+    - -0.04901762306690216
+    - -0.12538130581378937
+    - -0.055089086294174194
+    - 0.027393748983740807
+    - 0.041657786816358566
+    - 0.14560551941394806
+    - 0.020718377083539963
+    - -0.042348142713308334
+    - -0.10100675374269485
+    - -0.04966474324464798
+    - 0.07202932983636856
+    - -0.14472676813602448
+    - -1.6299582829364385e-33
+    - 0.01950571872293949
+    - -0.030620291829109192
+    - 0.0853244960308075
+    - 0.10733237862586975
+    - 0.025070838630199432
+    - -0.01287794765084982
+    - -0.014344649389386177
+    - 0.0204459298402071
+    - -0.02991647645831108
+    - -0.07244184613227844
+    - 0.0574754923582077
+    - -0.05705081298947334
+    - -0.007158060558140278
+    - -0.026660021394491196
+    - -0.007883163169026375
+    - 0.11838962137699127
+    - -0.0019213557243347168
+    - -0.056393105536699295
+    - -0.008420961908996105
+    - -0.04955150559544563
+    - -0.006787012331187725
+    - 0.029283927753567696
+    - -0.016718605533242226
+    - -0.032759346067905426
+    - -0.04167897254228592
+    - 0.005909132305532694
+    - -0.05967705696821213
+    - -0.050106387585401535
+    - -0.028221962973475456
+    - 0.060338057577610016
+    - -0.009094136767089367
+    - -0.10140012949705124
+    - -0.017836013808846474
+    - 0.028701668605208397
+    - -0.03550155088305473
+    - 0.04298906400799751
+    - 0.01072740089148283
+    - 0.06344570219516754
+    - 0.06154055520892143
+    - -0.10038505494594574
+    - 0.06093290448188782
+    - 0.00011010006710421294
+    - 0.055068399757146835
+    - -0.01885996013879776
+    - 0.020608767867088318
+    - -0.010742012411355972
+    - 0.061008892953395844
+    - -0.058012571185827255
+    - -0.01685798540711403
+    - 0.005758178420364857
+    - 0.03113112598657608
+    - -0.001628819853067398
+    - 0.047950856387615204
+    - -0.028705479577183723
+    - -0.06155722960829735
+    - 0.05019877478480339
+    - -0.05495201423764229
+    - 0.017688581719994545
+    - -0.05421491712331772
+    - 0.023525843396782875
+    - -0.024506647139787674
+    - 0.05348365381360054
+    - 0.058298543095588684
+    - -0.032827507704496384
+    - -0.041551265865564346
+    - -0.015112408436834812
+    - 0.01870906725525856
+    - -0.06578390300273895
+    - -0.07604382187128067
+    - -0.04540000855922699
+    - 0.09731198847293854
+    - 0.06883177161216736
+    - 0.019723011180758476
+    - 0.051335010677576065
+    - 0.028027810156345367
+    - -0.06116337701678276
+    - -0.054961398243904114
+    - -0.08622675389051437
+    - -0.12838788330554962
+    - 0.034410107880830765
+    - 0.04873800650238991
+    - 0.059600118547677994
+    - -0.04933703690767288
+    - 0.03819255903363228
+    - -0.08719033747911453
+    - 0.07480105012655258
+    - 0.05431833863258362
+    - 0.05139576643705368
+    - 0.0694444477558136
+    - -0.0007137233624234796
+    - 0.049117229878902435
+    - 0.009305483661592007
+    - 0.040776558220386505
+    - 0.1352211982011795
+    - 0.03299114480614662
+    - -2.3693541351121894e-08
+    - 0.06424016505479813
+    - 0.025685720145702362
+    - 0.010659288614988327
+    - -0.08599522709846497
+    - -0.0643068179488182
+    - 0.03368763625621796
+    - 0.08638672530651093
+    - -0.008578397333621979
+    - -0.07365772128105164
+    - -0.04279104620218277
+    - -0.0712260752916336
+    - 0.023695867508649826
+    - -0.018570270389318466
+    - 0.07584929466247559
+    - 0.0628030076622963
+    - 0.013006261549890041
+    - -0.048728760331869125
+    - 0.09716641157865524
+    - 0.0015786316944286227
+    - -0.04612797871232033
+    - -0.04485299438238144
+    - -0.00634979922324419
+    - 0.006489133927971125
+    - 0.013218839652836323
+    - -0.018840238451957703
+    - -0.001177533413283527
+    - 0.022384071722626686
+    - 0.044990431517362595
+    - 0.0004841014451812953
+    - 0.04147256910800934
+    - -0.006005969829857349
+    - 0.03441404178738594
+    - 0.027952663600444794
+    - -0.03256615623831749
+    - -0.041619673371315
+    - 0.019882217049598694
+    - -0.05592169985175133
+    - -0.06318340450525284
+    - -0.05448967218399048
+    - 0.0748443529009819
+    - 0.07596258819103241
+    - -0.011506155133247375
+    - 0.025700964033603668
+    - 0.028637349605560303
+    - 0.07260388880968094
+    - -0.06700801104307175
+    - -0.1144772544503212
+    - -0.0033892698120325804
+    - -0.0048004393465816975
+    - 0.00937266368418932
+    - 0.09299317747354507
+    - 0.0029356968589127064
+    - -0.0045843725092709064
+    - 0.012344781309366226
+    - -0.031149014830589294
+    - -0.04697028920054436
+    - 0.0017235183622688055
+    - 0.04605179652571678
+    - 0.048658404499292374
+    - 0.00864594615995884
+    - -0.02784469537436962
+    - -0.06893808394670486
+    - 0.12960684299468994
+    - 0.029713161289691925
+    id: MS-032
+    key_concepts:
+    - rubber elasticity
+    - vulcanization
+    - strain crystallization
+    - Mullins effect
+    - hyperelasticity
+    - natural rubber
+    - silicone
+    name: Elastomers
+    parent_domain: materials_science
+    recent_anomalies: []
+    taxonomy_source: custom
+  strategy: semantic_distance
+gap_manifest:
+  competence_gaps:
+  - confidence_degradation: 0.2
+    description: Limited expertise in field theory approaches to soft matter elasticity
+    type: mathematical modeling
+    workaround_used: Focused on conceptual framework rather than detailed mathematical
+      derivations
+  data_gaps:
+  - criticality: high
+    description: Limited data on length-scale dependent mechanical properties of scaffolds
+      during active remodeling
+    domain: biomaterials
+    recurrence: 1
+  - criticality: medium
+    description: Insufficient experimental validation of universal scaling predictions
+      in liquid crystal elastomers
+    domain: elastomers
+    recurrence: 1
+  epistemic_gaps:
+  - exploration_priority: high
+    signal: Uncertainty about how cellular forces couple to scaffold reorganization
+      at different length scales
+    zone: cellular mechanotransduction coupling
+generated_at: '2026-04-05T13:16:20.410207'
+genome_version: l0_v1
+id: SPORE-2026-04-05-2a652ac0
+impact_analysis:
+  horizon_temporel: Moyen terme (3-10 ans)
+  impact_concret: Des implants médicaux et prothèses qui s'adaptent parfaitement au
+    corps humain en temps réel. Les greffes de peau, les réparations d'os cassés,
+    et les organes artificiels pourraient cicatriser plus vite et mieux s'intégrer.
+    Les chirurgiens pourraient prédire exactement comment un implant va évoluer dans
+    le corps du patient.
+  industries_impactees:
+  - Dispositifs médicaux
+  - Biotechnologies
+  - Chirurgie reconstructive
+  - Orthopédie
+  - Cosmétique médicale
+  one_liner: Des implants médicaux qui s'adaptent automatiquement au corps humain
+    pourraient révolutionner la chirurgie reconstructive.
+  score_impact: significatif
+  solutions_existantes: Aujourd'hui, les implants et greffes sont conçus avec des
+    propriétés mécaniques fixes, souvent mal adaptées à l'évolution des tissus. Cette
+    approche permettrait de créer des matériaux qui s'ajustent automatiquement aux
+    besoins changeants du corps humain, réduisant les rejets et améliorant la guérison.
+  taille_marche_estimee: Dizaines de milliards d'euros - le marché global des biomatériaux
+    médicaux représente plus de 150 milliards d'euros
+  vulgarisation: Imaginez un échafaudage qui se reconstruit automatiquement pendant
+    qu'on le sollicite. Cette recherche propose que les matériaux utilisés pour faire
+    repousser les tissus humains se comportent comme des élastiques intelligents qui
+    changent leurs propriétés selon la taille de la zone observée. Plus on zoome,
+    plus ils deviennent flexibles, suivant des lois physiques universelles.
+kill_condition: If biomaterial scaffolds under active cellular remodeling show purely
+  linear elastic behavior at small strains (<1%) and no length-scale dependence in
+  elastic moduli across the 10μm-1mm range
+next_steps:
+- Measure shear moduli of collagen scaffolds with embedded fibroblasts across length
+  scales from 10μm to 1mm using micro-rheology techniques
+- Apply the rotationally invariant elasticity framework to model scaffold mechanics
+  with tissue organization as the order parameter
+- Test predicted universal Poisson ratios in different scaffold materials (collagen,
+  fibrin, synthetic) during active remodeling phases
+predictions:
+- differs_from_consensus: true
+  expected_range: G(L) ∝ L^(-α) where α = 0.2-0.5
+  metric: Shear modulus as function of measurement length scale
+  statement: Biomaterial scaffolds undergoing active remodeling will exhibit universal
+    power-law scaling in their mechanical response with length-scale dependent shear
+    moduli
+- differs_from_consensus: true
+  expected_range: ν → 0.25-0.33 regardless of initial scaffold ν
+  metric: Poisson ratio during active remodeling phase
+  statement: The effective Poisson ratio of remodeling scaffolds will approach universal
+    values independent of base material properties
+- differs_from_consensus: true
+  expected_range: Detectable nonlinearity (>10% deviation from Hooke's law) at strains
+    <0.5%
+  metric: Stress-strain curve linearity at <1% strain
+  statement: Scaffolds will exhibit nonlinear stress-strain relationships even for
+    arbitrarily small strains during active remodeling
+relevant_datasets:
+- Mechanical testing data from tissue engineering studies with time-resolved measurements
+- Multi-scale mechanical property databases for soft biological materials
+- Cellular force traction microscopy datasets on deformable substrates
+relevant_labs: []
+scores:
+  coherence: 0.55
+  composite: 0.38500000000000006
+  hallucination_risk: 0.525
+  impact_potential: 0.5
+  novelty: 0.475
+  testability: 0.625
+sources_used:
+- arXiv:0709.3665
+- arXiv:1301.2823
+- arXiv:1610.02543
+status: curated

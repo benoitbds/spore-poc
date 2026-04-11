@@ -1,0 +1,305 @@
+{
+  "generated_at": "2026-04-05 12:48:01.053420",
+  "analyzed_run_ids": [
+    "run-20260405-105532-c84290",
+    "run-20260405-103445-1e077a",
+    "run-20260404-163130-c22045",
+    "run-20260404-150022-e9f422",
+    "run-20260404-145438-8e5fad"
+  ],
+  "total_collisions": 162,
+  "total_hypotheses": 162,
+  "total_curated": 10,
+  "bridge_rate": 1.0,
+  "curation_rate": 0.06172839506172839,
+  "avg_composite_score": 0.3642763157894737,
+  "score_distribution": {
+    "0.0-0.3": 2.0,
+    "0.3-0.5": 17.0,
+    "0.5-0.7": 0.0,
+    "0.7-1.0": 0.0
+  },
+  "feedback_distribution": {
+    "interesting": 5,
+    "trash": 4,
+    "want_to_test": 1
+  },
+  "score_feedback_correlation": 0.8490954945612744,
+  "top_data_gaps": [
+    {
+      "domain": "Surface Science",
+      "description": "Lack of kinetic data for reconstruction rates under reactive environments",
+      "criticality": "high",
+      "recurrence": 1
+    },
+    {
+      "domain": "Catalytic Materials",
+      "description": "Limited data on catalyst behavior under oscillatory operating conditions",
+      "criticality": "medium",
+      "recurrence": 1
+    },
+    {
+      "domain": "quasicrystalline substrates",
+      "description": "Limited data on growth of superconducting films on quasicrystalline substrates",
+      "criticality": "high",
+      "recurrence": 1
+    },
+    {
+      "domain": "artificial pinning arrays",
+      "description": "Sparse literature on non-periodic pinning array geometries",
+      "criticality": "medium",
+      "recurrence": 1
+    },
+    {
+      "domain": "thin films",
+      "description": "Spatially-resolved defect characterization data during growth processes",
+      "criticality": "high",
+      "recurrence": 1
+    }
+  ],
+  "top_competence_gaps": [
+    {
+      "type": "Thermodynamic modeling",
+      "description": "Insufficient knowledge of surface energy calculations for complex reconstructions",
+      "recurrence": 1
+    },
+    {
+      "type": "materials synthesis",
+      "description": "Detailed knowledge of quasicrystal substrate preparation for epitaxial growth",
+      "recurrence": 1
+    },
+    {
+      "type": "kinetic modeling",
+      "description": "Detailed understanding of surface diffusion kinetics during deposition",
+      "recurrence": 1
+    },
+    {
+      "type": "theoretical modeling",
+      "description": "Detailed knowledge of how domain wall geometry affects topological invariants",
+      "recurrence": 1
+    },
+    {
+      "type": "materials synthesis",
+      "description": "Detailed knowledge of LC elastomer crosslinking chemistry compatible with cell culture",
+      "recurrence": 1
+    }
+  ],
+  "top_epistemic_gaps": [
+    {
+      "zone": "Reconstruction-catalysis coupling",
+      "signal": "Unknown how reconstruction timescales compare to catalytic turnover rates",
+      "recurrence": 1
+    },
+    {
+      "zone": "vortex-quasicrystal interactions",
+      "signal": "No existing theoretical framework for this specific interaction",
+      "recurrence": 1
+    },
+    {
+      "zone": "phason effects on superconductivity",
+      "signal": "Unclear how quasicrystal phason modes would couple to superconducting order parameter",
+      "recurrence": 1
+    },
+    {
+      "zone": "length scale coupling",
+      "signal": "Uncertainty about how atomic-scale deposition events create mesoscale defect patterns",
+      "recurrence": 1
+    },
+    {
+      "zone": "experimental verification",
+      "signal": "Limited published reports of topological states in ferroelectric materials",
+      "recurrence": 1
+    }
+  ],
+  "domain_fertility": {
+    "Crystallography": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.0,
+      "feedback_ratio": 0.0
+    },
+    "Machine Learning": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.0,
+      "feedback_ratio": 0.0
+    },
+    "Catalytic Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.405,
+      "feedback_ratio": 1.0
+    },
+    "Surface Science": {
+      "collisions": 2.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.388,
+      "feedback_ratio": 1.0
+    },
+    "Superconductivity": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.4,
+      "feedback_ratio": 1.0
+    },
+    "Quasicrystals": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.4,
+      "feedback_ratio": 1.0
+    },
+    "Thin Films": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.393,
+      "feedback_ratio": 1.0
+    },
+    "Photovoltaic Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.393,
+      "feedback_ratio": 1.0
+    },
+    "Ferroelectric Materials": {
+      "collisions": 2.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.368,
+      "feedback_ratio": 1.0
+    },
+    "Topological Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.405,
+      "feedback_ratio": 1.0
+    },
+    "Biomaterials": {
+      "collisions": 3.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.374,
+      "feedback_ratio": 1.0
+    },
+    "Elastomers": {
+      "collisions": 2.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.376,
+      "feedback_ratio": 1.0
+    },
+    "Hydrogels": {
+      "collisions": 2.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.343,
+      "feedback_ratio": 0.0
+    },
+    "Biomedical Coatings": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.265,
+      "feedback_ratio": 0.0
+    },
+    "Fracture Mechanics": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.306,
+      "feedback_ratio": 0.0
+    },
+    "Nuclear Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.306,
+      "feedback_ratio": 0.0
+    },
+    "High-Entropy Alloys": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.282,
+      "feedback_ratio": 0.0
+    },
+    "Thermoelectric Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.282,
+      "feedback_ratio": 0.0
+    },
+    "Ceramics": {
+      "collisions": 4.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.361,
+      "feedback_ratio": 1.0
+    },
+    "Polymer Science": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.42,
+      "feedback_ratio": 0.5
+    },
+    "Electrorheological Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.375,
+      "feedback_ratio": 0.5
+    },
+    "Composites": {
+      "collisions": 2.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.371,
+      "feedback_ratio": 0.5
+    },
+    "Cement and Concrete": {
+      "collisions": 2.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.369,
+      "feedback_ratio": 0.5
+    },
+    "Self-Healing Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.37,
+      "feedback_ratio": 0.5
+    },
+    "Aerospace Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.37,
+      "feedback_ratio": 0.5
+    },
+    "Colloidal Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.37,
+      "feedback_ratio": 0.5
+    },
+    "Magnetic Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.37,
+      "feedback_ratio": 0.5
+    },
+    "Multiferroics": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.37,
+      "feedback_ratio": 0.5
+    },
+    "Biomimetic Materials": {
+      "collisions": 1.0,
+      "bridge_rate": 1.0,
+      "avg_score": 0.367,
+      "feedback_ratio": 0.5
+    }
+  },
+  "overexploited_domains": [],
+  "underexplored_domains": [
+    "Ceramics",
+    "Biomaterials",
+    "Surface Science",
+    "Ferroelectric Materials",
+    "Elastomers"
+  ],
+  "total_cost_usd": 10.975848,
+  "cost_per_curated": 1.0975848,
+  "issues": [],
+  "opportunities": [
+    "Strong score-feedback correlation (0.85): Scoring system is well-calibrated",
+    "Promising underexplored domains: Ceramics, Biomaterials, Surface Science"
+  ]
+}

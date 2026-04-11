@@ -1,0 +1,1023 @@
+bridge:
+  mechanism: RTX compounds exhibit enormous variability in magnetic, electrical, and
+    structural properties that depend on subtle compositional and processing variables,
+    creating a high-dimensional parameter space similar to multivariate statistical
+    problems. The challenge in RTX research is that small changes in composition (R,
+    T, X ratios) or annealing temperature can dramatically alter crystal structure,
+    magnetic ordering temperature, and functional properties like magnetocaloric effect.
+    This mirrors statistical problems where multiple variables interact nonlinearly
+    to produce outcomes. Statistical design of experiments, response surface methodology,
+    and uncertainty quantification can be systematically applied to map the RTX property
+    landscape, identify optimal compositions, and quantify confidence intervals around
+    property predictions - transforming the current trial-and-error approach into
+    a systematic exploration strategy.
+  summary: Statistical uncertainty quantification methods can be transferred to characterize
+    and optimize the complex phase transitions and property variations in RTX intermetallic
+    compounds.
+  type: methodological_transfer
+collision:
+  distance_score: 0.6911197900772095
+  domain_a:
+    context_abstracts:
+    - '[Review on magnetic and related properties of RTX compounds (arXiv:1408.3238,
+      2014)]
+
+      RTX (R=rare earths, T= 3d/4d/5d, transition metals such as Sc, Ti, Mn, Fe, Co,
+      Ni, Cu, Ru, Rh, Pd, Ag, Os, Ir, Pt, Au, and X=p-block elements such as Al, Ga,
+      In, Si, Ge, Sn, As, Sb, Bi) series is a huge family of intermetallics compounds.
+      These compounds crystallize in different crystal structures depending on the
+      constituents. Though these compounds have been known for a long time, they came
+      to limelight recently in view of the large magnetocaloric effect (MCE) and magnetoresistance
+      (MR) shown by many of them. Most of these compounds crystallize in hexagonal
+      and tetragonal crystal structures. Some of them show crystal structure modification
+      with annealing temperature; while a few of them show iso-structural transition
+      in the paramagnetic regime. Their magnetic ordering temperatures vary from very
+      low temperatures to temperatures well above room temperature (~510 K). Depending
+      on the crystal structure, they show a variety of magnetic and electrical properties.
+      These compounds have been characterized by means of a variety of techniques/measurements
+      such as x-ray diffraction, neutron diffraction, magnetic properties, heat capacity,
+      magnetocaloric properties, electrical resistivity, magnetoresistance, thermoelectric
+      power, thermal expansion, Hall effect, optical properties, XPS, Mössbauer spectroscopy,
+      ESR, μSR, NMR, NQR etc. Some amount of work on theoretical calculations on electronic
+      structure, crystal field interaction and exchange interactions has also been
+      reported. The interesting aspect of this series is that they show a variety
+      of physical properties such as Kondo effect, heavy fermion behavior, spin glass
+      state, intermediate valence, superconductivity, multiple magnetic transitions,
+      metamagnetism, large MCE, large positive as well as negative MR, spin orbital
+      compensation, magnetic polaronic behavior, pseudo gap effect etc.'
+    - '[Thermoelectric properties of Pr3Rh4Sn13-type Yb3Co4Ge13 and Yb3Co4Sn13 compounds
+      (arXiv:1207.6875, 2012)]
+
+      Crystallographic data and thermoelectric properties (from 240 K up to 380 K)
+      of Yb3Co4Ge13, Yb3Co4Sn13 compounds and Yb2CeCo4Ge13 and Yb2.3La0.7Co4Ge13 solid
+      solutions are reported. The Seebeck coefficients, electric resistance and thermal
+      conductivity increase monotonically with increasing temperature from 240 to
+      380 K for all the compounds. The Seebeck coefficient is S = 14 - 27 μV//K for
+      Yb3Co4Sn13, and S = -21 -- -12 μV/K for Yb3Co4Ge13. The substitution of Yb for
+      cerium or lanthanum in Yb3Co4Ge13 shifts the Seeebeck coefficient to positive
+      values. The Yb3Co4Sn13 has a maximal ZT parameter from available Pr3Rh4Sn13-type
+      compounds. The ZT parameter of Yb3Co4Sn13 compound increases from 0.006 up to
+      0.017 with increasing temperature from 240 K to 380 K.'
+    - '[Evolution of the spectrum and the metal-insulator transition in local approximations
+      for many-electron models (arXiv:1111.3751, 2011)]
+
+      In the framework of the many-electron s-d exchange model and Hubbard model,
+      self-consistent equations are derived for the one-particle retarded Green''s
+      function in the many-electron Hubbard X-operator representation. We analyze
+      the general structure of the single-site approximations and their connection
+      with the coherent potential approximation (CPA) and dynamic effective field
+      theory (DMFT). Using the self-consistent approximation, we examine in detail
+      the picture of the evolution of the electron spectrum with the model parameters
+      (coupling constants, the concentration of charge carriers). The influence of
+      various factors (Kondo many-electron scattering, smearing due to damping, dynamics
+      of localized moment subsystem) on the shape of the density of states N(E) in
+      the interacting system is investigated. It is shown that the use of the locator
+      representation allows to avoid in some cases the non-analyticity in approximate
+      expressions for the Green''s functions. Our approach enables one to reproduce,
+      at certain values of the parameters, three-peak structure of N(E) near the metal-insulator
+      transition.'
+    embedding:
+    - -0.05465630069375038
+    - -0.08280275762081146
+    - -0.036157410591840744
+    - 0.027759023010730743
+    - -0.033300187438726425
+    - -0.03300260379910469
+    - 0.020977504551410675
+    - 0.06384661048650742
+    - -0.062384456396102905
+    - 0.004878740292042494
+    - -0.07095230370759964
+    - -0.023467745631933212
+    - -0.04780340939760208
+    - 0.05121653899550438
+    - -0.026148952543735504
+    - -0.03982766717672348
+    - -0.034327082335948944
+    - 0.00784694217145443
+    - -0.005125219002366066
+    - 0.06039436534047127
+    - -0.00884484313428402
+    - -0.048053719103336334
+    - 0.0663747787475586
+    - 0.043312206864356995
+    - -0.05542216822504997
+    - 0.06732608377933502
+    - 0.04674525558948517
+    - 0.016197461634874344
+    - -0.03402372822165489
+    - -0.005441363900899887
+    - -0.10377895087003708
+    - 0.11333587020635605
+    - 0.04915155842900276
+    - -0.03277670592069626
+    - 0.012409567832946777
+    - -0.04426749050617218
+    - -0.024685433134436607
+    - 0.04024630784988403
+    - 0.021779740229249
+    - 0.04619818180799484
+    - 0.026171425357460976
+    - 0.005561919417232275
+    - 0.09728340059518814
+    - -0.035947952419519424
+    - 0.07402995228767395
+    - -0.031281519681215286
+    - 0.0004964897525496781
+    - -0.10755866765975952
+    - -0.04572972282767296
+    - -0.03883226215839386
+    - -0.02452559769153595
+    - 0.021707242354750633
+    - -0.08303790539503098
+    - 0.06496743857860565
+    - -0.008262844756245613
+    - -0.006544571835547686
+    - -0.0034365523606538773
+    - 0.01600719429552555
+    - -0.021690357476472855
+    - -0.05040115490555763
+    - 0.043820902705192566
+    - -0.013198566623032093
+    - -0.005131353158503771
+    - 0.021552184596657753
+    - 0.002318433253094554
+    - 0.030732350423932076
+    - 0.052162740379571915
+    - 0.05700673907995224
+    - 0.07271178066730499
+    - -0.0344528965651989
+    - -0.0024716882035136223
+    - -0.00031272097839973867
+    - -0.014909345656633377
+    - 0.03441254794597626
+    - 0.08701138198375702
+    - 0.03531697392463684
+    - 0.03852027654647827
+    - -0.0002721705532167107
+    - -0.023195546120405197
+    - -0.06989972293376923
+    - -0.06103026121854782
+    - 0.04636406898498535
+    - 0.07596996426582336
+    - -0.030248401686549187
+    - -0.02746742218732834
+    - 0.005115577019751072
+    - -0.047689586877822876
+    - 0.006503769662231207
+    - -0.08058476448059082
+    - -0.04888619855046272
+    - 0.0020496880169957876
+    - -0.009661192074418068
+    - 0.015502219088375568
+    - -0.004220618400722742
+    - -0.04017208144068718
+    - 0.11644566804170609
+    - 0.0002749371051322669
+    - 0.008219096809625626
+    - 0.05963008105754852
+    - -0.020099615678191185
+    - 0.0718594640493393
+    - 0.0077661750838160515
+    - -0.0663440003991127
+    - -0.0021732503082603216
+    - -0.013713601976633072
+    - 0.040530186146497726
+    - 0.03201887384057045
+    - 0.010866064578294754
+    - 0.024150894954800606
+    - 0.07750620692968369
+    - -0.05919099226593971
+    - 0.019371172413229942
+    - 0.03417012467980385
+    - -0.07740515470504761
+    - -0.021029910072684288
+    - 0.17681384086608887
+    - 0.009822086431086063
+    - 0.011359506286680698
+    - 0.05074772983789444
+    - 0.031046420335769653
+    - -0.041633035987615585
+    - -0.02173933945596218
+    - -0.05717132240533829
+    - -0.020213166251778603
+    - -0.013439756818115711
+    - -0.0406172089278698
+    - -0.08189670741558075
+    - 2.3357004792571696e-33
+    - -0.004923847503960133
+    - 0.07289517670869827
+    - 0.06257936358451843
+    - 0.03669202700257301
+    - -0.01970386877655983
+    - -0.07119596749544144
+    - 0.001772705465555191
+    - -0.07803226262331009
+    - -0.061649128794670105
+    - -0.018459632992744446
+    - 0.04210963100194931
+    - 0.06832146644592285
+    - 0.009911655448377132
+    - -0.053624458611011505
+    - -0.008092985488474369
+    - 0.0008212613756768405
+    - 0.02054479718208313
+    - -0.0414801761507988
+    - 0.1259024441242218
+    - 0.037923529744148254
+    - -0.031518928706645966
+    - 0.03362293168902397
+    - -0.015739450231194496
+    - 0.10326682031154633
+    - 0.014054867438971996
+    - 0.07765190303325653
+    - -0.013903912156820297
+    - -0.023506436496973038
+    - -0.03917844220995903
+    - -0.010815644636750221
+    - 0.056334301829338074
+    - 0.03329430893063545
+    - -0.13766612112522125
+    - -0.040078744292259216
+    - -0.026475640013813972
+    - -0.024665093049407005
+    - -0.04476693272590637
+    - -0.007147636730223894
+    - 0.011877194978296757
+    - -0.055092718452215195
+    - -0.012982059270143509
+    - -0.009086288511753082
+    - -0.06702456623315811
+    - 0.05025521293282509
+    - 0.019779792055487633
+    - -0.0014005015837028623
+    - 0.014914651401340961
+    - 0.1169951930642128
+    - 0.10478542745113373
+    - 0.005842303391546011
+    - -0.03167595714330673
+    - -0.0031745268497616053
+    - -0.04389270395040512
+    - -0.04835934937000275
+    - -0.04767298325896263
+    - 0.06479333341121674
+    - -0.022271471098065376
+    - -0.015545736998319626
+    - -0.009434200823307037
+    - 0.047787006944417953
+    - 0.04374990612268448
+    - 0.014330164529383183
+    - -0.045338958501815796
+    - -0.05820303410291672
+    - -0.05503490939736366
+    - 0.014313945546746254
+    - -0.11463326215744019
+    - -0.025400476530194283
+    - 0.02009495347738266
+    - -0.0453166626393795
+    - -0.04216630011796951
+    - 0.011007907800376415
+    - 0.020163996145129204
+    - 0.018285246565937996
+    - 0.08790318667888641
+    - 0.08039277791976929
+    - 0.02083507552742958
+    - -0.12965722382068634
+    - 0.07512056827545166
+    - 0.05138736963272095
+    - -0.03151218593120575
+    - -0.005539047531783581
+    - 0.0038701093290001154
+    - -0.053581152111291885
+    - -0.058128345757722855
+    - -0.06307851523160934
+    - 0.00601493613794446
+    - -0.008254127576947212
+    - -0.008198131807148457
+    - -0.02898496203124523
+    - -0.028503859415650368
+    - -0.056391745805740356
+    - -0.00035825915983878076
+    - -0.005933371838182211
+    - -0.015548736788332462
+    - -4.7130421112082494e-33
+    - 0.09144362807273865
+    - -0.04673902317881584
+    - -0.03761293366551399
+    - -0.040622491389513016
+    - 0.011795662343502045
+    - 0.012785027734935284
+    - -0.10745108872652054
+    - -0.06923329085111618
+    - 0.12209009379148483
+    - -0.006137371063232422
+    - 0.06028371304273605
+    - -0.0032455120235681534
+    - 0.019444745033979416
+    - -0.017328893765807152
+    - -0.11194241046905518
+    - 0.0029958547092974186
+    - -0.06066734343767166
+    - -0.029826730489730835
+    - 0.07718632370233536
+    - 0.0628616213798523
+    - -0.08363144099712372
+    - 0.0005547958426177502
+    - -0.10960785299539566
+    - -0.0669391080737114
+    - -0.020817600190639496
+    - 0.030666323378682137
+    - 0.02164163626730442
+    - -0.08809227496385574
+    - 0.04501866176724434
+    - 0.12169268727302551
+    - 0.01019984856247902
+    - 0.03460542857646942
+    - 0.009789793752133846
+    - -0.03376859799027443
+    - -0.06775353848934174
+    - -0.014396052807569504
+    - -0.02479715831577778
+    - -0.0643652081489563
+    - -0.01602872461080551
+    - 0.04023189842700958
+    - 0.03892754018306732
+    - -0.00034155239700339735
+    - 0.08098980039358139
+    - 0.00939174648374319
+    - 0.04157957807183266
+    - -0.06578757613897324
+    - -0.07342706620693207
+    - 0.07579640299081802
+    - -0.025526346638798714
+    - 0.007447067182511091
+    - 0.07702025771141052
+    - -0.013621961697936058
+    - -0.007935438305139542
+    - -0.10528286546468735
+    - 0.08079737424850464
+    - 0.05651014670729637
+    - 0.02905496209859848
+    - -0.05226365104317665
+    - 0.013430381193757057
+    - -0.042388588190078735
+    - 0.04541493579745293
+    - -0.001363168703392148
+    - 0.045034997165203094
+    - 0.0650366023182869
+    - -0.08248431235551834
+    - -0.009576914831995964
+    - -0.043653860688209534
+    - -0.011515014804899693
+    - 0.04379881173372269
+    - -0.11949750781059265
+    - -0.02683732844889164
+    - 0.04506507143378258
+    - 0.06683341413736343
+    - 0.060516297817230225
+    - 0.04502607882022858
+    - -0.051206011325120926
+    - 0.005254780407994986
+    - 0.04525299742817879
+    - -0.03473515436053276
+    - -0.0067671118304133415
+    - 0.05209585651755333
+    - 0.011629890650510788
+    - 0.0270437803119421
+    - 0.051996149122714996
+    - -0.0016241439152508974
+    - 0.10220354050397873
+    - 0.049154143780469894
+    - 0.04370209947228432
+    - 0.01648169569671154
+    - -0.10361722856760025
+    - -0.08197993040084839
+    - -0.004380911588668823
+    - 0.05407178774476051
+    - 0.07481604069471359
+    - -0.017162766307592392
+    - -2.676491384079327e-08
+    - 0.010800576768815517
+    - 0.01934463530778885
+    - 0.029102995991706848
+    - -0.02130258083343506
+    - -0.06678041070699692
+    - 0.08100657910108566
+    - 0.025934386998414993
+    - -0.02197423204779625
+    - -0.08045686781406403
+    - 0.08830270171165466
+    - -0.026870189234614372
+    - 0.015816370025277138
+    - -0.020668569952249527
+    - -0.012165279127657413
+    - 0.08991673588752747
+    - -0.012282103300094604
+    - -0.012082245200872421
+    - -0.037063609808683395
+    - -0.015758536756038666
+    - 0.006200928241014481
+    - 0.021895525977015495
+    - 0.021809171885252
+    - -0.005019527859985828
+    - 0.02984749525785446
+    - 0.0015393422218039632
+    - -0.024019598960876465
+    - 0.03381013125181198
+    - -0.10541080683469772
+    - -0.0369463786482811
+    - 0.0007732397643849254
+    - -0.036109551787376404
+    - -0.0152142234146595
+    - 0.02076358161866665
+    - -0.02906765416264534
+    - 0.05260176956653595
+    - 0.07944837957620621
+    - 0.04255572706460953
+    - -0.1485617756843567
+    - -0.02727125585079193
+    - -0.05497216433286667
+    - 0.014076204039156437
+    - -0.03599322587251663
+    - -0.07178682833909988
+    - 0.013848407194018364
+    - 0.08627760410308838
+    - -0.018477633595466614
+    - -0.019599199295043945
+    - 0.07550881057977676
+    - 0.040500570088624954
+    - -0.01975969597697258
+    - -0.08596782386302948
+    - 0.01259569264948368
+    - -0.1008811816573143
+    - -0.009370425716042519
+    - 0.01781916618347168
+    - 0.11278454214334488
+    - 0.013572492636740208
+    - -0.0049130660481750965
+    - -0.018310030922293663
+    - -0.07715514302253723
+    - 0.04809591546654701
+    - -0.012198946438729763
+    - 0.032224033027887344
+    - 0.012219113297760487
+    id: CHM-002
+    key_concepts:
+    - coordination compounds
+    - transition metals
+    - ligand field theory
+    - organometallics
+    - solid-state chemistry
+    - bioinorganic chemistry
+    - crystal field theory
+    name: Inorganic Chemistry
+    parent_domain: Chemistry
+    recent_anomalies: []
+    taxonomy_source: custom
+  domain_b:
+    context_abstracts:
+    - '[The Importance of Statistics in Medical Healthcare (2024)]
+
+      Abstract: Statistical principles play a fundamental role in shaping the landscape
+      of medical science by providing a structured framework for analyzing data, drawing
+      conclusions, and making informed decisions in healthcare settings. In the realm
+      of medical research, statistical principles are crucial for designing experiments,
+      interpreting results, and ensuring the reliability and validity of findings.
+      Key statistical concepts like hypothesis testing, confidence intervals, regression
+      analysis, and survival analysis are extensively utilized in medical studies
+      to assess the effectiveness of treatments, understand disease patterns, and
+      evaluate healthcare interventions. These principles enable healthcare professionals
+      to make evidence-based decisions, tailor treatments to individual patient needs,
+      and continuously improve the quality of care provided to patients. The role
+      of statistics in medical research starts at the planning stage of a clinical
+      trial or laboratory experiment to establish the design and size of an experiment
+      that will ensure a good prospect of detecting effects of clinical or scientific
+      interest. Statistics is again used during the analysis of data (sample data)
+      to make inferences valid in a wider population. In simple situations computation
+      of simple quantities such as P-values, confidence intervals, standard deviations,
+      standard errors or application of some standard parametric or nonparametric
+      tests may suffice.'
+    - '[Inferential Statistics for Evidence-Based Decision-Making in Non-Profit Organizations
+      (2025)]
+
+      Inferential statistics extend quantitative analysis beyond description, enabling
+      non-profit organizations to generalize findings from samples, quantify uncertainty,
+      and test hypotheses. This article synthesizes core elements of inferential practice—including
+      populations and samples, sampling distributions, hypothesis testing, confidence
+      intervals, effect sizes, and common procedures such as t-tests, chi-square tests,
+      ANOVA, and regression. Emphasis is placed on assumptions, design choices, and
+      the interpretation of p-values alongside interval estimates and standardized
+      effects. Practical examples illustrate applications in program evaluation, equity
+      assessment, comparative intervention analysis, and predictive planning. The
+      discussion addresses common pitfalls, such as conflating statistical with practical
+      significance, multiple testing inflation, and biased sampling, offering remedies
+      like pre-specification, multiplicity corrections, robust estimators, and transparent
+      reporting. By integrating rigorous inference with contextual judgment, non-profits
+      can convert sample evidence into credible, actionable guidance for policy, planning,
+      and program improvement.'
+    - '[Statistics in R with Tidyverse (2024)]
+
+      This comprehensive seminar introduces participants to key concepts and practices
+      in statistical inference using R, covering topics such as exploratory data analysis,
+      regression analysis, confidence intervals, hypothesis testing, and more based
+      on data science principles. Attendees will gain hands-on experience, enhancing
+      their ability to manage and analyze complex datasets and effectively communicate
+      their research findings.'
+    embedding:
+    - -0.019317904487252235
+    - -0.029036832973361015
+    - -0.015977591276168823
+    - 0.04069126769900322
+    - -0.06291408091783524
+    - -0.016288531944155693
+    - -0.114817775785923
+    - 0.05169517919421196
+    - -0.020571835339069366
+    - 0.04744457080960274
+    - -0.03877361863851547
+    - -0.045526910573244095
+    - -0.0414595901966095
+    - -0.02683010697364807
+    - -0.03822449594736099
+    - -0.04121912270784378
+    - -0.007790532428771257
+    - -0.026077477261424065
+    - 0.00993136502802372
+    - -0.11814528703689575
+    - -0.013321874663233757
+    - -0.006566363852471113
+    - 0.03475891798734665
+    - -0.03137651085853577
+    - -0.013186884112656116
+    - -0.04221058636903763
+    - 0.0433020256459713
+    - 0.0062131877057254314
+    - -0.08952467143535614
+    - 0.011815628968179226
+    - -0.027650652453303337
+    - -0.004680015612393618
+    - 0.03967161104083061
+    - 0.0009213252924382687
+    - -0.023159991949796677
+    - -0.057353775948286057
+    - 0.0922267958521843
+    - 0.012322913855314255
+    - 0.03612067550420761
+    - 0.04184488579630852
+    - -0.08706600964069366
+    - -0.07423803955316544
+    - 0.06752379238605499
+    - -0.002505830256268382
+    - 0.006384102161973715
+    - -0.020211990922689438
+    - -0.00606666412204504
+    - -0.07035277783870697
+    - -0.07926701009273529
+    - 0.0346597284078598
+    - -0.09551122039556503
+    - -0.018034381791949272
+    - -0.03126771003007889
+    - -0.0295576024800539
+    - -0.0028460673056542873
+    - -0.07411973178386688
+    - -0.010902425274252892
+    - 0.0036780911032110453
+    - 0.05853552371263504
+    - 0.015342365019023418
+    - 0.026184294372797012
+    - -0.04055347293615341
+    - -0.09952877461910248
+    - 0.06917775422334671
+    - 0.009610088542103767
+    - 0.010400831699371338
+    - -0.03510354459285736
+    - 0.08672856539487839
+    - 0.02717147208750248
+    - 0.06586989015340805
+    - -0.045431263744831085
+    - 0.0018967665964737535
+    - -0.09194647520780563
+    - 0.028035150840878487
+    - 0.059039030224084854
+    - -0.013957580551505089
+    - -0.011716518551111221
+    - 0.005910341162234545
+    - 0.03959750011563301
+    - -0.07630020380020142
+    - -0.02085261233150959
+    - -0.022799570113420486
+    - -0.03458361327648163
+    - 0.04085048660635948
+    - 0.05550369247794151
+    - 0.01854868419468403
+    - -0.028295142576098442
+    - 0.07588861137628555
+    - -0.10628149658441544
+    - -0.017858698964118958
+    - 0.09559690952301025
+    - -0.034378781914711
+    - -0.055520378053188324
+    - 0.06947740167379379
+    - -0.013264317065477371
+    - 0.03673779219388962
+    - -0.036566611379384995
+    - -0.09028363227844238
+    - 0.08124907314777374
+    - 0.01259591244161129
+    - 0.025189662352204323
+    - 0.025247985497117043
+    - -0.0023493340704590082
+    - 0.050947558134794235
+    - -0.08805111050605774
+    - -0.0015586449299007654
+    - 0.07741773873567581
+    - -0.0494099035859108
+    - 0.06897686421871185
+    - 0.06472746282815933
+    - -0.07678733766078949
+    - 0.03326970338821411
+    - -0.04413706809282303
+    - 0.011467328295111656
+    - 0.05817757919430733
+    - -0.05033157765865326
+    - -0.027815144509077072
+    - 0.009495869278907776
+    - 0.06161455437541008
+    - 0.05403193086385727
+    - 0.022056717425584793
+    - 0.01756366714835167
+    - 0.028595145791769028
+    - -0.03038734383881092
+    - 0.006467739120125771
+    - 0.0654996931552887
+    - -0.13179677724838257
+    - 2.14835625076586e-33
+    - -0.023167353123426437
+    - -0.022726912051439285
+    - -0.027458829805254936
+    - 0.0517956018447876
+    - -0.06457855552434921
+    - -0.03871465101838112
+    - -0.00886618997901678
+    - 0.01875685714185238
+    - 0.050666339695453644
+    - 0.00417358847334981
+    - 0.028108686208724976
+    - 0.041916146874427795
+    - -0.06117979437112808
+    - 0.03760049492120743
+    - 0.09289486706256866
+    - 0.0662427544593811
+    - 0.06268538534641266
+    - 0.07640612870454788
+    - -0.018313659355044365
+    - 0.041725948452949524
+    - 0.04191270098090172
+    - -0.08024631440639496
+    - 0.055875614285469055
+    - 0.027346380054950714
+    - 0.021873168647289276
+    - 0.03864682465791702
+    - -0.03151408210396767
+    - -0.03531914949417114
+    - -0.053819652646780014
+    - 0.017958471551537514
+    - 0.008276060223579407
+    - 0.04689399152994156
+    - -0.10535380244255066
+    - 0.010752965696156025
+    - -0.026911158114671707
+    - 0.005333442706614733
+    - -0.015270223841071129
+    - -0.009383871220052242
+    - 0.002504561096429825
+    - 0.050564609467983246
+    - -0.05638013407588005
+    - 0.019307520240545273
+    - 0.012609083205461502
+    - 0.00499481987208128
+    - 0.015905847772955894
+    - -0.040368661284446716
+    - 0.004053318873047829
+    - 0.03232762590050697
+    - 0.09159538894891739
+    - -0.0037501677870750427
+    - -0.135597363114357
+    - -0.00985296256840229
+    - 0.036627065390348434
+    - -0.12449842691421509
+    - 0.00860319472849369
+    - 0.0589141771197319
+    - -0.02240750938653946
+    - -0.057167746126651764
+    - -0.06175612285733223
+    - 0.05872505530714989
+    - -0.09983173757791519
+    - 0.05798036977648735
+    - -0.004992686212062836
+    - -0.13819384574890137
+    - -0.04267992079257965
+    - 0.04413329437375069
+    - -0.055623579770326614
+    - -0.024244600906968117
+    - 0.020562563091516495
+    - 0.03130204975605011
+    - 0.001921120216138661
+    - -0.0008818521746434271
+    - -0.029908057302236557
+    - -0.031631287187337875
+    - 0.025377023965120316
+    - 0.0026317385490983725
+    - -0.02331867814064026
+    - 0.024575699120759964
+    - 0.03523881360888481
+    - 0.012287410907447338
+    - 0.04676765576004982
+    - -0.06628474593162537
+    - 0.008941365405917168
+    - -0.04253249242901802
+    - 0.02298424020409584
+    - -0.01768825761973858
+    - 0.02226024866104126
+    - 0.012343536131083965
+    - -0.0353357195854187
+    - -0.07721961289644241
+    - -0.031498681753873825
+    - 0.015851842239499092
+    - -0.05855799466371536
+    - 0.011798225343227386
+    - -0.030556533485651016
+    - -4.174500027296573e-33
+    - -0.07126586884260178
+    - 0.06473153084516525
+    - -0.021621979773044586
+    - 0.062440406531095505
+    - 0.07754428684711456
+    - 0.11526136845350266
+    - -0.05729379504919052
+    - -0.043575115501880646
+    - 0.15266746282577515
+    - -0.008976578712463379
+    - -0.06502970308065414
+    - -0.002038011560216546
+    - -0.026984136551618576
+    - 0.01812668889760971
+    - -0.07081960141658783
+    - 0.015424033626914024
+    - -0.020815841853618622
+    - -0.0778128132224083
+    - -0.05030667409300804
+    - -0.055122315883636475
+    - -0.04100106656551361
+    - 0.0832541212439537
+    - -0.010307776741683483
+    - -0.05507378280162811
+    - 0.017106659710407257
+    - -0.045293763279914856
+    - -0.07758991420269012
+    - -0.020754223689436913
+    - 0.016648031771183014
+    - -0.06407500058412552
+    - 0.0018693081801757216
+    - 0.004554653074592352
+    - 0.025003088638186455
+    - 0.03973080962896347
+    - 0.01966031827032566
+    - 0.012747635133564472
+    - 0.05917739123106003
+    - 0.025706419721245766
+    - 0.000582239415962249
+    - -0.009469506330788136
+    - 0.11640086770057678
+    - 0.07334974408149719
+    - 0.0899878591299057
+    - -0.06153467297554016
+    - -0.011381425894796848
+    - 0.028174415230751038
+    - -0.0180222000926733
+    - 0.06361422687768936
+    - -0.022580338642001152
+    - 0.012775993905961514
+    - 0.0669405460357666
+    - 0.0430368073284626
+    - 0.007851692847907543
+    - -0.01681973785161972
+    - 0.01885257288813591
+    - -0.025928853079676628
+    - 0.012003110721707344
+    - -0.11622634530067444
+    - 0.044325657188892365
+    - 0.0315827839076519
+    - 0.02399677224457264
+    - 0.033225927501916885
+    - -0.022245168685913086
+    - 0.03879113122820854
+    - -0.016927078366279602
+    - -0.03465956076979637
+    - 0.005225908476859331
+    - -0.035948559641838074
+    - 0.006053527817130089
+    - -0.04708322137594223
+    - -0.051407814025878906
+    - 0.04533052444458008
+    - 0.056282639503479004
+    - -0.011811011470854282
+    - -0.039149023592472076
+    - -0.043740712106227875
+    - -0.08675044775009155
+    - 0.002347363391891122
+    - -0.07926113903522491
+    - 0.0161838848143816
+    - 0.01936677284538746
+    - -0.04879738762974739
+    - 0.0001301485754083842
+    - 0.058094125241041183
+    - -0.006733310874551535
+    - 0.09495603293180466
+    - 0.04788080230355263
+    - -0.009354788810014725
+    - 0.06529208272695541
+    - -0.10567735880613327
+    - -0.08700015395879745
+    - 0.01936415210366249
+    - -0.012170162051916122
+    - 0.03780197352170944
+    - 0.025870857760310173
+    - -2.5360137101415603e-08
+    - 0.084260493516922
+    - -0.031810104846954346
+    - 0.10770134627819061
+    - 0.05394332855939865
+    - -0.010178012773394585
+    - 0.0445798859000206
+    - -0.04990757629275322
+    - 0.06790335476398468
+    - -0.037912517786026
+    - 0.0015022670850157738
+    - -0.010194987989962101
+    - 0.035501617938280106
+    - -0.06896932423114777
+    - 0.03938448429107666
+    - -4.305207312427228e-06
+    - -0.07840743660926819
+    - 0.047172024846076965
+    - 0.10477742552757263
+    - 0.0076903379522264
+    - -0.099797822535038
+    - -0.03887467458844185
+    - 0.07155916839838028
+    - -0.003396600252017379
+    - -0.004520722199231386
+    - 0.04254039376974106
+    - -0.012358392588794231
+    - -0.022203456610441208
+    - -0.05190795660018921
+    - 0.02661954052746296
+    - 0.0908731147646904
+    - -0.005988805554807186
+    - -0.010210223495960236
+    - 0.022754767909646034
+    - -0.07876435667276382
+    - -0.06362152099609375
+    - 0.03986579179763794
+    - 0.05202436447143555
+    - 0.012419074773788452
+    - -0.009778182953596115
+    - -0.018299035727977753
+    - -0.013173097744584084
+    - 0.07981810718774796
+    - -0.059258148074150085
+    - 0.08926884829998016
+    - 0.09918921440839767
+    - -0.047624412924051285
+    - -0.01185132097452879
+    - 0.05605755373835564
+    - 0.031002603471279144
+    - -0.017855709418654442
+    - 0.03084280528128147
+    - 0.01379074901342392
+    - -0.04218432307243347
+    - -0.012010684236884117
+    - 0.054022401571273804
+    - 0.15522326529026031
+    - 0.08090381324291229
+    - 0.013803531415760517
+    - -0.0942845568060875
+    - -0.04470726102590561
+    - 0.10389979183673859
+    - 0.0002259250613860786
+    - -0.0036022982094436884
+    - 0.06656678020954132
+    id: MAT-017
+    key_concepts:
+    - hypothesis testing
+    - regression analysis
+    - confidence intervals
+    - experimental design
+    - multivariate analysis
+    - time series
+    - nonparametric methods
+    name: Statistics
+    parent_domain: Mathematics
+    recent_anomalies: []
+    taxonomy_source: custom
+  strategy: semantic_distance
+gap_manifest:
+  competence_gaps:
+  - confidence_degradation: 0.15
+    description: Limited understanding of practical constraints in RTX compound synthesis
+      that might limit statistical design implementation
+    type: materials synthesis expertise
+    workaround_used: Focused on analysis of existing data patterns and general design
+      principles
+  data_gaps:
+  - criticality: medium
+    description: Limited access to systematic compositional variation data for RTX
+      compounds - most studies focus on single compositions
+    domain: inorganic chemistry
+    recurrence: 1
+  - criticality: low
+    description: Lack of specific examples of statistical design applied to materials
+      discovery beyond pharmaceutical applications
+    domain: statistics
+    recurrence: 1
+  epistemic_gaps:
+  - exploration_priority: medium
+    signal: Uncertainty about whether statistical correlations would translate to
+      mechanistic understanding
+    zone: interaction between statistical methods and materials property physics
+generated_at: '2026-04-06T06:10:04.417839'
+genome_version: l0_v1
+id: SPORE-2026-04-06-e5993ab9
+impact_analysis:
+  horizon_temporel: Moyen terme (3-10 ans)
+  impact_concret: Des matériaux révolutionnaires pour la réfrigération magnétique
+    (climatisation sans gaz polluants), des générateurs thermoélectriques plus efficaces
+    (récupération de chaleur perdue), et des aimants permanents plus performants pour
+    les moteurs électriques. Cela pourrait révolutionner le stockage d'énergie, réduire
+    la consommation énergétique des bâtiments et améliorer l'efficacité des véhicules
+    électriques.
+  industries_impactees:
+  - Électronique
+  - Automobile
+  - Énergie
+  - Climatisation et réfrigération
+  - Aérospatiale
+  - Défense
+  one_liner: Des statistiques intelligentes pour découvrir 5 fois plus vite les matériaux
+    révolutionnaires qui remplaceront nos climatiseurs polluants.
+  score_impact: significatif
+  solutions_existantes: Aujourd'hui, les chercheurs testent les compositions d'alliages
+    une par une, par essais-erreurs, ce qui prend des années. Cette approche statistique
+    permettrait d'identifier les bonnes compositions 3 à 5 fois plus rapidement en
+    explorant l'espace des possibilités de façon méthodique et prédictive.
+  taille_marche_estimee: Dizaines de milliards d'euros (marché des matériaux fonctionnels
+    avancés et des technologies énergétiques)
+  vulgarisation: 'Les scientifiques créent des alliages métalliques spéciaux (RTX)
+    aux propriétés extraordinaires, mais c''est comme chercher une aiguille dans une
+    botte de foin : changer un petit détail peut tout changer. Cette recherche propose
+    d''utiliser des méthodes statistiques avancées pour explorer ces matériaux de
+    façon intelligente, comme un GPS qui vous guide vers le bon matériau au lieu de
+    tester au hasard.'
+kill_condition: If systematic statistical design of RTX experiments shows no improvement
+  in discovery efficiency over random or single-variable approaches after 50+ compounds
+  tested
+next_steps:
+- Apply fractional factorial design to map Yb-Co-Ge/Sn composition space for thermoelectric
+  properties
+- Develop response surface models for magnetocaloric effect in rare earth transition
+  metal compounds
+- Create uncertainty quantification framework for RTX property predictions using existing
+  literature data
+predictions:
+- differs_from_consensus: true
+  expected_range: 60-80% reduction in experimental iterations
+  metric: Time to identify compositions with magnetocaloric effect >5 J/kg·K
+  statement: Statistical design of experiments applied to RTX synthesis will identify
+    optimal compositions 3-5x faster than traditional single-variable approaches
+- differs_from_consensus: true
+  expected_range: Uncertainty/ZT ratio > 0.5 for most current RTX studies
+  metric: Ratio of prediction uncertainty to measured ZT values
+  statement: Confidence intervals around thermoelectric ZT predictions will reveal
+    that current RTX optimization is operating in high-uncertainty regimes
+- differs_from_consensus: true
+  expected_range: 5-10 significant two-way and three-way interactions per property
+  metric: Number of statistically significant interaction terms between R, T, X components
+  statement: Response surface methodology will reveal previously unknown composition-property
+    relationships in RTX compounds
+relevant_datasets:
+- Materials Project database for RTX crystal structures
+- NIST thermoelectric materials database
+- Inorganic Crystal Structure Database (ICSD)
+relevant_labs: []
+scores:
+  coherence: 0.65
+  composite: 0.4075
+  hallucination_risk: 0.39999999999999997
+  impact_potential: 0.5
+  novelty: 0.39999999999999997
+  testability: 0.6
+sources_used:
+- arXiv:1408.3238
+- arXiv:1207.6875
+status: curated

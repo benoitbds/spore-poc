@@ -1,0 +1,109 @@
+{
+  "generated_at": "2026-04-09 09:25:58.682729",
+  "based_on_observation": "2026-04-09T09:25:24.534437",
+  "mutations": [
+    {
+      "id": "MUT-20260409-cec0d4",
+      "created_at": "2026-04-09 09:25:58.682687",
+      "type": "score_weight_adjustment",
+      "target_path": "score_weights",
+      "old_value": {
+        "coherence": 0.3,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.2,
+        "testability": 0.3
+      },
+      "new_value": {
+        "coherence": 0.35,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.15,
+        "testability": 0.4
+      },
+      "description": "Increase weight on testability and coherence, reduce novelty weight",
+      "justification": "Average composite scores are low (0.405) with most hypotheses in 0.3-0.5 range. Strong score-feedback correlation (0.85) suggests scoring system works but needs tuning. Testability and coherence likely correlate with human 'want to test' feedback. Current weights may over-reward novelty at expense of practical testability.",
+      "estimated_impact": "Higher quality hypotheses with better testability scores, potentially increasing average composite score by 0.05-0.1",
+      "risk": "medium",
+      "based_on_run_id": "run-20260409-070343-7d03a8",
+      "observation_summary": "avg_composite_score: 0.405, score_distribution: 50% in 0.3-0.5 range, score_feedback_correlation: 0.849",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260409-41d11e",
+      "created_at": "2026-04-09 09:25:58.682708",
+      "type": "parameter_change",
+      "target_path": "randomness.strategy_weights",
+      "old_value": {
+        "anomaly_guided": 0.0,
+        "historical_template": 0.0,
+        "semantic_distance": 1.0,
+        "structural_analogy": 0.0
+      },
+      "new_value": {
+        "anomaly_guided": 0.2,
+        "historical_template": 0.2,
+        "semantic_distance": 0.5,
+        "structural_analogy": 0.1
+      },
+      "description": "Diversify exploration strategies beyond pure semantic distance",
+      "justification": "Current strategy weights are 100% semantic_distance. Diversifying strategies could yield different types of valuable hypotheses. Anomaly-guided and historical-template approaches may generate more testable hypotheses. Underexplored domains like Biomaterials and Ceramics might benefit from historical templates of successful interdisciplinary bridges.",
+      "estimated_impact": "More diverse hypothesis types, potentially higher quality in underexplored domains, 5-10% increase in high-scoring hypotheses (>0.5)",
+      "risk": "medium",
+      "based_on_run_id": "run-20260409-070343-7d03a8",
+      "observation_summary": "underexplored_domains: [Biomaterials, Ceramics, Elastomers, Hydrogels, Molecular Biology], strategy_weights currently 100% semantic_distance",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260409-dedb8b",
+      "created_at": "2026-04-09 09:25:58.682717",
+      "type": "parameter_change",
+      "target_path": "randomness.distance_max",
+      "old_value": 0.75,
+      "new_value": 0.8,
+      "description": "Slightly increase maximum semantic distance for exploration",
+      "justification": "Bridge rate is already high (61.8%), suggesting the system is good at finding connections. Slightly increasing distance_max may capture more innovative interdisciplinary bridges while maintaining quality through curation (top_percent: 0.15). This could help explore promising underexplored domains more effectively.",
+      "estimated_impact": "5-10% increase in novel connections, particularly in underexplored domains",
+      "risk": "low",
+      "based_on_run_id": "run-20260409-070343-7d03a8",
+      "observation_summary": "bridge_rate: 0.618, underexplored_domains identified, current distance_max: 0.75",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    }
+  ],
+  "rationale": "The observation report reveals several key patterns: 1) Bridge rate is high (61.8%) but average composite scores are low (0.405) with most hypotheses in the 0.3-0.5 range, 2) Strong correlation between scores and human feedback (0.85) validates the scoring system, 3) Several domains show promise but are underexplored (Biomaterials, Ceramics, Elastomers, Molecular Biology), 4) The current strategy weights heavily favor semantic distance (1.0) over other strategies. The mutations aim to improve hypothesis quality by: a) adjusting score weights to better reward testability and coherence (which correlate with human feedback), b) diversifying exploration strategies to capture different types of valuable hypotheses, and c) slightly widening the fertile zone to capture more promising interdisciplinary connections while maintaining quality.",
+  "expected_outcomes": [
+    "Higher average composite scores (target: 0.45-0.5)",
+    "More hypotheses in 0.5-0.7 score range",
+    "Better exploration of underexplored domains (Biomaterials, Ceramics, Elastomers)",
+    "More diverse hypothesis generation strategies"
+  ],
+  "risks": [
+    "Reduced novelty weight may decrease 'interesting' feedback count",
+    "Strategy diversification may increase noise if not properly balanced",
+    "Increased distance_max could slightly reduce coherence if not compensated by score weights"
+  ]
+}

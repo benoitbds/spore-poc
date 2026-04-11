@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-04-05 11:02:47.444595",
+  "based_on_observation": "2026-04-05T11:02:31.593240",
+  "mutations": [
+    {
+      "id": "MUT-20260405-bf09ac",
+      "created_at": "2026-04-05 11:02:47.444558",
+      "type": "parameter_change",
+      "target_path": "agents.curator.parameters.top_percent",
+      "old_value": 0.1,
+      "new_value": 0.15,
+      "description": "Relax curation threshold to allow more hypotheses through",
+      "justification": "0% curation rate with 63 hypotheses generated indicates the 10% threshold is too restrictive. With strong score-feedback correlation (0.85), we can safely relax this to capture promising hypotheses.",
+      "estimated_impact": "Expected to achieve 5-10% curation rate, allowing best hypotheses to advance",
+      "risk": "low",
+      "based_on_run_id": "run-20260405-103445-1e077a",
+      "observation_summary": "0% curation rate despite 63 hypotheses generated",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260405-b98fd7",
+      "created_at": "2026-04-05 11:02:47.444577",
+      "type": "score_weight_adjustment",
+      "target_path": "score_weights",
+      "old_value": {
+        "coherence": 0.25,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.2,
+        "testability": 0.25
+      },
+      "new_value": {
+        "coherence": 0.2,
+        "hallucination_risk": -0.1,
+        "impact_potential": 0.2,
+        "novelty": 0.25,
+        "testability": 0.25
+      },
+      "description": "Rebalance weights to emphasize novelty and impact while reducing hallucination penalty",
+      "justification": "Average composite score of 0.35 is too low. With good score-feedback correlation, we can reduce the hallucination penalty and boost novelty/impact weights to reward more ambitious hypotheses.",
+      "estimated_impact": "Expected 15-20% increase in average composite scores",
+      "risk": "medium",
+      "based_on_run_id": "run-20260405-103445-1e077a",
+      "observation_summary": "Low average composite score (0.35) with most hypotheses in 0.0-0.3 range",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260405-2fe48d",
+      "created_at": "2026-04-05 11:02:47.444585",
+      "type": "parameter_change",
+      "target_path": "randomness.distance_min",
+      "old_value": 0.4,
+      "new_value": 0.35,
+      "description": "Slightly widen the semantic distance range to capture more diverse bridges",
+      "justification": "50% bridge rate is acceptable but could be improved. Several promising underexplored domains (Ferroelectric Materials, Crystallography, Machine Learning) suggest the system could benefit from slightly more diverse concept collisions.",
+      "estimated_impact": "Expected 5-10% increase in bridge rate and domain diversity",
+      "risk": "low",
+      "based_on_run_id": "run-20260405-103445-1e077a",
+      "observation_summary": "50% bridge rate with promising underexplored domains identified",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    }
+  ],
+  "rationale": "The system shows strong score-feedback correlation (0.85) indicating good calibration, but has critical performance issues: 0% curation rate and low average scores (0.35). The primary issue is that no hypotheses are meeting the curation threshold (top 10%), suggesting either the threshold is too strict or score weights need rebalancing. Additionally, the system is generating many low-scoring hypotheses in the 0.0-0.3 range.",
+  "expected_outcomes": [
+    "Achieve 5-10% curation rate instead of 0%",
+    "Increase average composite scores from 0.35 to 0.40-0.45",
+    "Better exploration of underexplored domains like Ferroelectric Materials and Machine Learning",
+    "More hypotheses advancing to human review"
+  ],
+  "risks": [
+    "Relaxed curation threshold might allow lower-quality hypotheses through",
+    "Reduced hallucination penalty could increase speculative content",
+    "Wider distance range might introduce more noise in concept collisions"
+  ]
+}

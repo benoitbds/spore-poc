@@ -1,0 +1,32 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDE / editors
+.CLAUDE.md.swp
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# Runtime state
+.spore_progress.json
+.spore_status.json
+
+# Data (keep schema, not content)
+data/spore.db
+data/spore.db-journal
+data/spore.db-wal
+
+# Claude Code internals
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db

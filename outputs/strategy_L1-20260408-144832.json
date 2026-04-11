@@ -1,0 +1,109 @@
+{
+  "generated_at": "2026-04-08 14:49:05.000597",
+  "based_on_observation": "2026-04-08T14:48:32.600904",
+  "mutations": [
+    {
+      "id": "MUT-20260408-041b8f",
+      "created_at": "2026-04-08 14:49:05.000560",
+      "type": "score_weight_adjustment",
+      "target_path": "score_weights",
+      "old_value": {
+        "coherence": 0.3,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.2,
+        "testability": 0.3
+      },
+      "new_value": {
+        "coherence": 0.25,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.2,
+        "novelty": 0.25,
+        "testability": 0.3
+      },
+      "description": "Increase weight for novelty and impact_potential while slightly decreasing coherence weight",
+      "justification": "Composite scores are low (avg 0.395) with no hypotheses above 0.5 despite high bridge rate (68.5%). The current weights may be over-penalizing novel but less coherent ideas. Increasing novelty weight from 0.2 to 0.25 and impact_potential from 0.15 to 0.20 while reducing coherence from 0.3 to 0.25 should reward more ambitious, high-impact hypotheses while maintaining testability as the primary criterion.",
+      "estimated_impact": "Expected 10-15% increase in average composite scores, more hypotheses scoring above 0.5 threshold",
+      "risk": "medium",
+      "based_on_run_id": "run-20260408-123316-256a97",
+      "observation_summary": "Score distribution shows 0 hypotheses in 0.5-0.7 and 0.7-1.0 ranges despite high bridge rate",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260408-92331a",
+      "created_at": "2026-04-08 14:49:05.000580",
+      "type": "parameter_change",
+      "target_path": "randomness.strategy_weights",
+      "old_value": {
+        "anomaly_guided": 0.0,
+        "historical_template": 0.0,
+        "semantic_distance": 1.0,
+        "structural_analogy": 0.0
+      },
+      "new_value": {
+        "anomaly_guided": 0.2,
+        "historical_template": 0.2,
+        "semantic_distance": 0.4,
+        "structural_analogy": 0.2
+      },
+      "description": "Diversify exploration strategies beyond pure semantic distance",
+      "justification": "Current strategy weights are 100% semantic_distance, which may limit the types of interdisciplinary connections being made. The underexplored domains (Biomaterials, Ceramics, Elastomers, Hydrogels, Molecular Biology) might benefit from anomaly-guided exploration (finding contradictions) and structural analogy (transferring frameworks). This diversification should help reach more fertile interdisciplinary zones.",
+      "estimated_impact": "More diverse hypothesis generation patterns, better exploration of underexplored domains, potentially higher-quality bridges",
+      "risk": "low",
+      "based_on_run_id": "run-20260408-123316-256a97",
+      "observation_summary": "Underexplored domains identified: Biomaterials, Ceramics, Elastomers, Hydrogels, Molecular Biology; current strategy is monolithic",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260408-fbdb50",
+      "created_at": "2026-04-08 14:49:05.000588",
+      "type": "parameter_change",
+      "target_path": "randomness.distance_max",
+      "old_value": 0.75,
+      "new_value": 0.8,
+      "description": "Slightly increase maximum semantic distance for exploration",
+      "justification": "The system is generating bridges effectively (68.5% bridge rate) but composite scores remain low. Increasing distance_max from 0.75 to 0.8 allows for slightly more distant interdisciplinary connections while staying within reasonable bounds. This may help reach more novel combinations, especially in the promising underexplored domains.",
+      "estimated_impact": "5-10% increase in novelty scores, better exploration of distant domain connections",
+      "risk": "low",
+      "based_on_run_id": "run-20260408-123316-256a97",
+      "observation_summary": "High bridge rate (68.5%) but low composite scores (avg 0.395) suggests current distance range may be too conservative for generating high-novelty hypotheses",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    }
+  ],
+  "rationale": "The observation report reveals several key patterns: 1) Strong score-feedback correlation (0.85) indicates the scoring system is well-calibrated, 2) Bridge rate is high (68.5%) but composite scores are low (avg 0.395) with no hypotheses scoring above 0.5, 3) Underexplored domains show promise but need targeted exploration, 4) The current strategy weights heavily favor semantic_distance (1.0) over other strategies. The mutations aim to: improve hypothesis quality by adjusting score weights to better reflect what makes a hypothesis valuable, diversify exploration strategies to reach more fertile interdisciplinary zones, and slightly increase exploration of promising domains while maintaining system stability.",
+  "expected_outcomes": [
+    "Higher average composite scores (target: 0.45-0.50 range)",
+    "More hypotheses scoring above 0.5 threshold",
+    "Better exploration of underexplored domains (Biomaterials, Ceramics, etc.)",
+    "More diverse types of interdisciplinary connections"
+  ],
+  "risks": [
+    "Increased novelty weight may lead to less coherent hypotheses",
+    "Strategy diversification may initially reduce bridge rate as system adapts",
+    "Higher distance_max could increase noise in hypothesis generation"
+  ]
+}

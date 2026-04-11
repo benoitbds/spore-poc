@@ -1,0 +1,1006 @@
+bridge:
+  mechanism: The photochemical literature shows how specific wavelengths and photon
+    energies can selectively break particular chemical bonds through controlled photoexcitation
+    processes. In extraterrestrial environments, vacuum-UV photons (6.2-12.4 eV) create
+    predictable bond-breaking patterns in complex molecular systems. This mechanism
+    can be reverse-engineered in materials chemistry to design functional materials
+    with embedded photolabile linkers that degrade predictably under specific light
+    exposure. Unlike current degradation approaches that rely on thermal or chemical
+    triggers, photochemical degradation offers precise spatial and temporal control
+    through wavelength selection and light patterning. The key insight is that the
+    same photon energy thresholds and bond selectivity rules that govern interstellar
+    ice photolysis can be used to engineer deliberate weak points in synthetic materials.
+  summary: Photochemical bond-breaking mechanisms from extraterrestrial chemistry
+    can be applied to design controllable degradation pathways in functional materials,
+    enabling temporally-programmable material decomposition.
+  type: methodological_transfer
+collision:
+  distance_score: 0.6285218596458435
+  domain_a:
+    context_abstracts:
+    - '[Functionalized CdTe Fluorescence Nanosensor for the Sensitive Detection of
+      Water Borne Environmentally Hazardous Metal Ions (arXiv:2011.00062, 2020)]
+
+      In this work, we have investigated the possibility of using COOH functionalized
+      CdTe quantum dots (QDs) as fluorescent nanosensor for the detection of some
+      environmentally hazardous metal ions ($\rm{Cr^{3+}}$, $\rm{Pb^{2+}}$, $\rm{Cu^{2+}}$,
+      $\rm{Zn^{2+}}$ and $\rm{Co^{2+}}$) in aqueous phase. COOH-CdTe QDs are prepared
+      in aqueous medium and characterized by UV-visible, photo luminescence and FTIR
+      spectrometry. Optical response of CdTe nanosensor is observed to be time and
+      temperature dependent. A strong "Turn-Off" fluorescence response of CdTe is
+      observed in presence of all metals ions ($\rm{X^{n+}}$). The output of Stern
+      volmer relation, graphical Job''s plot and FTIR data established the existence
+      of strong 1:1 complexation ($\rm{X^{n+}: ^{-}OOC-CdTe)}$ between CdTe and metal
+      ions. CdTe shows its efficient sensing ability for $\rm{Pb^{2+}}$, $\rm{Cr^{3+}}$
+      and $\rm{Cu^{2+}}$ ions up to concentration $\rm{10^{-14}}$ M which was established
+      by its low detection of limit (LOD)validation. Further, strong appearance of
+      $\frac{F-F_{0}}{F_{0}}$ establishes the better sensing capability of CdTe QDs
+      for $\rm{Cr^{3+}}$, $\rm{Pb^{2+}}$, $\rm{Cu^{2+}}$ ions which are far better
+      than the existing fluorescent sensors available in industry. The proposed optical
+      techniques and principal component analysis of sensing were successfully applied
+      for testing of dissolved metal ions in real samples like: paint, river water,
+      rain water etc which validates the applicability of COOH functionalized CdTe
+      nanosensor as a effective successful optical sensor for water dissolved metal
+      ions which are responsible for water pollution.'
+    - '[Extraterrestrial Photochemistry: Principles and Applications (arXiv:2102.00094,
+      2021)]
+
+      Energetic processing of interstellar ice mantles and planetary atmospheres via
+      photochemistry is a critical mechanism in the extraterrestrial synthesis of
+      prebiotic molecules. Photochemistry is defined as chemical processes initiated
+      by photon-induced electronic excitation, not involving ionization. In contrast,
+      photons with energies above the ionization threshold initiate radiation chemistry
+      (radiolysis). Vacuum-ultraviolet (6.2-12.4 eV) light may initiate photochemistry
+      and radiation chemistry because the threshold for producing secondary electrons
+      is lower in the condensed phase than in the gas phase. Approximately half of
+      cosmic-ray induced photons incident on interstellar ices in star-forming regions
+      initiate photochemistry while the rest initiate radiation chemistry. While experimental
+      techniques such as velocity map imaging may be used to extract exquisite details
+      about gas-phase photochemistry, such detailed information cannot be obtained
+      for condensed-phase photochemistry, which involves greater complexity, including
+      the production of excitons, excimers, and exciplexes. Because a primary objective
+      of chemistry is to provide molecular-level mechanistic explanations for macroscopic
+      phenomena, our ultimate goal in this book chapter is to critically evaluate
+      our current understanding of the photochemistry that likely leads to the synthesis
+      of extraterrestrial prebiotic molecules.'
+    - '[Conformationally controlled photochemistry studied by trajectory surface hopping
+      (arXiv:2208.14617, 2022)]
+
+      This article reviews trajectory surface hopping methods to study conformationally
+      controlled photochemistry. Besides focusing on the linear response time-dependent
+      density functional theory surface hopping method, it reviews the generation
+      of Boltzmann ensembles as starting conditions for photochemical dynamics, the
+      calculation of electronic and vibronic absorption spectra, and the prediction
+      of wavelength-dependent photochemical product quantum yields. Applications include
+      organic photochemistry and vitamin D photochemistry.'
+    embedding:
+    - -0.013660077005624771
+    - -0.035031482577323914
+    - 0.007894289679825306
+    - 0.039252664893865585
+    - -0.004043911583721638
+    - 0.010471944697201252
+    - 0.030107928439974785
+    - 0.016070803627371788
+    - -0.037897706031799316
+    - 0.05002366378903389
+    - 0.05218864604830742
+    - -0.010630864650011063
+    - 0.024783704429864883
+    - 0.01223385613411665
+    - 0.04943758249282837
+    - 0.12420736253261566
+    - -0.07223999500274658
+    - 0.035801008343696594
+    - -0.04684013873338699
+    - 0.030229778960347176
+    - -0.007546250708401203
+    - -0.1327357441186905
+    - -0.029577970504760742
+    - -0.00293369241990149
+    - 0.0036398593802005053
+    - 0.020747968927025795
+    - 0.015224353410303593
+    - -0.06795691698789597
+    - -0.01443367637693882
+    - -0.01653710938990116
+    - 0.05009975656867027
+    - -0.04746421426534653
+    - 0.04675140604376793
+    - -0.0035569353494793177
+    - 0.037502773106098175
+    - -0.011538682505488396
+    - 0.03342496603727341
+    - -0.0712529644370079
+    - 0.007512868847697973
+    - -0.0014751749113202095
+    - -0.03700251132249832
+    - -0.026468832045793533
+    - -0.01651652343571186
+    - -0.03624274209141731
+    - 0.03840889409184456
+    - -0.025204310193657875
+    - 0.06717386841773987
+    - -0.06206703186035156
+    - -0.06278282403945923
+    - -0.072959765791893
+    - 0.0017482427647337317
+    - -0.003851451212540269
+    - -0.09979302436113358
+    - 0.03177464008331299
+    - 0.01857794262468815
+    - 0.03677567094564438
+    - -0.025787385180592537
+    - 0.0332200862467289
+    - 0.017643824219703674
+    - -0.0188079085201025
+    - -0.055462758988142014
+    - -0.017715569585561752
+    - -0.027280116453766823
+    - -0.010183235630393028
+    - 0.04240662232041359
+    - 0.0343921072781086
+    - -0.017153043299913406
+    - -0.04985389858484268
+    - 0.08086954802274704
+    - -0.0821867510676384
+    - -0.0642661601305008
+    - -0.011058090254664421
+    - 0.013169215992093086
+    - 0.005581770092248917
+    - -0.003456894541159272
+    - 0.01013024803251028
+    - 0.04301890730857849
+    - 0.047744449228048325
+    - 0.017017561942338943
+    - -0.06050649657845497
+    - 0.048001568764448166
+    - 0.016746684908866882
+    - 0.028749452903866768
+    - 0.061840977519750595
+    - 0.07615610212087631
+    - 0.04356936737895012
+    - -0.0044927955605089664
+    - 0.025027113035321236
+    - 0.015911897644400597
+    - -0.06971712410449982
+    - -0.09216737747192383
+    - -0.00546486908569932
+    - -0.05799342691898346
+    - -0.07654641568660736
+    - -0.0717068612575531
+    - 0.08788993954658508
+    - 0.01475867535918951
+    - -0.024881234392523766
+    - 0.030504567548632622
+    - -0.04337233677506447
+    - 0.07611120492219925
+    - 0.0020195196848362684
+    - -0.06572820246219635
+    - -0.03537266328930855
+    - 0.027036305516958237
+    - 0.010846002027392387
+    - -0.0016017694724723697
+    - 0.06358171999454498
+    - -0.014976998791098595
+    - 0.03727469965815544
+    - 0.010019207373261452
+    - 0.04051879048347473
+    - 0.03424179553985596
+    - -0.03115229867398739
+    - -0.008738242089748383
+    - 0.024001307785511017
+    - -0.07662638276815414
+    - -0.029201164841651917
+    - 0.005374931264668703
+    - -0.0007828347152099013
+    - 0.012656057253479958
+    - 0.007964224554598331
+    - -0.010761737823486328
+    - 0.01256166584789753
+    - -0.049015600234270096
+    - -0.05715915188193321
+    - 0.00410849554464221
+    - 1.589841599478751e-33
+    - 0.017405331134796143
+    - 0.02491014078259468
+    - 0.04561641439795494
+    - 0.006255381274968386
+    - 0.01824299618601799
+    - -0.06652076542377472
+    - -0.02589893527328968
+    - -0.11507285386323929
+    - -0.15604080259799957
+    - -0.06897351145744324
+    - 0.04113371670246124
+    - -0.008167565800249577
+    - 0.04724918305873871
+    - 0.051496412605047226
+    - 0.04105234891176224
+    - 0.05375002324581146
+    - 0.014893945306539536
+    - 0.036333583295345306
+    - 0.06275848299264908
+    - -0.002689850050956011
+    - -0.042077261954545975
+    - 0.02684742771089077
+    - 0.03300183266401291
+    - 0.1420273780822754
+    - -0.06939662992954254
+    - -0.0008437262149527669
+    - -0.004855447448790073
+    - 0.005420949775725603
+    - -0.03972210735082626
+    - -0.05963357537984848
+    - 0.03401340916752815
+    - 0.1184644103050232
+    - -0.010249313898384571
+    - -0.023750443011522293
+    - 0.03418608382344246
+    - -0.0010062619112432003
+    - -0.02334345504641533
+    - -0.009676455520093441
+    - -0.002416754374280572
+    - -0.06544647365808487
+    - -0.032368145883083344
+    - 0.009003979153931141
+    - -0.027678873389959335
+    - 0.058424558490514755
+    - 0.02962326630949974
+    - 0.06435857713222504
+    - -0.08600663393735886
+    - 0.025540964677929878
+    - 0.08709359914064407
+    - 0.04432348161935806
+    - -0.09365643560886383
+    - -0.034553054720163345
+    - 0.08879979699850082
+    - 0.0036454270593822002
+    - -0.03849733620882034
+    - 0.029909702017903328
+    - 0.0033228371758013964
+    - -0.08662408590316772
+    - 0.07310818880796432
+    - -0.013225113041698933
+    - -0.05029371753334999
+    - 0.020501838997006416
+    - 0.04628686606884003
+    - -0.02982925809919834
+    - -0.05165740102529526
+    - 0.008089283481240273
+    - -0.0287643950432539
+    - 0.09003559499979019
+    - -0.041622813791036606
+    - 0.062122516334056854
+    - -0.06106167659163475
+    - 0.0590229295194149
+    - 0.03287394717335701
+    - -0.004529946018010378
+    - 0.15887650847434998
+    - 0.04572632908821106
+    - 0.007833470590412617
+    - -0.08372548222541809
+    - 0.03000747039914131
+    - 0.12393543869256973
+    - -0.01282055489718914
+    - -0.009410091675817966
+    - -0.05246446654200554
+    - -0.0728556364774704
+    - -0.1103525459766388
+    - -0.005838220007717609
+    - -0.04863766208291054
+    - -0.008458702825009823
+    - -0.04874976724386215
+    - 0.05749347060918808
+    - -0.019004592671990395
+    - -0.013158253394067287
+    - 0.05266081914305687
+    - -0.014848294667899609
+    - -0.09873306751251221
+    - -2.3378161854176574e-33
+    - 0.0993293970823288
+    - -0.009670954197645187
+    - -0.08389538526535034
+    - -0.04829574376344681
+    - 0.03328342363238335
+    - 0.0011847695568576455
+    - -0.061634138226509094
+    - -0.08486350625753403
+    - 0.04614879935979843
+    - 0.005593758542090654
+    - 0.01207213755697012
+    - 0.035023003816604614
+    - -0.07417696714401245
+    - -0.026885198429226875
+    - -0.15770086646080017
+    - -0.024949481710791588
+    - 0.0626983717083931
+    - -0.014154522679746151
+    - 0.05042611435055733
+    - 0.03312798961997032
+    - -0.0467567965388298
+    - 0.022488819435238838
+    - 0.004781981930136681
+    - 0.0035224196035414934
+    - 0.07647795975208282
+    - 0.08247704058885574
+    - 0.051148757338523865
+    - -0.029550345614552498
+    - 0.0792606920003891
+    - 0.035132791846990585
+    - -0.011459019035100937
+    - -0.015868090093135834
+    - 0.09004616737365723
+    - 0.011435028165578842
+    - -0.030816297978162766
+    - 0.028751885518431664
+    - 0.043046947568655014
+    - -0.016216376796364784
+    - -0.010487624444067478
+    - 0.09440550208091736
+    - 0.06813544034957886
+    - -0.05000551789999008
+    - 0.06346546113491058
+    - -1.5885676475591026e-05
+    - 0.04202691465616226
+    - 0.04590089991688728
+    - -0.09126093983650208
+    - 0.03695106506347656
+    - -0.09445624053478241
+    - -0.008373957127332687
+    - 0.029144058004021645
+    - 0.08456806093454361
+    - -0.08265160769224167
+    - 0.060647763311862946
+    - 0.07328955084085464
+    - 0.04801781475543976
+    - 0.01609903573989868
+    - -0.02201041206717491
+    - 0.041371408849954605
+    - -0.02997489459812641
+    - -0.022543035447597504
+    - -0.08511866629123688
+    - 0.0396743081510067
+    - 0.03015199862420559
+    - -0.07773037254810333
+    - 0.01630513183772564
+    - -0.022586097940802574
+    - 0.019229641184210777
+    - 0.009989696554839611
+    - -0.023397525772452354
+    - 0.04449804127216339
+    - 0.08325830101966858
+    - 0.10490227490663528
+    - 0.03580526262521744
+    - 0.09274529665708542
+    - -0.03374260663986206
+    - -0.007404574658721685
+    - -0.013235761784017086
+    - -0.054533954709768295
+    - -0.05800918862223625
+    - 0.09049972146749496
+    - -0.04289477318525314
+    - 0.010877062566578388
+    - -0.017075536772608757
+    - -0.03203415125608444
+    - 0.008147447369992733
+    - -0.015226800926029682
+    - -0.057365477085113525
+    - 0.02575751021504402
+    - -0.13358277082443237
+    - 0.0063603767193853855
+    - 0.0536566898226738
+    - 0.06666700541973114
+    - -0.021329034119844437
+    - 0.0437457412481308
+    - -2.659235498470025e-08
+    - 0.009115379303693771
+    - -0.07274523377418518
+    - 0.04952496662735939
+    - -0.07286757975816727
+    - 0.038400497287511826
+    - 0.07258184254169464
+    - 0.07224288582801819
+    - 0.07318857312202454
+    - -0.016578035429120064
+    - -0.021159693598747253
+    - 0.004194220062345266
+    - 0.0019617052748799324
+    - -0.04203444719314575
+    - -0.054607223719358444
+    - 0.07495882362127304
+    - -0.011321249417960644
+    - -0.01455207634717226
+    - -0.043904609978199005
+    - -0.016393056139349937
+    - 0.016722220927476883
+    - -0.11189604550600052
+    - -0.027869971469044685
+    - -0.060803499072790146
+    - 0.000330141483573243
+    - 0.004833891522139311
+    - -0.0018164580687880516
+    - 0.08139140903949738
+    - -0.041369836777448654
+    - -0.04171871021389961
+    - -0.027166133746504784
+    - 0.07139884680509567
+    - -0.006683298386633396
+    - 0.05487217754125595
+    - -0.009112571366131306
+    - -0.005217233207076788
+    - 0.0017952327616512775
+    - -0.031398460268974304
+    - -0.08865240961313248
+    - -0.11911282688379288
+    - -0.022193748503923416
+    - -0.09691525250673294
+    - 0.04633262753486633
+    - -0.04832235351204872
+    - 0.015910325571894646
+    - 0.00755035225301981
+    - 0.01868954859673977
+    - 0.06356728076934814
+    - 0.04323342815041542
+    - 0.0016412925906479359
+    - 0.022132767364382744
+    - -0.009261106140911579
+    - -0.021688902750611305
+    - 0.0065212915651500225
+    - -0.05251754820346832
+    - -0.11110156774520874
+    - -0.0047906190156936646
+    - 0.024755025282502174
+    - -0.025038225576281548
+    - 0.025934575125575066
+    - -0.02453549951314926
+    - 0.0991307869553566
+    - -0.024676796048879623
+    - 0.09165261685848236
+    - 0.0410686694085598
+    id: CHM-004
+    key_concepts:
+    - photoexcitation
+    - fluorescence
+    - phosphorescence
+    - photosensitizers
+    - quantum yield
+    - photocatalysis
+    - photoisomerization
+    name: Photochemistry
+    parent_domain: Chemistry
+    recent_anomalies: []
+    taxonomy_source: custom
+  domain_b:
+    context_abstracts:
+    - '[A Chemical Route to Graphene for Electronics and Spintronics Device Applications
+      (arXiv:1409.5849, 2014)]
+
+      The development of selective high precision chemical functionalization strategies
+      for device fabrication, in conjunction with associated techniques for patterning
+      graphene wafers with atomic accuracy would provide the necessary basis for a
+      post-CMOS manufacturing technology. This requires a thorough understanding of
+      the principles governing the reactivity and patterning of graphene at the sub-nanometer
+      length scale. This article reviews our quest to delineate the principles of
+      graphene chemistry - that is, the chemistry at the Dirac point and beyond, and
+      the effect of covalent chemistry on the electronic structure, electrical transport
+      and magnetic properties of this low-dimensional material in order to enable
+      the scalable production of graphene-based devices for low- and high-end technology
+      applications.'
+    - '[First-principles design and subsequent synthesis of a material to search for
+      the permanent electric dipole moment of the electron (arXiv:1002.0376, 2010)]
+
+      We describe the first-principles design and subsequent synthesis of a new material
+      with the specific functionalities required for a solid-state-based search for
+      the permanent electric dipole moment of the electron. We show computationally
+      that perovskite-structure europium barium titanate should exhibit the required
+      large and pressure-dependent ferroelectric polarization, local magnetic moments,
+      and absence of magnetic ordering even at liquid helium temperature. Subsequent
+      synthesis and characterization of Eu$_{0.5}$Ba$_{0.5}$TiO$_3$ ceramics confirm
+      the predicted desirable properties.'
+    - '[Synthesis of titanate nanostructures using amorphous precursor material and
+      their adsorption/photocatalytic properties (arXiv:1201.3644, 2012)]
+
+      This paper reports on a new and swift hydrothermal chemical route to prepare
+      titanate nanostructures (TNS) avoiding the use of crystalline TiO2 as starting
+      material. The synthesis approach uses a commercial solution of TiCl3 as titanium
+      source to prepare an amorphous precursor, circumventing the use of hazardous
+      chemical compounds. The influence of the reaction temperature and dwell autoclave
+      time on the structure and morphology of the synthesised materials was studied.
+      Homogeneous titanate nanotubes with a high length/diameter aspect ratio were
+      synthesised at 160^{\circ}C and 24 h. A band gap of 3.06\pm0.03 eV was determined
+      for the TNS samples prepared in these experimental conditions. This value is
+      red shifted by 0.14 eV compared to the band gap value usually reported for the
+      TiO2 anatase. Moreover, such samples show better adsorption capacity and photocatalytic
+      performance on the dye rhodamine 6G (R6G) photodegradation process than TiO2
+      nanoparticles. A 98% reduction of the R6G concentration was achieved after 45
+      minutes of irradiation of a 10 ppm dye aqueous solution and 1 g/L of TNS catalyst.'
+    embedding:
+    - 0.008198797702789307
+    - -0.06155790761113167
+    - -0.09040654450654984
+    - -0.011917532421648502
+    - -0.001799729885533452
+    - -0.0021069434005767107
+    - -0.008305205963551998
+    - 0.05305492505431175
+    - -0.024739602580666542
+    - 0.033180903643369675
+    - -0.010120031423866749
+    - -0.004898178391158581
+    - -0.014230793341994286
+    - 0.030118132010102272
+    - -0.03187929466366768
+    - 0.033987753093242645
+    - -0.016271840780973434
+    - -0.025392048060894012
+    - 0.044911567121744156
+    - 0.0710766464471817
+    - 0.029316371306777
+    - -0.05492023751139641
+    - 0.06075025722384453
+    - -0.012338470667600632
+    - -0.08529603481292725
+    - 0.09346137940883636
+    - 0.02791753225028515
+    - -0.006922096014022827
+    - -0.04812781512737274
+    - -0.066196508705616
+    - 0.05620235577225685
+    - 0.0026473114266991615
+    - 0.0018570416141301394
+    - -0.04086017981171608
+    - 0.03653429076075554
+    - -0.06605803966522217
+    - -0.03061688132584095
+    - 0.01864990033209324
+    - 0.030911963433027267
+    - -0.0012448769994080067
+    - -0.05267701670527458
+    - 0.020997244864702225
+    - 0.06327313184738159
+    - -0.053501926362514496
+    - 0.040242891758680344
+    - -0.03613685443997383
+    - 0.043273258954286575
+    - -0.02232184261083603
+    - -0.0010646836599335074
+    - -0.0622737891972065
+    - 0.0016968061681836843
+    - 0.06478548049926758
+    - 0.012438063509762287
+    - 0.06185675039887428
+    - 0.06658218055963516
+    - 0.05291811004281044
+    - -0.06911078095436096
+    - 0.06988880783319473
+    - 0.0646687000989914
+    - 0.027294009923934937
+    - 0.010429341346025467
+    - -0.0007731289369985461
+    - 0.027517730370163918
+    - -0.05953884869813919
+    - 0.001167992246337235
+    - 0.06554850935935974
+    - -0.005499410443007946
+    - -0.01598614826798439
+    - 0.047524593770504
+    - -0.007237432524561882
+    - 0.005428337957710028
+    - 0.02886231616139412
+    - 0.09431079775094986
+    - 0.09541689604520798
+    - 0.003848851192742586
+    - 0.03314888849854469
+    - 0.13564206659793854
+    - 0.016467412933707237
+    - 0.031138110905885696
+    - 0.0012732403120025992
+    - -0.14768509566783905
+    - 0.013633168302476406
+    - 0.10583840310573578
+    - 0.07111026346683502
+    - 0.019172074273228645
+    - 0.12357128411531448
+    - -0.029317935928702354
+    - 0.000657681084703654
+    - -0.004613845143467188
+    - -0.08900290727615356
+    - -0.019593769684433937
+    - 0.10549254715442657
+    - -0.07700455188751221
+    - -0.06855882704257965
+    - -0.05780385062098503
+    - 0.047032155096530914
+    - -0.03433888405561447
+    - -0.005823396146297455
+    - 0.04611418396234512
+    - -0.03548320382833481
+    - 0.07863587141036987
+    - 0.0018406728049740195
+    - -0.025832880288362503
+    - -0.039808012545108795
+    - -0.061729978770017624
+    - -0.02773311175405979
+    - 0.0006323005072772503
+    - 0.04228317737579346
+    - 0.003315138164907694
+    - 0.0005223917542025447
+    - -0.05743963271379471
+    - 0.025151889771223068
+    - 0.0026062976103276014
+    - 0.003917692694813013
+    - -0.08180578798055649
+    - 0.08573351055383682
+    - -0.048684462904930115
+    - -0.0013679791009053588
+    - -0.0026990326587110758
+    - 0.047735802829265594
+    - 0.02390870451927185
+    - -0.013513549230992794
+    - -0.041768305003643036
+    - 0.034648530185222626
+    - -0.10154160112142563
+    - -0.08924292027950287
+    - -0.019569920375943184
+    - -2.7613062087296257e-33
+    - -0.030858099460601807
+    - 0.04850440099835396
+    - 0.022144300863146782
+    - 0.06070040911436081
+    - -0.03969011828303337
+    - -0.026614127680659294
+    - -0.0434015616774559
+    - -0.03935127332806587
+    - -0.09368668496608734
+    - -0.028519680723547935
+    - -0.01672954671084881
+    - 0.022799016907811165
+    - -0.0071271308697760105
+    - 0.017843477427959442
+    - -0.02061578817665577
+    - -0.04107391834259033
+    - 0.07653222978115082
+    - -0.028263723477721214
+    - 0.05428728833794594
+    - -0.05297505855560303
+    - -0.05725621059536934
+    - 0.08843725919723511
+    - 0.0027290263678878546
+    - 0.162190243601799
+    - 0.009598064236342907
+    - -0.03141392394900322
+    - 0.0717577114701271
+    - -0.11888514459133148
+    - -0.019109778106212616
+    - -0.021739471703767776
+    - -0.006673773750662804
+    - 0.029362177476286888
+    - -0.020294271409511566
+    - -0.03209506720304489
+    - -0.030573150143027306
+    - 0.019408872351050377
+    - -0.15059565007686615
+    - 0.028181064873933792
+    - 0.0299160648137331
+    - -0.029213305562734604
+    - 0.10190613567829132
+    - 0.03497008606791496
+    - -0.017282608896493912
+    - 0.09489480406045914
+    - -0.0600748285651207
+    - -0.007268381770700216
+    - -0.02788243442773819
+    - 0.02912946417927742
+    - 0.057448774576187134
+    - -0.04162026196718216
+    - 0.008344750851392746
+    - 0.07454904913902283
+    - -0.022171765565872192
+    - -0.03541981801390648
+    - 0.038287606090307236
+    - 0.07905226945877075
+    - -0.054819729179143906
+    - 0.024650363251566887
+    - 0.024314256384968758
+    - -0.08029251545667648
+    - -0.014879364520311356
+    - -0.05100271478295326
+    - -0.025733372196555138
+    - 0.016937248408794403
+    - -0.04883934557437897
+    - 0.06537598371505737
+    - -0.010415446013212204
+    - 0.061222273856401443
+    - 0.01335300225764513
+    - -0.005813766736537218
+    - 0.08728273212909698
+    - -0.001736463513225317
+    - 0.07482895255088806
+    - 0.025741316378116608
+    - 0.09961552172899246
+    - 0.024210866540670395
+    - -0.006077100522816181
+    - -0.14242881536483765
+    - 0.07261713594198227
+    - -0.020516226068139076
+    - -0.02890295721590519
+    - 0.03588241711258888
+    - -0.004171198699623346
+    - -0.11094926297664642
+    - -0.11798864603042603
+    - -0.054480016231536865
+    - 0.012644967995584011
+    - 0.034268248826265335
+    - -0.010406983084976673
+    - 0.05876460298895836
+    - 0.024362020194530487
+    - -0.139317125082016
+    - -0.02199728600680828
+    - -0.0016166826244443655
+    - -0.05251164361834526
+    - -1.2224568195055764e-33
+    - 0.029191017150878906
+    - -0.00929283443838358
+    - -0.02684587799012661
+    - -0.05989715829491615
+    - 0.036542315036058426
+    - -0.023980392143130302
+    - -0.08774540573358536
+    - -0.026475826278328896
+    - 0.0796065479516983
+    - 0.022135373204946518
+    - 0.03048829361796379
+    - -0.02944481559097767
+    - 0.05984802544116974
+    - -0.03637281060218811
+    - -0.10634446144104004
+    - 0.048222627490758896
+    - 0.049041714519262314
+    - -0.033801447600126266
+    - 0.06850848346948624
+    - -0.022952672094106674
+    - -0.0830954760313034
+    - 0.09474727511405945
+    - -0.07358119636774063
+    - -0.019830243661999702
+    - -0.02292211540043354
+    - -0.030008934438228607
+    - 0.05480575934052467
+    - -0.051158610731363297
+    - 0.041272688657045364
+    - 0.09410575032234192
+    - -0.023223599418997765
+    - 0.005332783330231905
+    - -0.006558111868798733
+    - 0.01482523512095213
+    - 0.005932224914431572
+    - -0.05018112435936928
+    - 0.03837713226675987
+    - -0.07900957763195038
+    - -0.043652743101119995
+    - 0.00865260511636734
+    - 0.025147346779704094
+    - -0.054805997759103775
+    - 0.07699308544397354
+    - -0.06229779124259949
+    - 0.013793128542602062
+    - 0.019481616094708443
+    - -0.014758750796318054
+    - 0.021487025544047356
+    - 0.00020494026830419898
+    - -0.0022701388224959373
+    - 0.10614947229623795
+    - -0.06354807317256927
+    - 0.020261593163013458
+    - -0.06947275996208191
+    - 0.001827914733439684
+    - 0.05926669389009476
+    - -0.005082553718239069
+    - -0.0445728562772274
+    - 0.019696779549121857
+    - -0.03064517118036747
+    - 0.03546282276511192
+    - -0.050354041159152985
+    - 0.060400765389204025
+    - -0.012565185315907001
+    - -0.08360391855239868
+    - 0.06117302551865578
+    - -0.014122934080660343
+    - -0.011265840381383896
+    - -0.014223296195268631
+    - -0.07182250171899796
+    - 0.022127792239189148
+    - 0.0750173032283783
+    - 0.08260562270879745
+    - 0.12070692330598831
+    - 0.03775399550795555
+    - -0.09701765328645706
+    - -0.0012004115851595998
+    - 0.014293084852397442
+    - -0.06914263218641281
+    - -0.03256421163678169
+    - 0.03266514465212822
+    - 0.042330749332904816
+    - 0.06261102110147476
+    - 0.03305842727422714
+    - -0.009191221557557583
+    - 0.0635211318731308
+    - -0.014966530725359917
+    - 0.04891286417841911
+    - 0.03198355436325073
+    - -0.019308073446154594
+    - 0.006286276504397392
+    - -0.020885441452264786
+    - -0.01991717889904976
+    - 0.03997540473937988
+    - -0.024783959612250328
+    - -2.835177248527998e-08
+    - -0.030297856777906418
+    - -0.011828850954771042
+    - -0.013879799284040928
+    - -0.046167753636837006
+    - -0.06476210802793503
+    - 0.0601588599383831
+    - 0.10631806403398514
+    - -0.032618794590234756
+    - -0.04424474388360977
+    - -0.02652203105390072
+    - -0.07219516485929489
+    - -0.011503858491778374
+    - 0.04163268953561783
+    - -0.021725963801145554
+    - -0.01623855158686638
+    - -0.043893080204725266
+    - -0.015694987028837204
+    - -0.015437460504472256
+    - -0.0263243168592453
+    - -0.007884503342211246
+    - -0.024215975776314735
+    - 0.038645897060632706
+    - 0.01470332033932209
+    - 0.01494994480162859
+    - -0.009576468728482723
+    - -0.015318303368985653
+    - -0.07145777344703674
+    - -0.11056429147720337
+    - -0.08730293065309525
+    - -0.03285954147577286
+    - -0.041148364543914795
+    - 0.029506299644708633
+    - -0.003893132321536541
+    - 0.028481854125857353
+    - 0.003228863701224327
+    - 0.06818079203367233
+    - 0.027022404596209526
+    - -0.02312619984149933
+    - -0.0616922527551651
+    - -0.009843475185334682
+    - 0.10609928518533707
+    - -0.05128103867173195
+    - 0.008365876041352749
+    - 0.013901295140385628
+    - -0.03729168325662613
+    - -0.05385394021868706
+    - -0.03085973858833313
+    - 0.030681809410452843
+    - -0.04492076113820076
+    - 0.04964680224657059
+    - 0.047033634036779404
+    - -0.03786005079746246
+    - 0.010693528689444065
+    - 0.0058693308383226395
+    - -0.009645692072808743
+    - 0.0022285431623458862
+    - -0.07224328070878983
+    - 0.0011583055602386594
+    - -0.024951353669166565
+    - -0.10183986276388168
+    - 0.016544071957468987
+    - -0.07540209591388702
+    - 0.0355636291205883
+    - 0.023618746548891068
+    id: CHM-014
+    key_concepts:
+    - synthesis routes
+    - structure-property relationships
+    - characterization
+    - functional materials
+    - nanomaterials
+    - hybrid materials
+    - crystal growth
+    name: Materials Chemistry
+    parent_domain: Chemistry
+    recent_anomalies: []
+    taxonomy_source: custom
+  strategy: semantic_distance
+gap_manifest:
+  competence_gaps:
+  - confidence_degradation: 0.15
+    description: Detailed knowledge of polymer synthesis with functional linkers
+    type: synthetic chemistry
+    workaround_used: Used general principles from literature examples
+  data_gaps:
+  - criticality: medium
+    description: Specific synthesis routes for incorporating photolabile groups into
+      functional materials
+    domain: materials chemistry
+    recurrence: 1
+  - criticality: medium
+    description: Quantitative quantum yield data for bond-breaking in condensed phase
+      vs gas phase
+    domain: photochemistry
+    recurrence: 1
+  epistemic_gaps:
+  - exploration_priority: high
+    signal: Literature focuses on gas-phase or solution chemistry
+    zone: photochemical efficiency in solid state
+generated_at: '2026-04-05T13:18:08.998386'
+genome_version: l0_v1
+id: SPORE-2026-04-05-eb0d5cc1
+impact_analysis:
+  horizon_temporel: Moyen terme (3-10 ans)
+  impact_concret: Des emballages qui se dissolvent automatiquement après livraison,
+    des implants médicaux qui disparaissent une fois la guérison terminée, des composants
+    électroniques qui s'autodétruisent pour la sécurité des données, des matériaux
+    de construction temporaires qui se démontent sans outils ni déchets, et des textiles
+    qui se décomposent proprement en fin de vie.
+  industries_impactees:
+  - Emballage
+  - Médical et pharmaceutique
+  - Électronique
+  - Construction
+  - Textile
+  - Défense et sécurité
+  - Environnement
+  one_liner: Des matériaux qui s'autodétruisent à la demande avec un simple rayon
+    lumineux pourraient éliminer les déchets d'emballage et révolutionner la chirurgie.
+  score_impact: significatif
+  solutions_existantes: Aujourd'hui on utilise la chaleur, l'acidité ou le temps pour
+    dégrader les matériaux, mais c'est difficile à contrôler précisément. Cette approche
+    permettrait un contrôle spatial et temporel exact juste avec la lumière, sans
+    chaleur ni produits chimiques.
+  taille_marche_estimee: Dizaines de milliards d'euros - secteur des matériaux biodégradables
+    en forte croissance, applications transversales multiples
+  vulgarisation: Imaginez des matériaux qui se désintègrent de manière contrôlée quand
+    on les éclaire avec une couleur de lumière précise, comme un Lego qui se démonte
+    uniquement sous une lampe violette. Cette technologie s'inspire de ce qui se passe
+    dans l'espace quand la lumière des étoiles casse les molécules de glace. On pourrait
+    créer des objets programmés pour disparaître au bon moment et au bon endroit juste
+    en les éclairant.
+kill_condition: If wavelength-selective degradation cannot be achieved with >70% selectivity
+  between target and off-target wavelengths, or if degradation follows thermal rather
+  than photochemical kinetics under controlled temperature conditions
+next_steps:
+- Synthesize test polymers with known photolabile linkers (e.g., o-nitrobenzyl groups)
+  at controlled densities
+- Map degradation rates vs wavelength using monochromatic light sources from 250-400nm
+- Compare degradation kinetics under isothermal conditions with different light intensities
+predictions:
+- differs_from_consensus: true
+  expected_range: '>90% retention at λ>400nm, <20% retention at target UV wavelengths
+    (280-320nm)'
+  metric: Material integrity retention percentage after specific wavelength exposure
+  statement: Hybrid materials with embedded photolabile bonds designed using extraterrestrial
+    photochemistry energy thresholds will show wavelength-selective degradation
+- differs_from_consensus: true
+  expected_range: Q10 factor <1.5 (vs >2.0 for thermal degradation)
+  metric: Temperature coefficient of degradation rate under UV illumination
+  statement: Degradation rate will follow photochemical quantum yield principles rather
+    than thermal Arrhenius kinetics
+relevant_datasets:
+- NIST photochemical database for bond dissociation energies
+- Materials Project database for polymer structures
+- Astrochemistry photolysis rate databases
+relevant_labs: []
+scores:
+  coherence: 0.6
+  composite: 0.4125
+  hallucination_risk: 0.44999999999999996
+  impact_potential: 0.45
+  novelty: 0.5
+  testability: 0.65
+sources_used:
+- arXiv:2102.00094
+- arXiv:1201.3644
+status: curated

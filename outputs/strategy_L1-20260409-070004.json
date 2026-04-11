@@ -1,0 +1,116 @@
+{
+  "generated_at": "2026-04-09 07:00:36.793590",
+  "based_on_observation": "2026-04-09T07:00:04.395485",
+  "mutations": [
+    {
+      "id": "MUT-20260409-917dd2",
+      "created_at": "2026-04-09 07:00:36.793546",
+      "type": "score_weight_adjustment",
+      "target_path": "score_weights",
+      "old_value": {
+        "coherence": 0.25,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.2,
+        "novelty": 0.25,
+        "testability": 0.3
+      },
+      "new_value": {
+        "coherence": 0.3,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.25,
+        "testability": 0.35
+      },
+      "description": "Increase emphasis on testability and coherence while slightly reducing impact_potential weight",
+      "justification": "Average composite score is only 0.395 with no hypotheses scoring above 0.5. The score distribution shows 42 hypotheses in 0.3-0.5 range and only 2 below 0.3. Increasing testability weight (from 0.3 to 0.35) and coherence weight (from 0.25 to 0.3) should push hypotheses toward higher quality. Impact_potential is reduced from 0.2 to 0.15 as it may be too speculative at early stages.",
+      "estimated_impact": "Expected increase in average composite score by 0.05-0.10, with more hypotheses crossing the 0.5 threshold",
+      "risk": "medium",
+      "based_on_run_id": "run-20260408-123316-256a97",
+      "observation_summary": "Score distribution: 0.0-0.3: 2, 0.3-0.5: 42, 0.5-0.7: 0, 0.7-1.0: 0; avg_composite_score: 0.395",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260409-4de4b8",
+      "created_at": "2026-04-09 07:00:36.793572",
+      "type": "parameter_change",
+      "target_path": "randomness.strategy_weights",
+      "old_value": {
+        "anomaly_guided": 0.2,
+        "historical_template": 0.2,
+        "semantic_distance": 0.4,
+        "structural_analogy": 0.2
+      },
+      "new_value": {
+        "anomaly_guided": 0.25,
+        "historical_template": 0.15,
+        "semantic_distance": 0.35,
+        "structural_analogy": 0.25
+      },
+      "description": "Increase anomaly_guided and structural_analogy weights while reducing historical_template and semantic_distance",
+      "justification": "Underexplored domains like Biomaterials (4 collisions, avg_score 0.377), Ceramics (4 collisions, avg_score 0.361), and Molecular Biology (3 collisions, avg_score 0.478) show promise. Anomaly-guided exploration (increased from 0.2 to 0.25) can target these fertile domains. Structural analogy (increased from 0.2 to 0.25) helps create novel bridges. Historical template reduced (0.2 to 0.15) as it may lead to repetitive patterns.",
+      "estimated_impact": "Better exploration of underexplored domains, potentially increasing quality of generated hypotheses",
+      "risk": "low",
+      "based_on_run_id": "run-20260408-123316-256a97",
+      "observation_summary": "Underexplored domains: Biomaterials, Ceramics, Elastomers, Hydrogels, Molecular Biology; Molecular Biology has highest avg_score (0.478) among high-collision domains",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260409-059f89",
+      "created_at": "2026-04-09 07:00:36.793581",
+      "type": "parameter_change",
+      "target_path": "agents.synthesis.parameters",
+      "old_value": {
+        "max_tokens": 4000,
+        "no_bridge_allowed": true
+      },
+      "new_value": {
+        "max_tokens": 3000,
+        "no_bridge_allowed": true,
+        "temperature": 0.8
+      },
+      "description": "Add temperature parameter to synthesis agent and slightly reduce max_tokens",
+      "justification": "The synthesis agent currently lacks a temperature parameter, which controls creativity vs. coherence. Adding temperature (0.8) encourages more creative synthesis while maintaining coherence. Reducing max_tokens from 4000 to 3000 encourages more concise, focused hypotheses. This addresses the competence gaps in thermodynamic modeling, materials synthesis, and kinetic modeling identified in the report.",
+      "estimated_impact": "More creative yet coherent hypotheses, addressing identified competence gaps more effectively",
+      "risk": "medium",
+      "based_on_run_id": "run-20260408-123316-256a97",
+      "observation_summary": "Top competence gaps include thermodynamic modeling, materials synthesis, kinetic modeling; synthesis agent currently has no temperature parameter",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    }
+  ],
+  "rationale": "The observation report reveals several key patterns: 1) Strong score-feedback correlation (0.85) indicates the scoring system is well-calibrated, 2) Bridge rate is high (68.5%) but composite scores are low (avg 0.395) with no hypotheses scoring above 0.5, 3) Underexplored domains like Biomaterials, Ceramics, and Molecular Biology show promise, 4) The system is generating many hypotheses but quality needs improvement. The mutations focus on: increasing hypothesis quality by adjusting score weights to emphasize testability and coherence, encouraging exploration of fertile underexplored domains by adjusting strategy weights, and improving synthesis quality by modifying the synthesis agent's parameters.",
+  "expected_outcomes": [
+    "Increased average composite score above 0.45",
+    "More hypotheses scoring above 0.5 threshold",
+    "Better exploration of fertile underexplored domains like Biomaterials and Molecular Biology",
+    "More creative yet testable hypotheses addressing identified competence gaps"
+  ],
+  "risks": [
+    "Reducing impact_potential weight may miss high-impact hypotheses",
+    "Increased anomaly_guided exploration may generate more speculative hypotheses",
+    "Higher synthesis temperature could increase hallucination risk"
+  ]
+}

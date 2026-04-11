@@ -1,0 +1,99 @@
+{
+  "generated_at": "2026-04-08 06:37:01.553923",
+  "based_on_observation": "2026-04-08T06:36:39.352858",
+  "mutations": [
+    {
+      "id": "MUT-20260408-7026ee",
+      "created_at": "2026-04-08 06:37:01.553889",
+      "type": "score_weight_adjustment",
+      "target_path": "score_weights",
+      "old_value": {
+        "coherence": 0.25,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.25,
+        "testability": 0.25
+      },
+      "new_value": {
+        "coherence": 0.3,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.2,
+        "testability": 0.3
+      },
+      "description": "Increase weights for testability and coherence, slightly reduce novelty weight",
+      "justification": "Composite scores are low (avg 0.38) with no scores above 0.5, despite high bridge rate (75%). The system may be over-prioritizing novelty at the expense of testability and coherence. Testability is critical for scientific hypotheses, and coherence ensures logical consistency.",
+      "estimated_impact": "Higher quality hypotheses with better testability and coherence, potentially increasing average composite scores by 0.05-0.10",
+      "risk": "medium",
+      "based_on_run_id": "run-20260407-125631-aa9500",
+      "observation_summary": "Avg composite score 0.38, no scores above 0.5, strong score-feedback correlation (0.85)",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260408-94216a",
+      "created_at": "2026-04-08 06:37:01.553906",
+      "type": "parameter_change",
+      "target_path": "randomness.distance_max",
+      "old_value": 0.7,
+      "new_value": 0.75,
+      "description": "Slightly increase maximum semantic distance for interdisciplinary connections",
+      "justification": "Underexplored domains (Biomaterials, Ceramics, Elastomers, Hydrogels, Surface Science) show promise but may require more distant interdisciplinary connections. Current distance_max of 0.7 may be limiting exploration of fertile but distant domain combinations.",
+      "estimated_impact": "Increased exploration of promising underexplored domains, potentially discovering novel high-impact connections",
+      "risk": "low",
+      "based_on_run_id": "run-20260407-125631-aa9500",
+      "observation_summary": "Underexplored domains identified: Biomaterials, Ceramics, Elastomers, Hydrogels, Surface Science",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260408-0bbfb2",
+      "created_at": "2026-04-08 06:37:01.553915",
+      "type": "parameter_change",
+      "target_path": "curator.parameters.top_percent",
+      "old_value": 0.15,
+      "new_value": 0.12,
+      "description": "Slightly tighten curation threshold to focus on higher-quality hypotheses",
+      "justification": "Curation rate is 24% (26 curated out of 108 hypotheses), but composite scores are low. Tightening the threshold will focus resources on the highest-quality hypotheses, potentially improving overall quality of curated outputs.",
+      "estimated_impact": "Higher average quality of curated hypotheses, more focused exploration of high-potential directions",
+      "risk": "low",
+      "based_on_run_id": "run-20260407-125631-aa9500",
+      "observation_summary": "Curation rate 24%, total curated 26 out of 108 hypotheses, avg composite score 0.38",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    }
+  ],
+  "rationale": "The observation report reveals several key patterns: 1) Strong score-feedback correlation (0.85) indicates the scoring system is well-calibrated, 2) Bridge rate is high (75%) but composite scores are low (avg 0.38, with no scores above 0.5), 3) Underexplored domains show promise but produce lower scores, 4) The system is generating many hypotheses but few achieve high quality. The strategy focuses on: improving hypothesis quality by adjusting score weights to better reward testability and coherence, widening the fertile zone to explore more promising interdisciplinary connections, and adjusting curation thresholds to focus on higher-quality outputs.",
+  "expected_outcomes": [
+    "Higher average composite scores (target: 0.45-0.50)",
+    "Better testability and coherence in generated hypotheses",
+    "Increased exploration of promising underexplored domains",
+    "More focused curation on highest-quality outputs"
+  ],
+  "risks": [
+    "Reduced novelty weight may decrease breakthrough potential of hypotheses",
+    "Tighter curation may reduce total number of curated hypotheses",
+    "Increased distance_max may generate less coherent interdisciplinary connections"
+  ]
+}

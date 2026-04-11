@@ -1,0 +1,104 @@
+{
+  "description": "Known interdisciplinary discoveries for bootstrap calibration",
+  "note": "SPORE should 'rediscover' at least 7/10 of these bridges",
+  "discoveries": [
+    {
+      "id": "BOOT-001",
+      "name": "Quasicrystals",
+      "domain_a": "Crystallography",
+      "domain_b": "Quasicrystals",
+      "expected_bridge": "Aperiodic tiling patterns (Penrose tiles) explain diffraction patterns with forbidden symmetries",
+      "year_discovered": 1982,
+      "discoverer": "Dan Shechtman"
+    },
+    {
+      "id": "BOOT-002",
+      "name": "Shape Memory Alloys",
+      "domain_a": "Metallurgy",
+      "domain_b": "Smart Materials",
+      "expected_bridge": "Martensitic phase transformations enable reversible shape changes through temperature or stress",
+      "year_discovered": 1963,
+      "discoverer": "William Buehler"
+    },
+    {
+      "id": "BOOT-003",
+      "name": "Biomimetic Nacre",
+      "domain_a": "Mollusk Shell Microstructure",
+      "domain_b": "Ceramic Toughening",
+      "domain_a_concepts": ["nacre", "brick-and-mortar architecture", "aragonite platelets", "organic matrix", "hierarchical structure"],
+      "domain_b_concepts": ["fracture toughness", "crack deflection", "energy dissipation", "brittle materials", "composite design"],
+      "expected_bridge": "Hierarchical brick-and-mortar architecture from nacre provides exceptional toughness to ceramic composites through crack deflection and energy dissipation",
+      "year_discovered": 2006,
+      "discoverer": "Various groups"
+    },
+    {
+      "id": "BOOT-004",
+      "name": "Graphene from Graphite",
+      "domain_a": "Adhesive Tape Mechanics",
+      "domain_b": "Carbon Allotrope Physics",
+      "domain_a_concepts": ["Scotch tape", "peeling force", "mechanical exfoliation", "layer separation", "adhesion energy"],
+      "domain_b_concepts": ["graphite layers", "van der Waals bonding", "sp2 hybridization", "2D electron gas", "Dirac fermions"],
+      "expected_bridge": "Mechanical exfoliation using adhesive tape exploits weak van der Waals forces between graphite layers to produce atomically thin graphene sheets",
+      "year_discovered": 2004,
+      "discoverer": "Geim and Novoselov"
+    },
+    {
+      "id": "BOOT-005",
+      "name": "High-Entropy Alloys",
+      "domain_a": "High-Entropy Alloys",
+      "domain_b": "Thermomechanics",
+      "expected_bridge": "Configurational entropy stabilizes single-phase solid solutions with multiple principal elements",
+      "year_discovered": 2004,
+      "discoverer": "Yeh and Cantor"
+    },
+    {
+      "id": "BOOT-006",
+      "name": "Perovskite Solar Cells",
+      "domain_a": "Crystalline Perovskite Structures",
+      "domain_b": "Photovoltaic Charge Separation",
+      "domain_a_concepts": ["ABX3 structure", "halide perovskites", "methylammonium lead iodide", "solution processing", "low-temperature synthesis"],
+      "domain_b_concepts": ["exciton dissociation", "carrier diffusion length", "band alignment", "charge extraction", "open-circuit voltage"],
+      "expected_bridge": "Halide perovskites transfer from ceramic/oxide research to photovoltaics, combining solution processability with exceptional carrier lifetimes and absorption coefficients",
+      "year_discovered": 2009,
+      "discoverer": "Miyasaka"
+    },
+    {
+      "id": "BOOT-007",
+      "name": "Self-Healing Polymers",
+      "domain_a": "Self-Healing Materials",
+      "domain_b": "Polymer Science",
+      "expected_bridge": "Microencapsulated healing agents enable autonomous crack repair in polymer matrices",
+      "year_discovered": 2001,
+      "discoverer": "White, Sottos, et al."
+    },
+    {
+      "id": "BOOT-008",
+      "name": "MOFs for Gas Storage",
+      "domain_a": "MOFs and Porous Materials",
+      "domain_b": "Energy Storage Materials",
+      "expected_bridge": "Tunable pore chemistry and ultra-high surface area enable selective gas capture and storage",
+      "year_discovered": 1999,
+      "discoverer": "Yaghi"
+    },
+    {
+      "id": "BOOT-009",
+      "name": "Topological Insulators",
+      "domain_a": "Topological Materials",
+      "domain_b": "Semiconductor Materials",
+      "expected_bridge": "Band inversion and spin-orbit coupling create conducting surface states protected by topology",
+      "year_discovered": 2007,
+      "discoverer": "König, Molenkamp, Zhang"
+    },
+    {
+      "id": "BOOT-010",
+      "name": "Additive Manufacturing of Metals",
+      "domain_a": "Laser Sintering Physics",
+      "domain_b": "Rapid Solidification Metallurgy",
+      "domain_a_concepts": ["selective laser melting", "powder bed fusion", "melt pool dynamics", "thermal gradients", "layer-by-layer fabrication"],
+      "domain_b_concepts": ["non-equilibrium microstructures", "supersaturated solid solutions", "fine grain structures", "metastable phases", "cooling rate effects"],
+      "expected_bridge": "Extreme cooling rates in laser powder bed fusion create non-equilibrium microstructures with supersaturated compositions and refined grain structures impossible through conventional casting",
+      "year_discovered": 2000,
+      "discoverer": "EOS, Arcam"
+    }
+  ]
+}

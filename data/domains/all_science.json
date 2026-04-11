@@ -1,0 +1,1251 @@
+{
+  "domain": "all_science",
+  "description": "Tous les domaines scientifiques pour exploration interdisciplinaire",
+  "disciplines": [
+    {
+      "name": "Physics",
+      "subdomains": [
+        {
+          "id": "PHY-001",
+          "name": "Quantum Mechanics",
+          "parent_domain": "Physics",
+          "key_concepts": ["wave function", "superposition", "entanglement", "Schrodinger equation", "quantum tunneling", "Heisenberg uncertainty principle", "quantum operators"]
+        },
+        {
+          "id": "PHY-002",
+          "name": "Astrophysics",
+          "parent_domain": "Physics",
+          "key_concepts": ["stellar evolution", "black holes", "neutron stars", "cosmology", "dark matter", "gravitational waves", "nucleosynthesis", "supernovae"]
+        },
+        {
+          "id": "PHY-003",
+          "name": "Optics",
+          "parent_domain": "Physics",
+          "key_concepts": ["refraction", "diffraction", "interference", "polarization", "laser physics", "fiber optics", "optical coherence", "photonics"]
+        },
+        {
+          "id": "PHY-004",
+          "name": "Plasma Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["ionization", "plasma confinement", "magnetohydrodynamics", "plasma waves", "fusion energy", "tokamak", "plasma instabilities", "Debye shielding"]
+        },
+        {
+          "id": "PHY-005",
+          "name": "Condensed Matter Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["band theory", "phonons", "superconductivity", "magnetism", "Fermi surfaces", "phase transitions", "many-body theory", "electron correlations"]
+        },
+        {
+          "id": "PHY-006",
+          "name": "Particle Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["Standard Model", "quarks", "leptons", "Higgs boson", "quantum chromodynamics", "weak interaction", "particle accelerators", "antimatter"]
+        },
+        {
+          "id": "PHY-007",
+          "name": "Thermodynamics",
+          "parent_domain": "Physics",
+          "key_concepts": ["entropy", "enthalpy", "free energy", "heat engines", "Carnot cycle", "statistical mechanics", "laws of thermodynamics", "equilibrium"]
+        },
+        {
+          "id": "PHY-008",
+          "name": "General Relativity",
+          "parent_domain": "Physics",
+          "key_concepts": ["spacetime curvature", "Einstein field equations", "gravitational lensing", "time dilation", "geodesics", "Schwarzschild metric", "frame dragging"]
+        },
+        {
+          "id": "PHY-009",
+          "name": "Special Relativity",
+          "parent_domain": "Physics",
+          "key_concepts": ["Lorentz transformation", "length contraction", "time dilation", "mass-energy equivalence", "relativistic momentum", "light cone", "invariant interval"]
+        },
+        {
+          "id": "PHY-010",
+          "name": "Acoustics",
+          "parent_domain": "Physics",
+          "key_concepts": ["sound waves", "resonance", "acoustic impedance", "Doppler effect", "ultrasound", "noise control", "room acoustics", "phonon transport"]
+        },
+        {
+          "id": "PHY-011",
+          "name": "Fluid Dynamics",
+          "parent_domain": "Physics",
+          "key_concepts": ["Navier-Stokes equations", "turbulence", "laminar flow", "Reynolds number", "vorticity", "boundary layers", "compressible flow", "viscosity"]
+        },
+        {
+          "id": "PHY-012",
+          "name": "Nuclear Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["nuclear fission", "nuclear fusion", "radioactive decay", "binding energy", "nuclear shell model", "neutron capture", "alpha decay", "beta decay"]
+        },
+        {
+          "id": "PHY-013",
+          "name": "Electromagnetism",
+          "parent_domain": "Physics",
+          "key_concepts": ["Maxwell equations", "electromagnetic waves", "electric fields", "magnetic fields", "electromagnetic induction", "Lorentz force", "waveguides"]
+        },
+        {
+          "id": "PHY-014",
+          "name": "Quantum Field Theory",
+          "parent_domain": "Physics",
+          "key_concepts": ["field quantization", "Feynman diagrams", "renormalization", "gauge theories", "vacuum fluctuations", "path integrals", "symmetry breaking"]
+        },
+        {
+          "id": "PHY-015",
+          "name": "Statistical Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["partition function", "Boltzmann distribution", "phase transitions", "critical phenomena", "Monte Carlo methods", "Ising model", "fluctuations"]
+        },
+        {
+          "id": "PHY-016",
+          "name": "Atomic Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["atomic spectra", "electron orbitals", "fine structure", "hyperfine structure", "laser cooling", "atomic clocks", "ionization energy"]
+        },
+        {
+          "id": "PHY-017",
+          "name": "Molecular Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["molecular spectroscopy", "rotational states", "vibrational modes", "molecular bonding", "intermolecular forces", "Born-Oppenheimer approximation"]
+        },
+        {
+          "id": "PHY-018",
+          "name": "Biophysics",
+          "parent_domain": "Physics",
+          "key_concepts": ["protein folding", "membrane dynamics", "ion channels", "molecular motors", "biomechanics", "single-molecule techniques", "cellular mechanics"]
+        },
+        {
+          "id": "PHY-019",
+          "name": "Geophysics",
+          "parent_domain": "Physics",
+          "key_concepts": ["seismic waves", "Earth magnetism", "plate tectonics", "mantle convection", "gravity anomalies", "geodynamics", "geomagnetism"]
+        },
+        {
+          "id": "PHY-020",
+          "name": "Quantum Optics",
+          "parent_domain": "Physics",
+          "key_concepts": ["photon statistics", "squeezed states", "quantum coherence", "cavity QED", "single photon sources", "quantum interference", "nonclassical light"]
+        },
+        {
+          "id": "PHY-021",
+          "name": "Nonlinear Dynamics",
+          "parent_domain": "Physics",
+          "key_concepts": ["chaos theory", "bifurcations", "strange attractors", "Lyapunov exponents", "solitons", "pattern formation", "coupled oscillators"]
+        },
+        {
+          "id": "PHY-022",
+          "name": "Soft Matter Physics",
+          "parent_domain": "Physics",
+          "key_concepts": ["polymers", "colloids", "liquid crystals", "surfactants", "self-assembly", "viscoelasticity", "emulsions", "gels"]
+        }
+      ]
+    },
+    {
+      "name": "Chemistry",
+      "subdomains": [
+        {
+          "id": "CHM-001",
+          "name": "Organic Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["carbon bonding", "functional groups", "reaction mechanisms", "stereochemistry", "synthesis", "spectroscopic analysis", "aromatic compounds"]
+        },
+        {
+          "id": "CHM-002",
+          "name": "Inorganic Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["coordination compounds", "transition metals", "ligand field theory", "organometallics", "solid-state chemistry", "bioinorganic chemistry", "crystal field theory"]
+        },
+        {
+          "id": "CHM-003",
+          "name": "Electrochemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["redox reactions", "electrode potentials", "electrochemical cells", "electrolysis", "cyclic voltammetry", "Nernst equation", "electrocatalysis"]
+        },
+        {
+          "id": "CHM-004",
+          "name": "Photochemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["photoexcitation", "fluorescence", "phosphorescence", "photosensitizers", "quantum yield", "photocatalysis", "photoisomerization"]
+        },
+        {
+          "id": "CHM-005",
+          "name": "Computational Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["density functional theory", "molecular dynamics", "ab initio methods", "force fields", "quantum chemistry", "molecular modeling", "energy minimization"]
+        },
+        {
+          "id": "CHM-006",
+          "name": "Polymer Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["polymerization mechanisms", "chain growth", "step growth", "copolymerization", "molecular weight distribution", "polymer architecture", "living polymerization"]
+        },
+        {
+          "id": "CHM-007",
+          "name": "Biochemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["enzyme kinetics", "protein structure", "metabolism", "nucleic acids", "lipids", "carbohydrates", "signal transduction", "bioenergetics"]
+        },
+        {
+          "id": "CHM-008",
+          "name": "Analytical Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["chromatography", "mass spectrometry", "spectroscopy", "titration", "electroanalysis", "separation techniques", "quantitative analysis"]
+        },
+        {
+          "id": "CHM-009",
+          "name": "Medicinal Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["drug design", "pharmacophore", "QSAR", "lead optimization", "ADMET", "receptor binding", "prodrugs", "structure-activity relationships"]
+        },
+        {
+          "id": "CHM-010",
+          "name": "Physical Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["reaction kinetics", "thermochemistry", "quantum chemistry", "surface chemistry", "chemical equilibrium", "spectroscopic methods", "molecular interactions"]
+        },
+        {
+          "id": "CHM-011",
+          "name": "Green Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["sustainable synthesis", "atom economy", "solvent-free reactions", "biocatalysis", "renewable feedstocks", "waste prevention", "energy efficiency"]
+        },
+        {
+          "id": "CHM-012",
+          "name": "Supramolecular Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["host-guest chemistry", "self-assembly", "molecular recognition", "hydrogen bonding", "coordination cages", "rotaxanes", "catenanes"]
+        },
+        {
+          "id": "CHM-013",
+          "name": "Catalysis",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["homogeneous catalysis", "heterogeneous catalysis", "enzyme catalysis", "reaction mechanisms", "catalyst design", "turnover number", "selectivity"]
+        },
+        {
+          "id": "CHM-014",
+          "name": "Materials Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["synthesis routes", "structure-property relationships", "characterization", "functional materials", "nanomaterials", "hybrid materials", "crystal growth"]
+        },
+        {
+          "id": "CHM-015",
+          "name": "Surface Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["adsorption isotherms", "surface reactions", "self-assembled monolayers", "chemisorption", "physisorption", "surface modification", "heterogeneous kinetics"]
+        },
+        {
+          "id": "CHM-016",
+          "name": "Nuclear Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["radiochemistry", "nuclear reactions", "isotope separation", "radioactive tracers", "nuclear medicine", "actinide chemistry", "decay kinetics"]
+        },
+        {
+          "id": "CHM-017",
+          "name": "Environmental Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["atmospheric chemistry", "water chemistry", "pollutant fate", "biogeochemical cycles", "remediation", "environmental analysis", "toxicology"]
+        },
+        {
+          "id": "CHM-018",
+          "name": "Food Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["food composition", "flavor chemistry", "Maillard reaction", "food additives", "nutritional analysis", "food preservation", "lipid oxidation"]
+        },
+        {
+          "id": "CHM-019",
+          "name": "Astrochemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["interstellar molecules", "cosmic dust", "planetary atmospheres", "prebiotic chemistry", "spectroscopic detection", "ice chemistry", "molecular clouds"]
+        },
+        {
+          "id": "CHM-020",
+          "name": "Organometallic Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["metal-carbon bonds", "oxidative addition", "reductive elimination", "cross-coupling", "carbene complexes", "sandwich compounds", "cluster compounds"]
+        },
+        {
+          "id": "CHM-021",
+          "name": "Chemical Biology",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["bioorthogonal chemistry", "chemical probes", "activity-based probes", "protein labeling", "metabolic labeling", "click chemistry", "chemical genetics"]
+        },
+        {
+          "id": "CHM-022",
+          "name": "Flow Chemistry",
+          "parent_domain": "Chemistry",
+          "key_concepts": ["microreactors", "continuous processing", "residence time", "mixing efficiency", "scale-up", "process intensification", "automated synthesis"]
+        }
+      ]
+    },
+    {
+      "name": "Biology",
+      "subdomains": [
+        {
+          "id": "BIO-001",
+          "name": "Genetics",
+          "parent_domain": "Biology",
+          "key_concepts": ["DNA replication", "gene expression", "genetic inheritance", "mutations", "genetic mapping", "epigenetics", "gene regulation", "chromosomes"]
+        },
+        {
+          "id": "BIO-002",
+          "name": "Microbiome Science",
+          "parent_domain": "Biology",
+          "key_concepts": ["gut microbiota", "metagenomics", "host-microbe interactions", "dysbiosis", "probiotic", "microbiome diversity", "metabolomics", "16S rRNA sequencing"]
+        },
+        {
+          "id": "BIO-003",
+          "name": "Neurobiology",
+          "parent_domain": "Biology",
+          "key_concepts": ["neural circuits", "synaptic plasticity", "neurotransmitters", "action potentials", "neurogenesis", "brain mapping", "glial cells", "neural development"]
+        },
+        {
+          "id": "BIO-004",
+          "name": "Immunology",
+          "parent_domain": "Biology",
+          "key_concepts": ["adaptive immunity", "innate immunity", "antibodies", "T cells", "B cells", "cytokines", "immune tolerance", "inflammatory response"]
+        },
+        {
+          "id": "BIO-005",
+          "name": "Ecology",
+          "parent_domain": "Biology",
+          "key_concepts": ["ecosystem dynamics", "food webs", "biodiversity", "population dynamics", "nutrient cycling", "ecological succession", "habitat fragmentation", "trophic levels"]
+        },
+        {
+          "id": "BIO-006",
+          "name": "Cell Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["cell cycle", "organelles", "membrane transport", "cell signaling", "cytoskeleton", "cell division", "apoptosis", "autophagy"]
+        },
+        {
+          "id": "BIO-007",
+          "name": "Molecular Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["central dogma", "transcription", "translation", "RNA processing", "protein synthesis", "molecular cloning", "gene editing", "CRISPR"]
+        },
+        {
+          "id": "BIO-008",
+          "name": "Evolutionary Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["natural selection", "speciation", "phylogenetics", "molecular evolution", "adaptive radiation", "convergent evolution", "genetic drift", "fitness landscape"]
+        },
+        {
+          "id": "BIO-009",
+          "name": "Synthetic Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["genetic circuits", "standardized parts", "metabolic engineering", "genome synthesis", "biosensors", "cell factories", "minimal genomes", "directed evolution"]
+        },
+        {
+          "id": "BIO-010",
+          "name": "Systems Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["network analysis", "omics integration", "computational modeling", "emergent properties", "feedback loops", "pathway analysis", "multi-scale modeling"]
+        },
+        {
+          "id": "BIO-011",
+          "name": "Developmental Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["morphogenesis", "pattern formation", "stem cells", "cell differentiation", "embryogenesis", "organogenesis", "Hox genes", "signaling gradients"]
+        },
+        {
+          "id": "BIO-012",
+          "name": "Structural Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["X-ray crystallography", "cryo-EM", "NMR spectroscopy", "protein structure", "macromolecular complexes", "molecular dynamics", "structure prediction"]
+        },
+        {
+          "id": "BIO-013",
+          "name": "Virology",
+          "parent_domain": "Biology",
+          "key_concepts": ["viral replication", "host-virus interactions", "viral evolution", "viral vectors", "antiviral strategies", "viral assembly", "viral pathogenesis"]
+        },
+        {
+          "id": "BIO-014",
+          "name": "Microbiology",
+          "parent_domain": "Biology",
+          "key_concepts": ["bacterial growth", "microbial metabolism", "biofilms", "quorum sensing", "antimicrobial resistance", "microbial ecology", "extremophiles"]
+        },
+        {
+          "id": "BIO-015",
+          "name": "Plant Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["photosynthesis", "plant hormones", "root development", "flowering regulation", "plant immunity", "stomatal function", "phytochemistry", "plant genomics"]
+        },
+        {
+          "id": "BIO-016",
+          "name": "Marine Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["coral reef ecosystems", "marine food chains", "ocean acidification", "bioluminescence", "deep sea biology", "marine biodiversity", "aquaculture"]
+        },
+        {
+          "id": "BIO-017",
+          "name": "Conservation Biology",
+          "parent_domain": "Biology",
+          "key_concepts": ["endangered species", "habitat restoration", "population viability", "biodiversity hotspots", "wildlife corridors", "ex-situ conservation", "reintroduction"]
+        },
+        {
+          "id": "BIO-018",
+          "name": "Chronobiology",
+          "parent_domain": "Biology",
+          "key_concepts": ["circadian rhythms", "biological clocks", "sleep-wake cycles", "clock genes", "jet lag", "seasonal rhythms", "photoperiodism", "melatonin"]
+        },
+        {
+          "id": "BIO-019",
+          "name": "Proteomics",
+          "parent_domain": "Biology",
+          "key_concepts": ["protein identification", "mass spectrometry", "protein quantification", "post-translational modifications", "protein-protein interactions", "biomarkers"]
+        },
+        {
+          "id": "BIO-020",
+          "name": "Genomics",
+          "parent_domain": "Biology",
+          "key_concepts": ["genome sequencing", "comparative genomics", "functional genomics", "genome annotation", "structural variants", "genome-wide association", "single-cell genomics"]
+        },
+        {
+          "id": "BIO-021",
+          "name": "Epigenetics",
+          "parent_domain": "Biology",
+          "key_concepts": ["DNA methylation", "histone modifications", "chromatin remodeling", "imprinting", "transgenerational inheritance", "epigenetic therapy", "non-coding RNAs"]
+        },
+        {
+          "id": "BIO-022",
+          "name": "Parasitology",
+          "parent_domain": "Biology",
+          "key_concepts": ["host-parasite interactions", "parasite life cycles", "vector-borne diseases", "immune evasion", "antiparasitic drugs", "malaria", "helminth infections"]
+        },
+        {
+          "id": "BIO-023",
+          "name": "Mycology",
+          "parent_domain": "Biology",
+          "key_concepts": ["fungal biology", "mycorrhizae", "fungal pathogenesis", "decomposition", "yeast genetics", "antifungal resistance", "fungal biotechnology"]
+        }
+      ]
+    },
+    {
+      "name": "Computer Science",
+      "subdomains": [
+        {
+          "id": "CS-001",
+          "name": "Machine Learning",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["supervised learning", "unsupervised learning", "neural networks", "gradient descent", "feature engineering", "model evaluation", "hyperparameter tuning"]
+        },
+        {
+          "id": "CS-002",
+          "name": "Deep Learning",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["convolutional networks", "recurrent networks", "transformers", "backpropagation", "attention mechanisms", "generative models", "transfer learning"]
+        },
+        {
+          "id": "CS-003",
+          "name": "Quantum Computing",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["qubits", "quantum gates", "quantum entanglement", "quantum algorithms", "decoherence", "quantum error correction", "quantum supremacy"]
+        },
+        {
+          "id": "CS-004",
+          "name": "Cryptography",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["encryption algorithms", "public key cryptography", "hash functions", "digital signatures", "zero-knowledge proofs", "post-quantum cryptography", "secure protocols"]
+        },
+        {
+          "id": "CS-005",
+          "name": "Robotics",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["motion planning", "kinematics", "sensor fusion", "SLAM", "robot learning", "manipulation", "human-robot interaction", "swarm robotics"]
+        },
+        {
+          "id": "CS-006",
+          "name": "Computer Vision",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["image segmentation", "object detection", "feature extraction", "image classification", "depth estimation", "optical flow", "scene understanding"]
+        },
+        {
+          "id": "CS-007",
+          "name": "Natural Language Processing",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["tokenization", "word embeddings", "language models", "sentiment analysis", "named entity recognition", "machine translation", "question answering"]
+        },
+        {
+          "id": "CS-008",
+          "name": "Distributed Systems",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["consensus algorithms", "fault tolerance", "CAP theorem", "replication", "load balancing", "distributed databases", "microservices"]
+        },
+        {
+          "id": "CS-009",
+          "name": "Algorithms",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["computational complexity", "sorting algorithms", "graph algorithms", "dynamic programming", "divide and conquer", "greedy algorithms", "approximation algorithms"]
+        },
+        {
+          "id": "CS-010",
+          "name": "Human-Computer Interaction",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["user interface design", "usability testing", "accessibility", "user experience", "interaction paradigms", "cognitive load", "gestural interfaces"]
+        },
+        {
+          "id": "CS-011",
+          "name": "Computer Graphics",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["rendering", "ray tracing", "shading models", "3D modeling", "texture mapping", "animation", "GPU programming", "virtual reality"]
+        },
+        {
+          "id": "CS-012",
+          "name": "Database Systems",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["query optimization", "indexing", "transaction processing", "ACID properties", "NoSQL databases", "data modeling", "distributed databases"]
+        },
+        {
+          "id": "CS-013",
+          "name": "Operating Systems",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["process scheduling", "memory management", "file systems", "concurrency", "virtualization", "device drivers", "kernel design"]
+        },
+        {
+          "id": "CS-014",
+          "name": "Network Science",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["network protocols", "routing algorithms", "network security", "software-defined networking", "wireless networks", "internet architecture", "packet switching"]
+        },
+        {
+          "id": "CS-015",
+          "name": "Information Retrieval",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["search engines", "ranking algorithms", "indexing", "relevance feedback", "document retrieval", "query expansion", "semantic search"]
+        },
+        {
+          "id": "CS-016",
+          "name": "Bioinformatics",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["sequence alignment", "phylogenetic analysis", "genome assembly", "protein structure prediction", "variant calling", "pathway analysis", "biological databases"]
+        },
+        {
+          "id": "CS-017",
+          "name": "Software Engineering",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["software architecture", "design patterns", "testing methodologies", "continuous integration", "agile development", "code review", "technical debt"]
+        },
+        {
+          "id": "CS-018",
+          "name": "Cybersecurity",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["threat modeling", "penetration testing", "malware analysis", "intrusion detection", "security protocols", "vulnerability assessment", "incident response"]
+        },
+        {
+          "id": "CS-019",
+          "name": "Reinforcement Learning",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["Markov decision processes", "Q-learning", "policy gradient", "exploration-exploitation", "reward shaping", "multi-agent systems", "model-based RL"]
+        },
+        {
+          "id": "CS-020",
+          "name": "Formal Methods",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["model checking", "theorem proving", "formal verification", "program synthesis", "type theory", "abstract interpretation", "specification languages"]
+        },
+        {
+          "id": "CS-021",
+          "name": "Parallel Computing",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["parallel algorithms", "GPU computing", "thread synchronization", "data parallelism", "task parallelism", "high-performance computing", "MPI"]
+        },
+        {
+          "id": "CS-022",
+          "name": "Edge Computing",
+          "parent_domain": "Computer Science",
+          "key_concepts": ["fog computing", "latency optimization", "IoT integration", "distributed inference", "edge analytics", "federated learning", "resource constraints"]
+        }
+      ]
+    },
+    {
+      "name": "Earth Sciences",
+      "subdomains": [
+        {
+          "id": "GEO-001",
+          "name": "Climatology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["climate models", "greenhouse effect", "climate feedback", "paleoclimate", "climate variability", "climate projections", "carbon cycle", "radiative forcing"]
+        },
+        {
+          "id": "GEO-002",
+          "name": "Geology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["rock formation", "mineral composition", "stratigraphy", "tectonics", "geological mapping", "metamorphism", "sedimentary processes", "igneous petrology"]
+        },
+        {
+          "id": "GEO-003",
+          "name": "Oceanography",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["ocean circulation", "thermohaline circulation", "ocean chemistry", "marine ecosystems", "sea level rise", "ocean-atmosphere interaction", "upwelling"]
+        },
+        {
+          "id": "GEO-004",
+          "name": "Seismology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["seismic waves", "earthquake mechanics", "fault dynamics", "seismic tomography", "earthquake prediction", "ground motion", "seismic hazard"]
+        },
+        {
+          "id": "GEO-005",
+          "name": "Atmospheric Science",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["atmospheric dynamics", "weather systems", "atmospheric chemistry", "boundary layer", "mesoscale phenomena", "atmospheric radiation", "cloud physics"]
+        },
+        {
+          "id": "GEO-006",
+          "name": "Hydrology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["water cycle", "groundwater flow", "watershed dynamics", "flood modeling", "water resources", "evapotranspiration", "river systems", "aquifer dynamics"]
+        },
+        {
+          "id": "GEO-007",
+          "name": "Paleontology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["fossil record", "mass extinctions", "evolutionary history", "biostratigraphy", "taphonomy", "paleobiogeography", "micropaleontology"]
+        },
+        {
+          "id": "GEO-008",
+          "name": "Volcanology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["magma dynamics", "volcanic eruptions", "lava flows", "pyroclastic flows", "volcanic hazards", "volcano monitoring", "mantle plumes"]
+        },
+        {
+          "id": "GEO-009",
+          "name": "Glaciology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["ice sheet dynamics", "glacier flow", "ice cores", "permafrost", "cryosphere", "glacial erosion", "ice-ocean interaction", "firn processes"]
+        },
+        {
+          "id": "GEO-010",
+          "name": "Geochemistry",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["isotope geochemistry", "trace elements", "geochemical cycles", "mineral-water interaction", "cosmochemistry", "organic geochemistry", "weathering"]
+        },
+        {
+          "id": "GEO-011",
+          "name": "Planetary Science",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["planetary formation", "exoplanets", "comparative planetology", "planetary atmospheres", "astrobiology", "space weathering", "planetary surfaces"]
+        },
+        {
+          "id": "GEO-012",
+          "name": "Soil Science",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["soil formation", "soil chemistry", "soil biology", "soil classification", "soil erosion", "nutrient cycling", "soil carbon", "pedogenesis"]
+        },
+        {
+          "id": "GEO-013",
+          "name": "Geomorphology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["landform evolution", "erosion processes", "fluvial geomorphology", "coastal processes", "aeolian processes", "hillslope dynamics", "tectonic geomorphology"]
+        },
+        {
+          "id": "GEO-014",
+          "name": "Meteorology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["weather forecasting", "synoptic meteorology", "mesoscale systems", "tropical meteorology", "numerical weather prediction", "severe storms"]
+        },
+        {
+          "id": "GEO-015",
+          "name": "Biogeochemistry",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["nutrient cycling", "carbon sequestration", "nitrogen fixation", "ecosystem metabolism", "redox chemistry", "element fluxes", "microbial processes"]
+        },
+        {
+          "id": "GEO-016",
+          "name": "Remote Sensing",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["satellite imagery", "spectral analysis", "LiDAR", "radar", "image processing", "land use classification", "change detection"]
+        },
+        {
+          "id": "GEO-017",
+          "name": "Tectonophysics",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["plate tectonics", "continental drift", "subduction", "rifting", "mountain building", "lithospheric stress", "crustal deformation"]
+        },
+        {
+          "id": "GEO-018",
+          "name": "Paleoecology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["ancient ecosystems", "pollen analysis", "climate reconstruction", "biodiversity history", "extinction events", "ecological succession", "Quaternary ecology"]
+        },
+        {
+          "id": "GEO-019",
+          "name": "Geochronology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["radiometric dating", "isotope ratios", "geological timescale", "age determination", "cosmogenic nuclides", "thermochronology", "luminescence dating"]
+        },
+        {
+          "id": "GEO-020",
+          "name": "Hydrogeology",
+          "parent_domain": "Earth Sciences",
+          "key_concepts": ["groundwater systems", "aquifer characterization", "contaminant transport", "well hydraulics", "groundwater recharge", "permeability", "hydrogeological modeling"]
+        }
+      ]
+    },
+    {
+      "name": "Medicine",
+      "subdomains": [
+        {
+          "id": "MED-001",
+          "name": "Oncology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["tumor biology", "cancer genomics", "targeted therapy", "immunotherapy", "metastasis", "tumor microenvironment", "chemoresistance", "precision oncology"]
+        },
+        {
+          "id": "MED-002",
+          "name": "Neurodegenerative Diseases",
+          "parent_domain": "Medicine",
+          "key_concepts": ["Alzheimer disease", "Parkinson disease", "protein aggregation", "neuroinflammation", "synaptic dysfunction", "neuroprotection", "tau pathology", "amyloid"]
+        },
+        {
+          "id": "MED-003",
+          "name": "Tissue Regeneration",
+          "parent_domain": "Medicine",
+          "key_concepts": ["stem cell therapy", "tissue scaffolds", "wound healing", "organoid models", "cellular reprogramming", "growth factors", "regenerative capacity"]
+        },
+        {
+          "id": "MED-004",
+          "name": "Drug Delivery",
+          "parent_domain": "Medicine",
+          "key_concepts": ["nanoparticle carriers", "controlled release", "targeted delivery", "pharmacokinetics", "bioavailability", "liposomes", "transdermal delivery"]
+        },
+        {
+          "id": "MED-005",
+          "name": "Immunotherapy",
+          "parent_domain": "Medicine",
+          "key_concepts": ["CAR-T cells", "checkpoint inhibitors", "cancer vaccines", "adoptive cell therapy", "immune modulation", "tumor antigens", "cytokine therapy"]
+        },
+        {
+          "id": "MED-006",
+          "name": "Genomic Medicine",
+          "parent_domain": "Medicine",
+          "key_concepts": ["pharmacogenomics", "genetic testing", "gene therapy", "personalized medicine", "genetic counseling", "variant interpretation", "clinical genomics"]
+        },
+        {
+          "id": "MED-007",
+          "name": "Epidemiology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["disease surveillance", "outbreak investigation", "risk factors", "cohort studies", "case-control studies", "disease modeling", "public health interventions"]
+        },
+        {
+          "id": "MED-008",
+          "name": "Cardiology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["heart failure", "arrhythmias", "atherosclerosis", "cardiac imaging", "interventional cardiology", "electrophysiology", "valvular disease"]
+        },
+        {
+          "id": "MED-009",
+          "name": "Infectious Disease",
+          "parent_domain": "Medicine",
+          "key_concepts": ["antimicrobial resistance", "viral pathogenesis", "bacterial infection", "host-pathogen interactions", "vaccine development", "emerging pathogens"]
+        },
+        {
+          "id": "MED-010",
+          "name": "Endocrinology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["hormone regulation", "diabetes", "thyroid disorders", "metabolic syndrome", "adrenal function", "pituitary disorders", "hormone receptors"]
+        },
+        {
+          "id": "MED-011",
+          "name": "Gastroenterology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["inflammatory bowel disease", "liver disease", "gut motility", "malabsorption", "microbiome-gut-brain axis", "hepatitis", "endoscopy"]
+        },
+        {
+          "id": "MED-012",
+          "name": "Pulmonology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["respiratory mechanics", "COPD", "asthma", "pulmonary fibrosis", "lung cancer", "ventilation", "pulmonary hypertension"]
+        },
+        {
+          "id": "MED-013",
+          "name": "Nephrology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["kidney function", "dialysis", "transplant immunology", "glomerular disease", "acute kidney injury", "chronic kidney disease", "electrolyte balance"]
+        },
+        {
+          "id": "MED-014",
+          "name": "Rheumatology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["autoimmune diseases", "rheumatoid arthritis", "lupus", "inflammatory markers", "biologics", "joint inflammation", "connective tissue disorders"]
+        },
+        {
+          "id": "MED-015",
+          "name": "Psychiatry",
+          "parent_domain": "Medicine",
+          "key_concepts": ["mood disorders", "psychosis", "anxiety disorders", "neuropharmacology", "cognitive behavioral therapy", "addiction", "brain circuits"]
+        },
+        {
+          "id": "MED-016",
+          "name": "Dermatology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["skin cancer", "inflammatory skin diseases", "wound healing", "photodermatology", "skin barrier", "atopic dermatitis", "psoriasis"]
+        },
+        {
+          "id": "MED-017",
+          "name": "Ophthalmology",
+          "parent_domain": "Medicine",
+          "key_concepts": ["retinal disease", "glaucoma", "cataract", "macular degeneration", "ocular imaging", "corneal disorders", "visual processing"]
+        },
+        {
+          "id": "MED-018",
+          "name": "Medical Imaging",
+          "parent_domain": "Medicine",
+          "key_concepts": ["MRI", "CT scanning", "ultrasound", "PET imaging", "image reconstruction", "contrast agents", "radiomics", "diagnostic accuracy"]
+        },
+        {
+          "id": "MED-019",
+          "name": "Transplantation Medicine",
+          "parent_domain": "Medicine",
+          "key_concepts": ["graft rejection", "immunosuppression", "organ preservation", "HLA matching", "xenotransplantation", "graft-versus-host disease"]
+        },
+        {
+          "id": "MED-020",
+          "name": "Clinical Trials",
+          "parent_domain": "Medicine",
+          "key_concepts": ["randomized controlled trials", "clinical endpoints", "biomarkers", "adverse events", "regulatory approval", "study design", "patient stratification"]
+        },
+        {
+          "id": "MED-021",
+          "name": "Pediatric Medicine",
+          "parent_domain": "Medicine",
+          "key_concepts": ["developmental disorders", "pediatric pharmacology", "congenital diseases", "growth assessment", "childhood infections", "neonatal care", "vaccination"]
+        },
+        {
+          "id": "MED-022",
+          "name": "Geriatric Medicine",
+          "parent_domain": "Medicine",
+          "key_concepts": ["aging biology", "frailty", "polypharmacy", "cognitive decline", "falls prevention", "palliative care", "healthy aging"]
+        },
+        {
+          "id": "MED-023",
+          "name": "Sports Medicine",
+          "parent_domain": "Medicine",
+          "key_concepts": ["injury prevention", "rehabilitation", "exercise physiology", "concussion", "musculoskeletal injuries", "performance optimization", "overtraining"]
+        }
+      ]
+    },
+    {
+      "name": "Mathematics",
+      "subdomains": [
+        {
+          "id": "MAT-001",
+          "name": "Topology",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["continuous functions", "homeomorphism", "manifolds", "homotopy", "fundamental group", "topological invariants", "compactness", "connectedness"]
+        },
+        {
+          "id": "MAT-002",
+          "name": "Graph Theory",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["graph connectivity", "spanning trees", "graph coloring", "network flows", "planar graphs", "Eulerian paths", "graph isomorphism", "random graphs"]
+        },
+        {
+          "id": "MAT-003",
+          "name": "Chaos Theory",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["sensitive dependence", "strange attractors", "Lyapunov exponents", "bifurcation theory", "fractal dimension", "dynamical systems", "predictability"]
+        },
+        {
+          "id": "MAT-004",
+          "name": "Optimization",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["convex optimization", "linear programming", "gradient methods", "constraint satisfaction", "global optimization", "combinatorial optimization", "Lagrangian"]
+        },
+        {
+          "id": "MAT-005",
+          "name": "Number Theory",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["prime numbers", "modular arithmetic", "Diophantine equations", "algebraic number theory", "analytic number theory", "cryptographic applications"]
+        },
+        {
+          "id": "MAT-006",
+          "name": "Probability Theory",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["random variables", "probability distributions", "central limit theorem", "stochastic processes", "Markov chains", "conditional probability", "Bayesian inference"]
+        },
+        {
+          "id": "MAT-007",
+          "name": "Differential Equations",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["ordinary differential equations", "partial differential equations", "boundary value problems", "existence theorems", "stability analysis", "numerical methods"]
+        },
+        {
+          "id": "MAT-008",
+          "name": "Linear Algebra",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["vector spaces", "linear transformations", "eigenvalues", "matrix decomposition", "inner products", "orthogonality", "spectral theory"]
+        },
+        {
+          "id": "MAT-009",
+          "name": "Abstract Algebra",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["groups", "rings", "fields", "homomorphisms", "Galois theory", "representation theory", "modules", "algebraic structures"]
+        },
+        {
+          "id": "MAT-010",
+          "name": "Real Analysis",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["limits", "continuity", "differentiation", "integration", "measure theory", "Lebesgue integration", "convergence theorems", "metric spaces"]
+        },
+        {
+          "id": "MAT-011",
+          "name": "Complex Analysis",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["analytic functions", "Cauchy integral theorem", "residue calculus", "conformal mapping", "Riemann surfaces", "Laurent series", "harmonic functions"]
+        },
+        {
+          "id": "MAT-012",
+          "name": "Functional Analysis",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["Banach spaces", "Hilbert spaces", "linear operators", "spectral theory", "distributions", "Fourier analysis", "operator algebras"]
+        },
+        {
+          "id": "MAT-013",
+          "name": "Numerical Analysis",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["numerical integration", "root finding", "interpolation", "error analysis", "stability", "finite element methods", "iterative methods"]
+        },
+        {
+          "id": "MAT-014",
+          "name": "Combinatorics",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["counting principles", "generating functions", "Ramsey theory", "extremal combinatorics", "design theory", "partition theory", "enumerative methods"]
+        },
+        {
+          "id": "MAT-015",
+          "name": "Algebraic Geometry",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["varieties", "schemes", "sheaves", "cohomology", "divisors", "morphisms", "intersection theory", "moduli spaces"]
+        },
+        {
+          "id": "MAT-016",
+          "name": "Differential Geometry",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["curvature", "geodesics", "Riemannian metrics", "connections", "fiber bundles", "Lie groups", "symplectic geometry"]
+        },
+        {
+          "id": "MAT-017",
+          "name": "Statistics",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["hypothesis testing", "regression analysis", "confidence intervals", "experimental design", "multivariate analysis", "time series", "nonparametric methods"]
+        },
+        {
+          "id": "MAT-018",
+          "name": "Mathematical Logic",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["propositional logic", "predicate logic", "proof theory", "model theory", "computability", "Godel incompleteness", "set theory"]
+        },
+        {
+          "id": "MAT-019",
+          "name": "Game Theory",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["Nash equilibrium", "cooperative games", "mechanism design", "evolutionary games", "strategic interaction", "auction theory", "bargaining"]
+        },
+        {
+          "id": "MAT-020",
+          "name": "Information Theory",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["entropy", "channel capacity", "data compression", "error correction", "mutual information", "source coding", "Kolmogorov complexity"]
+        },
+        {
+          "id": "MAT-021",
+          "name": "Mathematical Physics",
+          "parent_domain": "Mathematics",
+          "key_concepts": ["quantum mechanics formalism", "group theory in physics", "integrable systems", "string theory mathematics", "gauge theory", "topological field theory"]
+        }
+      ]
+    },
+    {
+      "name": "Social Sciences",
+      "subdomains": [
+        {
+          "id": "SOC-001",
+          "name": "Behavioral Economics",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["cognitive biases", "prospect theory", "nudge theory", "loss aversion", "bounded rationality", "heuristics", "decision making", "choice architecture"]
+        },
+        {
+          "id": "SOC-002",
+          "name": "Social Network Analysis",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["network structure", "centrality measures", "community detection", "information diffusion", "tie strength", "social capital", "network dynamics"]
+        },
+        {
+          "id": "SOC-003",
+          "name": "Urban Planning",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["land use", "zoning", "transportation planning", "urban design", "sustainable cities", "smart cities", "community development", "housing policy"]
+        },
+        {
+          "id": "SOC-004",
+          "name": "Cognitive Psychology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["attention", "memory", "perception", "language processing", "problem solving", "mental representations", "cognitive load", "executive function"]
+        },
+        {
+          "id": "SOC-005",
+          "name": "Linguistics",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["syntax", "semantics", "phonology", "morphology", "language acquisition", "sociolinguistics", "pragmatics", "computational linguistics"]
+        },
+        {
+          "id": "SOC-006",
+          "name": "Political Science",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["political institutions", "voting behavior", "public policy", "international relations", "political economy", "governance", "democratization"]
+        },
+        {
+          "id": "SOC-007",
+          "name": "Anthropology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["cultural evolution", "ethnography", "kinship systems", "ritual and symbolism", "material culture", "human diversity", "anthropological theory"]
+        },
+        {
+          "id": "SOC-008",
+          "name": "Sociology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["social stratification", "institutions", "collective behavior", "socialization", "social movements", "inequality", "organizational theory"]
+        },
+        {
+          "id": "SOC-009",
+          "name": "Economics",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["market equilibrium", "macroeconomic policy", "monetary theory", "international trade", "labor economics", "economic growth", "development economics"]
+        },
+        {
+          "id": "SOC-010",
+          "name": "Social Psychology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["attitudes", "group dynamics", "social influence", "prejudice", "attribution theory", "interpersonal relations", "conformity", "persuasion"]
+        },
+        {
+          "id": "SOC-011",
+          "name": "Demography",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["population dynamics", "fertility rates", "mortality", "migration patterns", "aging populations", "demographic transition", "census methods"]
+        },
+        {
+          "id": "SOC-012",
+          "name": "Education Research",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["learning theories", "educational assessment", "curriculum design", "educational technology", "pedagogy", "achievement gaps", "teacher effectiveness"]
+        },
+        {
+          "id": "SOC-013",
+          "name": "Criminology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["crime causation", "criminal justice", "rehabilitation", "victimology", "policing", "recidivism", "deterrence theory", "restorative justice"]
+        },
+        {
+          "id": "SOC-014",
+          "name": "Human Geography",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["spatial analysis", "urban geography", "cultural landscapes", "globalization", "place-making", "migration", "geopolitics"]
+        },
+        {
+          "id": "SOC-015",
+          "name": "Communication Studies",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["media effects", "persuasion", "interpersonal communication", "organizational communication", "digital media", "public discourse", "rhetoric"]
+        },
+        {
+          "id": "SOC-016",
+          "name": "Developmental Psychology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["cognitive development", "social-emotional development", "attachment theory", "lifespan development", "adolescence", "moral development"]
+        },
+        {
+          "id": "SOC-017",
+          "name": "Environmental Psychology",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["place attachment", "environmental attitudes", "pro-environmental behavior", "nature connectedness", "restorative environments", "sustainable behavior"]
+        },
+        {
+          "id": "SOC-018",
+          "name": "Organizational Behavior",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["leadership", "team dynamics", "motivation", "organizational culture", "change management", "decision-making", "workplace behavior"]
+        },
+        {
+          "id": "SOC-019",
+          "name": "Public Health",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["health promotion", "disease prevention", "health disparities", "health policy", "community health", "health behavior", "social determinants"]
+        },
+        {
+          "id": "SOC-020",
+          "name": "Science and Technology Studies",
+          "parent_domain": "Social Sciences",
+          "key_concepts": ["sociology of science", "technology assessment", "scientific controversies", "innovation studies", "expert knowledge", "science policy", "technoscience"]
+        }
+      ]
+    },
+    {
+      "name": "Engineering",
+      "subdomains": [
+        {
+          "id": "ENG-001",
+          "name": "Energy Systems",
+          "parent_domain": "Engineering",
+          "key_concepts": ["renewable energy", "grid integration", "energy storage", "power electronics", "smart grids", "energy efficiency", "distributed generation"]
+        },
+        {
+          "id": "ENG-002",
+          "name": "Aerospace Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["aerodynamics", "propulsion systems", "flight mechanics", "spacecraft design", "orbital mechanics", "avionics", "composite structures"]
+        },
+        {
+          "id": "ENG-003",
+          "name": "Nanotechnology",
+          "parent_domain": "Engineering",
+          "key_concepts": ["nanofabrication", "nanodevices", "quantum effects", "molecular assembly", "nanoelectronics", "nanoscale characterization", "bottom-up synthesis"]
+        },
+        {
+          "id": "ENG-004",
+          "name": "Biotechnology",
+          "parent_domain": "Engineering",
+          "key_concepts": ["genetic engineering", "fermentation", "bioprocessing", "bioreactors", "protein engineering", "biomedical devices", "industrial biotechnology"]
+        },
+        {
+          "id": "ENG-005",
+          "name": "Civil Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["structural analysis", "construction materials", "geotechnical engineering", "transportation infrastructure", "hydraulic engineering", "seismic design"]
+        },
+        {
+          "id": "ENG-006",
+          "name": "Electrical Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["circuit design", "signal processing", "electromagnetics", "power systems", "control systems", "semiconductor devices", "embedded systems"]
+        },
+        {
+          "id": "ENG-007",
+          "name": "Mechanical Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["mechanics of materials", "heat transfer", "manufacturing processes", "machine design", "dynamics", "thermofluids", "mechatronics"]
+        },
+        {
+          "id": "ENG-008",
+          "name": "Chemical Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["reaction engineering", "separation processes", "process control", "transport phenomena", "reactor design", "process optimization", "scale-up"]
+        },
+        {
+          "id": "ENG-009",
+          "name": "Biomedical Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["medical devices", "biomechanics", "tissue engineering", "neural engineering", "biosensors", "medical imaging", "rehabilitation engineering"]
+        },
+        {
+          "id": "ENG-010",
+          "name": "Environmental Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["water treatment", "air pollution control", "waste management", "remediation", "environmental monitoring", "sustainable design", "life cycle assessment"]
+        },
+        {
+          "id": "ENG-011",
+          "name": "Control Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["feedback control", "PID controllers", "state-space methods", "optimal control", "robust control", "adaptive control", "system identification"]
+        },
+        {
+          "id": "ENG-012",
+          "name": "Manufacturing Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["CNC machining", "additive manufacturing", "quality control", "lean manufacturing", "automation", "process planning", "Industry 4.0"]
+        },
+        {
+          "id": "ENG-013",
+          "name": "Nuclear Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["reactor physics", "nuclear safety", "fuel cycles", "radiation protection", "fusion engineering", "nuclear instrumentation", "waste disposal"]
+        },
+        {
+          "id": "ENG-014",
+          "name": "Ocean Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["offshore structures", "underwater vehicles", "wave energy", "coastal engineering", "marine hydrodynamics", "subsea systems", "offshore wind"]
+        },
+        {
+          "id": "ENG-015",
+          "name": "Automotive Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["vehicle dynamics", "powertrain design", "electric vehicles", "autonomous driving", "crashworthiness", "emissions control", "vehicle electronics"]
+        },
+        {
+          "id": "ENG-016",
+          "name": "Acoustical Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["noise control", "room acoustics", "sound insulation", "transducer design", "audio systems", "vibration isolation", "psychoacoustics"]
+        },
+        {
+          "id": "ENG-017",
+          "name": "Optical Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["lens design", "optical instruments", "laser systems", "imaging systems", "fiber optic systems", "thin film coatings", "photonic devices"]
+        },
+        {
+          "id": "ENG-018",
+          "name": "Systems Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["requirements engineering", "system architecture", "integration testing", "risk management", "system modeling", "lifecycle management"]
+        },
+        {
+          "id": "ENG-019",
+          "name": "Structural Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["structural dynamics", "finite element analysis", "load analysis", "concrete structures", "steel structures", "bridge design", "earthquake engineering"]
+        },
+        {
+          "id": "ENG-020",
+          "name": "MEMS and Microsystems",
+          "parent_domain": "Engineering",
+          "key_concepts": ["microfabrication", "MEMS sensors", "microfluidics", "microactuators", "packaging", "integration", "surface micromachining"]
+        },
+        {
+          "id": "ENG-021",
+          "name": "Photonics Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["integrated photonics", "silicon photonics", "photonic crystals", "optical modulators", "photodetectors", "laser diodes", "optical interconnects"]
+        },
+        {
+          "id": "ENG-022",
+          "name": "Reliability Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["failure analysis", "reliability testing", "FMEA", "accelerated testing", "predictive maintenance", "degradation modeling", "system availability"]
+        },
+        {
+          "id": "ENG-023",
+          "name": "Telecommunications Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["wireless communications", "antenna design", "5G networks", "signal modulation", "spectrum management", "network protocols", "satellite communications"]
+        },
+        {
+          "id": "ENG-024",
+          "name": "Robotics Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["robot kinematics", "actuator design", "sensor integration", "motion control", "robot programming", "industrial automation", "collaborative robots"]
+        },
+        {
+          "id": "ENG-025",
+          "name": "Materials Processing",
+          "parent_domain": "Engineering",
+          "key_concepts": ["casting", "forming", "welding", "heat treatment", "surface engineering", "powder metallurgy", "joining technologies"]
+        },
+        {
+          "id": "ENG-026",
+          "name": "Thermal Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["heat exchangers", "HVAC systems", "thermal management", "cryogenics", "combustion systems", "refrigeration", "thermal insulation"]
+        },
+        {
+          "id": "ENG-027",
+          "name": "Agricultural Engineering",
+          "parent_domain": "Engineering",
+          "key_concepts": ["precision agriculture", "irrigation systems", "farm machinery", "post-harvest technology", "soil mechanics", "food processing", "biosystems"]
+        }
+      ]
+    }
+  ]
+}

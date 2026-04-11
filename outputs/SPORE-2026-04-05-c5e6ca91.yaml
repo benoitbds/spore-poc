@@ -1,0 +1,1151 @@
+bridge:
+  mechanism: 'Amorphous materials achieve structural stability through specific chemical
+    short-range order (CSRO) patterns that minimize internal stress and prevent crystallization.
+    Similarly, thermal barrier coatings fail primarily due to thermally-induced stress
+    concentrations at interfaces and phase transformations. The key insight is applying
+    CSRO design principles to engineer TBC interface chemistry: creating compositional
+    gradients that mimic the solute-solute avoidance effects and coordination number
+    optimization found in stable metallic glasses. This would involve designing functionally
+    graded TBC interfaces where the local chemical environment minimizes stress concentration
+    through controlled atomic-scale mixing, similar to how Fe-Si-B glasses achieve
+    stability through specific Fe-Fe bond lengths and cluster formation patterns.'
+  summary: Short-range order design principles from amorphous materials can optimize
+    thermal barrier coating architectures to prevent delamination and improve thermal
+    cycling resistance.
+  type: methodological_transfer
+collision:
+  distance_score: 0.670684814453125
+  domain_a:
+    context_abstracts:
+    - '[Theoretical Prediction and Experimental Validation of the Glass-Forming Ability
+      and Magnetic Properties of Fe-Si-B Metallic Glasses from Atomic Structures (2022)]
+
+      Developing new soft magnetic amorphous alloys with a low cost and high saturation
+      magnetization (Bs) in a simple alloy system has attracted substantial attention
+      for industrialization and commercialization. Herein, the glass-forming ability
+      (GFA), thermodynamic properties, soft magnetic properties, and atomic structures
+      of Fe80+xSi5−xB15 (x = 0–4) amorphous soft magnetic alloys were investigated
+      by ab initio molecular dynamics (AIMD) simulations and experiments. The pair
+      distribution function (PDF), Voronoi polyhedron (VP), coordination number (CN),
+      and chemical short- range order (CSRO) were analyzed based on the AIMD simulations
+      for elucidating the correlations between the atomic structures with the glass-forming
+      ability and magnetic properties. For the studied compositions, the Fe82Si3B15
+      amorphous alloy was found to exhibit the strongest solute–solute avoidance effect,
+      the longest Fe-Fe bond, a relatively high partial CN for the Fe-Fe pair, and
+      the most pronounced tendency to form more stable clusters. The simulation results
+      indicated that Fe82Si3B15 was the optimum composition balancing the saturation
+      magnetization and the GFA. This prediction was confirmed by experimental observations.
+      The presented work provides a reference for synthesizing new Fe-Si-B magnetic
+      amorphous alloys.'
+    - '[Impact of atomic packing and electronic structure on icosahedral short-range
+      order and glass-forming ability of Zr–Cu metallic glasses (2024)]
+
+      ABSTRACT Chemical and topological short-range ordering are important for glass
+      formation in metallic alloys. Yet, it remains little understood from the viewpoint
+      of the electronic bonding among the constituent elements of the alloys. In this
+      work, we study CuxZr100−x, (46 ≤ x ≤ 70) metallic glasses, where the atomic
+      packing efficiency and the electronic structure of the full icosahedra, the
+      key short-range order structures, have been investigated in detail. To capture
+      a realistic picture of the electronic bonding in the icosahedra in the as-quenched
+      metastable state, DFT study of the electronic structure of the icosahedra extracted
+      from classical molecular dynamics simulation is carried out. Results for the
+      CunZr13−n, (4 ≤ n ≤ 9) clusters reveal that Cu6Zr7, Cu7Zr6 and Cu8Zr5 are the
+      most abundant, electronically stable in Cu50Zr50, Cu58Zr42 and Cu64Zr36, respectively.
+      These three clusters also exhibit pseudo-gap in the density of states at the
+      Fermi level – a feature linked with glass-forming ability according to the nearly-free
+      electron approach. The partial density of states demonstrates the effect of
+      small changes in the stoichiometry of the clusters on the s, p and d states
+      of Cu and Zr in Cu–Cu and Cu–Zr bonding and hence, the stability of the clusters.'
+    - '[Microstructure of metallic glasses at mesoscopic scale: spatial heterogeneity
+      in correlating atomic configurations with macroscopic properties (2025)]
+
+      The atomic arrangement of metallic glasses lacks long-range periodicity, displaying
+      structural characteristics of an amorphous state. Their unique structural features
+      lead to research methods that differ from traditional metallic crystalline materials,
+      focusing mainly on two scales: one class at the macroscopic scale investigating
+      glass-forming ability and mechanical behavior through alloy design, thermodynamic
+      parameters, and other means; the other class at the atomic scale studying medium-
+      to short-range orders of metallic glass through computational simulations and
+      diffraction techniques. There is over a seven-order magnitude difference between
+      the scales of these two methods, making it difficult to establish a direct quantitative
+      relationship between the two, necessitating a structural feature that can connect
+      atomic configurations with macroscopic properties at a mesoscopic scale. With
+      the advancement of characterization techniques for amorphous structures, metallic
+      glasses have been found to exhibit nanoscale and microscale spatial heterogeneity
+      above medium- and short-range orders, with their scale falling between macroscopic
+      and atomic scales. This article will introduce experimental characterization
+      methods for spatial heterogeneity, focus on the electron microscopic characterization
+      methods of spatial heterogeneity and local atomic orders, and discuss their
+      intrinsic correlations with macroscopic properties such as β-relaxation behavior,
+      mechanical behavior, thermodynamic stability, and glass-forming ability. As
+      a structural feature of metallic glasses at the mesoscopic scale, spatial heterogeneity
+      can serve as a link connecting the atomic medium- to short-range orders with
+      macroscopic properties.'
+    - '[A Machine Learning Framework for Predicting Glass-Forming Ability in Ternary
+      Alloy Systems (arXiv:2512.05895, 2025)]
+
+      Predicting the glass-forming ability (GFA) of chemical compositions remains
+      a fundamental challenge in materials science, especially for oxide glasses with
+      broad compositional diversity. Traditional empirical and thermodynamic approaches
+      often fail to capture the complex, nonlinear factors governing vitrification.
+      In this study, we applied two ensemble machine learning algorithms-Random Forest
+      (RF) and Extreme Gradient Boosting (XGB)-to the glass_ternary_hipt dataset to
+      predict the GFA of ternary oxide glasses directly from composition-derived descriptors.
+      Both models achieved excellent predictive accuracy (R^2 > 0.92, MAE < 0.04),
+      confirming that GFA is learnable from compositional features alone. Feature
+      importance analysis revealed that electronegativity variance, atomic size mismatch,
+      and valence electron descriptors are the most influential factors, while cohesive
+      energy and ionic radius provided secondary contributions. These chemically interpretable
+      features align with established theories of glass formation, thereby bridging
+      predictive performance with physical understanding. The novelty of this work
+      lies in systematically extending ML-based predictive modeling to ternary oxide
+      glasses, a class less studied compared to metallic and binary systems. Our results
+      demonstrate that ensemble learning not only enables accurate GFA prediction
+      but also provides actionable insights for designing new glass compositions with
+      enhanced stability.'
+    - '[What can spin glass theory and analogies tell us about ferroic glasses? (arXiv:1710.04289,
+      2017)]
+
+      As well as several different kinds of periodically ordered ferroic phases, there
+      are now recognized several different examples of ferroic glassiness, although
+      not always described as such and in material fields of study that have mostly
+      been developed separately. In this chapter an attempt is made to indicate common
+      conceptual origins and features, observed or anticipated. Throughout, this aim
+      is pursued through the use of simple models, in an attempt to determine probable
+      fundamental origins within a larger picture of greater complication, and analogies
+      between systems in different areas, both experimental and theoretical, in the
+      light of significant progress in spin glass understanding.'
+    - '[Mechanical Behaviour of Glasses and Amorphous Materials (arXiv:2108.08568,
+      2021)]
+
+      A wide range of materials can exist in microscopically disordered solid forms,
+      referred to as amorphous solids or glasses. Such materials -- oxide glasses
+      and metallic glasses, to polymer glasses, and soft solids such as colloidal
+      glasses, emulsions and granular packings -- are useful as structural materials
+      in a variety of contexts. Their deformation and flow behaviour is relevant for
+      many others. Apart from fundamental questions associated with the formation
+      of these solids, comprehending their mechanical behaviour is thus of interest,
+      and of significance for their use as materials. In particular, the nature of
+      plasticity and yielding behaviour in amorphous solids has been actively investigated.
+      Different amorphous solids exhibit behaviour that is apparently diverse and
+      qualitatively different from those of crystalline materials. A goal of recent
+      investigations has been to comprehend the unifying characteristics of amorphous
+      plasticity and to understand the apparent differences among them. We summarise
+      some of the recent progress in this direction. We focus on insights obtained
+      from computer simulation studies, and in particular those employing oscillatory
+      shear deformation of model glasses.'
+    embedding:
+    - 0.003993521444499493
+    - -0.04023474082350731
+    - 0.002913612173870206
+    - 0.07273925840854645
+    - -0.01962338201701641
+    - -0.04999791830778122
+    - 0.09129950404167175
+    - -0.02653704769909382
+    - -0.0031262643169611692
+    - -0.0121665233746171
+    - -0.09628939628601074
+    - -0.02056702971458435
+    - 0.0268875639885664
+    - 0.04083007574081421
+    - 0.03293222934007645
+    - -0.10282044857740402
+    - 0.048806898295879364
+    - -0.049638502299785614
+    - 0.001120864530093968
+    - 0.08804048597812653
+    - 0.1273745447397232
+    - -0.024712612852454185
+    - 0.00989299826323986
+    - 0.034952592104673386
+    - 0.11708532273769379
+    - 0.01220506802201271
+    - -0.047855351120233536
+    - -0.021320441737771034
+    - -0.038623735308647156
+    - -0.0037513943389058113
+    - 0.01356447022408247
+    - 0.04497189819812775
+    - 0.021782632917165756
+    - -0.012439046055078506
+    - 0.020047832280397415
+    - -0.008465555496513844
+    - -0.0022635473869740963
+    - -0.0005486696027219296
+    - -0.07036889344453812
+    - -0.031148307025432587
+    - -0.04419870302081108
+    - -0.032807886600494385
+    - -0.018831053748726845
+    - 0.027814585715532303
+    - 0.07253800332546234
+    - -0.032747767865657806
+    - 0.07302621752023697
+    - 0.05564349889755249
+    - -0.07995117455720901
+    - 0.032198548316955566
+    - -0.06703561544418335
+    - -0.017164450138807297
+    - -0.008627873845398426
+    - 0.002355409786105156
+    - 0.08865411579608917
+    - 0.019656497985124588
+    - -0.0345914326608181
+    - 0.08398326486349106
+    - 0.048329729586839676
+    - 0.025436794385313988
+    - 0.040541861206293106
+    - -0.026419445872306824
+    - -0.005227993708103895
+    - 0.020902356132864952
+    - -0.04649358242750168
+    - 0.055920884013175964
+    - 0.07731656730175018
+    - 0.02167966403067112
+    - 0.028618302196264267
+    - 0.03576131910085678
+    - 0.05446102097630501
+    - -0.027015704661607742
+    - 0.0035704527981579304
+    - -0.025343157351017
+    - 0.030720798298716545
+    - -0.07783706486225128
+    - 0.12410648912191391
+    - -0.12242938578128815
+    - -0.03172462806105614
+    - -0.03978034481406212
+    - -0.12688159942626953
+    - -0.0039008609019219875
+    - 0.003381025278940797
+    - -0.043868470937013626
+    - -0.07026030868291855
+    - -0.04018198326230049
+    - 0.023257210850715637
+    - -0.003040545154362917
+    - -0.05662782862782478
+    - -0.02101532369852066
+    - 0.01597777009010315
+    - 0.05505356565117836
+    - -0.09878332912921906
+    - -0.12983013689517975
+    - 0.038979630917310715
+    - -0.01194720808416605
+    - -0.05153096467256546
+    - 0.04371102899312973
+    - -0.00108951679430902
+    - 0.006560161709785461
+    - 0.03132913261651993
+    - 0.01762627251446247
+    - 0.03622071444988251
+    - 0.029999349266290665
+    - -0.00429106317460537
+    - -0.06186433136463165
+    - -0.0171907227486372
+    - 0.06099598482251167
+    - -0.011010575108230114
+    - 0.06834454834461212
+    - 0.013348475098609924
+    - 0.04140903428196907
+    - 0.04422685131430626
+    - -0.011702429503202438
+    - -0.03209516033530235
+    - -0.015015365555882454
+    - -0.06292392313480377
+    - -0.004920401610434055
+    - -0.010208941996097565
+    - 0.013925226405262947
+    - 0.0049567087553441525
+    - -0.08761155605316162
+    - -0.03006247989833355
+    - -0.003467695089057088
+    - -0.02443084865808487
+    - -0.04244315251708031
+    - -0.0592120923101902
+    - -2.2638306168946507e-34
+    - 0.04257041588425636
+    - -0.010208508931100368
+    - 0.043026652187108994
+    - 0.032396841794252396
+    - -0.049466654658317566
+    - -0.04551941528916359
+    - 0.021600738167762756
+    - 0.008273454383015633
+    - 0.0487130805850029
+    - 0.012747978791594505
+    - 0.03042086400091648
+    - 0.04213044047355652
+    - 0.01867053657770157
+    - 0.046415653079748154
+    - 0.032241757959127426
+    - -0.07131491601467133
+    - 0.0600716732442379
+    - 0.04348021373152733
+    - 0.00869465246796608
+    - -0.0143187390640378
+    - -0.08132484555244446
+    - 0.07080060243606567
+    - -0.00432888837531209
+    - 0.0802086889743805
+    - 0.01154488418251276
+    - -0.017571231350302696
+    - 0.017946947365999222
+    - -0.014828672632575035
+    - -0.028497958555817604
+    - 0.03154062479734421
+    - 0.011024517007172108
+    - 0.04240414500236511
+    - -0.02878885716199875
+    - 0.025170959532260895
+    - 0.07708295434713364
+    - -0.02521679364144802
+    - -0.04987525939941406
+    - -0.00022732664365321398
+    - 0.08568456023931503
+    - -0.0581367202103138
+    - -0.10182874649763107
+    - -0.0001343388867098838
+    - 0.07805479317903519
+    - 0.08684449642896652
+    - -0.029855795204639435
+    - 0.018876148387789726
+    - -0.10036899149417877
+    - 0.11918075382709503
+    - -0.012859420850872993
+    - -0.044881559908390045
+    - -0.012840059585869312
+    - 0.004731464199721813
+    - -0.02549557201564312
+    - 0.006805096287280321
+    - 0.0020413107704371214
+    - 0.0499490424990654
+    - -0.041751787066459656
+    - 0.03551710769534111
+    - 0.015664098784327507
+    - -0.0506397970020771
+    - 0.02656521089375019
+    - -0.02952452190220356
+    - 0.027645451948046684
+    - -0.04168666899204254
+    - -0.02810945361852646
+    - -0.013599068857729435
+    - -0.0367099866271019
+    - 0.009556811302900314
+    - -0.036034874618053436
+    - -0.10615832358598709
+    - 0.04482424631714821
+    - -0.03408312052488327
+    - -0.02116355299949646
+    - -0.0036473956424742937
+    - 0.07760260254144669
+    - 0.06226950138807297
+    - 0.12043613195419312
+    - -0.03946014121174812
+    - 0.1010269969701767
+    - -0.018681252375245094
+    - -0.08384991437196732
+    - -0.053041402250528336
+    - -0.06324507296085358
+    - -0.10035791993141174
+    - -0.10374348610639572
+    - 0.003254783106967807
+    - 0.04367491975426674
+    - -0.03828950598835945
+    - 0.003828973975032568
+    - -0.014892615377902985
+    - -0.03506088629364967
+    - -0.11180587857961655
+    - 0.03645527362823486
+    - -0.04426788538694382
+    - -0.11550955474376678
+    - -1.494410008962205e-33
+    - 0.045776575803756714
+    - -0.038768019527196884
+    - -0.010565560311079025
+    - 0.05185818299651146
+    - 0.03568419814109802
+    - -0.04354988411068916
+    - -0.028299009427428246
+    - 0.06072641536593437
+    - 0.05275890231132507
+    - -0.11384010314941406
+    - 0.04749028757214546
+    - -0.04234306141734123
+    - -0.019776340574026108
+    - -0.05810169875621796
+    - -0.06673236191272736
+    - 0.03481098264455795
+    - 0.14767898619174957
+    - -0.06937055289745331
+    - -0.005092749837785959
+    - 0.055692002177238464
+    - 0.017736295238137245
+    - 0.021492134779691696
+    - -0.02020224928855896
+    - -0.06179944798350334
+    - -0.017001638188958168
+    - -0.019876541569828987
+    - -0.047762252390384674
+    - -0.028016595169901848
+    - -0.03240290284156799
+    - 0.04453285411000252
+    - 0.015713699162006378
+    - -0.008258075453341007
+    - -0.010919294320046902
+    - 0.04670042544603348
+    - -0.027951577678322792
+    - 0.008479573763906956
+    - 0.04026360809803009
+    - -0.06449919193983078
+    - -0.050179123878479004
+    - -0.018080560490489006
+    - 0.05417492240667343
+    - 0.02001059614121914
+    - 0.005129171069711447
+    - 0.06734202802181244
+    - 0.06381918489933014
+    - -0.05881161987781525
+    - -0.006911732722073793
+    - 0.05078985542058945
+    - 0.020478036254644394
+    - 0.01880931481719017
+    - 0.05853743106126785
+    - -0.02626257762312889
+    - 0.0414687916636467
+    - -0.052500881254673004
+    - -0.03429831564426422
+    - 0.0010883751092478633
+    - -0.0005342599470168352
+    - 0.0267871655523777
+    - 0.0028808668721467257
+    - 0.009974558837711811
+    - 0.040546953678131104
+    - -0.012413625605404377
+    - 0.08077383786439896
+    - -0.009277415461838245
+    - -0.038004472851753235
+    - -0.01400910783559084
+    - 0.01582551933825016
+    - 0.007057979702949524
+    - 0.013764132745563984
+    - -0.0308420080691576
+    - 0.061043813824653625
+    - -0.00874660350382328
+    - 0.05266821011900902
+    - -0.0008094832301139832
+    - 0.012348576448857784
+    - -0.07240525633096695
+    - 0.034255318343639374
+    - 0.0014464353444054723
+    - -0.017921116203069687
+    - -0.04254807531833649
+    - 0.02987382560968399
+    - 0.09755169600248337
+    - 0.02210095338523388
+    - 0.07237375527620316
+    - -0.12114230543375015
+    - -0.055087294429540634
+    - 0.06354837864637375
+    - -0.05490456521511078
+    - 0.014356703497469425
+    - -0.002218160778284073
+    - -0.090217225253582
+    - -0.07613501697778702
+    - 0.083625428378582
+    - 0.03823060542345047
+    - -0.08174247294664383
+    - -2.3958538264423623e-08
+    - -0.02411859668791294
+    - 0.025767279788851738
+    - 0.064620241522789
+    - -0.011885236948728561
+    - 0.018515998497605324
+    - 0.022733857855200768
+    - 0.0839017927646637
+    - -0.004493060987442732
+    - -0.023489395156502724
+    - -0.06728335469961166
+    - -0.012558676302433014
+    - 0.009935361333191395
+    - 0.01780175045132637
+    - -0.1308131217956543
+    - 0.03519519418478012
+    - -0.03086414560675621
+    - 0.020550459623336792
+    - 0.010704715736210346
+    - -0.03276827931404114
+    - -0.015845315530896187
+    - 0.11264915019273758
+    - -0.06857762485742569
+    - 0.0956062600016594
+    - 0.07786596566438675
+    - 0.054283399134874344
+    - 0.05746110901236534
+    - -0.13053195178508759
+    - -0.06324858963489532
+    - 0.042785484343767166
+    - 0.024100489914417267
+    - -0.054308436810970306
+    - 0.005090941675007343
+    - 0.026107199490070343
+    - 0.12219998240470886
+    - 0.011902641505002975
+    - 0.02449224516749382
+    - -0.1349397897720337
+    - 0.02411353960633278
+    - -0.06559214740991592
+    - -0.05063054710626602
+    - -0.027449684217572212
+    - -0.11080336570739746
+    - 0.057379063218832016
+    - 0.06617274135351181
+    - 0.03765089437365532
+    - -0.11290352791547775
+    - -0.03714996948838234
+    - 0.015166832134127617
+    - 0.014307204633951187
+    - -0.030157163739204407
+    - 0.025930965319275856
+    - 0.03340212255716324
+    - -0.0015036327531561255
+    - 0.011976713314652443
+    - -0.0582638680934906
+    - -0.009827553294599056
+    - 0.017050908878445625
+    - 0.03421922028064728
+    - 0.04464177042245865
+    - 0.03687014430761337
+    - 0.016872424632310867
+    - 0.01893150992691517
+    - 0.004591216798871756
+    - -0.024581406265497208
+    id: MS-021
+    key_concepts:
+    - metallic glasses
+    - glass forming ability
+    - short-range order
+    - relaxation
+    - crystallization kinetics
+    - bulk amorphous alloys
+    name: Amorphous Materials
+    parent_domain: materials_science
+    recent_anomalies: []
+    taxonomy_source: custom
+  domain_b:
+    context_abstracts:
+    - '[Delamination-free millisecond laser drilling of thermal barrier coated aerospace
+      alloys (2019)]
+
+      Millisecond (ms) pulsed laser drilling is currently state-of-the-art in producing
+      acute angle film cooling holes over aero-engine and gas-turbine components made
+      from uncoated nickel superalloys. After laser drilling, most of these components
+      are coated with a high-temperature thermal barrier coating (TBC) to maintain
+      the temperature of the component at a level appropriate for its application.
+      It is desirable to produce holes over the TBC coated components; however, the
+      current state-of-the-art ms laser drilling of acute angle holes over TBC coated
+      materials results in a high level of coating delamination and hence is not used
+      in manufacturing industries. The recent introduction of ms quasi-continuous
+      wave (QCW) fiber lasers has had a significant impact on industrial laser drilling.
+      This paper reports the results of a fundamental investigation carried out on
+      ms QCW laser drilling of angular holes over TBC coated superalloys and provides
+      a pragmatic solution to the issue of TBC delamination. In addition to the investigation
+      on traditional percussion and trepanning laser drilling processes, a new method
+      of drilling called “laser drilling post-laser TBC decoating” is evaluated with
+      the aim of achieving delamination-free laser drilling of TBC coated aerospace
+      alloy.Millisecond (ms) pulsed laser drilling is currently state-of-the-art in
+      producing acute angle film cooling holes over aero-engine and gas-turbine components
+      made from uncoated nickel superalloys. After laser drilling, most of these components
+      are coated with a high-temperature thermal barrier coating (TBC) to maintain
+      the temperature of the component at a level appropriate for its application.
+      It is desirable to produce holes over the TBC coated components; however, the
+      current state-of-the-art ms laser drilling of acute angle holes over TBC coated
+      materials results in a high level of coating delamination and hence is not used
+      in manufacturing industries. The recent introduction of ms quasi-continuous
+      wave (QCW) fiber lasers has had a significant impact on industrial laser drilling.
+      This paper reports the results of a fundamental investigation carried out on
+      ms QCW laser drilling of angular holes over TBC coated superalloys and provides
+      a pragmatic solution to the issue of TBC delamination. In addition to...'
+    - '[Hot Corrosion Behavior of Plasma-Sprayed Gd2Zr2O7/YSZ Functionally Graded
+      Thermal Barrier Coatings (2024)]
+
+      The development of advanced thermal barrier coating (TBC) materials with better
+      hot corrosion resistance, phase stability, and residual stresses is an emerging
+      research area in the aerospace industry. In the present study, four kinds of
+      TBCs, namely, single-layer yttria-stabilized zirconia (YSZ), single-layer gadolinium
+      zirconate (GZ), bilayer gadolinium zirconate/yttria-stabilized zirconia (YSZ/GZ),
+      and a multilayer functionally graded coating (FGC) of YSZ and GZ, were deposited
+      on NiCrAlY bond-coated nickel-based superalloy (Inconel 718) substrates using
+      the atmospheric plasma spray technique. The hot corrosion behavior of the coatings
+      was tested by applying a mixture of Na2SO4 and V2O5 onto the surface of TBC,
+      followed by isothermal heat treatment at 1273 K for 50 h. The characterization
+      of the corroded samples was performed by X-ray diffraction (XRD), scanning electron
+      microscopy (SEM), and energy dispersive spectroscopy (EDS) to identify physical
+      and chemical changes in the coatings. GIXRD was used to analyze the residual
+      stresses of the coatings. Residual stress in the FGC coating was found to be
+      −15.2 ± 10.6 MPa. The wear resistance of TBCs is studied using a linear reciprocating
+      tribometer, and the results indicate that gadolinium zirconate-based TBCs showed
+      better performance when deposited in bilayer and multilayered functionally graded
+      TBC systems. The wear rate of as-coated FGC coatings was determined to be 2.90
+      × 10−4 mm3/Nm, which is lower than the conventional YSZ coating.'
+    - '[Thermal barrier coatings on niobium-based alloys structural materials (2019)]
+
+      During thermocyclic creep, the properties of a niobium alloy with a two-layer
+      combined coating were studied at a temperature of 1400 oС in air. A comparison
+      of the data obtained with other coatings is made. The role of the shape and
+      distribution of cracks in the mechanism of strength degradation of coatings
+      is investigated. Consideration of many factors in the formation of the combined
+      coating ensured an increase in its durability of 1.9...8.5 folds depending on
+      the temperature mode of creep. The applied structural materials do not provide
+      the relevant requirements for the development of modern technology, the need
+      to increase their functionality. Thus, the operational capabilities of nickel
+      alloys, which for decades have provided the aerospace complex, have almost reached
+      the upper limit. One of the actually directions for solving the existing situation
+      is the alternative use of new generation heat-resistant materials for modern
+      highly reliable equipment. For example, the use of niobium-based alloys, the
+      prospect of which is due to their physicomechanical properties than excellent
+      similar products.'
+    - '[Diagnosis of aerospace structure defects by a HPC implemented soft computing
+      algorithm (arXiv:1610.05521, 2016)]
+
+      This study concerns with the diagnosis of aerospace structure defects by applying
+      a HPC parallel implementation of a novel learning algorithm, named U-BRAIN.
+      The Soft Computing approach allows advanced multi-parameter data processing
+      in composite materials testing. The HPC parallel implementation overcomes the
+      limits due to the great amount of data and the complexity of data processing.
+      Our experimental results illustrate the effectiveness of the U-BRAIN parallel
+      implementation as defect classifier in aerospace structures. The resulting system
+      is implemented on a Linux-based cluster with multi-core architecture.'
+    - '[Radiation Damage Studies on Titanium Alloys as High Intensity Proton Accelerator
+      Beam Window Materials (arXiv:1911.10198, 2019)]
+
+      A high-strength dual alpha+beta phase titanium alloy Ti-6Al-4V is utilized as
+      a material for beam windows in several accelerator target facilities. However,
+      relatively little is known about how material properties of this alloy are affected
+      by high-intensity proton beam irradiation. With plans to upgrade neutrino facilities
+      at J-PARC and Fermilab to over 1 MW beam power, the radiation damage in the
+      window material will reach a few displacements per atom (dpa) per year, significantly
+      above the ~0.3 dpa level of existing data. The RaDIATE collaboration has conducted
+      a high intensity proton beam irradiation of various target and window material
+      specimens at BLIP facility, including a variety of titanium alloys. Post-Irradiation
+      Examination of the specimens in the 1st capsule, irradiated at up to 0.25 dpa,
+      is in progress. Tensile tests in a hot cell at PNNL exhibited a clear signature
+      of radiation hardening and loss of ductility for Ti-6Al-4V, while Ti-3Al-2.5V,
+      with less beta phase, exhibited less severe hardening. Microstructural investigations
+      will follow to study the cause of the difference in tensile behavior between
+      these alloys. High-cycle fatigue (HCF) performance is critical to the lifetime
+      estimation of beam windows exposed to a periodic thermal stress from a pulsed
+      proton beam. The 1st HCF data on irradiated titanium alloys are to be obtained
+      by a conventional bend fatigue test at Fermilab and by an ultrasonic mesoscale
+      fatigue test at Culham Laboratory. Specimens in the 2nd capsule, irradiated
+      at up to ~1 dpa, cover typical titanium alloy grades, including possible radiation-resistant
+      candidates. These systematic studies on the effects of radiation damage of titanium
+      alloys are intended to enable us to predict realistic lifetimes of current beam
+      windows made of Ti-6Al-4V and to extend the lifetime by choosing a more radiation
+      and thermal shock tolerant alloy.'
+    - '[On the effect of Ti on Oxidation Behaviour of a Polycrystalline Nickel-based
+      Superalloy (arXiv:1810.10444, 2018)]
+
+      Titanium is commonly added to nickel superalloys but has a well-documented detrimental
+      effect on oxidation resistance. The present work constitutes the first atomistic-scale
+      quantitative measurements of grain boundary and bulk compositions in the oxide
+      scale of a current generation polycrystalline nickel superalloy performed through
+      atom probe tomography. Titanium was found to be particularly detrimental to
+      oxide scale growth through grain boundary diffusion.'
+    embedding:
+    - -0.10054180771112442
+    - 0.033519331365823746
+    - 0.0005502062849700451
+    - 0.00852129515260458
+    - 0.02584240771830082
+    - 0.033218782395124435
+    - 0.06948395818471909
+    - -0.012456623837351799
+    - -0.10062404721975327
+    - 0.04439520835876465
+    - -0.08003918081521988
+    - -0.07819230109453201
+    - -0.027312716469168663
+    - 0.012400881387293339
+    - 0.00890091247856617
+    - -0.07343173772096634
+    - 0.0629640594124794
+    - -0.04508163407444954
+    - 0.027229294180870056
+    - 0.012749820947647095
+    - 0.048436086624860764
+    - 0.035159628838300705
+    - -0.041039567440748215
+    - 0.06449228525161743
+    - 0.015466279350221157
+    - 0.13429595530033112
+    - -0.05958278849720955
+    - 0.0345371812582016
+    - 0.03478756546974182
+    - -0.02967838943004608
+    - -0.020914234220981598
+    - -0.021817978471517563
+    - -0.04998445510864258
+    - 0.04936471953988075
+    - -0.02693990059196949
+    - -0.019523492082953453
+    - -0.010115709155797958
+    - -0.06682724505662918
+    - -0.05967918410897255
+    - -0.040691398084163666
+    - -0.13303394615650177
+    - 0.009949389845132828
+    - 0.04994300380349159
+    - -0.024949176236987114
+    - 0.02837377041578293
+    - 0.0026868064887821674
+    - 0.05465701222419739
+    - -0.07986009865999222
+    - 0.04643175005912781
+    - 0.03739091008901596
+    - -0.03973156213760376
+    - -0.023140929639339447
+    - 0.06268242001533508
+    - 0.014113240875303745
+    - 0.12001977115869522
+    - -0.00770105654373765
+    - -0.05692219361662865
+    - 0.020258920267224312
+    - -0.016343234106898308
+    - 0.003833974478766322
+    - 0.018260683864355087
+    - -0.07980047166347504
+    - 0.009344411082565784
+    - 0.025997953489422798
+    - -0.01933644711971283
+    - 0.1161348968744278
+    - -0.05636374652385712
+    - 0.00025112778530456126
+    - -0.0051740012131631374
+    - -0.03409885987639427
+    - 0.024727825075387955
+    - 5.151798904989846e-05
+    - -0.04017191752791405
+    - 0.05011766031384468
+    - 0.04301593080163002
+    - -0.026069916784763336
+    - 0.10934348404407501
+    - -0.017779817804694176
+    - -0.0018000924028456211
+    - -0.04450707882642746
+    - -0.10848025232553482
+    - 0.02536684274673462
+    - 0.0024609037209302187
+    - 0.02673628367483616
+    - -0.028080282732844353
+    - 0.0014667226932942867
+    - 0.04516911879181862
+    - 0.017281584441661835
+    - -0.04819188639521599
+    - 0.015426747500896454
+    - 0.016280915588140488
+    - 0.02632400579750538
+    - 0.005912475753575563
+    - -0.04220502823591232
+    - 0.05544817075133324
+    - 0.06674618273973465
+    - -0.11463245004415512
+    - 0.02990107238292694
+    - -0.043791696429252625
+    - -0.03271035850048065
+    - 0.028806451708078384
+    - -0.0015058007556945086
+    - 0.00489266449585557
+    - 0.09712246060371399
+    - -0.0956360250711441
+    - -0.00018097960855811834
+    - 0.02518290840089321
+    - -0.014989014714956284
+    - -0.012208682484924793
+    - -0.010999768041074276
+    - -0.014661671593785286
+    - 0.012667693197727203
+    - -0.020480817183852196
+    - -0.07070250809192657
+    - -0.12039277702569962
+    - -0.126016765832901
+    - -0.01937112957239151
+    - 0.01283644512295723
+    - 0.020498869940638542
+    - 0.0712721049785614
+    - 0.031126515939831734
+    - -0.014956168830394745
+    - 0.04195086658000946
+    - 0.06334973126649857
+    - -0.04586907848715782
+    - -0.06348667293787003
+    - -0.029442213475704193
+    - 6.191258721215168e-35
+    - -0.021536050364375114
+    - -0.004806998651474714
+    - -0.003888484090566635
+    - 0.010001120157539845
+    - -0.06183093041181564
+    - -0.08425392955541611
+    - 0.02829057350754738
+    - 0.013678735122084618
+    - 0.038373079150915146
+    - -0.038488082587718964
+    - -0.0017451179446652532
+    - 0.10475361347198486
+    - -0.020120156928896904
+    - 0.011865531094372272
+    - 0.08174292743206024
+    - 0.0012563930358737707
+    - 0.030668601393699646
+    - -0.08585527539253235
+    - 0.028639156371355057
+    - 0.0024498365819454193
+    - -0.08603016287088394
+    - -0.006099641788750887
+    - 0.0735541358590126
+    - 0.09654684364795685
+    - 0.0630396381020546
+    - -0.025676744058728218
+    - 0.02533232793211937
+    - -0.05926588177680969
+    - -0.093114472925663
+    - 0.01990446448326111
+    - -0.022760160267353058
+    - 0.03976822644472122
+    - 0.03462517261505127
+    - 0.039706554263830185
+    - -0.06335742771625519
+    - -0.01301565021276474
+    - -0.027621066197752953
+    - 0.02682390809059143
+    - -0.037680793553590775
+    - 0.04176345095038414
+    - -0.004816635511815548
+    - -0.008293604478240013
+    - -0.0280245803296566
+    - 0.12679742276668549
+    - -0.013038087636232376
+    - -0.024985218420624733
+    - -0.005085563287138939
+    - 0.06464626640081406
+    - 0.05653401464223862
+    - 0.010439181700348854
+    - 0.016179891303181648
+    - 0.05852457880973816
+    - -0.07018163800239563
+    - -0.0768299326300621
+    - 0.041865672916173935
+    - 0.09530600160360336
+    - 0.027639785781502724
+    - 0.008826570585370064
+    - -0.03319082781672478
+    - -0.017702555283904076
+    - -0.06171100586652756
+    - -0.018731100484728813
+    - 0.004005753435194492
+    - -0.004031090531498194
+    - -0.05061206966638565
+    - 0.03853593394160271
+    - -0.0483735091984272
+    - 0.01074968371540308
+    - -0.028279660269618034
+    - -0.017553113400936127
+    - -0.04679838940501213
+    - -0.0014968825271353126
+    - 0.06407179683446884
+    - 0.046124156564474106
+    - 0.027878688648343086
+    - 0.03253563493490219
+    - 0.03684556111693382
+    - -0.0930105522274971
+    - 0.06823379546403885
+    - 0.011475966311991215
+    - -0.05299634486436844
+    - 0.03197367861866951
+    - -0.014087258838117123
+    - -0.0937371775507927
+    - -0.0777808353304863
+    - -0.060325007885694504
+    - 0.08175989240407944
+    - -0.04834476858377457
+    - 0.0721387267112732
+    - -0.06400866061449051
+    - -0.053206659853458405
+    - -0.10069562494754791
+    - 0.0016364954644814134
+    - -0.05117759853601456
+    - -0.08037450909614563
+    - -2.388617745182335e-33
+    - 0.013102307915687561
+    - -0.03490658104419708
+    - -0.05756296217441559
+    - 0.01488936971873045
+    - 0.011914936825633049
+    - 0.005064062308520079
+    - -0.025532793253660202
+    - 0.026342231780290604
+    - 0.020871926099061966
+    - 0.05020736902952194
+    - 0.02320977859199047
+    - 0.014398587867617607
+    - 0.04273732006549835
+    - -0.035570982843637466
+    - -0.07388771325349808
+    - -0.02439238131046295
+    - 0.037232398986816406
+    - -0.05010741204023361
+    - -0.022113071754574776
+    - -0.13809603452682495
+    - 0.03846139460802078
+    - 0.08947271853685379
+    - -0.016731534153223038
+    - -0.046194203197956085
+    - -0.0531819649040699
+    - 0.005980940070003271
+    - -0.04284117370843887
+    - -0.01892229914665222
+    - 0.04252151399850845
+    - -8.98762846190948e-06
+    - 0.029464727267622948
+    - 0.01081441342830658
+    - 0.030467096716165543
+    - 0.07325492054224014
+    - 0.008564035408198833
+    - -0.03206659108400345
+    - 0.0897061750292778
+    - 0.007299141027033329
+    - -0.047506581991910934
+    - -0.0762312114238739
+    - 0.05488934367895126
+    - -0.011369156651198864
+    - 0.08778520673513412
+    - 0.037111278623342514
+    - -0.04564604535698891
+    - -0.012347170151770115
+    - -0.10045728087425232
+    - -0.03282206878066063
+    - -0.0075393845327198505
+    - -0.04459456354379654
+    - 0.1048552393913269
+    - -0.09967903047800064
+    - 0.03391311690211296
+    - 0.05485610291361809
+    - 0.009369168430566788
+    - -0.05754867196083069
+    - -0.009364406578242779
+    - 0.02932916209101677
+    - 0.03802412003278732
+    - 0.06956766545772552
+    - 0.0613064207136631
+    - -0.034502893686294556
+    - 0.09519024193286896
+    - 0.04656122997403145
+    - -0.012401371262967587
+    - -0.10510950535535812
+    - 0.01916772685945034
+    - -0.0019154767505824566
+    - -0.04998956248164177
+    - 0.031575758010149
+    - 0.05540506914258003
+    - 0.04808279126882553
+    - 0.08464477956295013
+    - -0.03457261249423027
+    - -0.0011708594392985106
+    - -0.03650945425033569
+    - 0.00904009584337473
+    - 0.05398775264620781
+    - 0.050943322479724884
+    - 0.025790123268961906
+    - 0.04745990037918091
+    - 0.015035909600555897
+    - -0.007974732667207718
+    - 0.0997278243303299
+    - 0.030739834532141685
+    - 0.08402776718139648
+    - -0.015131959691643715
+    - 0.07480835914611816
+    - 0.04263671860098839
+    - 0.0021761830430477858
+    - -0.0075139449909329414
+    - 0.007085121236741543
+    - 0.015896545723080635
+    - 0.051062967628240585
+    - -0.08696844428777695
+    - -2.381765717984763e-08
+    - -0.016708940267562866
+    - 0.0071215457282960415
+    - 0.01088010799139738
+    - -0.009920899756252766
+    - -0.03295157849788666
+    - 0.0765155479311943
+    - 0.03765815496444702
+    - -0.0356021486222744
+    - -0.00019631006580311805
+    - -0.03460359200835228
+    - 0.02518673986196518
+    - -0.06473508477210999
+    - 0.004894088953733444
+    - -0.008181584067642689
+    - -0.03814235329627991
+    - -0.012780582532286644
+    - -0.039672061800956726
+    - 0.022566651925444603
+    - 0.03995633125305176
+    - -0.09699860215187073
+    - -0.056344371289014816
+    - 0.0332004614174366
+    - 0.061890631914138794
+    - -0.036952149122953415
+    - -0.05105818808078766
+    - -0.02121768705546856
+    - -0.011215591803193092
+    - -0.07974177598953247
+    - 0.03622077405452728
+    - 0.035323865711688995
+    - -0.19501182436943054
+    - -0.03134273365139961
+    - -0.009055920876562595
+    - -0.05196631699800491
+    - -0.047449324280023575
+    - 0.025211401283740997
+    - 0.09868109971284866
+    - 0.005993077531456947
+    - -0.008076406084001064
+    - -0.01763756014406681
+    - 0.04998402297496796
+    - -0.034443896263837814
+    - -0.0020114078652113676
+    - 0.029527781531214714
+    - 0.050762683153152466
+    - -0.009819676168262959
+    - -0.01616394706070423
+    - 0.034061409533023834
+    - -0.06456033885478973
+    - -0.032232146710157394
+    - 0.08274593949317932
+    - 0.012617988511919975
+    - -0.030986012890934944
+    - 0.07239440083503723
+    - -0.10930055379867554
+    - 0.0731920599937439
+    - -0.020474044606089592
+    - -0.022560959681868553
+    - 0.03225025534629822
+    - -0.008694804273545742
+    - -0.014706038869917393
+    - -0.02782450243830681
+    - -0.013054152019321918
+    - 0.13623827695846558
+    id: MS-039
+    key_concepts:
+    - titanium alloys
+    - nickel superalloys
+    - thermal barrier coatings
+    - lightweight structures
+    - fatigue resistance
+    - oxidation resistance
+    name: Aerospace Materials
+    parent_domain: materials_science
+    recent_anomalies: []
+    taxonomy_source: custom
+  strategy: semantic_distance
+gap_manifest:
+  competence_gaps:
+  - confidence_degradation: 0.2
+    description: Detailed knowledge of MD simulation parameters for ceramic-metal
+      interfaces
+    type: computational materials science
+    workaround_used: Applied general principles from metallic glass simulations
+  data_gaps:
+  - criticality: medium
+    description: Detailed atomic-scale structure data for TBC/bond coat interfaces
+      during thermal cycling
+    domain: interface chemistry
+    recurrence: 1
+  - criticality: high
+    description: Quantitative CSRO parameters for oxide-metal interfaces analogous
+      to metallic glass systems
+    domain: amorphous materials
+    recurrence: 1
+  epistemic_gaps:
+  - exploration_priority: high
+    signal: Limited understanding of how CSRO principles translate across different
+      bonding types (metallic vs ionic/covalent)
+    zone: interface thermodynamics
+generated_at: '2026-04-05T13:15:58.211187'
+genome_version: l0_v1
+id: SPORE-2026-04-05-c5e6ca91
+impact_analysis:
+  horizon_temporel: Moyen terme (3-10 ans)
+  impact_concret: Des moteurs d'avion plus fiables nécessitant moins de maintenance,
+    des vols moins chers et plus sûrs, une réduction des émissions grâce à des moteurs
+    fonctionnant à plus haute température avec une meilleure efficacité énergétique.
+    Les compagnies aériennes économiseraient des millions en coûts de maintenance
+    et les passagers bénéficieraient de tarifs réduits et de moins d'annulations pour
+    problèmes techniques.
+  industries_impactees:
+  - Aéronautique
+  - Aérospatial
+  - Turbines à gaz
+  - Production d'électricité
+  - Défense
+  one_liner: Des revêtements de moteur d'avion inspirés des verres métalliques pourraient
+    tripler leur durée de vie et révolutionner la maintenance aéronautique.
+  score_impact: significatif
+  solutions_existantes: Actuellement, on utilise des revêtements céramiques multicouches
+    avec des interfaces nettes entre matériaux. Ces revêtements durent environ 1000
+    cycles thermiques avant de se décoller. La nouvelle approche promet 2-3 fois plus
+    de durabilité en créant des transitions graduelles qui répartissent mieux les
+    contraintes, comme dans les verres métalliques.
+  taille_marche_estimee: Marché des revêtements thermiques estimé à 15-20 milliards
+    de dollars, avec un potentiel d'économies de maintenance de plusieurs milliards
+    supplémentaires pour l'industrie aéronautique
+  vulgarisation: Les moteurs d'avion sont protégés de la chaleur extrême par des revêtements
+    spéciaux qui s'écaillent après quelques centaines de cycles de chauffe-refroidissement.
+    Des chercheurs veulent s'inspirer de la structure des verres métalliques, qui
+    restent stables sans cristalliser, pour créer des revêtements plus durables. L'idée
+    est de copier l'arrangement atomique de ces verres pour éviter les contraintes
+    qui font se décoller les revêtements actuels.
+kill_condition: If CSRO-designed TBC interfaces show no improvement in thermal cycling
+  life compared to current best-practice functionally graded coatings after testing
+  at 1273K
+next_steps:
+- Develop computational framework to calculate CSRO parameters for YSZ/NiCrAlY interfaces
+  using molecular dynamics
+- Design and synthesize TBC samples with systematically varied interface compositions
+  based on CSRO optimization
+- Conduct thermal cycling tests comparing CSRO-optimized vs conventional TBC architectures
+predictions:
+- differs_from_consensus: true
+  expected_range: 2-3x improvement (from ~1000 to 2000-3000 cycles)
+  metric: Number of thermal cycles to delamination failure
+  statement: TBC systems designed with CSRO-inspired compositional gradients will
+    show superior thermal cycling life compared to conventional sharp-interface designs
+- differs_from_consensus: true
+  expected_range: Reduction from typical -200 MPa to <-50 MPa
+  metric: Interface residual stress measured by GIXRD
+  statement: Optimal TBC gradient profiles will exhibit specific coordination number
+    ratios between ceramic and metallic components that mirror the CN optimization
+    found in Cu-Zr metallic glasses
+- differs_from_consensus: true
+  expected_range: '>95% retention of desired phase after 500 cycles vs current ~70%'
+  metric: Phase stability under thermal cycling measured by XRD
+  statement: TBC compositions that maximize 'chemical short-range order parameter'
+    (analogous to CSRO in metallic glasses) will show suppressed undesirable phase
+    transformations
+relevant_datasets:
+- Materials Project database for phase stability calculations
+- NIMS MatNavi database for thermal barrier coating properties
+- ASM Aerospace Materials Database for superalloy properties
+relevant_labs: []
+scores:
+  coherence: 0.525
+  composite: 0.35624999999999996
+  hallucination_risk: 0.55
+  impact_potential: 0.45
+  novelty: 0.45
+  testability: 0.6
+sources_used:
+- Referenced amorphous materials papers on Fe-Si-B and Cu-Zr systems
+- Referenced aerospace papers on TBC delamination and functionally graded coatings
+status: curated
