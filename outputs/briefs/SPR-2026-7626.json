@@ -657,5 +657,18 @@
         "Ajouter une discussion stratégique initiale, comme suggéré par l'Industrialist et le Funding Strategist, identifiant un système modèle et une réaction pilote précis, ainsi qu'une voie réaliste pour le financement et la validation progressive."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Et si les catalyseurs pouvaient se réparer tout seuls ?",
+    "hypothesis_in_brief": "Des chercheurs pensent avoir découvert un mécanisme d'auto-réparation chez certains catalyseurs, ces matériaux qui accélèrent les réactions chimiques. Ils émettent l'idée que la surface du catalyseur pourrait changer de forme de manière cyclique, comme un battement de cœur, pour éviter de s'user. Cette oscillation maintiendrait le catalyseur actif plus longtemps.",
+    "why_it_matters": "Les catalyseurs sont partout : dans les pots d'échappement de nos voitures, dans les usines qui produisent des engrais ou des plastiques. Leur problème majeur est qu'ils s'usent avec le temps, ce qui coûte des milliards en remplacement et en arrêts de production. Si cette hypothèse est vraie, on pourrait concevoir des catalyseurs bien plus durables, réduisant les coûts et l'impact environnemental de nombreuses industries.",
+    "imagine_that": "Imaginez que vous soyez un chef cuisinier dont la planche à découper s'use à chaque coup de couteau. Au lieu d'en changer, imaginez qu'elle ait une propriété magique : dès qu'une entaille devient trop profonde, la surface se retourne comme une crêpe, présentant un côté neuf. Puis, après un temps de repos, elle se retourne à nouveau, réparant la première face. Le travail continue sans interruption, et la planche dure infiniment plus longtemps. C'est l'idée derrière l'auto-réparation du catalyseur.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée audacieuse, les chercheurs ont prévu un plan en trois étapes.",
+      "phase1": "Phase 1 : Ils vont d'abord créer une simulation informatique pour voir si le principe théorique de ce 'battement de cœur' de surface est viable.",
+      "phase2": "Phase 2 : Ensuite, ils observeront en direct, avec un microscope très puissant, une minuscule particule de catalyseur en action pour tenter de détecter ce mouvement cyclique.",
+      "phase3": "Phase 3 : Enfin, ils testeront pendant plus de 100 heures si un catalyseur présentant ces oscillations résiste vraiment mieux à l'usure qu'un catalyseur classique."
+    },
+    "reviewers_say": "Le panel d'experts est intrigué mais exigeant. Ils trouvent l'hypothèse brillante et bien construite, avec des prédictions claires à tester. Cependant, certains doutent fortement que ce mécanisme puisse être plus rapide que l'usure irréversible dans la réalité. D'autres soulèvent des défis techniques pour l'observer sans l'altérer. Le verdict est 'à réviser et soumettre à nouveau'. Pour convaincre, les chercheurs doivent renforcer leur protocole expérimental et prouver que cette danse de surface est possible dans le monde réel, pas seulement en théorie."
   }
 }

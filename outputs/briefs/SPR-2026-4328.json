@@ -678,5 +678,18 @@
         "Développer une analyse préliminaire des implications pour le scaling industriel et l'intégration, en réponse aux questions de l'Industrialist, pour mieux positionner la valeur de la preuve de concept vis-à-vis des applications réelles."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Secouer pour débloquer : une astuce mécanique contre les bouchons dans les tuyaux industriels",
+    "hypothesis_in_brief": "Dans les usines, les tuyaux qui transportent des mélanges de liquide et de solides se bouchent souvent, comme un évier avec du sable. Des chercheurs pensent qu'en faisant vibrer délicatement le tuyau, on peut empêcher les grains de se coincer. L'idée est que les secousses les empêchent de s'agripper les uns aux autres, gardant ainsi le mélange fluide.",
+    "why_it_matters": "Ces bouchons, appelés colmatages, sont un cauchemar pour l'industrie. Ils arrêtent la production, obligent à nettoyer et coûtent très cher dans des secteurs comme la chimie, l'agroalimentaire ou le traitement des eaux. Si cette astuce de vibration fonctionne, elle pourrait offrir une solution simple, purement mécanique, pour augmenter le temps de production et réduire les coûts de maintenance, sans ajouter de produits chimiques.",
+    "imagine_that": "Imaginez que vous versiez du riz d'un grand bocal par un petit goulot. Parfois, les grains se coincent et forment un pont, bloquant tout. Maintenant, tapotez doucement le côté du bocal. Les grains tremblent, le pont s'effondre, et le riz recommence à couler. C'est le même principe : une vibration contrôlée pour perturber les 'ponts' de particules qui se forment dans les tuyaux et les bloquent.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée, les chercheurs ont prévu un plan en trois étapes, allant de l'ordinateur au laboratoire.",
+      "phase1": "Phase 1 (simulation) : Ils vont d'abord créer un modèle informatique du mélange pour simuler l'effet des vibrations et identifier les paramètres prometteurs, sans gaspiller de ressources.",
+      "phase2": "Phase 2 (preuve de concept) : Ensuite, ils construiront un petit tuyau transparent en laboratoire, le feront vibrer avec une machine, et observeront si les bouchons se forment moins facilement.",
+      "phase3": "Phase 3 (validation complète) : Enfin, ils testeront systématiquement différentes intensités de vibration, viscosités de liquide et tailles de particules pour établir des règles de conception fiables."
+    },
+    "reviewers_say": "Les experts trouvent l'idée théoriquement solide et le plan expérimental bien structuré. Ils saluent son potentiel pour résoudre un vrai problème industriel. Cependant, certains doutent fortement : dans un liquide visqueux, les vibrations pourraient être absorbées sans atteindre les grains, rendant la méthode inefficace. D'autres craignent que les secousses n'aggravent le problème en concentrant les particules au mauvais endroit. Le verdict est 'à réviser avant financement' : il faut d'abord des expériences pilotes pour prouver que les vibrations réduisent bien la friction entre les grains... même quand ils sont mouillés."
   }
 }

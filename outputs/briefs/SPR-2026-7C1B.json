@@ -637,5 +637,18 @@
         "Élaborer une stratégie de consortium ou d'accès garanti à une plateforme de microscope à gaz quantique pour la Phase 3, et réaliser une analyse de puissance statistique formelle pour justifier la taille d'échantillon N≥30."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Cuisiner des matériaux quantiques sur mesure avec de la lumière",
+    "hypothesis_in_brief": "Et si on pouvait créer des matériaux aux propriétés inédites, comme des aimants ou des supraconducteurs exotiques, en laboratoire ? Des chercheurs proposent une recette : utiliser des faisceaux laser pour piéger des atomes ultra-froids et les forcer à interagir entre eux selon un motif précis, comme un chef qui ajuste les ingrédients d'un plat. L'idée est de 'programmer' ces interactions pour obtenir le matériau quantique désiré.",
+    "why_it_matters": "Comprendre et maîtriser les matériaux quantiques est crucial pour l'avenir des technologies. Cela pourrait mener à des ordinateurs quantiques plus robustes, des capteurs ultra-sensibles ou des supraconducteurs à température ambiante. Actuellement, on découvre ces matériaux un peu par hasard. Cette approche vise à les concevoir sur mesure, accélérant ainsi la découverte de propriétés utiles pour l'électronique, l'énergie ou la médecine.",
+    "imagine_that": "Imaginez que vous vouliez créer une chorégraphie parfaite dans une foule. Au lieu de crier des instructions à chacun, vous projetez sur le sol un motif lumineux qui guide les pas de chaque danseur, leur dictant avec qui et à quelle distance interagir. Ici, les danseurs sont des atomes refroidis à une température proche du zéro absolu, et le motif lumineux est créé par des lasers. L'objectif est que cette 'danse' collective révèle des états quantiques nouveaux et prédictibles.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée, les chercheurs ont un plan en trois étapes, allant de l'ordinateur au laboratoire.",
+      "phase1": "Phase 1 : Tout d'abord, ils simulent sur ordinateur si leur 'recette lumineuse' peut bien forcer les atomes à interagir comme prévu.",
+      "phase2": "Phase 2 : Ensuite, ils réalisent une première expérience simple en laboratoire, avec des atomes dans un tube virtuel en 1D, pour voir si un effet clé apparaît.",
+      "phase3": "Phase 3 : Enfin, si ça marche, ils passeront à une validation complète en 2D, en observant chaque atome individuellement avec un microscope quantique pour confirmer la théorie."
+    },
+    "reviewers_say": "Le panel d'experts est partagé. Certains saluent l'originalité et la rigueur du plan expérimental en trois phases. D'autres sont très sceptiques : ils doutent que le simple motif lumineux puisse vraiment contrôler les interactions entre atomes sans tout perturber, et pensent que les signaux mesurés pourraient avoir une autre explication. L'industriel note que c'est une recherche fondamentale, loin d'une application commerciale. Le verdict global est 'à réviser' : l'idée est prometteuse, mais il faut d'abord prouver le principe de base avec une expérience plus simple pour lever les doutes majeurs."
   }
 }

@@ -108,7 +108,8 @@ CREATE TABLE IF NOT EXISTS briefs (
     grounding_data JSON,
     sharpened_data JSON,
     protocol_data JSON,
-    panel_data JSON
+    panel_data JSON,
+    vulgarization_data JSON
 );
 CREATE INDEX IF NOT EXISTS idx_briefs_hypothesis ON briefs(hypothesis_id);
 CREATE INDEX IF NOT EXISTS idx_briefs_status ON briefs(status);
@@ -148,6 +149,15 @@ async def init_database() -> None:
         try:
             await conn.execute(
                 "ALTER TABLE hypotheses ADD COLUMN auto_feedback_json TEXT"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+
+        # Migration: add vulgarization_data column to briefs if missing
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN vulgarization_data JSON"
             )
             await conn.commit()
         except Exception:
@@ -473,6 +483,7 @@ async def save_brief(
     sharpened_data: dict | None = None,
     protocol_data: dict | None = None,
     panel_data: dict | None = None,
+    vulgarization_data: dict | None = None,
     **kwargs: Any,
 ) -> None:
     """Save or update a brief record."""
@@ -529,8 +540,9 @@ async def save_brief(
                 phase1_cost_estimate, phase1_duration, can_start_today,
                 panel_consensus_score, panel_verdict, revision_count,
                 brief_md_path, brief_pdf_path, brief_json_path,
-                grounding_data, sharpened_data, protocol_data, panel_data
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?)
+                grounding_data, sharpened_data, protocol_data, panel_data,
+                vulgarization_data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
             """,
             (
                 brief_id, hypothesis_id, status,
@@ -543,6 +555,7 @@ async def save_brief(
                 json.dumps(sharpened_data) if sharpened_data else None,
                 json.dumps(protocol_data) if protocol_data else None,
                 json.dumps(panel_data) if panel_data else None,
+                json.dumps(vulgarization_data) if vulgarization_data else None,
             ),
         )
         await conn.commit()

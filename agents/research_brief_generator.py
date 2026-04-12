@@ -434,13 +434,14 @@ def generate_brief_json(
     sharpened: SharpeningOutput,
     protocol: ProtocolOutput,
     panel: PanelOutput,
+    vulgarization_fr: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """Generate the structured JSON brief.
 
     Returns:
         Dict suitable for JSON serialization.
     """
-    return {
+    out = {
         "brief_id": brief_id,
         "generated_at": date.today().isoformat(),
         "domains": domains,
@@ -459,6 +460,9 @@ def generate_brief_json(
             "meta_review": dict(panel["meta_review"]),
         },
     }
+    if vulgarization_fr is not None:
+        out["vulgarization_fr"] = dict(vulgarization_fr)
+    return out
 
 
 async def save_brief(
@@ -469,6 +473,7 @@ async def save_brief(
     sharpened: SharpeningOutput,
     protocol: ProtocolOutput,
     panel: PanelOutput,
+    vulgarization_fr: dict[str, Any] | None = None,
 ) -> tuple[Path, Path]:
     """Generate and save the brief as markdown and JSON.
 
@@ -498,7 +503,8 @@ async def save_brief(
 
     # Generate JSON
     json_content = generate_brief_json(
-        brief_id, hypothesis, domains, grounding, sharpened, protocol, panel
+        brief_id, hypothesis, domains, grounding, sharpened, protocol, panel,
+        vulgarization_fr=vulgarization_fr,
     )
     json_path = briefs_dir / f"{brief_id}.json"
     json_path.write_text(json.dumps(json_content, indent=2, ensure_ascii=False), encoding="utf-8")

@@ -635,5 +635,18 @@
         "Modérer le langage sur l'ampleur des effets prédits (15-40%) pour refléter qu'il s'agit d'une fourchette cible à valider, et non d'une prédiction garantie, en citant des bases théoriques ou des données préliminaires plus solides."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Éclairer juste ce qu'il faut : la recette pour des réactions chimiques plus efficaces",
+    "hypothesis_in_brief": "Et si, pour une réaction chimique déclenchée par la lumière, il ne fallait pas éclairer partout de la même façon ? Des chercheurs pensent qu'en dosant finement la lumière le long d'un tube réacteur, comme on ajuste le feu sous une casserole, on peut obtenir plus de produit désiré et moins de déchets. Ils veulent prouver que cette 'recette d'éclairage' peut booster l'efficacité de ces réactions de 15 à 40%.",
+    "why_it_matters": "De nombreux médicaments et matériaux avancés sont fabriqués grâce à des réactions chimiques activées par la lumière. Ces procédés sont souvent gourmands en énergie et peuvent produire des sous-produits indésirables. Si cette hypothèse est vérifiée, elle permettrait de réduire la facture énergétique de l'industrie pharmaceutique et chimique, et de produire de manière plus propre et plus précise. Cela bénéficierait à tous, des laboratoires de recherche aux usines de production.",
+    "imagine_that": "Imaginez que vous fassiez cuire des oignons pour une soupe. Si vous mettez le feu au maximum du début à la fin, ils vont brûler et donner un mauvais goût. La bonne technique, c'est de commencer à feu vif pour les faire suer, puis de baisser pour qu'ils caramélisent doucement sans noircir. L'idée est la même ici : au lieu d'éclairer uniformément le mélange chimique, on propose d'adapter l'intensité lumineuse au fur et à mesure que la réaction avance, pour obtenir le produit parfait sans le 'brûler' par un excès de lumière.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée, les chercheurs ont prévu une approche en trois étapes, prudente et progressive.",
+      "phase1": "Phase 1 : Ils commencent par tout simuler sur ordinateur, avec des réactions modèles dont on connaît bien le comportement, pour prédire si l'effet est plausible.",
+      "phase2": "Phase 2 : Ils construisent un petit réacteur en tube transparent, avec des LEDs dont on peut régler l'intensité, pour faire une première preuve de concept en laboratoire.",
+      "phase3": "Phase 3 : Enfin, ils valideront rigoureusement le principe sur plusieurs réactions, avec un réacteur de précision et un contrôle très fin de la lumière."
+    },
+    "reviewers_say": "Le panel d'experts est globalement enthousiaste. Ils saluent une idée théoriquement solide, qui applique un principe d'ingénierie classique à un nouveau domaine, et une méthode de test rigoureuse. Cependant, certains pointent des risques : l'effet observé pourrait être dû à un changement de température plutôt qu'à la lumière elle-même, et le gain annoncé semble très optimiste. Le verdict est 'à réviser et soumettre à nouveau'. Pour être convaincant, le projet doit mieux prévoir des expériences pour éliminer ces doutes et affiner ses prévisions."
   }
 }

@@ -748,5 +748,18 @@
         "Développer un plan de consortium et de financement aligné avec les recommandations du Funding Strategist, en identifiant des programmes cibles (ex : ANR Flash, ERC StG) et les compétences partenaires nécessaires (modélisation viscoélastique, instrumentation sismique en milieu extrême, glaciologie du fabric)."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Écouter la glace pour voir ses failles : une nouvelle oreille sismique pour les glaciers",
+    "hypothesis_in_brief": "Les glaciers ne sont pas des blocs de glace uniformes. À l'intérieur, la glace est structurée en cristaux orientés et parcourue de fissures, ce qui change sa 'solidité'. L'idée est d'utiliser des ondes sismiques, comme des échographies sonores, pour cartographier en 3D et avec une grande précision cette architecture cachée, en analysant comment le son se propage et s'atténue dans la glace.",
+    "why_it_matters": "Comprendre la structure interne des glaciers est crucial pour prédire leur comportement et leur fonte, qui impacte les ressources en eau et le niveau des océans. Aujourd'hui, on voit mal ces détails. Si cela fonctionne, on pourrait obtenir des cartes 3D très précises de la 'santé' interne d'un glacier, utiles pour les scientifiques, mais aussi pour les gestionnaires de barrages hydroélectriques ou les évaluateurs de risques naturels en montagne.",
+    "imagine_that": "Imaginez que vous tapotez sur un mur avec votre doigt. Sur une partie lisse et solide, le son est clair et net. Mais si le mur est fait de briques mal alignées ou qu'il a des microfissures, le son devient plus sourd et se propage différemment. Ici, les chercheurs veulent 'tapoter' le glacier avec des sources sismiques et, en écoutant attentivement la 'résonance' de la glace avec des centaines de capteurs, déduire où elle est homogène, où elle est fissurée ou où ses cristaux sont orientés d'une certaine façon.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée audacieuse, les chercheurs proposent un plan en trois étapes, très progressif.",
+      "phase1": "Phase 1 : Tout d'abord, ils simuleront tout sur ordinateur. Ils créeront un glacier virtuel avec des fissures et des structures connues, pour voir si leur méthode d'analyse théorique est capable de les retrouver.",
+      "phase2": "Phase 2 : Ensuite, test sur un vrai glacier, mais à petite échelle. L'objectif est de vérifier que les signaux sismiques captés contiennent bien les informations espérées et que le traitement des données fonctionne.",
+      "phase3": "Phase 3 : Enfin, une campagne de grande ampleur sur un glacier bien étudié, avec un dense réseau de capteurs, pour produire une carte 3D détaillée et comparer les résultats avec d'autres mesures (carottes de glace, radar)."
+    },
+    "reviewers_say": "Le panel d'experts trouve l'hypothèse scientifiquement séduisante et bien construite, avec un protocole de validation progressif apprécié. Cependant, des doutes sérieux subsistent. Certains craignent que le signal sismique dans la glace 'tiède' soit trop faible pour être analysé avec cette précision, ou que la méthode ne parvienne pas à distinguer une fissure d'un simple changement de température. Le verdict est 'à réviser' : ils recommandent de renforcer d'abord la phase de simulation sur ordinateur pour prouver que l'idée est réalisable avant de se lancer dans des expéditions coûteuses."
   }
 }

@@ -631,5 +631,18 @@
         "Affiner le plan de validation statistique et paramétrique : Effectuer un calcul formel de puissance pour l'analyse AFM. Dans la Phase 1 (modélisation), inclure une analyse de robustesse/sensibilité pour identifier les paramètres cinétiques les plus critiques à mesurer avec précision."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Des nano-usines à ADN qui corrigent leurs propres erreurs",
+    "hypothesis_in_brief": "Lorsqu'on assemble des nanostructures en ADN, comme des origamis, des erreurs se glissent souvent, comme un Lego mal placé. L'idée est de copier un système de vérification utilisé par nos cellules pour fabriquer les protéines. En ajoutant une sorte de 'carburant' chimique, on pourrait forcer les pièces d'ADN mal attachées à se détacher, pour ne garder que les structures parfaites.",
+    "why_it_matters": "Construire des objets à l'échelle du nanomètre avec de l'ADN est une technologie prometteuse pour créer des capteurs ultra-précis, des vecteurs pour livrer des médicaments ou des composants électroniques miniatures. Mais aujourd'hui, ces constructions sont souvent pleines de défauts, ce qui limite leurs applications. Si cette méthode fonctionne, elle permettrait de fabriquer des nanostructures bien plus fiables, accélérant leur utilisation en médecine et en recherche.",
+    "imagine_that": "Imaginez que vous deviez assembler un meuble en kit avec des pièces qui s'emboîtent magnétiquement. Parfois, une pièce se fixe presque au bon endroit, mais pas tout à fait. Pour éviter l'erreur, vous utilisez un tournevis (le 'carburant') pour visser définitivement la pièce. Si elle est bien placée, le vissage la verrouille. Si elle est mal placée, elle est juste posée à moitié : le temps que vous approchiez le tournevis, elle a déjà eu le temps de tomber toute seule. Seules les bonnes pièces sont donc assemblées.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée, les chercheurs proposent une approche en trois étapes, de la théorie au laboratoire.",
+      "phase1": "Phase 1 : Tout d'abord, ils simuleront le processus sur ordinateur pour vérifier si le principe théorique tient la route avec les vitesses réelles des réactions chimiques de l'ADN.",
+      "phase2": "Phase 2 : Ensuite, ils testeront l'idée sur un système simplifié, une seule jonction de 4 brins d'ADN, pour mesurer si le taux d'erreur baisse vraiment d'un facteur 20 à 100.",
+      "phase3": "Phase 3 : Enfin, si les résultats sont bons, ils appliqueront le système à une nanostructure complexe (un origami à 24 hélices) pour voir si les défauts visibles au microscope diminuent significativement."
+    },
+    "reviewers_say": "Les experts trouvent l'idée 'élégante' et bien structurée, s'inspirant d'un principe biologique éprouvé. Ils saluent la méthode de validation progressive. Cependant, des doutes importants subsistent. Le principal critique pense que le système corrige le mauvais type d'erreur : dans la réalité, les pièces d'ADN se coincent souvent de manière irréversible, et le 'carburant' pourrait lui-même créer de nouveaux problèmes en perturbant l'assemblage. Le panel recommande donc de retravailler l'hypothèse pour mieux tenir compte de ces risques réels avant de se lancer dans des expériences coûteuses. Le verdict est 'réviser et soumettre à nouveau'."
   }
 }

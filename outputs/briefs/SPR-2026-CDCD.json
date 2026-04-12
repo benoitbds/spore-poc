@@ -666,5 +666,18 @@
         "Préciser la stratégie de validation : Pour la Phase 3, définir opérationnellement la métrique 'couverture des régions à haute variance' (η) en s'appuyant sur la vérité terrain (C_true) indépendante, évitant toute circularité. Engager explicitement à publier les résultats de la Phase 1, quel que soit le verdict GO/NO-GO."
       ]
     }
+  },
+  "vulgarization_fr": {
+    "title_fr": "Des capteurs qui chassent la pollution comme des dauphins traquent une proie",
+    "hypothesis_in_brief": "Et si on pouvait mieux suivre un nuage de pollution en s'inspirant de la façon dont les dauphins localisent leurs proies ? Des chercheurs proposent de doter des capteurs mobiles d'un algorithme qui les ferait se déplacer intelligemment, comme un banc de poissons, pour se concentrer sur les zones les plus intéressantes du nuage, plutôt que de rester figés sur place.",
+    "why_it_matters": "Surveiller la pollution de l'air ou de l'eau en temps réel est crucial pour la santé publique et l'environnement. Aujourd'hui, les capteurs sont souvent fixes et peuvent manquer les zones les plus polluées si le nuage se déplace. Cette idée pourrait permettre, avec le même nombre de capteurs, de cartographier la pollution avec 15 à 30% de précision en plus. Cela bénéficierait aux villes pour la qualité de l'air, aux sites industriels pour leurs rejets, ou encore aux ports pour surveiller les fuites.",
+    "imagine_that": "Imaginez que vous deviez photographier un nuage de fumée qui se déforme dans le vent avec seulement cinq appareils photo. Si vous les placez tous au même endroit, vous ratez tout. Si vous les répartissez au hasard, vous capturez des morceaux sans cohérence. L'idée, c'est de donner à chaque appareil une consigne simple : « bouge vers l'endroit où la fumée change le plus vite d'intensité, et tiens compte de ce que voient tes voisins ». Comme un groupe d'amis qui se disperserait intelligemment pour couvrir un événement en mouvement, les capteurs iraient naturellement se poster aux frontières du nuage, là où l'information est la plus riche.",
+    "concretely": {
+      "intro": "Pour vérifier cette idée audacieuse, les chercheurs prévoient de la tester en trois étapes, de l'ordinateur au terrain.",
+      "phase1": "Phase 1 (simulation) : Tout d'abord, ils créeront un nuage de pollution virtuel et y plongeront des capteurs virtuels pour voir si leur algorithme « intelligent » donne vraiment une meilleure carte qu'un placement fixe.",
+      "phase2": "Phase 2 (labo) : Ensuite, ils testeront le principe dans un vrai bassin d'eau, avec un colorant pour simuler la pollution et de petits robots-capteurs qui devront se coordonner pour le cartographier.",
+      "phase3": "Phase 3 (terrain) : Enfin, si les tests sont concluants, ils déploieront un réseau de capteurs mobiles dans un environnement contrôlé en extérieur, comme un étang, pour une validation finale."
+    },
+    "reviewers_say": "Le panel d'experts trouve l'idée originale et la méthode de test rigoureuse. Cependant, ils sont partagés sur le fond. Certains doutent que la stratégie pour traquer un animal, qui anticipe ses mouvements, fonctionne pour cartographier un nuage passif qui change de façon imprévisible. D'autres craignent que les capteurs, en se déplaçant sans cesse, finissent par « courir après la fumée d'hier ». Le verdict est « à retravailler et soumettre à nouveau » : il faut d'abord prouver par des simulations plus poussées que l'analogie de base tient la route, avant de construire de vrais robots."
   }
 }

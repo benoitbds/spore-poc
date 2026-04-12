@@ -34,6 +34,7 @@ from agents.multi_reviewer_panel import (
     PanelOutput,
 )
 from agents.research_brief_generator import save_brief
+from agents.vulgarization import vulgarization_agent
 from storage import save_brief as save_brief_db, init_database
 from logging_config import get_logger
 
@@ -71,6 +72,9 @@ class PostFireState(TypedDict, total=False):
     brief_id: str
     brief_md_path: str
     brief_json_path: str
+
+    # Vulgarization
+    vulgarization_fr: dict[str, Any]
 
     # Errors
     errors: list[dict[str, Any]]
@@ -171,6 +175,66 @@ async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
     }
 
 
+async def node_vulgarization(state: PostFireState) -> PostFireState:
+    """Produce French vulgarization and persist it into brief JSON + DB."""
+    import json as _json
+    from pathlib import Path as _Path
+
+    sharpened = SharpeningOutput(**state["sharpened"])
+    protocol = ProtocolOutput(**state["protocol"])
+    panel = PanelOutput(
+        reviews=state["panel"]["reviews"],
+        meta_review=state["panel"]["meta_review"],
+    )
+
+    try:
+        vulg = await vulgarization_agent(
+            sharpened=sharpened,
+            protocol=protocol,
+            panel=panel,
+            domains=state["domains"],
+            grounding=state.get("grounding", {}),
+        )
+    except Exception as exc:
+        logger.error("vulgarization_failed", brief_id=state.get("brief_id"), error=str(exc))
+        return {**state}
+
+    vulg_dict = dict(vulg)
+
+    # Patch the JSON brief file on disk with the vulgarization block
+    json_path = state.get("brief_json_path")
+    if json_path:
+        try:
+            p = _Path(json_path)
+            data = _json.loads(p.read_text(encoding="utf-8"))
+            data["vulgarization_fr"] = vulg_dict
+            p.write_text(
+                _json.dumps(data, indent=2, ensure_ascii=False),
+                encoding="utf-8",
+            )
+            logger.info("vulgarization_written_to_json", path=str(p))
+        except Exception as exc:
+            logger.error("vulgarization_json_update_failed", error=str(exc))
+
+    # Update the DB with vulgarization_data
+    brief_id = state.get("brief_id")
+    if brief_id:
+        try:
+            await init_database()
+            from storage.database import get_connection
+            async with get_connection() as conn:
+                await conn.execute(
+                    "UPDATE briefs SET vulgarization_data = ? WHERE id = ?",
+                    (_json.dumps(vulg_dict, ensure_ascii=False), brief_id),
+                )
+                await conn.commit()
+            logger.info("vulgarization_saved_db", brief_id=brief_id)
+        except Exception as exc:
+            logger.error("vulgarization_db_update_failed", error=str(exc))
+
+    return {**state, "vulgarization_fr": vulg_dict}
+
+
 async def node_research_brief(state: PostFireState) -> PostFireState:
     """Generate and save the research brief."""
     brief_id = f"SPR-{date.today().strftime('%Y')}-{uuid4().hex[:4].upper()}"
@@ -268,6 +332,7 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("experimental_protocol", node_experimental_protocol)
     workflow.add_node("multi_reviewer_panel", node_multi_reviewer_panel)
     workflow.add_node("research_brief_generator", node_research_brief)
+    workflow.add_node("vulgarization", node_vulgarization)
 
     # Entry point
     workflow.set_entry_point("literature_grounding")
@@ -294,7 +359,8 @@ def create_post_fire_pipeline() -> StateGraph:
         },
     )
 
-    workflow.add_edge("research_brief_generator", END)
+    workflow.add_edge("research_brief_generator", "vulgarization")
+    workflow.add_edge("vulgarization", END)
 
     return workflow
 

@@ -73,6 +73,13 @@ agents:
       temperature: 0.8
     prompt_version: synthesis_v1
     provider: deepseek
+  vulgarization:
+    model: deepseek-chat
+    parameters:
+      max_tokens: 3000
+      temperature: 0.5
+    prompt_version: vulgarization_fr_v1
+    provider: deepseek
 genome_version: l0_v1
 last_mutated: '2026-04-12T07:01:04.915908'
 mutated_by: L1-MUT-20260412-93a90b
