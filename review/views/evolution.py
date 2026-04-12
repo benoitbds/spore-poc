@@ -1,235 +1,169 @@
-"""Evolution Page - L1 Meta-learning and genome mutations."""
+"""Évolution page — L1 mutation timeline, current genome, observation reports."""
 
+import json
+import subprocess
 import sys
 from pathlib import Path
-import json
 
-# Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
-from datetime import datetime
-import yaml
-
-from helpers import run_async, get_system_status, set_system_status
-from config import get_genome
-from graph.l1_pipeline import run_l1_cycle
 
 
-def get_observation_reports() -> list[Path]:
-    """Get observation report files."""
-    project_root = Path(__file__).parent.parent.parent
-    reports_dir = project_root / "outputs"
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+GENOME_PATH = PROJECT_ROOT / "data" / "l0_genome.yaml"
+OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 
-    if not reports_dir.exists():
+
+MUTATION_COLORS = {
+    "score_weight_adjustment": "#3B82F6",       # blue
+    "parameter_change": "#10B981",              # green
+    "prompt_modification": "#8B5CF6",           # violet
+}
+
+MUTATION_ICONS = {
+    "score_weight_adjustment": "⚖️",
+    "parameter_change": "🔧",
+    "prompt_modification": "📝",
+}
+
+
+def _parse_mutations_from_git(limit: int = 20) -> list[dict]:
+    """Extract L1 mutation commits from git log."""
+    try:
+        result = subprocess.run(
+            ["git", "log", f"-n{limit}", "--grep=^[[]L1[]]", "--format=%H|%ai|%s"],
+            cwd=PROJECT_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (subprocess.SubprocessError, FileNotFoundError):
         return []
 
-    files = list(reports_dir.glob("observation_*.json"))
-    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
-    return files
-
-
-def get_mutation_history() -> list[dict]:
-    """Get mutation history from genome backups."""
-    project_root = Path(__file__).parent.parent.parent
-    backups_dir = project_root / "data" / "genome_backups"
-
-    if not backups_dir.exists():
-        return []
-
-    history = []
-    backup_files = list(backups_dir.glob("l0_genome_*.yaml"))
-    backup_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
-
-    for f in backup_files[:20]:  # Last 20 backups
-        try:
-            with open(f) as file:
-                data = yaml.safe_load(file)
-
-            history.append({
-                "file": f.name,
-                "date": datetime.fromtimestamp(f.stat().st_mtime),
-                "version": data.get("genome_version", "unknown"),
-                "mutated_by": data.get("mutated_by", "unknown"),
-                "last_mutated": data.get("last_mutated", "unknown"),
-            })
-        except Exception:
+    mutations = []
+    for line in result.stdout.strip().split("\n"):
+        if not line:
             continue
+        parts = line.split("|", 2)
+        if len(parts) != 3:
+            continue
+        sha, date, subject = parts
+        # Subject format: "[L1] <type>: <target_path>"
+        m_subject = subject.strip()
+        if not m_subject.startswith("[L1]"):
+            continue
+        rest = m_subject[4:].strip()
+        if ":" in rest:
+            mtype, target = rest.split(":", 1)
+            mtype = mtype.strip()
+            target = target.strip()
+        else:
+            mtype, target = rest, ""
+        mutations.append({
+            "sha": sha[:8],
+            "date": date[:16],
+            "type": mtype,
+            "target": target,
+            "subject": subject,
+        })
+    return mutations
 
-    return history
+
+def _latest_observation_report() -> dict | None:
+    """Find the latest observation_L1-*.json in outputs/."""
+    if not OUTPUTS_DIR.exists():
+        return None
+    files = sorted(OUTPUTS_DIR.glob("observation_L1-*.json"), reverse=True)
+    if not files:
+        return None
+    try:
+        return json.loads(files[0].read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
 
 
 def render():
-    """Render the evolution page."""
+    """Render the Évolution page."""
     st.title("🧬 Évolution (L1)")
-    st.caption("Meta-learning et mutations du genome")
+    st.caption("Mutations du génome L0 par le pipeline L1")
 
-    # Check status
-    status = get_system_status()
-    if status["status"] == "evolving":
-        st.warning("🧬 **Un cycle L1 est en cours...**")
+    # ── Section 1: Mutation timeline ────────────────────────
+    st.subheader("Dernières mutations")
+    mutations = _parse_mutations_from_git(limit=20)
 
-    # ============== LAUNCH L1 ==============
-    st.markdown("### 🚀 Lancer un cycle L1")
-
-    col1, col2 = st.columns([2, 1])
-
-    with col1:
-        st.markdown("""
-        Le cycle L1 :
-        1. **Observe** les métriques des derniers runs
-        2. **Analyse** les patterns de succès/échec
-        3. **Propose** des mutations du genome
-        4. **Applique** les mutations (avec approbation)
-        """)
-
-    with col2:
-        if st.button(
-            "🧬 Lancer cycle L1",
-            use_container_width=True,
-            type="primary",
-            disabled=(status["status"] in ["running", "evolving"]),
-        ):
-            with st.spinner("Exécution du cycle L1..."):
-                try:
-                    set_system_status("evolving")
-
-                    # Run L1 cycle directly
-                    result = run_async(run_l1_cycle(
-                        limit_runs=5,
-                        dry_run=False,
-                        save_reports=True,
-                    ))
-
-                    set_system_status("idle")
-
-                    if result.get("status") == "completed":
-                        mutations_applied = len(result.get("mutations_applied", []))
-                        st.success(f"Cycle L1 terminé! {mutations_applied} mutation(s) appliquée(s).")
-                        st.rerun()
-                    elif result.get("status") == "no_action_needed":
-                        st.info("Aucune action nécessaire - le système fonctionne bien.")
-                    elif result.get("status") == "no_mutations_proposed":
-                        st.info("Aucune mutation proposée par le Strategist.")
-                    elif result.get("status") == "all_mutations_rejected":
-                        st.warning("Toutes les mutations ont été rejetées par le Critic.")
-                    else:
-                        st.warning(f"Statut: {result.get('status', 'unknown')}")
-
-                except Exception as e:
-                    set_system_status("idle")
-                    st.error(f"Erreur: {e}")
-
-    st.markdown("---")
-
-    # ============== LATEST OBSERVATION REPORT ==============
-    st.markdown("### 📊 Dernier rapport d'observation")
-
-    reports = get_observation_reports()
-
-    if reports:
-        latest_report = reports[0]
-
-        try:
-            with open(latest_report) as f:
-                report_data = json.load(f)
-
-            # Report metadata
-            report_date = datetime.fromtimestamp(latest_report.stat().st_mtime)
-            st.caption(f"📅 {report_date.strftime('%Y-%m-%d %H:%M')} | `{latest_report.name}`")
-
-            # Metrics observed
-            if "metrics" in report_data:
-                st.markdown("**📈 Métriques observées:**")
-                metrics = report_data["metrics"]
-
-                metric_cols = st.columns(4)
-                with metric_cols[0]:
-                    st.metric("Runs analysés", metrics.get("runs_analyzed", "N/A"))
-                with metric_cols[1]:
-                    br = metrics.get("avg_bridge_rate")
-                    st.metric("Bridge rate moyen", f"{br*100:.1f}%" if br else "N/A")
-                with metric_cols[2]:
-                    st.metric("Score moyen", f"{metrics.get('avg_score', 0):.3f}")
-                with metric_cols[3]:
-                    st.metric("Coût total", f"${metrics.get('total_cost', 0):.2f}")
-
-            # Opportunities detected
-            if "opportunities" in report_data and report_data["opportunities"]:
-                st.markdown("**💡 Opportunités détectées:**")
-                for opp in report_data["opportunities"]:
-                    if isinstance(opp, str):
-                        st.markdown(f"- {opp}")
-                    else:
-                        with st.expander(f"🎯 {opp.get('title', 'Opportunity')}", expanded=False):
-                            st.markdown(opp.get("description", ""))
-                            if "suggested_action" in opp:
-                                st.info(f"**Action suggérée:** {opp['suggested_action']}")
-
-            # Proposed mutations
-            if "proposed_mutations" in report_data:
-                st.markdown("**🧬 Mutations proposées:**")
-                for mut in report_data["proposed_mutations"]:
-                    with st.expander(f"✏️ {mut.get('parameter', 'Unknown')}", expanded=True):
-                        mut_cols = st.columns(3)
-                        with mut_cols[0]:
-                            st.markdown(f"**Avant:** `{mut.get('old_value', 'N/A')}`")
-                        with mut_cols[1]:
-                            st.markdown(f"**Après:** `{mut.get('new_value', 'N/A')}`")
-                        with mut_cols[2]:
-                            st.markdown(f"**Confiance:** {mut.get('confidence', 'N/A')}")
-
-                        st.markdown(f"**Justification:** {mut.get('justification', '')}")
-
-        except Exception as e:
-            st.error(f"Erreur lecture rapport: {e}")
+    if not mutations:
+        st.info("Aucune mutation L1 trouvée dans l'historique git.")
     else:
-        st.info("Aucun rapport d'observation. Lancez un cycle L1 pour en générer un.")
+        for m in mutations:
+            color = MUTATION_COLORS.get(m["type"], "#6B7280")
+            icon = MUTATION_ICONS.get(m["type"], "🔀")
+            with st.container(border=True):
+                c1, c2, c3 = st.columns([1, 4, 1])
+                with c1:
+                    st.markdown(f"### {icon}")
+                    st.caption(m["date"][:10])
+                with c2:
+                    st.markdown(f"**{m['type']}**")
+                    st.caption(f"Cible: `{m['target']}`")
+                with c3:
+                    st.caption(f"`{m['sha']}`")
 
     st.markdown("---")
 
-    # ============== MUTATION HISTORY ==============
-    st.markdown("### 📜 Historique des mutations")
-
-    history = get_mutation_history()
-
-    if history:
-        import pandas as pd
-
-        df = pd.DataFrame(history)
-        df["date"] = df["date"].dt.strftime("%Y-%m-%d %H:%M")
-
-        st.dataframe(
-            df[["date", "version", "mutated_by"]],
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "date": "Date",
-                "version": "Version",
-                "mutated_by": "Muté par",
-            }
-        )
+    # ── Section 2: Current genome ───────────────────────────
+    st.subheader("Génome L0 actuel")
+    if GENOME_PATH.exists():
+        content = GENOME_PATH.read_text(encoding="utf-8")
+        st.code(content, language="yaml")
     else:
-        st.info("Aucun historique de mutations.")
+        st.warning(f"Génome introuvable: {GENOME_PATH}")
 
     st.markdown("---")
 
-    # ============== CURRENT GENOME ==============
-    st.markdown("### 🧬 Genome actuel")
+    # ── Section 3: Last observation report ──────────────────
+    st.subheader("Dernière observation L1")
+    obs = _latest_observation_report()
+    if not obs:
+        st.info("Aucun rapport d'observation disponible.")
+        return
 
-    try:
-        genome = get_genome()
-        genome_data = genome.to_dict()
+    # Metrics
+    oc1, oc2, oc3, oc4 = st.columns(4)
+    with oc1:
+        br = obs.get("bridge_rate", 0)
+        st.metric("Bridge rate", f"{br*100:.1f}%" if br else "N/A")
+    with oc2:
+        n_hyp = obs.get("total_hypotheses", 0)
+        st.metric("Hypothèses analysées", n_hyp)
+    with oc3:
+        n_coll = obs.get("total_collisions", 0)
+        st.metric("Collisions", n_coll)
+    with oc4:
+        cost = obs.get("total_cost_usd", 0)
+        st.metric("Coût", f"${cost:.2f}")
 
-        # Show as formatted YAML
-        yaml_str = yaml.dump(genome_data, allow_unicode=True, default_flow_style=False, sort_keys=False)
+    # Issues / Opportunities
+    ic1, ic2 = st.columns(2)
+    with ic1:
+        issues = obs.get("issues", [])
+        if issues:
+            st.markdown("**⚠️ Issues détectées:**")
+            for issue in issues:
+                st.markdown(f"- {issue}")
+    with ic2:
+        opps = obs.get("opportunities", [])
+        if opps:
+            st.markdown("**💡 Opportunités:**")
+            for opp in opps:
+                st.markdown(f"- {opp}")
 
-        st.code(yaml_str, language="yaml")
-
-    except Exception as e:
-        st.error(f"Erreur lecture genome: {e}")
-
-    # Footer
-    st.markdown("---")
-    st.caption("🍄 SPORE Dashboard")
+    # Feedback distribution
+    dist = obs.get("feedback_distribution", {})
+    if dist:
+        st.markdown("**Distribution du feedback humain:**")
+        dc = st.columns(len(dist))
+        for i, (fb, count) in enumerate(dist.items()):
+            with dc[i]:
+                st.metric(fb, count)

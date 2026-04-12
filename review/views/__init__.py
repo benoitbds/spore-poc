@@ -1,21 +1,17 @@
-"""SPORE Dashboard Pages."""
+"""SPORE Streamlit pages."""
 
 from views import dashboard
-from views import launch_run
-from views import review
+from views import briefs
+from views import hypotheses
 from views import digests
 from views import evolution
-from views import configuration
-from views import briefs
-from views import brief_detail
+from views import pilotage
 
 __all__ = [
     "dashboard",
-    "launch_run",
-    "review",
+    "briefs",
+    "hypotheses",
     "digests",
     "evolution",
-    "configuration",
-    "briefs",
-    "brief_detail",
+    "pilotage",
 ]

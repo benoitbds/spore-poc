@@ -34,6 +34,7 @@ from agents.multi_reviewer_panel import (
     PanelOutput,
 )
 from agents.research_brief_generator import save_brief
+from storage import save_brief as save_brief_db, init_database
 from logging_config import get_logger
 
 logger = get_logger("post_fire_pipeline")
@@ -190,6 +191,29 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
         protocol=protocol,
         panel=panel,
     )
+
+    # Register the brief in the SQLite briefs table so the UI picks it up.
+    # hypothesis_id comes from the state if the pipeline was triggered for a
+    # specific stored hypothesis; otherwise we use the brief_id as a placeholder.
+    hypothesis_id = state.get("hypothesis_id", brief_id)
+    try:
+        await init_database()
+        await save_brief_db(
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            grounding_data=state.get("grounding"),
+            sharpened_data=dict(sharpened),
+            protocol_data=dict(protocol),
+            panel_data={
+                "reviews": [dict(r) for r in panel["reviews"]],
+                "meta_review": dict(panel["meta_review"]),
+            },
+            status="complete",
+            brief_md_path=str(md_path),
+            brief_json_path=str(json_path),
+        )
+    except Exception as exc:
+        logger.error("brief_db_save_failed", brief_id=brief_id, error=str(exc))
 
     logger.info("brief_generated", brief_id=brief_id, md_path=str(md_path))
 

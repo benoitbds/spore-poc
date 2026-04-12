@@ -1,81 +1,75 @@
-"""SPORE Dashboard - Main Application.
+"""SPORE Dashboard — main Streamlit application.
 
-Multi-page Streamlit interface for piloting SPORE.
+Multi-page interface centered on Research Briefs as the primary product.
 """
 
 import streamlit as st
 
-# Page config must be first Streamlit command
+# Page config must be the first Streamlit call
 st.set_page_config(
-    page_title="SPORE Dashboard",
-    page_icon="🍄",
+    page_title="SPORE",
+    page_icon="🧬",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
+    menu_items={
+        "About": "SPORE — Système de Production d'Opportunités de Recherche par Exploration",
+    },
 )
 
-# Import pages
-from views import dashboard, launch_run, review, digests, evolution, configuration
-from views import briefs, brief_detail
+from views import dashboard, briefs, hypotheses, digests, evolution, pilotage
+
+
+PAGES = {
+    "📊 Dashboard": dashboard,
+    "📄 Research Briefs": briefs,
+    "🔬 Hypothèses": hypotheses,
+    "📰 Digests": digests,
+    "🧬 Évolution": evolution,
+    "⚙️ Pilotage": pilotage,
+}
 
 
 def main():
-    # Sidebar navigation
-    st.sidebar.title("🍄 SPORE")
+    # Sidebar
+    st.sidebar.markdown("# 🧬 SPORE")
     st.sidebar.caption("Système de Production d'Opportunités\nde Recherche par Exploration")
     st.sidebar.markdown("---")
 
-    # Navigation
-    pages = {
-        "📊 Dashboard": dashboard,
-        "🚀 Lancer un run": launch_run,
-        "🔬 Review": review,
-        "📄 Research Briefs": briefs,
-        "📰 Digests": digests,
-        "🧬 Évolution (L1)": evolution,
-        "⚙️ Configuration": configuration,
-    }
-
-    # Check for page override (brief detail navigation)
-    if st.session_state.get("page_override") == "brief_detail":
-        selection = st.sidebar.radio(
-            "Navigation",
-            list(pages.keys()),
-            label_visibility="collapsed",
-        )
-        # Render brief detail instead of selected page
-        try:
-            brief_detail.render()
-        except Exception as e:
-            st.error(f"Erreur: {e}")
-            import traceback
-            st.code(traceback.format_exc())
-        return
+    # If another page set `nav` in session_state (e.g., from a "Voir le brief" button),
+    # honor it once and then clear it.
+    nav_override = st.session_state.pop("nav", None)
+    default_index = 0
+    page_keys = list(PAGES.keys())
+    if nav_override and nav_override in page_keys:
+        default_index = page_keys.index(nav_override)
 
     selection = st.sidebar.radio(
         "Navigation",
-        list(pages.keys()),
+        page_keys,
+        index=default_index,
         label_visibility="collapsed",
     )
 
-    st.sidebar.markdown("---")
-
     # System status in sidebar
-    from helpers import get_system_status, get_status_emoji
-
-    status = get_system_status()
-    status_emoji = get_status_emoji(status["status"])
-    st.sidebar.markdown(f"**Statut:** {status_emoji} {status['status'].upper()}")
-
-    if status["status"] == "running" and status.get("run_id"):
-        st.sidebar.caption(f"Run: `{status['run_id']}`")
+    st.sidebar.markdown("---")
+    try:
+        from helpers import get_system_status, get_status_emoji
+        status = get_system_status()
+        emoji = get_status_emoji(status["status"])
+        st.sidebar.caption(f"**Statut:** {emoji} {status['status'].upper()}")
+        if status.get("run_id") and status["status"] == "running":
+            st.sidebar.caption(f"`{status['run_id']}`")
+    except Exception:
+        pass
 
     # Render selected page
     try:
-        pages[selection].render()
+        PAGES[selection].render()
     except Exception as e:
-        st.error(f"Erreur lors du rendu de la page '{selection}': {e}")
+        st.error(f"Erreur dans la page '{selection}': {e}")
         import traceback
-        st.code(traceback.format_exc())
+        with st.expander("Traceback"):
+            st.code(traceback.format_exc())
 
 
 if __name__ == "__main__":

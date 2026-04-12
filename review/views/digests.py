@@ -1,167 +1,81 @@
-"""Digests Page - View and generate research digests."""
+"""Digests page — daily digests with links to generated briefs."""
 
+import re
 import sys
 from pathlib import Path
 
-# Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
-from datetime import datetime
+
+from helpers import run_async
+from storage import init_database, list_briefs
 
 
-def get_digest_files() -> list[Path]:
-    """Get all digest files from outputs/digests/."""
-    project_root = Path(__file__).parent.parent.parent
-    digests_dir = project_root / "outputs" / "digests"
+DIGESTS_DIR = Path(__file__).parent.parent.parent / "outputs" / "digests"
 
-    if not digests_dir.exists():
-        return []
 
-    # Find all markdown files
-    files = list(digests_dir.glob("*.md"))
-    # Sort by modification time (newest first)
-    files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+async def _load_brief_mapping():
+    """Map hypothesis_id -> brief_id."""
+    await init_database()
+    briefs = await list_briefs(limit=500)
+    return {b["hypothesis_id"]: b["id"] for b in briefs if b.get("hypothesis_id")}
 
-    return files
+
+def _enrich_with_brief_links(content: str, brief_map: dict[str, str]) -> str:
+    """If a hypothesis ID in the digest has a brief, append a link note."""
+    if not brief_map:
+        return content
+
+    pattern = re.compile(r"(SPORE-\d{4}-\d{2}-\d{2}-[0-9a-f]{8})")
+
+    def replacer(match):
+        hid = match.group(1)
+        if hid in brief_map:
+            return f"{hid} 📄 [brief `{brief_map[hid]}`]"
+        return hid
+
+    return pattern.sub(replacer, content)
 
 
 def render():
-    """Render the digests page."""
+    """Render the Digests page."""
     st.title("📰 Digests")
-    st.caption("Digests de recherche générés par SPORE")
+    st.caption("Digests quotidiens des hypothèses générées")
 
-    # Get digest files
-    digest_files = get_digest_files()
-
-    if not digest_files:
-        st.info("""
-        Aucun digest trouvé.
-
-        Pour générer un digest, lancez:
-        ```bash
-        python -m autopilot.digest
-        ```
-
-        Ou utilisez le bouton ci-dessous après avoir complété un run.
-        """)
-
-        # Generate digest button
-        if st.button("📝 Générer un digest du dernier run", use_container_width=True):
-            with st.spinner("Génération du digest en cours..."):
-                try:
-                    import subprocess
-                    project_root = Path(__file__).parent.parent.parent
-                    venv_python = project_root / ".venv" / "bin" / "python"
-                    python_cmd = str(venv_python) if venv_python.exists() else "python"
-
-                    result = subprocess.run(
-                        [python_cmd, "-m", "autopilot.digest"],
-                        cwd=project_root,
-                        capture_output=True,
-                        text=True,
-                        timeout=120,
-                    )
-
-                    if result.returncode == 0:
-                        st.success("Digest généré avec succès!")
-                        st.rerun()
-                    else:
-                        st.error(f"Erreur: {result.stderr}")
-
-                except subprocess.TimeoutExpired:
-                    st.error("Timeout lors de la génération du digest")
-                except Exception as e:
-                    st.error(f"Erreur: {e}")
-
+    if not DIGESTS_DIR.exists():
+        st.info(f"Aucun digest trouvé dans {DIGESTS_DIR}.")
         return
 
-    # ============== DIGEST LIST ==============
-    st.markdown("### 📚 Digests disponibles")
+    files = sorted(DIGESTS_DIR.glob("digest_*.md"), reverse=True)
+    if not files:
+        st.info("Aucun digest généré pour le moment.")
+        return
 
-    # Sidebar for selection
-    st.sidebar.header("📂 Sélection")
+    brief_map = run_async(_load_brief_mapping())
 
-    # Create options list
-    digest_options = []
-    for f in digest_files:
-        mod_time = datetime.fromtimestamp(f.stat().st_mtime)
-        label = f"{f.stem} ({mod_time.strftime('%d/%m %H:%M')})"
-        digest_options.append((label, f))
+    options = {f.stem.replace("digest_", ""): f for f in files}
+    selected_label = st.selectbox("Sélectionner un digest", list(options.keys()))
 
-    # Select digest
-    if digest_options:
-        selected_label = st.sidebar.selectbox(
-            "Digest",
-            [opt[0] for opt in digest_options],
-            label_visibility="collapsed",
+    if not selected_label:
+        return
+
+    selected = options[selected_label]
+    content = selected.read_text(encoding="utf-8")
+    enriched = _enrich_with_brief_links(content, brief_map)
+
+    dc1, dc2 = st.columns([3, 1])
+    with dc1:
+        st.caption(f"Fichier: `{selected.name}` — {len(content.splitlines())} lignes")
+    with dc2:
+        st.download_button(
+            "📥 Télécharger",
+            data=content,
+            file_name=selected.name,
+            mime="text/markdown",
+            use_container_width=True,
         )
 
-        # Find selected file
-        selected_file = None
-        for label, f in digest_options:
-            if label == selected_label:
-                selected_file = f
-                break
-
-        if selected_file:
-            # Show metadata
-            mod_time = datetime.fromtimestamp(selected_file.stat().st_mtime)
-            file_size = selected_file.stat().st_size
-
-            st.sidebar.markdown("---")
-            st.sidebar.markdown(f"**Fichier:** `{selected_file.name}`")
-            st.sidebar.markdown(f"**Modifié:** {mod_time.strftime('%Y-%m-%d %H:%M')}")
-            st.sidebar.markdown(f"**Taille:** {file_size / 1024:.1f} KB")
-
-            # Read and display content
-            try:
-                content = selected_file.read_text(encoding="utf-8")
-
-                # Render markdown
-                st.markdown(content)
-
-            except Exception as e:
-                st.error(f"Erreur lecture du fichier: {e}")
-
-            # Download button
-            st.sidebar.markdown("---")
-            st.sidebar.download_button(
-                label="⬇️ Télécharger",
-                data=content,
-                file_name=selected_file.name,
-                mime="text/markdown",
-                use_container_width=True,
-            )
-
-    # Generate new digest button
-    st.sidebar.markdown("---")
-    if st.sidebar.button("📝 Nouveau digest", use_container_width=True):
-        with st.spinner("Génération..."):
-            try:
-                import subprocess
-                project_root = Path(__file__).parent.parent.parent
-                venv_python = project_root / ".venv" / "bin" / "python"
-                python_cmd = str(venv_python) if venv_python.exists() else "python"
-
-                result = subprocess.run(
-                    [python_cmd, "-m", "autopilot.digest"],
-                    cwd=project_root,
-                    capture_output=True,
-                    text=True,
-                    timeout=120,
-                )
-
-                if result.returncode == 0:
-                    st.sidebar.success("Digest généré!")
-                    st.rerun()
-                else:
-                    st.sidebar.error(f"Erreur")
-
-            except Exception as e:
-                st.sidebar.error(f"Erreur: {e}")
-
-    # Footer
     st.markdown("---")
-    st.caption("🍄 SPORE Dashboard")
+    st.markdown(enriched)

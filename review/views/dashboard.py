@@ -1,428 +1,364 @@
-"""Dashboard Page - SPORE Overview and Key Metrics."""
+"""Dashboard Page — SPORE overview: KPIs, activity chart, pipeline health."""
 
+import json
 import sys
+from datetime import datetime, timedelta
 from pathlib import Path
 
-# Add parent directories to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+import altair as alt
+import pandas as pd
 import streamlit as st
-from datetime import datetime
 
-from helpers import run_async, get_system_status, get_status_emoji, format_cost, format_rate
-from storage import init_database, list_hypotheses, get_metrics
+from helpers import run_async, format_cost
+from storage import init_database
 from storage.database import get_connection
-from models.hypothesis import HumanFeedback
-from config import get_genome
+from components.kpi_card import kpi_card, verdict_badge
 
 
-async def get_all_runs():
-    """Get all runs from database."""
+# ── Data loaders ─────────────────────────────────────────────
+
+async def _load_kpis():
+    """Load the 4 header KPIs."""
+    await init_database()
+
     async with get_connection() as conn:
-        cursor = await conn.execute(
-            "SELECT * FROM runs ORDER BY started_at DESC LIMIT 50"
-        )
-        rows = await cursor.fetchall()
-        return [dict(row) for row in rows]
-
-
-async def get_aggregate_stats():
-    """Get aggregate statistics from database."""
-    async with get_connection() as conn:
-        # Total hypotheses
-        cursor = await conn.execute("SELECT COUNT(*) as count FROM hypotheses")
-        total_hypotheses = (await cursor.fetchone())["count"]
-
-        # Average score
+        # Briefs this month
         cursor = await conn.execute("""
-            SELECT AVG(json_extract(scores_json, '$.composite')) as avg_score
-            FROM hypotheses
-            WHERE scores_json IS NOT NULL
+            SELECT COUNT(*) as n FROM briefs
+            WHERE created_at >= date('now', 'start of month')
+        """)
+        briefs_month = (await cursor.fetchone())["n"]
+
+        # Briefs previous month
+        cursor = await conn.execute("""
+            SELECT COUNT(*) as n FROM briefs
+            WHERE created_at >= date('now', 'start of month', '-1 month')
+              AND created_at < date('now', 'start of month')
+        """)
+        briefs_prev = (await cursor.fetchone())["n"]
+
+        # Fire rate: a_tester / total reviewed hypotheses
+        cursor = await conn.execute("""
+            SELECT COUNT(*) as n FROM hypotheses
+            WHERE auto_feedback_json IS NOT NULL
+        """)
+        total_reviewed = (await cursor.fetchone())["n"]
+
+        cursor = await conn.execute("""
+            SELECT COUNT(*) as n FROM hypotheses
+            WHERE auto_feedback_json LIKE '%a_tester%'
+        """)
+        fire_count = (await cursor.fetchone())["n"]
+
+        # Average novelty score
+        cursor = await conn.execute("""
+            SELECT AVG(novelty_score) as avg FROM briefs
+            WHERE novelty_score IS NOT NULL
         """)
         row = await cursor.fetchone()
-        avg_score = row["avg_score"] or 0
+        avg_novelty = row["avg"]
 
-        # Feedback distribution
+        # Cost this month
         cursor = await conn.execute("""
-            SELECT human_feedback, COUNT(*) as count
-            FROM hypotheses
-            GROUP BY human_feedback
-        """)
-        feedback_rows = await cursor.fetchall()
-        feedback_dist = {row["human_feedback"]: row["count"] for row in feedback_rows}
-
-        # Total cost from runs
-        cursor = await conn.execute("""
-            SELECT SUM(total_cost_usd) as total_cost
-            FROM runs
-            WHERE status = 'completed'
+            SELECT SUM(total_cost_usd) as total FROM runs
+            WHERE started_at >= date('now', 'start of month')
+              AND status = 'completed'
         """)
         row = await cursor.fetchone()
-        total_cost = row["total_cost"] or 0
+        cost_month = row["total"] or 0
 
-        # Average bridge rate
-        cursor = await conn.execute("""
-            SELECT AVG(bridge_rate) as avg_bridge_rate
-            FROM runs
-            WHERE bridge_rate IS NOT NULL
-        """)
-        row = await cursor.fetchone()
-        avg_bridge_rate = row["avg_bridge_rate"] or 0
-
-        # Last run
-        cursor = await conn.execute("""
-            SELECT * FROM runs ORDER BY started_at DESC LIMIT 1
-        """)
-        last_run = await cursor.fetchone()
-
-        return {
-            "total_hypotheses": total_hypotheses,
-            "avg_score": avg_score,
-            "feedback_dist": feedback_dist,
-            "total_cost": total_cost,
-            "avg_bridge_rate": avg_bridge_rate,
-            "last_run": dict(last_run) if last_run else None,
-        }
+    return {
+        "briefs_month": briefs_month,
+        "briefs_prev": briefs_prev,
+        "fire_rate": (fire_count / total_reviewed) if total_reviewed else 0,
+        "avg_novelty": avg_novelty,
+        "cost_month": cost_month,
+    }
 
 
-async def get_runs_for_chart():
-    """Get run data for time series chart."""
+async def _load_activity_data(days: int = 30):
+    """Get daily collisions and cumulative briefs for the last N days."""
     async with get_connection() as conn:
+        # Runs per day
         cursor = await conn.execute("""
             SELECT
-                id,
-                started_at,
-                bridge_rate,
-                total_cost_usd,
-                hypotheses_generated
+                DATE(started_at) as day,
+                SUM(collisions_processed) as collisions
             FROM runs
-            WHERE status = 'completed'
-            ORDER BY started_at ASC
-            LIMIT 30
-        """)
-        rows = await cursor.fetchall()
-        return [dict(row) for row in rows]
+            WHERE started_at >= date('now', '-' || ? || ' days')
+              AND status = 'completed'
+            GROUP BY DATE(started_at)
+            ORDER BY day
+        """, (days,))
+        runs = [dict(row) for row in await cursor.fetchall()]
+
+        # Briefs per day
+        cursor = await conn.execute("""
+            SELECT DATE(created_at) as day, COUNT(*) as n
+            FROM briefs
+            WHERE created_at >= date('now', '-' || ? || ' days')
+            GROUP BY DATE(created_at)
+            ORDER BY day
+        """, (days,))
+        briefs = [dict(row) for row in await cursor.fetchall()]
+
+    return runs, briefs
 
 
-async def get_top_gaps():
-    """Get most frequent gaps from gap manifests."""
+async def _load_latest_brief():
+    """Get the most recently created brief."""
     async with get_connection() as conn:
         cursor = await conn.execute("""
-            SELECT gap_manifest_json FROM hypotheses
-            WHERE gap_manifest_json IS NOT NULL
-            LIMIT 100
+            SELECT * FROM briefs
+            ORDER BY created_at DESC
+            LIMIT 1
+        """)
+        row = await cursor.fetchone()
+        if not row:
+            return None
+        return dict(row)
+
+
+async def _load_pipeline_health():
+    """Load gate pass rate, bridge rate, and reviewer distribution."""
+    async with get_connection() as conn:
+        # Average gate pass rate
+        cursor = await conn.execute("""
+            SELECT AVG(json_extract(metadata_json, '$.rate')) as rate
+            FROM metrics
+            WHERE metric_name = 'gate_pass_rate'
+            ORDER BY recorded_at DESC
+            LIMIT 30
+        """)
+        row = await cursor.fetchone()
+        gate_rate = row["rate"] if row else None
+
+        # Fallback: compute from runs
+        if not gate_rate:
+            cursor = await conn.execute("""
+                SELECT AVG(bridge_rate) as rate FROM runs
+                WHERE bridge_rate IS NOT NULL
+                ORDER BY started_at DESC
+                LIMIT 10
+            """)
+            row = await cursor.fetchone()
+            bridge_rate = row["rate"] if row else None
+        else:
+            cursor = await conn.execute("""
+                SELECT AVG(bridge_rate) as rate FROM runs
+                WHERE bridge_rate IS NOT NULL
+                ORDER BY started_at DESC
+                LIMIT 10
+            """)
+            row = await cursor.fetchone()
+            bridge_rate = row["rate"] if row else None
+
+        # Reviewer distribution (last 30 days)
+        cursor = await conn.execute("""
+            SELECT auto_feedback_json FROM hypotheses
+            WHERE auto_feedback_json IS NOT NULL
+              AND created_at >= date('now', '-30 days')
         """)
         rows = await cursor.fetchall()
 
-        # Parse and count gaps
-        gap_counts: dict[str, int] = {}
+        counts = {"poubelle": 0, "intéressant": 0, "a_tester": 0}
         for row in rows:
             try:
-                import json
-                manifest = json.loads(row["gap_manifest_json"])
-                for gap_type in ["data_gaps", "competence_gaps", "epistemic_gaps"]:
-                    for gap in manifest.get(gap_type, []):
-                        desc = gap.get("description", gap.get("zone", "Unknown"))
-                        if desc:
-                            # Truncate for grouping
-                            key = desc[:80]
-                            gap_counts[key] = gap_counts.get(key, 0) + 1
+                data = json.loads(row["auto_feedback_json"])
+                v = data.get("verdict", "").lower()
+                if v == "poubelle":
+                    counts["poubelle"] += 1
+                elif v in ("intéressant", "interessant"):
+                    counts["intéressant"] += 1
+                elif v == "a_tester":
+                    counts["a_tester"] += 1
             except (json.JSONDecodeError, TypeError):
                 continue
 
-        # Return top 5
-        sorted_gaps = sorted(gap_counts.items(), key=lambda x: x[1], reverse=True)
-        return sorted_gaps[:5]
+    return {
+        "gate_rate": gate_rate,
+        "bridge_rate": bridge_rate,
+        "reviewer_dist": counts,
+    }
 
 
-async def _get_brief_stats():
-    """Get brief statistics for the dashboard KPIs."""
-    try:
-        async with get_connection() as conn:
-            # Total briefs this month
-            cursor = await conn.execute("""
-                SELECT COUNT(*) as count FROM briefs
-                WHERE created_at >= date('now', 'start of month')
-            """)
-            row = await cursor.fetchone()
-            briefs_this_month = row["count"] if row else 0
-
-            # Total briefs overall
-            cursor = await conn.execute("SELECT COUNT(*) as count FROM briefs")
-            row = await cursor.fetchone()
-            total_briefs = row["count"] if row else 0
-
-            # Average novelty score
-            cursor = await conn.execute("""
-                SELECT AVG(novelty_score) as avg_novelty FROM briefs
-                WHERE novelty_score IS NOT NULL
-            """)
-            row = await cursor.fetchone()
-            avg_novelty = row["avg_novelty"] if row else None
-
-            # Fire → brief conversion (fire = auto_feedback a_tester)
-            cursor = await conn.execute("""
-                SELECT COUNT(*) as count FROM hypotheses
-                WHERE auto_feedback_json LIKE '%a_tester%'
-            """)
-            row = await cursor.fetchone()
-            fire_count = row["count"] if row else 0
-
-            conversion = (total_briefs / fire_count * 100) if fire_count > 0 else 0
-
-            return {
-                "briefs_this_month": briefs_this_month,
-                "total_briefs": total_briefs,
-                "avg_novelty": avg_novelty,
-                "fire_count": fire_count,
-                "conversion_rate": conversion,
-            }
-    except Exception:
-        # Table may not exist yet
-        return {
-            "briefs_this_month": 0,
-            "total_briefs": 0,
-            "avg_novelty": None,
-            "fire_count": 0,
-            "conversion_rate": 0,
-        }
-
+# ── Render ───────────────────────────────────────────────────
 
 def render():
-    """Render the dashboard page."""
+    """Render the Dashboard page."""
     st.title("📊 Dashboard")
-    st.caption("Vue d'ensemble de SPORE")
+    st.caption("Vue d'ensemble de SPORE — briefs, hypothèses, santé du pipeline")
 
-    # Initialize database
-    run_async(init_database())
+    kpis = run_async(_load_kpis())
 
-    # Get stats
-    stats = run_async(get_aggregate_stats())
-    runs_data = run_async(get_runs_for_chart())
-    top_gaps = run_async(get_top_gaps())
-    brief_stats = run_async(_get_brief_stats())
+    # ── Row 1: 4 KPIs ────────────────────────────────────────
+    c1, c2, c3, c4 = st.columns(4)
 
-    # System status banner
-    status = get_system_status()
-    if status["status"] == "running":
-        st.info(f"🔄 **Run en cours:** `{status.get('run_id', 'unknown')}` - Lancé à {status.get('started_at', 'N/A')}")
+    with c1:
+        delta = None
+        if kpis["briefs_prev"]:
+            delta_n = kpis["briefs_month"] - kpis["briefs_prev"]
+            delta = f"{'+' if delta_n >= 0 else ''}{delta_n} vs mois préc."
+        kpi_card("📄 Briefs ce mois", str(kpis["briefs_month"]), delta=delta)
 
-    # ============== KEY METRICS ==============
-    st.markdown("### 📈 Métriques clés")
+    with c2:
+        rate = kpis["fire_rate"] * 100
+        kpi_card("🔥 Taux 🔥", f"{rate:.1f}%", help_text="a_tester / total hypothèses reviewées")
 
-    col1, col2, col3, col4, col5 = st.columns(5)
+    with c3:
+        nov = kpis["avg_novelty"]
+        kpi_card("✨ Novelty moyen", f"{nov:.2f}" if nov else "N/A", help_text="Score de nouveauté moyen des briefs")
 
-    with col1:
-        st.metric(
-            "Total hypothèses",
-            stats["total_hypotheses"],
-            help="Nombre total d'hypothèses générées"
-        )
-
-    with col2:
-        st.metric(
-            "Bridge rate",
-            format_rate(stats["avg_bridge_rate"]),
-            help="Pourcentage moyen de collisions produisant une hypothèse"
-        )
-
-    with col3:
-        st.metric(
-            "Score moyen",
-            f"{stats['avg_score']:.3f}" if stats["avg_score"] else "N/A",
-            help="Score composite moyen des hypothèses"
-        )
-
-    with col4:
-        st.metric(
-            "Coût cumulé",
-            format_cost(stats["total_cost"]),
-            help="Coût total en USD de tous les runs"
-        )
-
-    with col5:
-        last_run = stats["last_run"]
-        if last_run:
-            last_date = datetime.fromisoformat(last_run["started_at"]).strftime("%d/%m %Hh%M")
-            st.metric("Dernier run", last_date)
-        else:
-            st.metric("Dernier run", "Aucun")
-
-    # ============== BRIEF KPIS ==============
-    if brief_stats and brief_stats["total_briefs"] > 0:
-        st.markdown("### Research Briefs")
-
-        bc1, bc2, bc3 = st.columns(3)
-
-        with bc1:
-            st.metric(
-                "Briefs ce mois",
-                brief_stats["briefs_this_month"],
-                help="Nombre de briefs generes ce mois",
-            )
-        with bc2:
-            conv = brief_stats["conversion_rate"]
-            st.metric(
-                "Conversion fire -> brief",
-                f"{conv:.0f}%" if conv else "N/A",
-                help="Pourcentage d'hypotheses fire converties en brief",
-            )
-        with bc3:
-            avg_nov = brief_stats["avg_novelty"]
-            st.metric(
-                "Novelty score moyen",
-                f"{avg_nov:.2f}" if avg_nov else "N/A",
-                help="Score de nouveaute moyen des briefs generes",
-            )
+    with c4:
+        kpi_card("💰 Coût ce mois", format_cost(kpis["cost_month"]))
 
     st.markdown("---")
 
-    # ============== CHARTS ==============
-    chart_col, feedback_col = st.columns([2, 1])
+    # ── Row 2: Activity chart + latest brief ─────────────────
+    left, right = st.columns([3, 2])
 
-    with chart_col:
-        st.markdown("### 📉 Évolution dans le temps")
+    with left:
+        st.subheader("Activité SPORE — 30 jours")
+        runs, briefs = run_async(_load_activity_data(days=30))
 
-        if runs_data:
-            import pandas as pd
+        if runs or briefs:
+            # Build full date range
+            end = datetime.now().date()
+            start = end - timedelta(days=30)
+            dates = pd.date_range(start=start, end=end, freq="D").date
 
-            df = pd.DataFrame(runs_data)
-            df["date"] = pd.to_datetime(df["started_at"])
+            runs_df = pd.DataFrame(runs) if runs else pd.DataFrame(columns=["day", "collisions"])
+            briefs_df = pd.DataFrame(briefs) if briefs else pd.DataFrame(columns=["day", "n"])
 
-            # Bridge rate chart
-            if not df["bridge_rate"].isna().all():
-                st.markdown("**Bridge rate par run**")
-                chart_data = df[["date", "bridge_rate"]].dropna()
-                # Filter out infinite values and convert to percentage
-                chart_data = chart_data[chart_data["bridge_rate"].apply(lambda x: x is not None and not pd.isna(x) and abs(x) != float('inf'))]
-                if not chart_data.empty:
-                    chart_data["bridge_rate"] = chart_data["bridge_rate"] * 100
-                    st.line_chart(chart_data.set_index("date")["bridge_rate"])
-
-            # Cost chart
-            if not df["total_cost_usd"].isna().all():
-                st.markdown("**Coût par run ($)**")
-                cost_data = df[["date", "total_cost_usd"]].dropna()
-                # Filter out infinite values
-                cost_data = cost_data[cost_data["total_cost_usd"].apply(lambda x: x is not None and not pd.isna(x) and abs(x) != float('inf'))]
-                if not cost_data.empty:
-                    st.bar_chart(cost_data.set_index("date")["total_cost_usd"])
-        else:
-            st.info("Aucun run complété. Lancez un run pour voir les graphiques.")
-
-    with feedback_col:
-        st.markdown("### 🗳️ Feedbacks humains")
-
-        feedback_dist = stats["feedback_dist"]
-        if feedback_dist:
-            # Calculate counts
-            trash = feedback_dist.get("trash", 0)
-            interesting = feedback_dist.get("interesting", 0)
-            want_test = feedback_dist.get("want_to_test", 0)
-            pending = feedback_dist.get(None, 0)
-
-            total_reviewed = trash + interesting + want_test
-
-            if total_reviewed > 0:
-                # Create pie chart data
-                import pandas as pd
-
-                pie_data = pd.DataFrame({
-                    "Feedback": ["🗑️ Poubelle", "🤔 Intéressant", "🔥 À tester"],
-                    "Count": [trash, interesting, want_test]
-                })
-
-                # Simple bar representation
-                st.markdown(f"**🗑️ Poubelle:** {trash}")
-                st.progress(trash / max(total_reviewed, 1))
-
-                st.markdown(f"**🤔 Intéressant:** {interesting}")
-                st.progress(interesting / max(total_reviewed, 1))
-
-                st.markdown(f"**🔥 À tester:** {want_test}")
-                st.progress(want_test / max(total_reviewed, 1))
-
-                st.caption(f"Total reviewé: {total_reviewed} | En attente: {pending}")
+            # Normalize dates
+            df = pd.DataFrame({"day": dates})
+            df["day"] = pd.to_datetime(df["day"])
+            if not runs_df.empty:
+                runs_df["day"] = pd.to_datetime(runs_df["day"])
+                df = df.merge(runs_df, on="day", how="left")
             else:
-                st.info("Aucune hypothèse reviewée")
+                df["collisions"] = 0
+            df["collisions"] = df["collisions"].fillna(0)
+
+            if not briefs_df.empty:
+                briefs_df["day"] = pd.to_datetime(briefs_df["day"])
+                df = df.merge(briefs_df, on="day", how="left")
+            else:
+                df["n"] = 0
+            df["n"] = df["n"].fillna(0)
+            df["briefs_cumul"] = df["n"].cumsum()
+
+            # Altair: bars for collisions + line for cumulative briefs
+            base = alt.Chart(df).encode(x=alt.X("day:T", title="Date"))
+            bars = base.mark_bar(color="#10B981", opacity=0.6).encode(
+                y=alt.Y("collisions:Q", title="Collisions/jour", axis=alt.Axis(titleColor="#10B981")),
+                tooltip=["day:T", "collisions:Q"],
+            )
+            line = base.mark_line(color="#F59E0B", point=True, strokeWidth=2).encode(
+                y=alt.Y("briefs_cumul:Q", title="Briefs cumulés", axis=alt.Axis(titleColor="#F59E0B")),
+                tooltip=["day:T", "briefs_cumul:Q"],
+            )
+            chart = alt.layer(bars, line).resolve_scale(y="independent").properties(height=280)
+            st.altair_chart(chart, use_container_width=True)
         else:
-            st.info("Aucune hypothèse")
+            st.info("Pas encore d'activité à afficher.")
 
-    st.markdown("---")
+    with right:
+        st.subheader("Dernier brief")
+        latest = run_async(_load_latest_brief())
+        if latest:
+            brief_id = latest["id"]
+            # Load title from JSON if available
+            title = brief_id
+            domains = []
+            if latest.get("brief_json_path"):
+                try:
+                    data = json.loads(Path(latest["brief_json_path"]).read_text(encoding="utf-8"))
+                    title = data.get("sharpened", {}).get("title", brief_id)
+                    domains = data.get("domains", [])
+                except (FileNotFoundError, json.JSONDecodeError):
+                    pass
 
-    # ============== GAPS & GENOME ==============
-    gaps_col, genome_col = st.columns(2)
+            with st.container(border=True):
+                st.markdown(f"**{title[:80]}**")
+                if domains:
+                    st.caption(" × ".join(domains))
+                st.caption(f"`{brief_id}`")
 
-    with gaps_col:
-        st.markdown("### 🕳️ Top 3 gaps récurrents")
+                nov = latest.get("novelty_score")
+                panel = latest.get("panel_consensus_score")
+                verdict = latest.get("panel_verdict", "?")
 
-        if top_gaps:
-            for i, (gap_desc, count) in enumerate(top_gaps[:3], 1):
-                st.markdown(f"**{i}.** {gap_desc}")
-                st.caption(f"Occurrences: {count}")
+                mc1, mc2 = st.columns(2)
+                with mc1:
+                    st.metric("Novelty", f"{nov:.2f}" if nov else "N/A", label_visibility="visible")
+                with mc2:
+                    st.metric("Panel", f"{panel:.1f}" if panel else "N/A", label_visibility="visible")
+
+                st.markdown(verdict_badge(verdict))
+
+                if st.button("Voir le brief →", use_container_width=True, type="primary"):
+                    st.session_state["selected_brief_id"] = brief_id
+                    st.session_state["nav"] = "📄 Research Briefs"
+                    st.rerun()
         else:
-            st.info("Pas assez de données pour identifier les gaps récurrents")
-
-    with genome_col:
-        st.markdown("### 🧬 Genome actuel")
-
-        try:
-            genome = get_genome()
-            st.markdown(f"**Version:** `{genome.version}`")
-
-            # Key parameters
-            randomness = genome.randomness
-            st.markdown(f"**Distance range:** {randomness.get('distance_min', 'N/A')} - {randomness.get('distance_max', 'N/A')}")
-            st.markdown(f"**Cross-discipline ratio:** {randomness.get('cross_discipline_ratio', 'N/A')}")
-            st.markdown(f"**Chaos floor:** {randomness.get('chaos_floor', 'N/A')}")
-
-            # Last mutation
-            genome_data = genome.to_dict()
-            if genome_data.get("last_mutated"):
-                st.caption(f"Dernière mutation: {genome_data['last_mutated']}")
-                if genome_data.get("mutated_by"):
-                    st.caption(f"Par: {genome_data['mutated_by']}")
-        except Exception as e:
-            st.error(f"Erreur lecture genome: {e}")
+            st.info("Aucun brief généré pour le moment.")
 
     st.markdown("---")
 
-    # ============== RECENT RUNS ==============
-    st.markdown("### 🕐 Runs récents")
+    # ── Row 3: Pipeline health ───────────────────────────────
+    st.subheader("Santé du pipeline")
+    health = run_async(_load_pipeline_health())
 
-    runs = run_async(get_all_runs())
+    h1, h2, h3 = st.columns(3)
 
-    if runs:
-        # Show last 5 runs in a table
-        import pandas as pd
-
-        runs_df = pd.DataFrame(runs[:10])
-
-        # Format columns
-        display_df = runs_df[[
-            "id", "started_at", "status", "collisions_requested",
-            "hypotheses_generated", "bridge_rate", "total_cost_usd"
-        ]].copy()
-
-        display_df.columns = [
-            "Run ID", "Date", "Statut", "Collisions",
-            "Hypothèses", "Bridge Rate", "Coût"
-        ]
-
-        # Format values
-        display_df["Bridge Rate"] = display_df["Bridge Rate"].apply(
-            lambda x: f"{x*100:.1f}%" if x else "N/A"
+    with h1:
+        gate = health["gate_rate"]
+        gate_pct = gate * 100 if gate else None
+        color = "normal"
+        help_text = "Cible 30-60%. Actuellement "
+        if gate_pct is not None:
+            if 30 <= gate_pct <= 60:
+                help_text += "dans la cible ✓"
+            elif gate_pct < 30:
+                help_text += "trop strict"
+            else:
+                help_text += "trop permissif"
+        kpi_card(
+            "🚪 Gate pass rate",
+            f"{gate_pct:.0f}%" if gate_pct else "N/A",
+            help_text=help_text,
         )
-        display_df["Coût"] = display_df["Coût"].apply(
-            lambda x: f"${x:.4f}" if x else "N/A"
+
+    with h2:
+        bridge = health["bridge_rate"]
+        bridge_pct = bridge * 100 if bridge else None
+        kpi_card(
+            "🌉 Bridge rate",
+            f"{bridge_pct:.0f}%" if bridge_pct else "N/A",
+            help_text="Cible > 70%. % collisions produisant une hypothèse.",
         )
-        display_df["Date"] = pd.to_datetime(display_df["Date"]).dt.strftime("%d/%m %H:%M")
 
-        st.dataframe(display_df, use_container_width=True, hide_index=True)
-    else:
-        st.info("Aucun run enregistré. Lancez un run depuis la page 'Lancer un run'.")
-
-    # Footer
-    st.markdown("---")
-    st.caption("🍄 SPORE Dashboard")
+    with h3:
+        st.caption("**📋 Distribution reviewer (30j)**")
+        dist = health["reviewer_dist"]
+        total = sum(dist.values())
+        if total > 0:
+            df = pd.DataFrame([
+                {"verdict": "🗑️ poubelle", "count": dist["poubelle"], "color": "#EF4444"},
+                {"verdict": "🤔 intéressant", "count": dist["intéressant"], "color": "#F59E0B"},
+                {"verdict": "🔥 a_tester", "count": dist["a_tester"], "color": "#10B981"},
+            ])
+            chart = alt.Chart(df).mark_bar().encode(
+                x=alt.X("count:Q", title=""),
+                y=alt.Y("verdict:N", sort="-x", title=""),
+                color=alt.Color("color:N", scale=None, legend=None),
+                tooltip=["verdict", "count"],
+            ).properties(height=120)
+            st.altair_chart(chart, use_container_width=True)
+            st.caption(f"Total: {total} hypothèses")
+        else:
+            st.info("Aucune donnée reviewer.")
