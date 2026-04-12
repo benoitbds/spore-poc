@@ -1,0 +1,752 @@
+{
+  "brief_id": "SPR-2026-1DD0",
+  "generated_at": "2026-04-12",
+  "domains": [
+    "Geophysics",
+    "Glaciology"
+  ],
+  "original_hypothesis": "Applying the mathematical framework of seismic wave propagation and inversion to model and monitor the internal structure and fracture dynamics of ice sheets.",
+  "grounding": {
+    "novelty_assessment": {
+      "score": 0.6,
+      "closest_existing_work": [
+        {
+          "paper_id": "fbbcb51dd7d51e1ed1ef6cfdc4d63a8d67346db1",
+          "title": "Characterising ice slabs in firn using seismic full waveform inversion, a sensitivity study",
+          "doi": "10.1017/jog.2023.30",
+          "year": 2023,
+          "similarity": "direct",
+          "key_difference": "This paper applies FWI specifically to firn/ice slabs, demonstrating the core methodological transfer. The SPORE hypothesis broadens this to the entire internal structure and fracture dynamics of ice sheets (e.g., fabric anisotropy, temperate ice, englacial hydrology, basal properties), proposing a more comprehensive application of advanced seismic inversion frameworks beyond firn characterization.",
+          "authors": [
+            "E. Pearce",
+            "A. Booth",
+            "S. Rost",
+            "P. Sava",
+            "T. Konuk",
+            "A. Brisbourne",
+            "B. Hubbard",
+            "I. Jones"
+          ]
+        },
+        {
+          "paper_id": "ad0f55a4c39f49b6a809885e13cdb31c95961ddf",
+          "title": "A synthetic study of acoustic full waveform inversion to improve seismic modelling of firn",
+          "doi": "10.1017/aog.2023.10",
+          "year": 2022,
+          "similarity": "direct",
+          "key_difference": "This is a synthetic study focused on firn. The SPORE hypothesis extends the application to real, complex ice sheet environments and a wider range of targets (fractures, basal dynamics) using both active and passive seismic data.",
+          "authors": [
+            "E. Pearce",
+            "A. Booth",
+            "S. Rost",
+            "P. Sava",
+            "T. Konuk",
+            "A. Brisbourne",
+            "B. Hubbard",
+            "I. Jones"
+          ]
+        },
+        {
+          "paper_id": "76dfb6f281f4ddefdf942d6dd489574b688927a1",
+          "title": "Full Waveform Inversion (FWI) for glaciological seismic data –Improving the seismic characterisation of glacier firn",
+          "doi": "10.5194/EGUSPHERE-EGU21-916",
+          "year": 2021,
+          "similarity": "direct",
+          "key_difference": "This work proposes FWI for firn characterization. The SPORE hypothesis is more ambitious, advocating for the application of the full suite of seismic wave propagation and inversion techniques (tomography, FWI for elastic/viscoelastic media) to model the 3D internal structure and monitor dynamic processes like fracture propagation within entire ice sheets.",
+          "authors": [
+            "E. Pearce",
+            "A. Booth",
+            "S. Rost",
+            "P. Sava",
+            "A. Brisbourne",
+            "I. Jones",
+            "B. Hubbard"
+          ]
+        }
+      ],
+      "verdict": "incremental"
+    },
+    "evidence_base": [
+      {
+        "paper_id": "fbbcb51dd7d51e1ed1ef6cfdc4d63a8d67346db1",
+        "title": "Characterising ice slabs in firn using seismic full waveform inversion, a sensitivity study",
+        "doi": "10.1017/jog.2023.30",
+        "year": 2023,
+        "citation_count": 4,
+        "support_type": "direct",
+        "relevance": "Directly applies seismic Full Waveform Inversion (FWI) to characterize ice layers within firn, demonstrating the core methodological transfer from geophysics to glaciology for imaging internal ice sheet structure.",
+        "key_finding": "FWI can improve the accuracy of seismic velocity models in firn containing ice slabs compared to traditional Herglotz-Wiechert inversion, providing better constraints on density structure.",
+        "authors": [
+          "E. Pearce",
+          "A. Booth",
+          "S. Rost",
+          "P. Sava",
+          "T. Konuk",
+          "A. Brisbourne",
+          "B. Hubbard",
+          "I. Jones"
+        ]
+      },
+      {
+        "paper_id": "ad0f55a4c39f49b6a809885e13cdb31c95961ddf",
+        "title": "A synthetic study of acoustic full waveform inversion to improve seismic modelling of firn",
+        "doi": "10.1017/aog.2023.10",
+        "year": 2022,
+        "citation_count": 6,
+        "support_type": "direct",
+        "relevance": "A synthetic study demonstrating that FWI can recover detailed firn density structure, supporting the feasibility of applying advanced seismic inversion methods to glaciological problems.",
+        "key_finding": "Acoustic FWI can successfully recover synthetic firn density profiles, including ice layers, highlighting its potential over simpler inversion methods.",
+        "authors": [
+          "E. Pearce",
+          "A. Booth",
+          "S. Rost",
+          "P. Sava",
+          "T. Konuk",
+          "A. Brisbourne",
+          "B. Hubbard",
+          "I. Jones"
+        ]
+      },
+      {
+        "paper_id": "76dfb6f281f4ddefdf942d6dd489574b688927a1",
+        "title": "Full Waveform Inversion (FWI) for glaciological seismic data –Improving the seismic characterisation of glacier firn",
+        "doi": "10.5194/EGUSPHERE-EGU21-916",
+        "year": 2021,
+        "citation_count": 0,
+        "support_type": "direct",
+        "relevance": "Explicitly argues for applying FWI to glaciological seismic data to improve subsurface imaging, particularly for firn, aligning with the hypothesis's core premise.",
+        "key_finding": "Proposes FWI as a technique with high potential to improve glaciological imaging despite computational costs and data acquisition requirements.",
+        "authors": [
+          "E. Pearce",
+          "A. Booth",
+          "S. Rost",
+          "P. Sava",
+          "A. Brisbourne",
+          "I. Jones",
+          "B. Hubbard"
+        ]
+      },
+      {
+        "paper_id": "0eec53026b3c45503da597f47a821a098373d41c",
+        "title": "Distributed Acoustic Sensing (DAS) for Natural Microseismicity Studies: A Case Study From Antarctica",
+        "doi": "10.1029/2020JB021493",
+        "year": 2020,
+        "citation_count": 69,
+        "support_type": "indirect",
+        "relevance": "Demonstrates the use of a dense, novel seismic sensing technology (DAS) on an ice stream to monitor icequakes. This supports the 'monitor' part of the hypothesis by showing advanced seismic methods can be deployed on ice sheets to study internal dynamics.",
+        "key_finding": "DAS is an effective tool for monitoring basal icequakes in Antarctica, providing a high-density seismic dataset suitable for advanced analysis.",
+        "authors": [
+          "T. Hudson",
+          "A. Baird",
+          "J. Kendall",
+          "S. Kufner",
+          "A. Brisbourne",
+          "A. Smith",
+          "A. Butcher",
+          "A. Chalari",
+          "A. Clarke"
+        ]
+      },
+      {
+        "paper_id": "8897ad405f3654933326e49349935d851faf1322",
+        "title": "Dual-Parameter Simultaneous Full Waveform Inversion of Ground-Penetrating Radar for Arctic Sea Ice",
+        "doi": "10.3390/rs15143614",
+        "year": 2023,
+        "citation_count": 4,
+        "support_type": "analogous",
+        "relevance": "Applies FWI to a different wave phenomenon (GPR) on sea ice. It is analogous in demonstrating the power of FWI for high-resolution imaging of ice properties, though the wave type and target differ.",
+        "key_finding": "A two-parameter FWI method for GPR data can effectively reconstruct the permittivity and conductivity structure of Arctic sea ice.",
+        "authors": [
+          "Y. Liu",
+          "Meng Liu",
+          "Junhui Xing",
+          "Yixin Ye"
+        ]
+      }
+    ],
+    "counter_evidence": [],
+    "gap_manifest_update": {
+      "closed_gaps": [
+        "The 'competence gap' regarding the feasibility of applying FWI to glaciological problems is partially closed. Papers fbbcb51..., ad0f55a..., and 76dfb6f... provide direct evidence of research applying FWI to firn, demonstrating technical implementation is actively being explored."
+      ],
+      "new_gaps": [
+        "No new gaps are identified from the provided papers that contradict the existing gap manifest. The provided papers support the hypothesis's feasibility but do not address the specific data gaps (3D datasets) or fully resolve the epistemic gap (cost-benefit justification)."
+      ],
+      "data_available": [
+        "The paper 0eec530... (DAS in Antarctica) identifies a specific, dense seismic dataset from Rutford Ice Stream suitable for advanced analysis like that proposed in the hypothesis."
+      ]
+    },
+    "search_queries": [
+      {
+        "query": "full waveform inversion ice sheets",
+        "type": "novelty",
+        "rationale": "Direct search for the core methodological transfer proposed: applying advanced seismic inversion to glaciology."
+      },
+      {
+        "query": "seismic tomography englacial structure",
+        "type": "novelty",
+        "rationale": "Targets the specific application of 3D imaging techniques to internal ice sheet features like fabric and hydrology."
+      },
+      {
+        "query": "passive seismic monitoring glacier dynamics",
+        "type": "novelty",
+        "rationale": "Searches for the use of dense, passive seismic datasets (analogous to earthquake seismology) on ice masses."
+      },
+      {
+        "query": "elastic wave inversion temperate ice",
+        "type": "novelty",
+        "rationale": "Focuses on a key glaciological target (temperate ice) using the proposed wave equation-based inverse methods."
+      },
+      {
+        "query": "active source seismic glaciology",
+        "type": "evidence",
+        "rationale": "Finds foundational evidence of current seismic survey methods used in ice sheet studies."
+      },
+      {
+        "query": "ice fabric anisotropy seismic waves",
+        "type": "evidence",
+        "rationale": "Seeks evidence for the proposed mechanism: the link between ice properties and seismic wave propagation."
+      },
+      {
+        "query": "subglacial sediment seismic characterization",
+        "type": "evidence",
+        "rationale": "Targets existing research on using seismic data to infer basal conditions, a key component of the hypothesis."
+      },
+      {
+        "query": "englacial hydrology seismic imaging",
+        "type": "evidence",
+        "rationale": "Looks for precedents in using seismic methods to map water within ice, supporting the proposed transfer."
+      },
+      {
+        "query": "seismic inversion crustal structure",
+        "type": "cross_domain",
+        "rationale": "Captures the advanced geophysical source methods (e.g., for fault imaging, heterogeneity) to be transferred."
+      },
+      {
+        "query": "wave equation tomography geophysics",
+        "type": "cross_domain",
+        "rationale": "Focuses on the shared mathematical framework governing wave propagation in both domains."
+      },
+      {
+        "query": "ambient noise tomography glaciers",
+        "type": "cross_domain",
+        "rationale": "Searches for a specific interdisciplinary precedent: applying passive seismic imaging techniques from geophysics to glaciology."
+      }
+    ]
+  },
+  "sharpened": {
+    "title": "Quantitative Seismic Full Waveform Inversion for 3D Imaging of Ice Fabric Anisotropy and Englacial Fracture Networks in Temperate Glaciers",
+    "formal_statement": "If the viscoelastic properties of glacier ice (shear modulus μ, attenuation Qs⁻¹) are spatially heterogeneous due to variations in crystal fabric, temperature, and fracture density, then applying multi-parameter viscoelastic Full Waveform Inversion (FWI) to dense active-source seismic datasets will resolve these properties with a spatial resolution of ≤10 m horizontally and ≤5 m vertically in the upper 200 m of ice, because the complete seismic wavefield (amplitudes and phases) is sensitive to perturbations in stiffness and anelasticity at scales below the seismic wavelength.",
+    "independent_variables": [
+      {
+        "name": "Seismic Source Frequency",
+        "type": "continuous",
+        "range": "10-200",
+        "unit": "Hz"
+      },
+      {
+        "name": "Receiver Spacing",
+        "type": "continuous",
+        "range": "1-10",
+        "unit": "m"
+      },
+      {
+        "name": "Source-Receiver Offset",
+        "type": "continuous",
+        "range": "10-1000",
+        "unit": "m"
+      }
+    ],
+    "dependent_variables": [
+      {
+        "name": "Inverted Shear Wave Velocity (Vs)",
+        "type": "continuous",
+        "expected_direction": "non-monotonic",
+        "unit": "m/s"
+      },
+      {
+        "name": "Inverted Shear Wave Attenuation (Qs⁻¹)",
+        "type": "continuous",
+        "expected_direction": "non-monotonic",
+        "unit": "dimensionless"
+      },
+      {
+        "name": "Model-Data Misfit (L2 Norm)",
+        "type": "continuous",
+        "expected_direction": "decrease",
+        "unit": "dimensionless"
+      },
+      {
+        "name": "Spatial Correlation Length of Vs Anomalies",
+        "type": "continuous",
+        "expected_direction": "non-monotonic",
+        "unit": "m"
+      }
+    ],
+    "proposed_mechanism": {
+      "causal_chain": [
+        "Step 1: A spatially variable ice crystal fabric (c-axis orientation) and/or the presence of water-filled fractures induces local anisotropy and reductions in the effective shear modulus (μ) and increases anelastic attenuation (Qs⁻¹).",
+        "Step 2: These mechanical perturbations alter the propagation characteristics of seismic shear waves (S-waves), specifically reducing their phase velocity (Vs = √(μ/ρ)) and increasing their amplitude decay with distance, relative to isotropic, cold ice.",
+        "Step 3: A viscoelastic FWI algorithm, which minimizes the difference between observed and synthetic seismic waveforms by iteratively updating a 3D model of μ and Qs⁻¹, will converge to a solution where regions of low Vs and high Qs⁻¹ spatially correlate with independently mapped fabric clusters or fracture zones."
+      ],
+      "key_assumptions": [
+        "The seismic wavefield in the frequency band 10-200 Hz is primarily sensitive to elastic and anelastic properties, with scattering effects from discrete fractures being treatable as an effective medium attenuation.",
+        "The starting velocity model for FWI (e.g., from travel-time tomography) is accurate enough to avoid cycle-skipping for the lowest frequencies used (10-30 Hz).",
+        "The source wavelet and receiver coupling are sufficiently well-characterized to allow accurate forward modeling.",
+        "The ice can be approximated as a transversely isotropic, viscoelastic solid at the seismic wavelength scale (≈15-150 m)."
+      ],
+      "known_unknowns": [
+        "The precise quantitative relationship between specific fabric eigenvalues (e.g., from eigenvalue analysis of c-axis orientations) and the anisotropic seismic tensor in temperate ice.",
+        "The relative contribution of fracture water content versus fabric to the total observed seismic attenuation (Qs⁻¹) in the 10-200 Hz band.",
+        "The minimum fracture density and scale required to be detectable as a perturbation in effective medium properties versus as discrete scatterers."
+      ]
+    },
+    "falsifiable_predictions": [
+      {
+        "prediction": "If FWI successfully resolves fabric-induced anisotropy, then the azimuthal variation of inverted Vs along a dense 2D line over a known fabric transition zone will be ≥3% (e.g., 1650-1700 m/s vs. 1600-1650 m/s) and fit a cos(2θ) pattern aligned with the fabric principal direction.",
+        "quantitative_bound": "Azimuthal Vs variation of 3-8% over azimuths of 0-180 degrees.",
+        "measurement_method": "Compare FWI-derived Vs(θ) with fabric principal direction from ice core thin-section analysis or polarimetric radar within a 20m vertical window.",
+        "null_hypothesis": "H0: The azimuthal variation of Vs is ≤1% and shows no systematic correlation (R² < 0.3) with the fabric principal direction.",
+        "statistical_test": "F-test for significance of a cos(2θ) regression model vs. a constant model, with alpha=0.01."
+      },
+      {
+        "prediction": "If fractures dominate attenuation, then the spatial correlation between FWI-derived Qs⁻¹ anomalies and ground-penetrating radar (GPR) reflection hyperbolas from discrete fractures will be significant, with Qs⁻¹ values within 10 m of a GPR fracture being 20-50% higher (e.g., 0.01-0.02) than in intact ice (>30 m away).",
+        "quantitative_bound": "Qs⁻¹ in fracture-proximal ice = 0.010-0.025; in intact ice = 0.005-0.010.",
+        "measurement_method": "Spatial cross-correlation analysis between 3D FWI Qs⁻¹ volume and 3D GPR reflection point cloud from migrated data.",
+        "null_hypothesis": "H0: The mean Qs⁻¹ within 10m of a GPR-identified fracture is not significantly different from the mean Qs⁻¹ in regions >30m from any fracture.",
+        "statistical_test": "Welch's t-test (two-sample, unequal variances) on the two Qs⁻¹ populations, alpha=0.05, with Bonferroni correction for multiple comparisons."
+      },
+      {
+        "prediction": "If the inversion is robust and not an 'inverse crime', then applying the FWI workflow to field data from a well-characterized alpine glacier will reduce the normalized L2 waveform misfit by 40-70% from the starting tomographic model, whereas applying it to a synthetic dataset with identical acquisition geometry but more complex physics (e.g., 3D viscoelastic vs. 2D acoustic forward model in inversion) will yield a final misfit >15%.",
+        "quantitative_bound": "Field data misfit reduction: 40-70%. Synthetic test misfit floor: >15%.",
+        "measurement_method": "Calculate L2 norm of residual between observed/synthetic and predicted waveforms, normalized by the initial misfit.",
+        "null_hypothesis": "H0: The final waveform misfit for field data is not significantly lower than 60% of the initial misfit, or the misfit for the complex-physics synthetic test is ≤15%.",
+        "statistical_test": "One-sample t-test against the target reduction threshold (60% for field, 15% for synthetic), alpha=0.05."
+      }
+    ],
+    "boundary_conditions": [
+      {
+        "condition": "Ice temperature must be isothermal and very close to the pressure melting point (e.g., -2°C to 0°C).",
+        "justification": "This minimizes the strong confounding effect of a vertical temperature gradient on the seismic velocity profile, allowing fabric and fracture signals to be isolated. Applicable to temperate or polythermal glaciers in ablation zones."
+      },
+      {
+        "condition": "Survey depth of investigation is limited to the upper 200 m of ice.",
+        "justification": "Seismic attenuation in ice significantly reduces signal-to-noise ratio for frequencies >10 Hz at greater depths, limiting the resolution of FWI which requires high-frequency data."
+      },
+      {
+        "condition": "Minimum source-receiver offset must be ≥5 times the target depth.",
+        "justification": "To ensure sufficient penetration and wide-angle coverage necessary for constraining velocity variations via FWI, not just reflection imaging."
+      },
+      {
+        "condition": "Initial model for FWI must be derived from first-arrival travel-time tomography of the same dataset.",
+        "justification": "This ensures the starting model is data-consistent and minimizes the risk of cycle-skipping, a primary failure mode of FWI."
+      }
+    ],
+    "theoretical_framework": "Viscoelastic Seismic Wave Propagation and Bayesian Inverse Theory"
+  },
+  "protocol": {
+    "protocol_title": "Progressive Validation of Viscoelastic FWI for 3D Ice Fabric and Fracture Imaging in Temperate Glaciers",
+    "overall_timeline": "9-21 months",
+    "overall_budget_estimate": "€20k-120k",
+    "phases": [
+      {
+        "phase_number": 1,
+        "phase_name": "In Silico Validation",
+        "objective": "To determine if the proposed viscoelastic FWI workflow can theoretically resolve 10m-scale anomalies in shear modulus (μ) and attenuation (Qs⁻¹) under realistic noise conditions and starting model errors, and to identify the most critical acquisition parameters.",
+        "methodology": "1. **Synthetic Model Construction**: Use MATLAB/Python with SPECFEM2D/3D or Salvus (if available) to create a 200m x 200m x 200m 3D viscoelastic, transversely isotropic (VTI) model. Embed known anomalies: a) A 10m-thick layer with a 5% Vs reduction and 50% Qs⁻¹ increase (simulating a fracture zone). b) A 20m-wide column with 3% azimuthal Vs variation (cos2θ pattern) representing a fabric transition. 2. **Forward Modeling & Inversion**: Generate synthetic shot gathers (10-200 Hz Ricker wavelet) for dense 2D/3D acquisition geometries (e.g., 5m receiver spacing, shots every 20m). Add realistic Gaussian noise (SNR=10). Perform FWI using an open-source code (e.g., Devito, SeisFlows) or a custom gradient-based algorithm (L-BFGS). Start from a smooth version of the true model perturbed with 5% velocity error. 3. **Sensitivity Analysis**: Test recovery of anomalies vs. key parameters: maximum source frequency (50 vs. 200 Hz), offset/depth ratio, and initial model accuracy.",
+        "required_resources": {
+          "equipment": [
+            "High-performance computing node (≥32 cores, 128GB RAM)"
+          ],
+          "software": [
+            "Python/NumPy/SciPy",
+            "Devito (FWI framework)",
+            "ObsPy (seismic processing)",
+            "ParaView/Matplotlib (visualization)"
+          ],
+          "datasets": [
+            "None required - synthetic"
+          ],
+          "competences": [
+            "Computational seismology",
+            "Inverse theory",
+            "Proficiency in Python",
+            "High-performance computing"
+          ],
+          "estimated_cost": "€0-2k (cloud computing credits if no local HPC)",
+          "estimated_duration": "4-8 weeks"
+        },
+        "expected_outputs": [
+          "Output 1: 3D volumes of recovered Vs and Qs⁻¹ with quantitative error maps vs. true model.",
+          "Output 2: Plot of waveform misfit reduction vs. iteration for different acquisition scenarios.",
+          "Output 3: Resolution matrix analysis showing recoverable spatial wavelengths for Vs and Qs⁻¹."
+        ],
+        "success_criteria": [
+          {
+            "metric": "Anomaly Recovery Metric (ARM)",
+            "threshold": "ARM ≥ 0.7 for both Vs and Qs⁻¹ anomalies. ARM = 1 - (||m_true - m_rec|| / ||m_true - m_background||).",
+            "measurement": "Calculate L2 norm difference within the target anomaly region vs. the background perturbation."
+          },
+          {
+            "metric": "Misfit Reduction",
+            "threshold": "Final normalized L2 waveform misfit ≤ 25% of initial misfit for the optimal acquisition scenario.",
+            "measurement": "Compute misfit on a validation dataset not used in inversion."
+          },
+          {
+            "metric": "Azimuthal Pattern Correlation",
+            "threshold": "R² ≥ 0.8 for cos(2θ) fit to recovered Vs in the fabric anomaly column.",
+            "measurement": "Linear regression of Vs(θ) against cos(2θ) function."
+          }
+        ],
+        "go_nogo_decision": {
+          "go_if": "All three success criteria are met with the 'optimal' acquisition geometry (e.g., 5m receivers, 200 Hz max freq). This demonstrates theoretical feasibility.",
+          "nogo_if": "ARM < 0.4 for both parameters even under ideal noise-free, perfect-starting-model conditions. The physics of the problem is likely intractable with the proposed method.",
+          "pivot_if": "ARM for Qs⁻¹ is poor (<0.5) but good for Vs (>0.7). Pivot Phase 2 to focus solely on elastic FWI for fabric, dropping the attenuation/fracture hypothesis."
+        },
+        "risks": [
+          {
+            "risk": "Inverse crime: Using identical physics in forward modeling and inversion leads to unrealistically good results.",
+            "probability": "medium",
+            "mitigation": "Use a more complex, 3D anisotropic forward model to generate synthetic data, but use a 2D/2.5D isotropic or VTI approximation for the inversion algorithm."
+          },
+          {
+            "risk": "Cycle-skipping causes inversion divergence even with a 'good' starting model.",
+            "probability": "high",
+            "mitigation": "Implement a multi-scale frequency inversion strategy (start 10-30 Hz, progress to higher frequencies) and test objective functions more robust to cycle-skips (e.g., travel-time based or Wasserstein metric)."
+          },
+          {
+            "risk": "HPC requirements or software licensing (e.g., for Salvus) exceed budget.",
+            "probability": "low",
+            "mitigation": "Use open-source Devito framework on a smaller 2.5D problem first to prove concept, then scale up using academic cloud credits (e.g., AWS Educate, Google Cloud research grants)."
+          }
+        ]
+      },
+      {
+        "phase_number": 2,
+        "phase_name": "Minimal Experimental Validation",
+        "objective": "To perform a field pilot on a readily accessible temperate glacier to confirm that the seismic wavefield contains detectable signals from fabric/fracture heterogeneity and that the FWI workflow converges on field data.",
+        "methodology": "1. **Site Selection & Reconnaissance**: Select a small, well-studied temperate alpine glacier (e.g., Argentière Glacier, France; Hintereisferner, Austria; or a Svalbard glacier) with known structural heterogeneity from prior GPR/cores. 2. **Minimal Acquisition**: Deploy a single, dense 2D seismic line (300-500m length). Use a lightweight seismic source (e.g., Betsy Gun, 8lb sledgehammer on plate, or small explosive charges) and 48-96 10Hz geophones at 5m spacing. Record shots every 20m. Simultaneously collect a co-located high-frequency GPR profile (100-200 MHz) to identify fracture reflections. 3. **Data Processing & Inversion**: Process data (filtering, gain, geometry assignment). Perform first-arrival travel-time tomography (using PyGIMLi or TOMOFAST) to create the FWI starting model. Execute the viscoelastic FWI workflow validated in Phase 1, but limited to 2D and lower frequencies (10-80 Hz). 4. **Validation**: Compare FWI-derived Vs/Qs⁻¹ sections with GPR reflectivity and any available ice core fabric data (from literature or a single new shallow core).",
+        "required_resources": {
+          "equipment": [
+            "48-96 10Hz vertical geophones",
+            "Geode or Summit II seismograph",
+            "Betsy Gun or hammer/plate source",
+            "100-200 MHz GPR system (e.g., MALÅ ProEx)",
+            "GPS units",
+            "Field computing kit"
+          ],
+          "software": [
+            "SeisSpace/ProMAX or ObsPy for processing",
+            "Devito/PyGIMLi for inversion",
+            "ReflexW for GPR processing"
+          ],
+          "datasets": [
+            "Newly acquired seismic and GPR data"
+          ],
+          "competences": [
+            "Field geophysics",
+            "Seismic data processing",
+            "Glacier safety/fieldwork",
+            "Basic GPR interpretation"
+          ],
+          "estimated_cost": "€8k-15k (field logistics, equipment rental, travel)",
+          "estimated_duration": "2-3 months (1-2 weeks field, rest processing)"
+        },
+        "expected_outputs": [
+          "Output 1: 2D Vs and Qs⁻¹ depth sections along the profile.",
+          "Output 2: Correlation plot between Qs⁻¹ and GPR reflection strength.",
+          "Output 3: Quantitative waveform misfit reduction curve from field data inversion."
+        ],
+        "success_criteria": [
+          {
+            "metric": "Field Data Misfit Reduction",
+            "threshold": "Normalized L2 misfit ≤ 60% of initial misfit (from travel-time tomography model).",
+            "measurement": "Calculate on a held-out shot gather not used in inversion tuning."
+          },
+          {
+            "metric": "Spatial Correlation with GPR",
+            "threshold": "Positive spatial cross-correlation coefficient > 0.3 between Qs⁻¹ and GPR envelope amplitude at predicted depth of fractures.",
+            "measurement": "Compute normalized cross-correlation over the 2D section."
+          },
+          {
+            "metric": "Model Convergence",
+            "threshold": "Inversion converges stably (monotonic misfit decrease) without manual intervention for >50 iterations.",
+            "measurement": "Monitor L2 norm of data residual and model gradient."
+          }
+        ],
+        "go_nogo_decision": {
+          "go_if": "Misfit reduction ≥40% AND spatial correlation >0.3. The field data contains a usable signal and the workflow functions.",
+          "nogo_if": "Misfit reduction <20% OR data is dominated by source/ coupling noise making waveforms unusable for FWI. The fundamental data requirement is not met.",
+          "pivot_if": "Good Vs recovery but poor/no Qs⁻¹ recovery. Pivot Phase 3 to elastic FWI only, using amplitude decay for qualitative fracture mapping."
+        },
+        "risks": [
+          {
+            "risk": "Poor signal-to-noise ratio (SNR) due to crevasses, meltwater noise, or weak source.",
+            "probability": "medium",
+            "mitigation": "Use a Betsy Gun for consistent source wavelet; deploy in early morning/late evening for quieter conditions; stack multiple shots; use array processing to enhance SNR."
+          },
+          {
+            "risk": "Strong lateral heterogeneity causes 2D approximation to fail.",
+            "probability": "medium",
+            "mitigation": "Acquire a second perpendicular line to check for 3D effects; use a 2.5D (point source) forward modeling operator in FWI."
+          },
+          {
+            "risk": "Weather/logistical delays prevent data acquisition.",
+            "probability": "high",
+            "mitigation": "Plan a 2-week field window with flexible daily targets; have backup equipment; partner with a local research institute for logistical support."
+          }
+        ]
+      },
+      {
+        "phase_number": 3,
+        "phase_name": "Full Experimental Protocol",
+        "objective": "To rigorously validate the hypothesis by performing 3D viscoelastic FWI on a dense dataset from a characterized site, achieving the target resolution (≤10m horizontal, ≤5m vertical), and quantitatively testing the falsifiable predictions against ground truth.",
+        "methodology": "1. **Comprehensive 3D Survey Design**: Deploy a dense 3D grid (e.g., 10 lines, 100m apart, each with 5m receiver spacing) covering a ~500m x 500m area on a well-characterized glacier (e.g., ablation zone of a polythermal glacier). Use a more powerful source (e.g., IVI Minivib or larger explosives) for deeper penetration and higher frequencies. 2. **Multi-Method Ground Truthing**: Acquire concurrent 3D GPR. Drill 3-5 shallow ice cores (to 150m) along transects for direct fabric analysis (thin sections, eigenvalue analysis) and temperature measurement. 3. **Advanced 3D FWI**: Process the full dataset. Perform 3D first-arrival tomography. Execute large-scale 3D viscoelastic FWI on an HPC cluster, inverting for Vs and Qs⁻¹ simultaneously. 4. **Hypothesis Testing**: Conduct the statistical tests outlined in the falsifiable predictions: a) Regression of FWI-derived azimuthal Vs vs. core fabric direction. b) Welch's t-test on Qs⁻¹ near vs. far from GPR fractures. c) Misfit analysis on field vs. synthetic 'inverse crime' test.",
+        "required_resources": {
+          "equipment": [
+            "~500 geophones",
+            "Large-channel seismograph (e.g., 1000+ channels)",
+            "IVI Minivib or equivalent seismic source",
+            "High-frequency 3D GPR array",
+            "Hot-water ice coring system",
+            "Field lab for thin-section preparation"
+          ],
+          "software": [
+            "Commercial/advanced FWI software (e.g., Salvus, SPECFEM3D) for large 3D",
+            "Advanced seismic processing suite (e.g., SeisSpace)",
+            "Petrel or equivalent for 3D volume interpretation"
+          ],
+          "datasets": [
+            "New 3D seismic, GPR, and ice core data"
+          ],
+          "competences": [
+            "Large-scale 3D seismic inversion",
+            "Ice core analysis & fabric petrology",
+            "Project management of major field campaign",
+            "Advanced statistical analysis"
+          ],
+          "estimated_cost": "€80k-200k+ (major field campaign, coring, HPC, personnel)",
+          "estimated_duration": "9-15 months (3-month field season, 6-12 months processing/analysis)"
+        },
+        "expected_outputs": [
+          "Output 1: Publishes 3D volumes of Vs and Qs⁻¹ at target resolution.",
+          "Output 2: Peer-reviewed paper testing the three falsifiable predictions.",
+          "Output 3: Open-source code/recipe for glaciological viscoelastic FWI.",
+          "Output 4: Quantitative transfer functions between seismic properties and fabric eigenvalues/fracture density."
+        ],
+        "success_criteria": [
+          {
+            "metric": "Prediction 1: Azimuthal Vs vs. Fabric",
+            "threshold": "F-test p-value < 0.01 for cos(2θ) model, rejecting H0.",
+            "measurement": "Statistical test as described in hypothesis."
+          },
+          {
+            "metric": "Prediction 2: Qs⁻¹ vs. Fractures",
+            "threshold": "Welch's t-test p-value < 0.05 (Bonferroni corrected), rejecting H0.",
+            "measurement": "Statistical test as described in hypothesis."
+          },
+          {
+            "metric": "Prediction 3: Misfit Reduction & Robustness",
+            "threshold": "Field data misfit reduction significantly >60% (one-sample t-test p<0.05) AND synthetic 'complex physics' test misfit >15%.",
+            "measurement": "Statistical test as described in hypothesis."
+          },
+          {
+            "metric": "Spatial Resolution",
+            "threshold": "Ability to resolve a 10m x 10m x 5m test anomaly in checkerboard tests performed on the real acquisition geometry.",
+            "measurement": "Synthetic recovery test using the actual field source/receiver locations."
+          }
+        ],
+        "go_nogo_decision": {
+          "go_if": "At least two of the three primary predictions are confirmed (statistically significant) AND spatial resolution target is met. Hypothesis is substantially validated.",
+          "nogo_if": "All three primary predictions are rejected (null hypotheses cannot be rejected). The core hypothesis is falsified.",
+          "pivot_if": "Only one prediction is confirmed. Requires fundamental re-evaluation of the proposed causal mechanism (e.g., fractures may be detected but not via Qs⁻¹; fabric may influence attenuation more than velocity)."
+        },
+        "risks": [
+          {
+            "risk": "Extreme cost and logistical complexity of 3D survey and coring.",
+            "probability": "high",
+            "mitigation": "Seek large collaborative grants (e.g., ERC, NSF); partner with established polar/alpine institutes; scale down to an intensive 2.5D survey with multiple crossing lines if necessary."
+          },
+          {
+            "risk": "The 'ground truth' from ice cores is point measurements, creating a scale mismatch with the 10m seismic voxels.",
+            "probability": "medium",
+            "mitigation": "Use directional variogram analysis from cores to estimate fabric correlation length; consider it a 'sparse truth' dataset; use GPR as a continuous, albeit indirect, validator."
+          },
+          {
+            "risk": "Simultaneous inversion for Vs and Qs⁻¹ is ill-posed and parameters trade off.",
+            "probability": "medium",
+            "mitigation": "Use Bayesian FWI to quantify uncertainties and parameter trade-offs; impose realistic petrophysical priors (e.g., Vs-Qs⁻¹ relationship from lab studies); consider sequential inversion."
+          }
+        ]
+      }
+    ],
+    "phase_1_quick_start": {
+      "can_start_today": true,
+      "first_action": "Clone the Devito FWI tutorial repository (https://github.com/devitocodes/devito) and set up a conda environment. Modify the 2D acoustic example to implement a viscoelastic forward model using, e.g., the Standard Linear Solid (SLS) attenuation mechanism.",
+      "tools_needed": [
+        "Computer with Python/Git",
+        "GitHub account",
+        "Basic understanding of Devito syntax"
+      ],
+      "open_data_sources": [
+        "No open seismic data needed for Phase 1 (synthetic). For later inspiration: SEADARE (Seismic and Radar Data Repository for Alpine Glaciers), NSF Arctic Data Center."
+      ]
+    }
+  },
+  "panel": {
+    "reviews": [
+      {
+        "reviewer_persona": "methodologist",
+        "overall_score": 8.2,
+        "verdict": "accept",
+        "strengths": [
+          "Protocole structuré en phases progressives (in silico, pilote, validation complète) avec des critères de passage/abandon clairs, minimisant le gaspillage de ressources.",
+          "Identification et gestion proactive des risques majeurs (cycle-skipping en FWI, trade-off Vs/Qs⁻¹, mismatch d'échelle) avec des stratégies de pivot définies.",
+          "Hypothèse formulée de manière falsifiable avec des prédictions quantitatives, des bornes définies et des tests statistiques appropriés (tests t, F-test, corrélations)."
+        ],
+        "weaknesses": [
+          "La puissance statistique des tests dans la Phase 3 n'est pas explicitement calculée. Le nombre de carottes de glace (3-5) et de fractures GPR peut être insuffisant pour détecter des effets de taille modérée avec une puissance adéquate (e.g., >0.8).",
+          "Le contrôle pour le biais de 'l'inverse crime' (Phase 1) est bien identifié, mais le protocole de test synthétique 'complex physics' (Prédiction 3) reste vague sur la nature exacte de la complexité ajoutée, risquant de sous-estimer la difficulté d'inversion sur données réelles.",
+          "La validité interne est menacée par la possible corrélation spatiale auto-corrélée dans les tests de corrélation (Qs⁻¹ vs GPR). L'analyse nécessiterait des méthodes de permutation ou de bootstrap spatial pour calculer des p-values robustes, non simplement un coefficient de corrélation brut."
+        ],
+        "critical_questions": [
+          "Pour la Prédiction 2 (Qs⁻¹ vs fractures), avez-vous prévu une procédure de correction pour les tests multiples (plusieurs fractures) et un échantillonnage indépendant des zones 'proches' et 'loin' pour éviter l'autocorrélation spatiale dans le test t de Welch ?",
+          "La Phase 1 utilise un critère ARM ≥ 0.7. Sur quelle base cette valeur seuil a-t-elle été fixée ? Une analyse de sensibilité de l'ARM en fonction du SNR et de l'erreur du modèle initial a-t-elle été prévue pour justifier ce choix ?",
+          "Le budget de la Phase 3 (€80k-200k+) est très large. La conception de l'étude (espacement des lignes, nombre de carottes) est-elle optimisée pour la version basse ou haute du budget ? La puissance statistique finale dépendra fortement de ce choix."
+        ],
+        "recommendation": "Le protocole est bien conçu et méande d'être financé. Avant la Phase 3, je recommande de finaliser la conception de l'échantillonnage (nombre et emplacement des carottes, densité de la grille 3D) en réalisant une analyse de puissance a priori basée sur les effets détectés en Phase 2. Il est également impératif de préciser et de chiffrer le modèle de physique 'complexe' utilisé pour le test de robustesse de la Prédiction 3.",
+        "confidence": 0.88
+      },
+      {
+        "reviewer_persona": "domain_expert",
+        "overall_score": 7.0,
+        "verdict": "accept",
+        "strengths": [
+          "The hypothesis is theoretically coherent and builds logically on established principles of seismic wave propagation in anisotropic, attenuative media. The causal chain from fabric/fractures to mechanical properties to seismic signatures is sound.",
+          "The positioning against the literature is accurate and timely. The cited works (Pearce et al., 2021-2023) correctly establish that FWI is an emerging, promising tool in glaciological seismology, moving beyond travel-time tomography. The hypothesis correctly identifies the logical next step: applying multi-parameter viscoelastic FWI to resolve intrinsic ice properties, not just firn structure.",
+          "The explicit acknowledgment of 'known unknowns' (fabric-seismic tensor relationship, fracture vs. fabric attenuation) demonstrates sophisticated scientific reasoning and identifies the key research frontiers."
+        ],
+        "weaknesses": [
+          "The physical plausibility of the 'effective medium' assumption for fracture networks is a major challenge. At the proposed resolution (≤10 m) and frequency band (10-200 Hz, wavelength ~15-150 m in ice), discrete water-filled fractures may act as strong scatterers rather than a smooth effective viscoelastic medium. This could violate a core assumption of the FWI framework, leading to non-unique and unstable inversion results where attenuation (Qs⁻¹) becomes a catch-all for scattering losses.",
+          "The hypothesis underestimates the severe non-linearity and non-uniqueness of multi-parameter viscoelastic FWI. Simultaneously updating shear modulus (μ) and attenuation (Qs⁻¹) is notoriously difficult due to parameter trade-offs, especially when starting models are imperfect. The assumption that a travel-time tomography model is sufficient to avoid cycle-skipping at 10-30 Hz in complex, attenuative temperate ice is optimistic and requires rigorous synthetic testing.",
+          "The evidence base, while relevant, is heavily focused on firn and acoustic (P-wave) FWI. The jump to 3D viscoelastic (S-wave sensitive) FWI for fabric and fractures in temperate ice is significant. The analogous GPR study is useful but involves fundamentally different physics (electromagnetic waves vs. viscoelastic waves). More direct support from studies on seismic anisotropy in ice (e.g., from polarimetric radar or shear-wave splitting analyses) would strengthen the foundational link between fabric and the seismic tensor."
+        ],
+        "critical_questions": [
+          "Given the strong trade-off between anisotropy (fabric) and heterogeneity (fractures) in influencing shear-wave velocity and attenuation, what specific Bayesian inversion framework or regularization strategy would you propose to separate these two contributions? How would you incorporate prior information (e.g., from ice core fabric data or surface strain rates) to constrain this ill-posed problem?",
+          "The hypothesis targets the upper 200 m of temperate ice, where attenuation is high. How will you ensure accurate source wavelet estimation and receiver coupling characterization in such a lossy medium, which is critical for FWI's amplitude fidelity? Would you consider a source-encoding or augmented Lagrangian approach to mitigate these errors?"
+        ],
+        "recommendation": "This is a compelling and well-formulated hypothesis that sits at the cutting edge of glaciological geophysics. I recommend acceptance, but with the strong condition that the first phase of the project must be a comprehensive synthetic feasibility study. This study should use a viscoelastic finite-difference solver to generate synthetic data from realistic 3D models of fabric and fracture networks, and then test the proposed FWI workflow's ability to recover the target parameters under realistic noise, source, and starting model uncertainties. This will directly address the major weaknesses concerning effective medium validity and inversion stability.",
+        "confidence": 0.9
+      },
+      {
+        "reviewer_persona": "contrarian",
+        "overall_score": 4.5,
+        "verdict": "weak_reject",
+        "strengths": [
+          "The hypothesis correctly identifies a significant knowledge gap—spatially continuous mapping of ice fabric and fractures—and proposes a theoretically powerful method (FWI) that leverages the full wavefield, which is superior to travel-time tomography alone.",
+          "The formulation includes specific, testable predictions with quantitative bounds and null hypotheses, which is excellent for falsifiability and demonstrates rigorous experimental design thinking."
+        ],
+        "weaknesses": [
+          "FAIL REASON #1: The signal-to-noise and dynamic range issues in temperate ice are likely fatal. Temperate ice has intrinsically high seismic attenuation (low Q), meaning the high-frequency (10-200 Hz) S-wave signals required for 10-5 m resolution will be extremely weak after propagating through even 50-100 m of ice. The proposed dense active-source array would need unrealistic source energy to generate detectable high-frequency shear waves at the required offsets, making the dataset for high-resolution FWI practically unattainable.",
+          "FAIL REASON #2: The 'known unknown' of separating fabric and fracture effects is a fundamental inversion ambiguity that will lead to non-unique solutions. The viscoelastic FWI attempts to solve for μ and Qs⁻¹ simultaneously, but these parameters trade off strongly with each other and with unresolved anisotropy parameters. A low Vs/high Qs⁻¹ anomaly could be explained equally well by a water-filled fracture, a region of warm ice, or a specific fabric orientation. Without perfect prior constraints (which don't exist), the inversion will converge to a geologically meaningless model that merely fits the noise.",
+          "FAIL REASON #3: The starting model assumption is almost certainly violated in the field. Avoiding cycle-skipping for FWI at 10-30 Hz requires a starting Vs model accurate to within ~±5% of the true velocity. Travel-time tomography in complex, attenuating, anisotropic temperate ice cannot provide this level of accuracy for shear waves. The result will be that the FWI, starting from an inaccurate model, will converge to a local minimum—producing a plausible-looking but incorrect image of the subsurface, satisfying prediction #3 (misfit reduction) while failing predictions #1 and #2 (geological accuracy)."
+        ],
+        "critical_questions": [
+          "Given the extreme attenuation in temperate ice (Qs often <50 in the best case), what is the calculated amplitude loss at 100 Hz for an S-wave traveling 150 m? What source energy (e.g., in Joules) and receiver sensitivity would be required to overcome this loss and ambient noise, and is there any documented field experiment that has achieved this signal-to-noise ratio for high-frequency shear waves in a glacier?",
+          "Your forward modeling assumes an effective medium, treating discrete fractures as a bulk property perturbation. At your target resolution (≤10 m), individual fractures or small clusters will be discrete scatterers, not an effective medium. How will your isotropic or transversely isotropic viscoelastic FWI algorithm, which does not explicitly model scattering, avoid generating inversion artifacts (e.g., 'smearing') that look like fabric anisotropy but are actually unmodeled scattering from fractures?"
+        ],
+        "recommendation": "To move this from a theoretically elegant idea to a plausible field method, you must first demonstrate a feasibility study using realistic synthetic data that includes: 1) Physically accurate 3D viscoelastic wave propagation with Qs values from field measurements of temperate ice, 2) Realistic seismic source signatures and ambient noise floors from glacier environments, and 3) A starting model derived from a simulated travel-time tomography with realistic errors. Show that your FWI can correctly disentangle a synthetic 'fabric' anomaly from a 'fracture' anomaly under these conditions before claiming it can work on field data.",
+        "confidence": 0.85
+      },
+      {
+        "reviewer_persona": "industrialist",
+        "overall_score": 5.5,
+        "verdict": "weak_accept",
+        "strengths": [
+          "Adresse un besoin critique non satisfait dans la glaciologie appliquée et l'évaluation des risques hydrologiques : la cartographie 3D haute résolution de la structure interne des glaciers tempérés, pertinente pour les opérateurs hydroélectriques (ex : Alpiq, Enel), les consultants en risques naturels (ex : SLF, NGI) et les agences gouvernementales (ex : USGS, ESA).",
+          "Avantage compétitif potentiel de résolution spatiale (≤10m) inégalée par les méthodes géophysiques actuelles (radar, sismique classique), permettant une modélisation prédictive améliorée de la dynamique et de la fonte des glaciers."
+        ],
+        "weaknesses": [
+          "Barrière d'entrée majeure : marché de niche extrême. Le nombre de clients capables de payer >100k€ pour une campagne de données est très limité (principalement recherche publique et quelques grands projets d'ingénierie). Modèle commercial B2B difficile à scaler.",
+          "Processus de vente long et complexe (cycle de vente de 12-24 mois), nécessitant une validation scientifique approfondie et une intégration dans des chaînes de décision établies (gestion de l'eau, évaluation des risques)."
+        ],
+        "critical_questions": [
+          "Quel est le modèle de revenus précis ? Vente de services de consulting/campagnes (project-based) ou licence de logiciel/algorithmes aux instituts de recherche ? Le budget du protocole (jusqu'à 200k€+) est du même ordre de grandeur que le prix de vente potentiel, menaçant la marge.",
+          "La propriété intellectuelle (IP) est-elle défendable et transférable ? L'algorithme FWI est un savoir-faire, potentiellement difficile à breveter. La barrière à l'entrée repose plus sur l'expertise et les données de validation que sur une IP solide, ce qui expose à la concurrence future de laboratoires académiques."
+        ],
+        "recommendation": "Poursuivre avec la Phase 1 (validation in silico à faible coût) pour dé-risquer le principe physique, mais conditionner les Phases 2 et 3 à l'identification préalable d'un partenaire industriel ou d'un client pilote prêt à co-financer. Cibler d'abord un consortium de recherche appliquée (ex : programme Horizon Europe sur les risques alpins) pour subventionner le développement et valider la méthode, avant de lancer une offre commerciale ciblant les bureaux d'études spécialisés en géorisques.",
+        "confidence": 0.75
+      },
+      {
+        "reviewer_persona": "funding_strategist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "strengths": [
+          "Hypothèse très bien formulée avec une prédiction falsifiable claire et un protocole de validation progressive solide, ce qui est apprécié des évaluateurs.",
+          "Approche méthodologique ambitieuse mais structurée (FWI viscoélastique) qui, si elle fonctionne, représenterait une avancée significative en glaciologie et géophysique."
+        ],
+        "weaknesses": [
+          "TRL actuel estimé à 2-3 (preuve de concept en simulation). Le budget et la timeline proposés sont insuffisants pour atteindre la Phase 3, ce qui rend le projet sous-dimensionné pour un appel compétitif majeur.",
+          "Le consortium n'est pas défini. Une hypothèse de ce type nécessite un partenariat fort entre géophysiciens (FWI), glaciologues (fabric), et spécialistes de l'instrumentation sismique en milieu extrême."
+        ],
+        "critical_questions": [
+          "Comment comptez-vous constituer un consortium crédible avec les compétences en modélisation viscoélastique, en acquisition sismique dense sur glacier, et en validation par carottage/échantillonnage ?",
+          "La Phase 1 (in silico) est-elle basée sur un code FVI existant et adapté (e.g., SPECFEM, Salvus) ou nécessite-t-elle un développement from scratch ? Cela impacte fortement la maturité et le budget."
+        ],
+        "recommendation": "Cibler d'abord un financement de type 'Proof of Concept' ou 'Junior PI' pour financer la Phase 1 et 2, et construire un consortium. Utiliser ces résultats préliminaires pour postuler à un ERC StG ou un projet collaboratif Horizon Europe. La Phase 3 nécessite un budget >500k€.",
+        "confidence": 0.8,
+        "funding_programs": [
+          {
+            "program": "ERC Starting Grant",
+            "agency": "European Research Council",
+            "fit_score": 0.7,
+            "typical_budget": "1.5M€ sur 5 ans",
+            "success_rate": "~13%",
+            "next_deadline": "Octobre 2025 (call 2026)",
+            "rationale": "Parfait pour une recherche exploratoire à haut risque/haut gain menée par un chercheur en début de carrière. L'hypothèse est suffisamment disruptive (imagerie 3D à haute résolution de propriétés internes de la glace) pour viser un ERC. Le projet actuel est un excellent prototype de 'Synergy Grant' en miniature. Il faudra renforcer le volet 'high-gain' et l'impact scientifique."
+          },
+          {
+            "program": "AAPG Flash 2025 (Appel à Projets Générique - Défi 6)",
+            "agency": "Agence Nationale de la Recherche (ANR) - France",
+            "fit_score": 0.85,
+            "typical_budget": "200k€ - 350k€ sur 36 mois",
+            "success_rate": "~15-20%",
+            "next_deadline": "Fin 2024 / début 2025 (pour Flash 2025)",
+            "rationale": "Excellent fit avec le Défi 6 'Mobilité et systèmes urbains durables' et l'axe 'Risques naturels et hydrologie'. Le projet vise une meilleure compréhension de la dynamique des glaciers tempérés (risques, ressources en eau). Le format 'Flash' est adapté pour un projet de maturation méthodologique (Phases 1-2 étendues) et de construction de consortium en vue d'un Horizon Europe. Budget aligné avec une version renforcée de votre Phase 2+."
+          },
+          {
+            "program": "International Collaboration Grant",
+            "agency": "National Science Foundation (NSF) - Office of Polar Programs (OPP) / National Centre for Polar and Ocean Research (NCPOR) - Inde",
+            "fit_score": 0.65,
+            "typical_budget": "150k$ - 300k$ sur 2-3 ans",
+            "success_rate": "Variable (~20%)",
+            "next_deadline": "Rolling / Voir appels spécifiques NSF-OPP (été 2025) ou annonces de joint calls",
+            "rationale": "L'imagerie du fabric de la glace est une priorité pour la modélisation de l'écoulement des calottes polaires. Un partenariat international (ex: France/US/Inde) ciblant un glacier tempéré de l'Himalaya ou d'Alaska serait très pertinent. Ces programmes cherchent des innovations instrumentales et méthodologiques pour l'étude des cryosphères. Votre protocole de validation progressive correspond bien au format des 'development grants' de la NSF."
+          }
+        ]
+      }
+    ],
+    "meta_review": {
+      "consensus_score": 6.34,
+      "verdict": "revise_and_resubmit",
+      "key_consensus": [
+        "L'hypothèse est théoriquement cohérente, bien formulée et adresse un besoin scientifique et appliqué significatif pour la cartographie 3D haute résolution des glaciers tempérés.",
+        "Le protocole de validation progressive (in silico, pilote, validation terrain) est une force majeure, appréciée pour sa structuration et ses critères de passage/abandon clairs.",
+        "Les faiblesses principales identifiées concernent la faisabilité physique et numérique de l'inversion viscoélastique multi-paramètres dans la glace tempérée, notamment les risques de non-unicité, les trade-offs entre paramètres, et les défis pratiques d'acquisition du signal haute fréquence dans un milieu très atténuant."
+      ],
+      "key_disagreements": [
+        "Le Contrarian estime que les problèmes de rapport signal/bruit et de gamme dynamique sont probablement fatals (FAIL REASON), tandis que le Domain Expert et le Methodologist considèrent ces défis comme sévères mais surmontables via une étude de faisabilité synthétique rigoureuse et une optimisation de la conception d'acquisition.",
+        "L'évaluation du risque commercial diverge : l'Industrialist voit un marché de niche extrême avec un modèle économique fragile, tandis que le Funding Strategist identifie des voies de financement crédibles pour un projet de recherche fondamentale à haut gain."
+      ],
+      "critical_path": "La démonstration préalable, par modélisation synthétique réaliste, que l'inversion FWI viscoélastique peut séparer de manière unique les signatures du fabric et des fractures dans des conditions réalistes de bruit, d'atténuation (Qs < 50) et d'erreur de modèle de départ. Ceci est le goulot d'étranglement scientifique et technique qui validera ou invalidera le principe physique central avant tout déploiement terrain coûteux.",
+      "final_recommendation": "Le panel recommande une révision substantielle du protocole pour renforcer sa phase de faisabilité (Phase 1). L'hypothèse est scientifiquement prometteuse et mérite d'être poursuivie, mais elle doit intégrer une étude synthétique exhaustive pour répondre aux préoccupations fondamentales sur la stabilité de l'inversion et la détectabilité du signal. Les Phases 2 et 3 doivent être conditionnées aux résultats de cette étude et à l'identification de partenaires/consortiums appropriés. Une soumission pour un financement de type 'Proof of Concept' est recommandée pour cette étape révisée.",
+      "brief_quality_gate": true,
+      "revision_guidance": [
+        "Renforcer la Phase 1 (in silico) en détaillant une étude de faisabilité synthétique réaliste. Celle-ci doit inclure : 1) une modélisation 3D viscoélastique avec des valeurs de Qs réalistes pour la glace tempérée, 2) un modèle de départ dérivé d'une tomographie de temps de trajet bruitée, 3) des tests explicites de la capacité de l'inversion à distinguer des anomalies de fabric et de fracture dans des scénarios ambigus, et 4) une analyse de sensibilité de l'ARM (Acceptance Region Metric) au SNR et aux erreurs du modèle.",
+        "Préciser et quantifier la stratégie pour atténuer le biais de 'l'inverse crime' (Prédiction 3), en définissant explicitement la 'physique complexe' ajoutée aux données synthétiques de test (ex : scattering non modélisé, anisotropie plus complexe).",
+        "Intégrer une analyse de puissance statistique a priori pour la Phase 3, basée sur les effets détectés en Phase 2, afin d'optimiser le nombre de carottes de glace et la densité du profil GPR pour atteindre une puissance >0.8. Préciser les méthodes pour corriger l'autocorrélation spatiale dans les tests.",
+        "Développer un plan de consortium et de financement aligné avec les recommandations du Funding Strategist, en identifiant des programmes cibles (ex : ANR Flash, ERC StG) et les compétences partenaires nécessaires (modélisation viscoélastique, instrumentation sismique en milieu extrême, glaciologie du fabric)."
+      ]
+    }
+  }
+}
