@@ -27,34 +27,38 @@ BUDGET ESTIME : {budget}
 TIMELINE : {timeline}
 
 FORMAT DE SORTIE (JSON strict) :
+
+IMPORTANT : ne copie PAS les valeurs ci-dessous. Ce sont des illustrations du format uniquement. Tu DOIS generer ton propre contenu reel dans chaque champ, specifique a l'hypothese evaluee. Les 3 programmes de financement doivent etre reels et identifies nominativement.
+
+Exemple de format (NE PAS COPIER LES VALEURS) :
 ```json
 {{
     "reviewer_persona": "funding_strategist",
     "overall_score": 7.0,
     "verdict": "accept",
     "strengths": [
-        "Force pour financement 1",
-        "Force pour financement 2"
+        "[force concrete pour financement - maturite, originalite, etc.]",
+        "[deuxieme force concrete]"
     ],
     "weaknesses": [
-        "Faiblesse pour financement 1",
-        "Faiblesse pour financement 2"
+        "[faiblesse concrete pour financement - TRL, consortium, etc.]",
+        "[deuxieme faiblesse concrete]"
     ],
     "critical_questions": [
-        "Question strategique 1",
-        "Question strategique 2"
+        "[question strategique concrete sur positionnement/consortium]",
+        "[deuxieme question strategique]"
     ],
-    "recommendation": "Strategie de financement recommandee en 2-3 phrases.",
+    "recommendation": "[TA strategie de financement reelle en 2-3 phrases - NE PAS ecrire de generalite]",
     "confidence": 0.75,
     "funding_programs": [
         {{
-            "program": "Nom du programme",
-            "agency": "Agence (ANR, ERC, etc.)",
+            "program": "[nom reel d'un programme - ex: ERC Starting Grant 2026]",
+            "agency": "[agence reelle - ex: European Research Council]",
             "fit_score": 0.8,
-            "typical_budget": "€200k-500k",
-            "success_rate": "15-20%",
-            "next_deadline": "Estimation prochaine deadline",
-            "rationale": "Pourquoi ce programme colle"
+            "typical_budget": "[fourchette reelle]",
+            "success_rate": "[taux reel connu]",
+            "next_deadline": "[date ou periode estimee]",
+            "rationale": "[explication reelle de pourquoi ce programme colle a l'hypothese]"
         }}
     ]
 }}
@@ -62,3 +66,4 @@ FORMAT DE SORTIE (JSON strict) :
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.
+Tous les champs textuels DOIVENT contenir du contenu genere specifiquement pour l'hypothese, jamais les instructions du prompt.

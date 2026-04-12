@@ -25,27 +25,31 @@ PREDICTIONS :
 {predictions}
 
 FORMAT DE SORTIE (JSON strict) :
+IMPORTANT : ne copie PAS les valeurs ci-dessous. Ce sont des illustrations du format uniquement. Tu DOIS generer ton propre contenu reel dans chaque champ, specifique a l'hypothese evaluee.
+
+Exemple de format (NE PAS COPIER LES VALEURS) :
 ```json
 {{
     "reviewer_persona": "industrialist",
     "overall_score": 7.0,
     "verdict": "accept",
     "strengths": [
-        "Opportunite marche 1",
-        "Avantage competitif 1"
+        "[opportunite marche concrete avec chiffres ou noms d'acteurs]",
+        "[avantage competitif specifique]"
     ],
     "weaknesses": [
-        "Barriere 1",
-        "Risque commercial 1"
+        "[barriere concrete au deploiement]",
+        "[risque commercial identifie]"
     ],
     "critical_questions": [
-        "Question business 1",
-        "Question business 2"
+        "[question business concrete sur adoption/ROI/IP]",
+        "[deuxieme question business concrete]"
     ],
-    "recommendation": "Strategie commerciale recommandee en 2-3 phrases.",
+    "recommendation": "[TA strategie commerciale reelle en 2-3 phrases - NE PAS ecrire de generalite]",
     "confidence": 0.70
 }}
 ```
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.
+Tous les champs textuels DOIVENT contenir du contenu genere specifiquement pour l'hypothese, jamais les instructions du prompt.

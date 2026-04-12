@@ -26,27 +26,32 @@ NOVELTY ASSESSMENT :
 {novelty_assessment}
 
 FORMAT DE SORTIE (JSON strict) :
+
+IMPORTANT : ne copie PAS les valeurs ci-dessous. Ce sont des illustrations du format uniquement. Tu DOIS generer ton propre contenu reel dans chaque champ, specifique a l'hypothese evaluee.
+
+Exemple de format (NE PAS COPIER LES VALEURS) :
 ```json
 {{
     "reviewer_persona": "domain_expert",
     "overall_score": 7.5,
     "verdict": "accept",
     "strengths": [
-        "Point fort 1",
-        "Point fort 2"
+        "[2-3 forces reelles et specifiques de l'hypothese evaluee]",
+        "[deuxieme force - contenu reel]"
     ],
     "weaknesses": [
-        "Faiblesse 1",
-        "Faiblesse 2"
+        "[2-3 faiblesses reelles et specifiques]",
+        "[deuxieme faiblesse - contenu reel]"
     ],
     "critical_questions": [
-        "Question ouverte 1",
-        "Question ouverte 2"
+        "[question ouverte concrete sur le mecanisme ou les preuves]",
+        "[deuxieme question ouverte concrete]"
     ],
-    "recommendation": "Recommandation actionnable en 2-3 phrases.",
+    "recommendation": "[TA recommandation reelle en 2-3 phrases - NE PAS ecrire 'Recommandation actionnable']",
     "confidence": 0.85
 }}
 ```
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.
+Tous les champs textuels DOIVENT contenir du contenu genere specifiquement pour l'hypothese, jamais les instructions du prompt.

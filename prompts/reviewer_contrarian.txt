@@ -30,29 +30,34 @@ PREDICTIONS :
 Tu DOIS inclure un "Top 3 reasons this will fail" dans tes weaknesses.
 
 FORMAT DE SORTIE (JSON strict) :
+
+IMPORTANT : ne copie PAS les valeurs ci-dessous. Ce sont des illustrations du format uniquement. Tu DOIS generer ton propre contenu reel dans chaque champ, specifique a l'hypothese evaluee.
+
+Exemple de format (NE PAS COPIER LES VALEURS) :
 ```json
 {{
     "reviewer_persona": "contrarian",
     "overall_score": 5.0,
     "verdict": "weak_reject",
     "strengths": [
-        "Point fort 1 (meme un sceptique reconnait les forces)",
-        "Point fort 2"
+        "[une ou deux forces reelles que meme un sceptique reconnait]",
+        "[deuxieme force - contenu reel]"
     ],
     "weaknesses": [
-        "FAIL REASON #1: ...",
-        "FAIL REASON #2: ...",
-        "FAIL REASON #3: ..."
+        "FAIL REASON #1: [raison d'echec concrete et specifique]",
+        "FAIL REASON #2: [deuxieme raison d'echec concrete]",
+        "FAIL REASON #3: [troisieme raison d'echec concrete]"
     ],
     "critical_questions": [
-        "Question devastatrice 1",
-        "Question devastatrice 2"
+        "[question devastatrice reelle et pointue]",
+        "[deuxieme question devastatrice]"
     ],
-    "recommendation": "Ce qu'il faudrait demontrer pour convaincre un sceptique.",
+    "recommendation": "[TA recommandation reelle sur ce qu'il faudrait demontrer - NE PAS ecrire de generalite]",
     "confidence": 0.80
 }}
 ```
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.
+Tous les champs textuels DOIVENT contenir du contenu genere specifiquement pour l'hypothese, jamais les instructions du prompt.
 Sois dur mais juste. Ne rejette pas par principe — rejette si les failles sont reelles.

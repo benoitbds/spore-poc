@@ -263,12 +263,31 @@ async def _step3_analyze(
         }
 
 
+def _extract_authors(paper: dict[str, Any]) -> list[str]:
+    """Extract author names from a Semantic Scholar paper dict."""
+    authors = paper.get("authors") or []
+    names = []
+    for a in authors:
+        if isinstance(a, dict):
+            name = a.get("name")
+            if name:
+                names.append(name)
+        elif isinstance(a, str):
+            names.append(a)
+    return names
+
+
 def _validate_references(
     analysis: dict[str, Any],
     valid_ids: set[str],
     all_papers: list[dict[str, Any]],
 ) -> dict[str, Any]:
-    """Remove any hallucinated references that aren't in our paper set."""
+    """Remove any hallucinated references that aren't in our paper set.
+
+    Also enriches each validated reference with the real authors list from
+    the Semantic Scholar response, so downstream consumers (e.g., the
+    Research Brief Generator) can produce proper citations.
+    """
     paper_index = {p.get("paperId"): p for p in all_papers}
 
     # Validate closest_existing_work
@@ -282,6 +301,7 @@ def _validate_references(
             real_paper = paper_index.get(pid, {})
             item["doi"] = _extract_doi(real_paper)
             item["title"] = real_paper.get("title", item.get("title", ""))
+            item["authors"] = _extract_authors(real_paper)
             validated_closest.append(item)
         else:
             logger.warning("hallucinated_reference_removed", paper_id=pid, section="closest_existing_work")
@@ -297,6 +317,7 @@ def _validate_references(
             item["doi"] = _extract_doi(real_paper)
             item["title"] = real_paper.get("title", item.get("title", ""))
             item["citation_count"] = real_paper.get("citationCount", 0) or 0
+            item["authors"] = _extract_authors(real_paper)
             validated_evidence.append(item)
         else:
             logger.warning("hallucinated_reference_removed", paper_id=pid, section="evidence_base")
@@ -310,6 +331,7 @@ def _validate_references(
             real_paper = paper_index.get(pid, {})
             item["doi"] = _extract_doi(real_paper)
             item["title"] = real_paper.get("title", item.get("title", ""))
+            item["authors"] = _extract_authors(real_paper)
             validated_counter.append(item)
         else:
             logger.warning("hallucinated_reference_removed", paper_id=pid, section="counter_evidence")

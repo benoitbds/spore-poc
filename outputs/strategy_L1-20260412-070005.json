@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-04-12 07:00:33.530046",
+  "based_on_observation": "2026-04-12T07:00:05.404475",
+  "mutations": [
+    {
+      "id": "MUT-20260412-3fdc28",
+      "created_at": "2026-04-12 07:00:33.530010",
+      "type": "score_weight_adjustment",
+      "target_path": "score_weights",
+      "old_value": {
+        "coherence": 0.3,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.25,
+        "testability": 0.35
+      },
+      "new_value": {
+        "coherence": 0.35,
+        "hallucination_risk": -0.15,
+        "impact_potential": 0.15,
+        "novelty": 0.2,
+        "testability": 0.45
+      },
+      "description": "Increase testability weight and coherence, slightly reduce novelty weight",
+      "justification": "Average composite score is low (0.41) with most hypotheses in 0.3-0.5 range. Strong score-feedback correlation (0.85) suggests scoring works but weights need adjustment. Testability is critical for actionable hypotheses, and coherence improvements may address competence gaps in thermodynamic modeling, kinetic modeling, etc.",
+      "estimated_impact": "Increase average composite score by 0.05-0.10, shift distribution toward 0.5-0.7 range",
+      "risk": "medium",
+      "based_on_run_id": "run-20260412-060005-96a619",
+      "observation_summary": "avg_composite_score: 0.41, score_distribution: 53% in 0.3-0.5 range, score_feedback_correlation: 0.85",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260412-3ee855",
+      "created_at": "2026-04-12 07:00:33.530029",
+      "type": "parameter_change",
+      "target_path": "randomness.strategy_weights",
+      "old_value": {
+        "anomaly_guided": 0.25,
+        "historical_template": 0.15,
+        "semantic_distance": 0.35,
+        "structural_analogy": 0.25
+      },
+      "new_value": {
+        "anomaly_guided": 0.2,
+        "historical_template": 0.2,
+        "semantic_distance": 0.3,
+        "structural_analogy": 0.3
+      },
+      "description": "Increase structural_analogy and historical_template weights, decrease semantic_distance and anomaly_guided",
+      "justification": "Underexplored domains (Biomaterials, Ceramics, Molecular Biology) show promise but need more structured exploration. Structural analogy may help bridge these domains with known fertile areas. Historical templates can provide proven interdisciplinary patterns. This should encourage exploration of promising underexplored domains while maintaining quality.",
+      "estimated_impact": "Increase collisions in underexplored domains by 20-30%, maintain or improve bridge rate (currently 0.76)",
+      "risk": "low",
+      "based_on_run_id": "run-20260412-060005-96a619",
+      "observation_summary": "underexplored_domains: Biomaterials, Ceramics, Molecular Biology, Elastomers, Hydrogels; bridge_rate: 0.76",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    },
+    {
+      "id": "MUT-20260412-93a90b",
+      "created_at": "2026-04-12 07:00:33.530038",
+      "type": "prompt_modification",
+      "target_path": "agents.literature_grounding.prompt_version",
+      "old_value": "literature_grounding_v1",
+      "new_value": "literature_grounding_v2",
+      "description": "Enhance literature grounding prompt to explicitly address technical data gaps in environmental engineering, surface science, and catalytic materials",
+      "justification": "Top data gaps include 'Environmental Engineering' (criticality: high, recurrence: 2), 'Surface Science' (criticality: high), and 'Catalytic Materials' (criticality: medium). The current prompt may not sufficiently guide the agent to acknowledge and address domain-specific literature limitations. Enhanced prompt should include explicit instructions to: 1) Identify and state literature limitations for technical domains, 2) Suggest proxy literature from adjacent fields when direct literature is sparse, 3) Flag hypotheses that rely heavily on undocumented assumptions.",
+      "estimated_impact": "Reduce recurrence of high-criticality data gaps by 30-50%, improve hypothesis credibility in technical domains",
+      "risk": "low",
+      "based_on_run_id": "run-20260412-060005-96a619",
+      "observation_summary": "top_data_gaps: Environmental Engineering (high criticality, recurrence 2), Surface Science (high), Catalytic Materials (medium)",
+      "status": "proposed",
+      "validated_at": null,
+      "applied_at": null,
+      "rolled_back_at": null,
+      "critic_verdict": null,
+      "critic_concerns": [],
+      "metrics_before": null,
+      "metrics_after": null,
+      "rollback_reason": null
+    }
+  ],
+  "rationale": "The observation report reveals three key opportunities: 1) Strong score-feedback correlation (0.85) indicates the scoring system is well-calibrated, but average composite scores are low (0.41) with most hypotheses in the 0.3-0.5 range. 2) Several underexplored domains show promise (Biomaterials, Ceramics, Molecular Biology). 3) Top data gaps indicate literature grounding limitations in specific technical domains. I propose targeted mutations to: increase hypothesis quality by adjusting score weights to favor testability and coherence, encourage exploration of fertile underexplored domains, and improve literature grounding for technical domains.",
+  "expected_outcomes": [
+    "Higher average composite scores (target: 0.45-0.50)",
+    "More hypotheses in 0.5-0.7 score range",
+    "Increased exploration of Biomaterials, Ceramics, Molecular Biology domains",
+    "Reduced recurrence of high-criticality data gaps in literature grounding",
+    "Maintained strong score-feedback correlation"
+  ],
+  "risks": [
+    "Reduced novelty weight may decrease truly breakthrough hypotheses",
+    "Structural analogy emphasis may lead to more conventional interdisciplinary connections",
+    "Prompt modification may increase token usage in literature_grounding agent"
+  ]
+}

@@ -26,17 +26,30 @@ def _doi_link(doi: str | None) -> str:
 
 
 def _ref_line(paper: dict[str, Any], index: int) -> str:
-    """Format a single reference line."""
-    authors = paper.get("authors", [])
-    if isinstance(authors, list) and authors:
-        if isinstance(authors[0], dict):
-            author_str = ", ".join(a.get("name", "?") for a in authors[:3])
+    """Format a single reference line in academic citation style.
+
+    Format: "Author1, Author2, et al. (year). *Title*. DOI: [...](...)"
+    """
+    authors = paper.get("authors", []) or []
+
+    # Normalize authors to a list of name strings
+    names: list[str] = []
+    for a in authors:
+        if isinstance(a, dict):
+            name = a.get("name")
+            if name:
+                names.append(name)
+        elif isinstance(a, str) and a:
+            names.append(a)
+
+    if names:
+        # Show up to 2 authors then "et al." if more
+        if len(names) <= 2:
+            author_str = ", ".join(names)
         else:
-            author_str = ", ".join(str(a) for a in authors[:3])
-        if len(authors) > 3:
-            author_str += " et al."
+            author_str = f"{names[0]}, {names[1]}, et al."
     else:
-        author_str = "Unknown"
+        author_str = "Unknown authors"
 
     doi = paper.get("doi")
     doi_str = f" DOI: [{doi}](https://doi.org/{doi})" if doi else ""
