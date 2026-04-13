@@ -70,7 +70,7 @@ agents:
     parameters:
       max_tokens: 3000
       no_bridge_allowed: true
-      temperature: 0.8
+      temperature: 0.7
     prompt_version: synthesis_v1
     provider: deepseek
   vulgarization:
@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-13T07:01:33.827477'
-mutated_by: L1-MUT-20260413-19f51e
+last_mutated: '2026-04-13T07:01:33.838401'
+mutated_by: L1-MUT-20260413-0b382d
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
