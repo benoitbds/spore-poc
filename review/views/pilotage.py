@@ -112,15 +112,38 @@ def _render_live_progress() -> None:
     st.subheader(f"{chip_color} Run en cours" if status == "running" else f"{chip_color} Dernier run")
     st.caption(f"`{run_id}` — domaine {progress.get('domain', '?')}")
 
-    # Progress bar — during the enrichment phase we count enriched pairs,
-    # then switch to "processed" once synthesis starts emitting them.
-    processed = int(progress.get("processed", 0) or 0)
-    enriched = int(progress.get("enriched", 0) or 0)
+    # Progress bar — the denominator shifts as the pipeline advances:
+    #   enrichment → enriched / total
+    #   gate       → enriched / total (full bar, gate is fast)
+    #   synthesis  → processed / gated (synthesis only runs on gated collisions)
+    #   post-synthesis stages → full bar, rely on "last_stage" to show activity
     total = int(progress.get("total_collisions", 0) or 0)
+    enriched = int(progress.get("enriched", 0) or 0)
+    gated = int(progress.get("gated", 0) or 0)
+    gate_rejected = int(progress.get("gate_rejected", 0) or 0)
+    processed = int(progress.get("processed", 0) or 0)
+    last_stage = (progress.get("last_stage") or "").lower()
 
-    if processed > 0:
-        ratio = min(processed / total, 1.0) if total > 0 else 0.0
-        label = f"{processed} / {total} collisions traitées"
+    gate_finished = (gated + gate_rejected) >= total and total > 0
+    post_synthesis_stages = {"critic", "curator", "impact", "reviewer"}
+
+    if last_stage in post_synthesis_stages or status in ("completed", "failed"):
+        # Nothing meaningful to animate per-collision — show full bar + stage.
+        ratio = 1.0
+        stage_readable = STAGE_LABELS.get(last_stage, last_stage.title() or "—")
+        label = (
+            f"Pipeline terminé — {stage_readable}"
+            if status != "running"
+            else f"Post-synthesis — {stage_readable}"
+        )
+    elif gate_finished:
+        # Synthesis runs on `gated`, not on `total`.
+        denom = max(gated, 1)
+        ratio = min(processed / denom, 1.0)
+        label = (
+            f"Synthesis — {processed} / {gated} collisions gated "
+            f"(gate rejected {gate_rejected}/{total})"
+        )
     elif enriched > 0:
         ratio = min(enriched / total, 1.0) if total > 0 else 0.0
         label = f"{enriched} / {total} collisions enrichies"
@@ -131,7 +154,7 @@ def _render_live_progress() -> None:
 
     # Current collision + stage
     cc = progress.get("current_collision") or {}
-    if cc:
+    if cc and status == "running":
         stage = STAGE_LABELS.get(cc.get("stage", ""), cc.get("stage", "?"))
         da = cc.get("domain_a", "?")
         db_ = cc.get("domain_b", "?")
@@ -140,10 +163,11 @@ def _render_live_progress() -> None:
             f"**Étape :** {stage}  \n"
             f"**Collision courante :** {da} × {db_} *(distance {dist:.2f})*"
         )
-    else:
-        # No collision being processed — explorer enrichment phase or done
-        if status == "running" and processed == 0:
-            st.caption("⏳ Enrichissement des collisions (appels Semantic Scholar / ArXiv)…")
+    elif status == "running" and last_stage in post_synthesis_stages:
+        stage = STAGE_LABELS.get(last_stage, last_stage)
+        st.markdown(f"**Étape :** {stage} *(pas de collision individuelle traitée à ce stade)*")
+    elif status == "running" and enriched == 0:
+        st.caption("⏳ Enrichissement des collisions (appels Semantic Scholar / ArXiv)…")
 
     # KPI row
     k1, k2, k3, k4, k5 = st.columns(5)

@@ -114,6 +114,7 @@ async def reviewer_and_post_fire(state: PipelineState) -> PipelineState:
     Hypotheses with auto-feedback verdict "a_tester" (fire) are passed
     through the post-fire deep validation pipeline.
     """
+    get_progress_tracker().update_stage("reviewer")
     curated = state.get("curated_hypotheses", [])
     if not curated:
         return state

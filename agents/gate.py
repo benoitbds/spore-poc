@@ -205,6 +205,10 @@ async def gate_agent(state: PipelineState) -> PipelineState:
     # Calculate gate pass rate
     pass_rate = len(gated_collisions) / len(collisions) if collisions else 0
 
+    progress_tracker.gate_done(
+        passed=len(gated_collisions),
+        rejected=len(rejected_collisions),
+    )
     logger.info(
         "gate_complete",
         total=len(collisions),

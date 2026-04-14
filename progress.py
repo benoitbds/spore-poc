@@ -40,11 +40,14 @@ class RunProgress:
     domain: str = "all_science"
     total_collisions: int = 0
     enriched: int = 0               # collisions whose context has been fetched
+    gated: int = 0                  # collisions that passed the Gate
+    gate_rejected: int = 0          # collisions rejected at the Gate
     processed: int = 0              # collisions whose synthesis verdict is in
     bridges_found: int = 0
     no_bridge: int = 0
     curated: int = 0
     current_collision: Optional[CurrentCollision] = None
+    last_stage: str = ""            # last stage the pipeline has entered
     cost_so_far: float = 0.0
     recent_hypotheses: list[RecentHypothesis] = field(default_factory=list)
     elapsed_seconds: float = 0.0
@@ -61,6 +64,9 @@ class RunProgress:
             "domain": self.domain,
             "total_collisions": self.total_collisions,
             "enriched": self.enriched,
+            "gated": self.gated,
+            "gate_rejected": self.gate_rejected,
+            "last_stage": self.last_stage,
             "processed": self.processed,
             "bridges_found": self.bridges_found,
             "no_bridge": self.no_bridge,
@@ -128,6 +134,17 @@ class ProgressTracker:
             distance=distance,
             stage=stage,
         )
+        self._progress.last_stage = stage
+        self._update_elapsed()
+        self._write()
+
+    def gate_done(self, passed: int, rejected: int) -> None:
+        """Record the outcome of the Gate phase."""
+        if not self._progress:
+            return
+        self._progress.gated = passed
+        self._progress.gate_rejected = rejected
+        self._progress.last_stage = "gate"
         self._update_elapsed()
         self._write()
 
@@ -147,6 +164,7 @@ class ProgressTracker:
         if not self._progress:
             return
         self._progress.enriched = enriched
+        self._progress.last_stage = "enriching"
         if domain_a and domain_b:
             self._progress.current_collision = CurrentCollision(
                 domain_a=domain_a,
@@ -159,10 +177,11 @@ class ProgressTracker:
 
     def update_stage(self, stage: str) -> None:
         """Update the current stage of processing."""
-        if not self._progress or not self._progress.current_collision:
+        if not self._progress:
             return
-
-        self._progress.current_collision.stage = stage
+        self._progress.last_stage = stage
+        if self._progress.current_collision:
+            self._progress.current_collision.stage = stage
         self._update_elapsed()
         self._write()
 
