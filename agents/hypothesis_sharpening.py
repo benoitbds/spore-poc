@@ -88,9 +88,14 @@ async def hypothesis_sharpening_agent(input_data: SharpeningInput) -> Sharpening
     )
 
     logger.info("sharpening_hypothesis", domains=input_data["domains"])
+    # max_tokens raised from 4000 to 8000: the sharpening JSON routinely
+    # runs 7-8 KB (≈ 3500-4000 output tokens) and was being truncated
+    # mid-JSON, producing unparseable output and killing the post-fire
+    # pipeline silently. See hypothesis_sharpening_parse_failed forensics
+    # for SPORE-2026-04-14-156f6c3a and SPORE-2026-04-14-98842ca5.
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=4000,
+        max_tokens=8000,
         temperature=0.4,
     )
 

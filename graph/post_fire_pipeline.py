@@ -82,6 +82,50 @@ class PostFireState(TypedDict, total=False):
 
 # ── Node functions ───────────────────────────────────────────
 
+async def node_persist_grounding_kill(state: PostFireState) -> PostFireState:
+    """Persist a killed-at-grounding brief row so the kill is auditable.
+
+    Without this node the post-fire graph goes silently to END when the
+    literature grounding sets ``kill_reason`` (already_proven or fatal
+    counter-evidence), leaving no trace in the briefs table. We lose the
+    ability to measure the grounding-kill rate (target 20-40% per the
+    design doc).
+
+    Writes a row with status='killed', kill_reason, grounding_data; all
+    other brief fields NULL. brief_id format: SPR-<YYYY>-K<4hex>.
+    """
+    brief_id = f"SPR-{date.today().strftime('%Y')}-K{uuid4().hex[:4].upper()}"
+    hypothesis_id = state.get("hypothesis_id", brief_id)
+    kill_reason = state.get("kill_reason") or "unknown"
+
+    try:
+        await init_database()
+        await save_brief_db(
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            grounding_data=state.get("grounding"),
+            sharpened_data=None,
+            protocol_data=None,
+            panel_data=None,
+            status="killed",
+            kill_reason=kill_reason,
+        )
+        logger.info(
+            "grounding_kill_persisted",
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            kill_reason=kill_reason,
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error(
+            "grounding_kill_persist_failed",
+            hypothesis_id=hypothesis_id,
+            error=str(exc),
+        )
+
+    return {**state, "brief_id": brief_id}
+
+
 async def node_literature_grounding(state: PostFireState) -> PostFireState:
     """Run literature grounding."""
     input_data = GroundingInput(
@@ -330,6 +374,7 @@ def create_post_fire_pipeline() -> StateGraph:
 
     # Add nodes
     workflow.add_node("literature_grounding", node_literature_grounding)
+    workflow.add_node("persist_grounding_kill", node_persist_grounding_kill)
     workflow.add_node("hypothesis_sharpening", node_hypothesis_sharpening)
     workflow.add_node("experimental_protocol", node_experimental_protocol)
     workflow.add_node("multi_reviewer_panel", node_multi_reviewer_panel)
@@ -339,12 +384,16 @@ def create_post_fire_pipeline() -> StateGraph:
     # Entry point
     workflow.set_entry_point("literature_grounding")
 
-    # Grounding → kill or continue
+    # Grounding → kill (persisted) or continue to sharpening
     workflow.add_conditional_edges(
         "literature_grounding",
         should_continue_after_grounding,
-        {"killed": END, "continue": "hypothesis_sharpening"},
+        {
+            "killed": "persist_grounding_kill",
+            "continue": "hypothesis_sharpening",
+        },
     )
+    workflow.add_edge("persist_grounding_kill", END)
 
     # Linear edges
     workflow.add_edge("hypothesis_sharpening", "experimental_protocol")
