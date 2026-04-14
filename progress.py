@@ -39,7 +39,8 @@ class RunProgress:
     started_at: str = ""
     domain: str = "all_science"
     total_collisions: int = 0
-    processed: int = 0
+    enriched: int = 0               # collisions whose context has been fetched
+    processed: int = 0              # collisions whose synthesis verdict is in
     bridges_found: int = 0
     no_bridge: int = 0
     curated: int = 0
@@ -59,6 +60,7 @@ class RunProgress:
             "started_at": self.started_at,
             "domain": self.domain,
             "total_collisions": self.total_collisions,
+            "enriched": self.enriched,
             "processed": self.processed,
             "bridges_found": self.bridges_found,
             "no_bridge": self.no_bridge,
@@ -126,6 +128,32 @@ class ProgressTracker:
             distance=distance,
             stage=stage,
         )
+        self._update_elapsed()
+        self._write()
+
+    def enrichment_progress(
+        self,
+        enriched: int,
+        domain_a: str = "",
+        domain_b: str = "",
+        distance: float = 0.0,
+    ) -> None:
+        """Record enrichment progress during the Explorer phase.
+
+        Updates the enriched counter, refreshes elapsed time, and (if
+        domain names are provided) sets the current collision to the last
+        one enriched so the UI shows activity even before the Gate runs.
+        """
+        if not self._progress:
+            return
+        self._progress.enriched = enriched
+        if domain_a and domain_b:
+            self._progress.current_collision = CurrentCollision(
+                domain_a=domain_a,
+                domain_b=domain_b,
+                distance=distance,
+                stage="enriching",
+            )
         self._update_elapsed()
         self._write()
 

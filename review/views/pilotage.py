@@ -24,6 +24,7 @@ DOMAINS_DIR = PROJECT_ROOT / "data" / "domains"
 PROGRESS_FILE = PROJECT_ROOT / ".spore_progress.json"
 
 STAGE_LABELS = {
+    "enriching": "🌐 Enrichment (Semantic Scholar / ArXiv)",
     "gate": "🚪 Gate",
     "synthesis": "🧬 Synthesis",
     "critic": "⚔️ Critics",
@@ -111,11 +112,21 @@ def _render_live_progress() -> None:
     st.subheader(f"{chip_color} Run en cours" if status == "running" else f"{chip_color} Dernier run")
     st.caption(f"`{run_id}` — domaine {progress.get('domain', '?')}")
 
-    # Progress bar
+    # Progress bar — during the enrichment phase we count enriched pairs,
+    # then switch to "processed" once synthesis starts emitting them.
     processed = int(progress.get("processed", 0) or 0)
+    enriched = int(progress.get("enriched", 0) or 0)
     total = int(progress.get("total_collisions", 0) or 0)
-    ratio = min(processed / total, 1.0) if total > 0 else 0.0
-    label = f"{processed} / {total} collisions traitées"
+
+    if processed > 0:
+        ratio = min(processed / total, 1.0) if total > 0 else 0.0
+        label = f"{processed} / {total} collisions traitées"
+    elif enriched > 0:
+        ratio = min(enriched / total, 1.0) if total > 0 else 0.0
+        label = f"{enriched} / {total} collisions enrichies"
+    else:
+        ratio = 0.0
+        label = f"0 / {total} collisions — démarrage…"
     st.progress(ratio, text=label)
 
     # Current collision + stage
@@ -143,10 +154,21 @@ def _render_live_progress() -> None:
     cost = float(progress.get("cost_so_far", 0.0) or 0.0)
     k5.metric("Coût", f"${cost:.3f}" if cost < 1 else f"${cost:.2f}")
 
-    # Timing
-    elapsed = float(progress.get("elapsed_seconds", 0.0) or 0.0)
-    eta = float(progress.get("estimated_remaining_seconds", 0.0) or 0.0)
+    # Timing — the tracker only updates elapsed on events (gate / synth / …).
+    # During enrichment, no events fire, so a running run would display a
+    # stale elapsed. When status == 'running', compute elapsed client-side
+    # from started_at so the clock always moves.
+    stored_elapsed = float(progress.get("elapsed_seconds", 0.0) or 0.0)
     started_at = progress.get("started_at", "")
+    elapsed = stored_elapsed
+    if status == "running" and len(started_at) >= 19:
+        try:
+            started = datetime.fromisoformat(started_at)
+            elapsed = max((datetime.now() - started).total_seconds(), stored_elapsed)
+        except ValueError:
+            pass
+
+    eta = float(progress.get("estimated_remaining_seconds", 0.0) or 0.0)
     time_cols = st.columns(3)
     time_cols[0].caption(f"**Démarré :** {started_at[11:19] if len(started_at) >= 19 else started_at}")
     time_cols[1].caption(f"**Écoulé :** {_fmt_duration(elapsed)}")

@@ -14,6 +14,7 @@ from models.collision import Collision, CollisionPair
 from models.domain import Domain
 from agents.base import PipelineState
 from logging_config import get_logger
+from progress import get_progress_tracker
 
 logger = get_logger("explorer_agent")
 
@@ -192,6 +193,7 @@ async def explorer_agent(state: PipelineState) -> PipelineState:
 
     # Process in batches to respect rate limits
     batch_size = 3
+    progress_tracker = get_progress_tracker()
     for i in range(0, len(collision_pairs), batch_size):
         batch = collision_pairs[i:i + batch_size]
         tasks = [enrich_collision(cp) for cp in batch]
@@ -213,6 +215,17 @@ async def explorer_agent(state: PipelineState) -> PipelineState:
                         "collision_index": i + j,
                         "error": str(result),
                     })
+
+            # Emit enrichment progress after each batch so the UI shows
+            # activity during the Semantic Scholar / ArXiv calls. Use the
+            # last pair in the batch to populate current_collision.
+            last_pair = batch[-1]
+            progress_tracker.enrichment_progress(
+                enriched=len(enriched_collisions),
+                domain_a=last_pair.domain_a.name,
+                domain_b=last_pair.domain_b.name,
+                distance=last_pair.distance_score,
+            )
 
         except Exception as e:
             logger.error("batch_enrichment_failed", batch_index=i, error=str(e))

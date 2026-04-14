@@ -23,23 +23,25 @@ logger = get_logger("constitution_guard")
 def _domain_is_excluded(domain_name: str, excluded: list[str]) -> str | None:
     """Return the matching excluded term if the domain violates, else None.
 
-    Two classes of rules are supported:
+    Three matching modes, in order of specificity:
 
-    1. **Identifier rules** — short, snake_case or hyphen-case terms like
-       ``weapons_development`` or ``surveillance-technology``. These are
-       concrete domain labels. Matched by substring *and* shared-token
-       (len >= 3), so ``Weapons Research`` matches ``weapons_development``
-       via the shared token ``weapons``.
+    1. **Substring match** (always active): the rule text (normalised) is
+       a substring of the domain text, or vice-versa. Catches literal
+       hits like rule ``weapons`` vs. domain ``weapons_development``.
 
-    2. **Policy rules** — multi-word natural-language sentences such as
-       ``any domain with dual-use concerns without human approval``. These
-       are meta-policies, not identifiers. Matching them by shared tokens
-       produces false positives on everyday English (e.g. ``Human
-       Geography`` shares ``human`` with the rule above). Policy rules are
-       therefore matched only by substring on the normalised text.
+    2. **Conjunctive token match** (identifier rules only): the rule is a
+       short, snake_case / hyphen-case identifier (<= 2 tokens after
+       normalising ``_-`` to spaces). The rule matches when *every* rule
+       token of length >= 3 appears as a token in the domain. So
+       ``weapons_development`` matches ``Weapons Development Programme``
+       (both tokens present) but not ``Weapons Research`` (missing
+       ``development``) and not ``Science and Technology Studies``
+       (missing ``surveillance`` for rule ``surveillance_technology``).
 
-    A rule is treated as a policy when, after normalising ``_-`` to spaces,
-    it contains more than two tokens.
+    3. **Policy rules** (natural-language, > 2 tokens): substring only.
+       Token matching on sentences like ``any domain with dual-use
+       concerns without human approval`` fires on everyday English and
+       is unsafe.
     """
     if not domain_name:
         return None
@@ -51,16 +53,19 @@ def _domain_is_excluded(domain_name: str, excluded: list[str]) -> str | None:
             continue
         t_norm = t_raw.replace("_", " ").replace("-", " ")
         t_tokens_list = t_norm.split()
-        is_policy_rule = len(t_tokens_list) > 2
+        n_tokens = len(t_tokens_list)
 
         if t_norm in dn_norm or dn_norm in t_norm:
             return term
-        if is_policy_rule:
-            # Policy sentences are not matched by shared tokens — too many
-            # common words (human, data, any, with, …) would fire.
+
+        # Policy sentences: substring only. No token fallback.
+        if n_tokens > 2:
             continue
+
+        # Identifier rule (1-2 tokens): require EVERY rule token >= 3
+        # chars to appear in the domain. Empty after filter = no match.
         t_tokens = {t for t in t_tokens_list if len(t) >= 3}
-        if t_tokens & dn_tokens:
+        if t_tokens and t_tokens.issubset(dn_tokens):
             return term
     return None
 
