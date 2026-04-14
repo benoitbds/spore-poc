@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 import yaml
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings
 
 
@@ -40,6 +40,24 @@ class SporeSettings(BaseSettings):
     smtp_user: Optional[str] = Field(None, alias="SPORE_SMTP_USER")
     smtp_password: Optional[str] = Field(None, alias="SPORE_SMTP_PASSWORD")
     digest_recipients: Optional[str] = Field(None, alias="SPORE_DIGEST_RECIPIENTS")
+
+    @field_validator("db_path", "output_dir", "genome_path", "constitution_path", mode="before")
+    @classmethod
+    def _anchor_relative_paths(cls, v: Any) -> Any:
+        """Resolve relative paths against PROJECT_ROOT so the app is cwd-independent.
+
+        Without this, a value like ``./data/spore.db`` loaded from .env resolves
+        against the current working directory — which differs when running
+        ``streamlit run review/app.py`` vs. the CLI. Anchoring to PROJECT_ROOT
+        makes every component (CLI, autopilot, Streamlit, scripts) see the
+        same canonical files.
+        """
+        if v is None:
+            return v
+        p = Path(v)
+        if not p.is_absolute():
+            p = (PROJECT_ROOT / p).resolve()
+        return p
 
     @classmethod
     def settings_customise_sources(cls, settings_cls, init_settings, env_settings, dotenv_settings, file_secret_settings):
