@@ -37,7 +37,7 @@ class ReviewerOutput(TypedDict):
     confidence: float
 
 
-class MetaReviewOutput(TypedDict):
+class MetaReviewOutput(TypedDict, total=False):
     """Output from the meta-reviewer."""
 
     consensus_score: float
@@ -48,6 +48,10 @@ class MetaReviewOutput(TypedDict):
     final_recommendation: str
     brief_quality_gate: bool
     revision_guidance: list[str]
+    # Audit trail when Python thresholds override the LLM verdict
+    llm_verdict: str
+    llm_consensus_score: float
+    verdict_override_reason: str
 
 
 class PanelOutput(TypedDict):
@@ -55,6 +59,51 @@ class PanelOutput(TypedDict):
 
     reviews: list[ReviewerOutput]
     meta_review: MetaReviewOutput
+
+
+# ── Consensus + verdict thresholds ────────────────────────────────
+#
+# The LLM's self-reported consensus_score and verdict are replaced by a
+# Python computation: a confidence-weighted mean of reviewer scores, then
+# threshold-based routing. This keeps the LLM responsible for the written
+# synthesis (final_recommendation, critical_path, consensus/disagreements)
+# but removes its ability to loop indefinitely on revise_and_resubmit.
+
+PUBLISH_THRESHOLD = 7.0         # consensus >= 7.0 at iter 1 → publish_brief
+REJECT_THRESHOLD = 4.5          # consensus <  4.5          → reject
+ITER2_PUBLISH_THRESHOLD = 5.5   # at iter 2: >= 5.5 publish, else reject
+
+
+def compute_consensus_score(reviews: list[ReviewerOutput]) -> float:
+    """Confidence-weighted mean of reviewer scores.
+
+    Reviewers with ``confidence == 0`` (fallbacks) are excluded. If all
+    reviewers have zero confidence, returns 0.0 — the run will be rejected
+    by ``threshold_verdict``.
+    """
+    total_weight = sum(float(r.get("confidence", 0.0)) for r in reviews)
+    if total_weight <= 0:
+        return 0.0
+    weighted_sum = sum(
+        float(r.get("overall_score", 0.0)) * float(r.get("confidence", 0.0))
+        for r in reviews
+    )
+    return round(weighted_sum / total_weight, 2)
+
+
+def threshold_verdict(consensus_score: float, iteration: int) -> str:
+    """Python-side verdict from the consensus score and revision iteration.
+
+    iter 1: publish if >= 7.0, reject if < 4.5, else revise_and_resubmit.
+    iter 2+: binary — publish if >= 5.5, else reject. No revise at iter 2+.
+    """
+    if iteration >= 2:
+        return "publish_brief" if consensus_score >= ITER2_PUBLISH_THRESHOLD else "reject"
+    if consensus_score >= PUBLISH_THRESHOLD:
+        return "publish_brief"
+    if consensus_score < REJECT_THRESHOLD:
+        return "reject"
+    return "revise_and_resubmit"
 
 
 def _extract_json(content: str) -> dict[str, Any]:
@@ -211,6 +260,7 @@ async def _run_single_reviewer(
         return review
     except (json.JSONDecodeError, KeyError) as exc:
         logger.error("reviewer_parse_failed", persona=persona, error=str(exc))
+        # confidence=0.0 so the fallback does not pollute the weighted consensus.
         return ReviewerOutput(
             reviewer_persona=persona,
             overall_score=5.0,
@@ -219,7 +269,7 @@ async def _run_single_reviewer(
             weaknesses=["Review parsing failed"],
             critical_questions=[],
             recommendation="Manual review needed.",
-            confidence=0.3,
+            confidence=0.0,
         )
 
 
@@ -303,6 +353,7 @@ async def run_panel(
         if isinstance(result, Exception):
             persona = ["methodologist", "domain_expert", "contrarian", "industrialist", "funding_strategist"][i]
             logger.error("reviewer_failed", persona=persona, error=str(result))
+            # confidence=0.0 so the failed reviewer is excluded from the consensus.
             valid_reviews.append(ReviewerOutput(
                 reviewer_persona=persona,
                 overall_score=5.0,
@@ -311,7 +362,7 @@ async def run_panel(
                 weaknesses=["Review failed due to error"],
                 critical_questions=[],
                 recommendation="Manual review needed.",
-                confidence=0.2,
+                confidence=0.0,
             ))
         else:
             valid_reviews.append(result)
@@ -362,41 +413,71 @@ async def run_meta_reviewer(
         cache_hit=response.cache_hit,
     )
 
+    # Python-computed consensus — the source of truth regardless of what the LLM writes.
+    py_consensus = compute_consensus_score(reviews)
+    py_verdict = threshold_verdict(py_consensus, iteration)
+
     try:
         data = _extract_json(response.content)
-        meta = MetaReviewOutput(
-            consensus_score=float(data.get("consensus_score", 5.0)),
-            verdict=data.get("verdict", "publish_brief"),
-            key_consensus=data.get("key_consensus", []),
-            key_disagreements=data.get("key_disagreements", []),
-            critical_path=data.get("critical_path", ""),
-            final_recommendation=data.get("final_recommendation", ""),
-            brief_quality_gate=data.get("brief_quality_gate", True),
-            revision_guidance=data.get("revision_guidance", []),
-        )
+        llm_consensus = float(data.get("consensus_score", py_consensus))
+        llm_verdict = str(data.get("verdict", py_verdict))
+
+        override_reason = None
+        if llm_verdict != py_verdict:
+            override_reason = (
+                f"Python threshold override: consensus {py_consensus:.2f} "
+                f"at iter {iteration} → {py_verdict} (LLM said {llm_verdict})"
+            )
+            logger.info(
+                "meta_reviewer_verdict_override",
+                llm_verdict=llm_verdict,
+                python_verdict=py_verdict,
+                consensus_score=py_consensus,
+                iteration=iteration,
+            )
+
+        meta: MetaReviewOutput = {
+            "consensus_score": py_consensus,
+            "verdict": py_verdict,
+            "key_consensus": data.get("key_consensus", []),
+            "key_disagreements": data.get("key_disagreements", []),
+            "critical_path": data.get("critical_path", ""),
+            "final_recommendation": data.get("final_recommendation", ""),
+            "brief_quality_gate": bool(data.get("brief_quality_gate", py_verdict == "publish_brief")),
+            "revision_guidance": data.get("revision_guidance", []),
+            "llm_verdict": llm_verdict,
+            "llm_consensus_score": llm_consensus,
+        }
+        if override_reason:
+            meta["verdict_override_reason"] = override_reason
+
         logger.info(
             "meta_reviewer_complete",
-            consensus_score=meta["consensus_score"],
-            verdict=meta["verdict"],
-            quality_gate=meta["brief_quality_gate"],
+            consensus_score=py_consensus,
+            verdict=py_verdict,
+            iteration=iteration,
+            overridden=override_reason is not None,
         )
         return meta
     except (json.JSONDecodeError, KeyError) as exc:
         logger.error("meta_reviewer_parse_failed", error=str(exc))
-        # Compute fallback consensus score
-        total_weighted = sum(r["overall_score"] * r["confidence"] for r in reviews)
-        total_confidence = sum(r["confidence"] for r in reviews)
-        consensus = total_weighted / total_confidence if total_confidence > 0 else 5.0
-        return MetaReviewOutput(
-            consensus_score=consensus,
-            verdict="publish_brief" if consensus >= 5.0 else "reject",
-            key_consensus=["Meta-review parsing failed"],
-            key_disagreements=[],
-            critical_path="Manual review needed",
-            final_recommendation="Meta-review failed to parse. Publishing based on consensus score.",
-            brief_quality_gate=consensus >= 5.0,
-            revision_guidance=[],
-        )
+        # LLM synthesis failed to parse — fall back to the Python-only decision.
+        return {
+            "consensus_score": py_consensus,
+            "verdict": py_verdict,
+            "key_consensus": ["Meta-review parsing failed"],
+            "key_disagreements": [],
+            "critical_path": "Manual review needed",
+            "final_recommendation": (
+                f"Meta-review failed to parse. Python consensus {py_consensus:.2f} "
+                f"at iter {iteration} → verdict '{py_verdict}'."
+            ),
+            "brief_quality_gate": py_verdict == "publish_brief",
+            "revision_guidance": [],
+            "llm_verdict": "parse_failed",
+            "llm_consensus_score": 0.0,
+            "verdict_override_reason": "Meta-reviewer LLM parse failure — Python fallback",
+        }
 
 
 async def full_panel_review(

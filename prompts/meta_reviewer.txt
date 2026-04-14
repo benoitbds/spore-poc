@@ -19,6 +19,15 @@ Formulation : {formal_statement}
 
 ITERATION ACTUELLE : {iteration} / 2
 
+IMPORTANT — REGLES DE VERDICT (appliquees en post-processing, ton verdict sera override si incoherent) :
+
+- consensus_score >= 7.0 ET iteration 1 -> publish_brief
+- consensus_score < 4.5 -> reject
+- A l'ITERATION 2, tu DOIS choisir publish_brief ou reject. revise_and_resubmit N'EST PAS UNE OPTION en iteration 2.
+- Le consensus_score est calcule mecaniquement (moyenne ponderee par confidence). Ne le fabrique pas.
+
+Concentre-toi sur la qualite de ton analyse (final_recommendation, critical_path, key_consensus, key_disagreements). Le verdict et le consensus_score numerique seront determines par les seuils en Python ; tes valeurs pour ces deux champs sont informationnelles.
+
 FORMAT DE SORTIE (JSON strict) :
 ```json
 {{
