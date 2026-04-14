@@ -23,12 +23,23 @@ logger = get_logger("constitution_guard")
 def _domain_is_excluded(domain_name: str, excluded: list[str]) -> str | None:
     """Return the matching excluded term if the domain violates, else None.
 
-    Partial, case-insensitive match:
-      - substring match after normalising ``_-`` to spaces
-        (e.g. rule ``weapons`` matches domain ``weapons_development``);
-      - shared-token fallback at length >= 3
-        (e.g. rule ``weapons_development`` matches domain ``Weapons Research``
-        via the shared token ``weapons``).
+    Two classes of rules are supported:
+
+    1. **Identifier rules** — short, snake_case or hyphen-case terms like
+       ``weapons_development`` or ``surveillance-technology``. These are
+       concrete domain labels. Matched by substring *and* shared-token
+       (len >= 3), so ``Weapons Research`` matches ``weapons_development``
+       via the shared token ``weapons``.
+
+    2. **Policy rules** — multi-word natural-language sentences such as
+       ``any domain with dual-use concerns without human approval``. These
+       are meta-policies, not identifiers. Matching them by shared tokens
+       produces false positives on everyday English (e.g. ``Human
+       Geography`` shares ``human`` with the rule above). Policy rules are
+       therefore matched only by substring on the normalised text.
+
+    A rule is treated as a policy when, after normalising ``_-`` to spaces,
+    it contains more than two tokens.
     """
     if not domain_name:
         return None
@@ -39,9 +50,16 @@ def _domain_is_excluded(domain_name: str, excluded: list[str]) -> str | None:
         if not t_raw:
             continue
         t_norm = t_raw.replace("_", " ").replace("-", " ")
+        t_tokens_list = t_norm.split()
+        is_policy_rule = len(t_tokens_list) > 2
+
         if t_norm in dn_norm or dn_norm in t_norm:
             return term
-        t_tokens = {t for t in t_norm.split() if len(t) >= 3}
+        if is_policy_rule:
+            # Policy sentences are not matched by shared tokens — too many
+            # common words (human, data, any, with, …) would fire.
+            continue
+        t_tokens = {t for t in t_tokens_list if len(t) >= 3}
         if t_tokens & dn_tokens:
             return term
     return None
