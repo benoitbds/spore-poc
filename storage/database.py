@@ -461,6 +461,35 @@ async def update_run(
         await conn.commit()
 
 
+async def cleanup_stale_runs(timeout_hours: int = 6) -> int:
+    """Mark runs stuck in 'running' for more than ``timeout_hours`` as 'failed'.
+
+    The runs schema uses ``completed_at`` and ``error_message``; the timeout
+    is computed against ``started_at`` via SQLite's ``datetime('now', '-Nh')``.
+
+    Args:
+        timeout_hours: Threshold in hours before a 'running' row is considered stale.
+
+    Returns:
+        Number of rows updated.
+    """
+    reason = f"Stale run cleaned up (stuck > {timeout_hours}h)"
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            """
+            UPDATE runs
+            SET status = 'failed',
+                completed_at = CURRENT_TIMESTAMP,
+                error_message = ?
+            WHERE status = 'running'
+              AND started_at < datetime('now', ?)
+            """,
+            (reason, f"-{int(timeout_hours)} hours"),
+        )
+        await conn.commit()
+        return cursor.rowcount or 0
+
+
 async def get_run(run_id: str) -> Optional[dict[str, Any]]:
     """Get a run by ID."""
     async with get_connection() as conn:

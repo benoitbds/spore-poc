@@ -74,6 +74,13 @@ def run(
     async def _run():
         from graph import run_pipeline
         from logging_config import get_token_tracker
+        from storage import init_database, cleanup_stale_runs
+
+        # Cleanup stale runs before starting a new one
+        await init_database()
+        cleaned = await cleanup_stale_runs(timeout_hours=6)
+        if cleaned:
+            console.print(f"[yellow]Cleaned {cleaned} stale run(s) stuck > 6h[/yellow]")
 
         with Progress(
             SpinnerColumn(),

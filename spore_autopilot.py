@@ -14,7 +14,7 @@ from typing import Optional
 
 from config import get_settings, get_genome
 from graph import run_pipeline
-from storage import init_database, list_hypotheses, save_hypothesis
+from storage import init_database, list_hypotheses, save_hypothesis, cleanup_stale_runs
 from models.hypothesis import Hypothesis, HypothesisStatus, ImpactScore
 from models.gap_manifest import GapManifest, DataGap
 from agents.impact import analyze_impact
@@ -49,6 +49,11 @@ async def run_autopilot(
 
     # 1. Initialize database
     await init_database()
+
+    # 1b. Cleanup stale runs (stuck > 6h) before starting a new one
+    cleaned = await cleanup_stale_runs(timeout_hours=6)
+    if cleaned:
+        logger.warning("stale_runs_cleaned", count=cleaned)
 
     # 2. Run pipeline with n_collisions
     logger.info("running_pipeline", n_collisions=n_collisions)
