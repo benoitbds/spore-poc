@@ -124,9 +124,13 @@ async def experimental_protocol_agent(
     )
 
     logger.info("designing_protocol", title=sharpened["title"])
+    # max_tokens 5000 → 10000: 3-phase protocol JSON runs up to 18 KB
+    # (~4500 tokens) on iter-2 resubmissions. Was truncated mid-string
+    # at char 18512 for SPORE-2026-04-14-156f6c3a, causing
+    # "Unterminated string starting at: line 179 column 35".
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=5000,
+        max_tokens=10000,
         temperature=0.4,
     )
 

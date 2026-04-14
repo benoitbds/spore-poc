@@ -16,7 +16,7 @@ agents:
   experimental_protocol:
     model: deepseek-chat
     parameters:
-      max_tokens: 5000
+      max_tokens: 10000
     prompt_version: experimental_protocol_v1
     provider: deepseek
   explorer:
