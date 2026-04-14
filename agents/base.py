@@ -63,6 +63,11 @@ class PipelineState(TypedDict, total=False):
     # Errors (non-fatal)
     errors: list[dict[str, Any]]
 
+    # Constitution enforcement
+    constitution: dict[str, Any]
+    killed: bool
+    kill_reason: str
+
 
 def load_prompt(name: str) -> str:
     """Load a prompt template from the prompts directory.

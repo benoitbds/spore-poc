@@ -11,6 +11,7 @@ from uuid import uuid4
 from langgraph.graph import StateGraph, END
 
 from agents.base import PipelineState
+from agents.constitution_guard import constitution_guard_node
 from agents.explorer import explorer_agent
 from agents.gate import gate_agent
 from agents.synthesis import synthesis_agent
@@ -18,6 +19,7 @@ from agents.critic import critic_agent
 from agents.curator import curator_agent
 from agents.impact import impact_agent
 from agents.reviewer import review_hypothesis, AutoFeedback
+from config import get_constitution
 from graph.post_fire_pipeline import run_post_fire_pipeline
 from storage import init_database, save_hypothesis, save_run, update_run, save_metric
 from storage.database import get_connection
@@ -25,6 +27,17 @@ from logging_config import get_logger, get_token_tracker, reset_token_tracker
 from progress import get_progress_tracker, reset_progress_tracker
 
 logger = get_logger("pipeline")
+
+
+def should_continue_after_constitution(state: PipelineState) -> str:
+    """Short-circuit the pipeline if the constitution guard killed the state."""
+    if state.get("killed"):
+        logger.warning(
+            "pipeline_killed_by_constitution",
+            reason=state.get("kill_reason"),
+        )
+        return "killed"
+    return "continue"
 
 
 def should_run_synthesis(state: PipelineState) -> str:
@@ -168,6 +181,7 @@ def create_pipeline() -> StateGraph:
 
     # Add nodes
     workflow.add_node("explorer", explorer_agent)
+    workflow.add_node("constitution_check", constitution_guard_node)
     workflow.add_node("gate", gate_agent)
     workflow.add_node("synthesis", synthesis_agent)
     workflow.add_node("critic", critic_agent)
@@ -179,7 +193,17 @@ def create_pipeline() -> StateGraph:
     workflow.set_entry_point("explorer")
 
     # Add edges
-    workflow.add_edge("explorer", "gate")
+    workflow.add_edge("explorer", "constitution_check")
+
+    # After constitution check: kill or continue to gate
+    workflow.add_conditional_edges(
+        "constitution_check",
+        should_continue_after_constitution,
+        {
+            "killed": END,
+            "continue": "gate",
+        }
+    )
 
     # Conditional edge after gate
     workflow.add_conditional_edges(
@@ -284,6 +308,9 @@ async def run_pipeline(
         "gap_manifests": [],
         "metrics": {},
         "errors": [],
+        "constitution": get_constitution().to_dict(),
+        "killed": False,
+        "kill_reason": "",
     }
 
     # Create and compile the pipeline
@@ -319,7 +346,9 @@ async def run_pipeline(
                 if isinstance(value, (int, float)):
                     await save_metric(run_id, metric_name, float(value))
 
-            # Update run record
+            # Update run record — killed-by-constitution runs are marked failed
+            run_status = "failed" if final_state.get("killed") else "completed"
+            run_error = final_state.get("kill_reason") if final_state.get("killed") else None
             await update_run(
                 run_id,
                 completed_at=datetime.now().isoformat(),
@@ -329,7 +358,8 @@ async def run_pipeline(
                 total_tokens_in=metrics.get("total_tokens_in", 0),
                 total_tokens_out=metrics.get("total_tokens_out", 0),
                 total_cost_usd=metrics.get("total_cost_usd", 0),
-                status="completed",
+                status=run_status,
+                error_message=run_error,
             )
 
         logger.info(
