@@ -3,6 +3,8 @@
 import json
 import subprocess
 import sys
+import time
+from datetime import datetime
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -19,6 +21,16 @@ PROJECT_ROOT = Path(__file__).parent.parent.parent
 CONSTITUTION_PATH = PROJECT_ROOT / "data" / "constitution.yaml"
 ENV_PATH = PROJECT_ROOT / ".env"
 DOMAINS_DIR = PROJECT_ROOT / "data" / "domains"
+PROGRESS_FILE = PROJECT_ROOT / ".spore_progress.json"
+
+STAGE_LABELS = {
+    "gate": "🚪 Gate",
+    "synthesis": "🧬 Synthesis",
+    "critic": "⚔️ Critics",
+    "curator": "🏆 Curator",
+    "impact": "💥 Impact",
+    "reviewer": "👀 Reviewer",
+}
 
 
 def _get_domain_options() -> list[str]:
@@ -57,6 +69,106 @@ def _get_env_keys() -> list[tuple[str, bool]]:
     return result
 
 
+def _read_progress() -> dict | None:
+    """Read the live progress JSON; returns None if missing or unreadable."""
+    if not PROGRESS_FILE.exists():
+        return None
+    try:
+        return json.loads(PROGRESS_FILE.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return None
+
+
+def _fmt_duration(seconds: float) -> str:
+    """Format seconds as mm:ss or h:mm:ss."""
+    s = int(max(0, seconds))
+    if s >= 3600:
+        return f"{s // 3600}h{(s % 3600) // 60:02d}m"
+    return f"{s // 60}m{s % 60:02d}s"
+
+
+def _render_live_progress() -> None:
+    """Render a live progress panel from .spore_progress.json.
+
+    Auto-refreshes every 3 seconds while status == 'running'. Silently
+    hides itself when no run has ever been tracked.
+    """
+    progress = _read_progress()
+    if not progress:
+        return
+
+    status = progress.get("status", "idle")
+    run_id = progress.get("run_id", "?")
+
+    # Header + status chip
+    chip_color = {
+        "running": "🔄",
+        "completed": "✅",
+        "failed": "❌",
+        "starting": "⏳",
+    }.get(status, "⚪")
+
+    st.subheader(f"{chip_color} Run en cours" if status == "running" else f"{chip_color} Dernier run")
+    st.caption(f"`{run_id}` — domaine {progress.get('domain', '?')}")
+
+    # Progress bar
+    processed = int(progress.get("processed", 0) or 0)
+    total = int(progress.get("total_collisions", 0) or 0)
+    ratio = min(processed / total, 1.0) if total > 0 else 0.0
+    label = f"{processed} / {total} collisions traitées"
+    st.progress(ratio, text=label)
+
+    # Current collision + stage
+    cc = progress.get("current_collision") or {}
+    if cc:
+        stage = STAGE_LABELS.get(cc.get("stage", ""), cc.get("stage", "?"))
+        da = cc.get("domain_a", "?")
+        db_ = cc.get("domain_b", "?")
+        dist = float(cc.get("distance", 0.0) or 0.0)
+        st.markdown(
+            f"**Étape :** {stage}  \n"
+            f"**Collision courante :** {da} × {db_} *(distance {dist:.2f})*"
+        )
+    else:
+        # No collision being processed — explorer enrichment phase or done
+        if status == "running" and processed == 0:
+            st.caption("⏳ Enrichissement des collisions (appels Semantic Scholar / ArXiv)…")
+
+    # KPI row
+    k1, k2, k3, k4, k5 = st.columns(5)
+    k1.metric("Bridges", progress.get("bridges_found", 0))
+    k2.metric("No-bridge", progress.get("no_bridge", 0))
+    k3.metric("Curated", progress.get("curated", 0))
+    k4.metric("Avg score", f"{progress.get('avg_score', 0):.2f}")
+    cost = float(progress.get("cost_so_far", 0.0) or 0.0)
+    k5.metric("Coût", f"${cost:.3f}" if cost < 1 else f"${cost:.2f}")
+
+    # Timing
+    elapsed = float(progress.get("elapsed_seconds", 0.0) or 0.0)
+    eta = float(progress.get("estimated_remaining_seconds", 0.0) or 0.0)
+    started_at = progress.get("started_at", "")
+    time_cols = st.columns(3)
+    time_cols[0].caption(f"**Démarré :** {started_at[11:19] if len(started_at) >= 19 else started_at}")
+    time_cols[1].caption(f"**Écoulé :** {_fmt_duration(elapsed)}")
+    time_cols[2].caption(
+        f"**ETA :** {_fmt_duration(eta)}" if status == "running" and eta > 0 else "**ETA :** —"
+    )
+
+    # Recent hypotheses (top 5 by score)
+    recent = progress.get("recent_hypotheses") or []
+    if recent:
+        with st.expander(f"🔬 Top {len(recent)} hypothèses (live)", expanded=False):
+            for h in recent:
+                st.markdown(
+                    f"- **{h.get('score', 0):.2f}** — *{h.get('domains', '?')}*  \n"
+                    f"  {h.get('one_liner', '')}"
+                )
+
+    # Error line
+    if status == "failed" and progress.get("error_message"):
+        st.error(f"❌ {progress['error_message']}")
+
+
 async def _load_fire_hypotheses_without_brief() -> list:
     """Load hypotheses with auto_feedback=a_tester that don't yet have a brief."""
     await init_database()
@@ -88,6 +200,11 @@ def render():
     """Render the Pilotage page."""
     st.title("⚙️ Pilotage")
     st.caption("Lancer des runs, forcer un post-fire, consulter la configuration")
+
+    # ── Section 0: Live run progress (only if a progress file exists) ─
+    _render_live_progress()
+    if PROGRESS_FILE.exists():
+        st.markdown("---")
 
     # ── Section 1: Launch a run ─────────────────────────────
     st.subheader("🚀 Lancer un run")
@@ -190,3 +307,12 @@ def render():
             for key, is_set in env_keys:
                 icon = "✅" if is_set else "❌"
                 st.markdown(f"- {icon} `{key}`")
+
+    # ── Auto-refresh while a run is in progress ─────────────
+    # Placed at the very end so the whole page renders once before we
+    # sleep + rerun. That way the user can still launch new runs, browse
+    # config, etc. between ticks.
+    progress_live = _read_progress()
+    if progress_live and progress_live.get("status") == "running":
+        time.sleep(3)
+        st.rerun()
