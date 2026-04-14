@@ -12,7 +12,12 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import streamlit as st
 
-from helpers import run_async, launch_run_background, get_system_status
+from helpers import (
+    run_async,
+    launch_run_background,
+    launch_post_fire_background,
+    get_system_status,
+)
 from storage import init_database, list_hypotheses, list_briefs
 from storage.database import get_connection
 
@@ -272,8 +277,9 @@ def render():
                 if status.get("status") == "running":
                     st.error("Un run est déjà en cours. Attendez qu'il se termine.")
                 else:
-                    run_id = launch_run_background(n_collisions, domain, cross_ratio=0.7)
-                    st.success(f"Run lancé: `{run_id}`")
+                    run_id, log_path = launch_run_background(n_collisions, domain, cross_ratio=0.7)
+                    st.success(f"Run lancé : `{run_id}`")
+                    st.caption(f"Logs : `{log_path}`")
                     st.rerun()
 
     with status_col:
@@ -308,20 +314,13 @@ def render():
                 st.markdown(f"**Mécanisme:** {selected_hyp.bridge.mechanism[:300]}...")
 
             if st.button("🔬 Générer le brief", type="primary", use_container_width=True):
-                cmd = [
-                    str(PROJECT_ROOT / ".venv" / "bin" / "python"),
-                    "cli.py", "post-fire",
-                    "--hypothesis-id", hyp_id,
-                ]
                 try:
-                    subprocess.Popen(
-                        cmd,
-                        cwd=PROJECT_ROOT,
-                        stdout=subprocess.DEVNULL,
-                        stderr=subprocess.DEVNULL,
-                        start_new_session=True,
+                    log_path = launch_post_fire_background(hyp_id)
+                    st.success(
+                        f"Post-fire lancé pour `{hyp_id}`. "
+                        "Le brief apparaîtra dans Research Briefs dans ~3-5 min."
                     )
-                    st.success(f"Post-fire lancé pour `{hyp_id}`. Le brief apparaîtra dans Research Briefs dans ~3-5 min.")
+                    st.caption(f"Logs : `{log_path}`")
                 except Exception as e:
                     st.error(f"Erreur: {e}")
 
