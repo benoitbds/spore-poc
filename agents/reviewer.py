@@ -5,7 +5,7 @@ Used for auto-feedback functionality in the Review dashboard.
 """
 
 import json
-from typing import Any
+from typing import Any, Optional
 
 from pydantic import BaseModel, Field
 
@@ -32,6 +32,10 @@ class AutoFeedback(BaseModel):
     verdict: str = Field(..., description="poubelle | intéressant | a_tester")
     comment: str = Field(..., description="Justification comment")
     scores: AutoFeedbackScores = Field(..., description="Detailed scores")
+    override_reason: Optional[str] = Field(
+        None,
+        description="Post-processing override reason (set when Python rules override the LLM verdict)",
+    )
 
     def to_human_feedback(self) -> HumanFeedback:
         """Convert verdict to HumanFeedback enum."""
@@ -195,22 +199,55 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
             error=str(e),
             response=content[:500],
         )
-        # Return a default response
-        feedback = AutoFeedback(
-            verdict="intéressant",
-            comment=f"Erreur d'analyse: {str(e)}. Réponse brute: {content[:200]}",
+        # Fail-closed: if the LLM response cannot be parsed, the hypothesis
+        # is rejected rather than silently routed to "intéressant".
+        logger.warning(
+            "reviewer_parse_fallback",
+            hypothesis_id=hypothesis.id,
+            error=str(e),
+        )
+        return AutoFeedback(
+            verdict="poubelle",
+            comment=f"Parse error — fail-closed. Erreur: {str(e)[:80]}. Réponse brute: {content[:150]}",
             scores=AutoFeedbackScores(
-                originalite=0.5,
-                faisabilite=0.5,
-                coherence=0.5,
-                impact_realisme=0.5,
+                originalite=0.0,
+                faisabilite=0.0,
+                coherence=0.0,
+                impact_realisme=0.0,
             ),
+            override_reason="Parse error — fail closed",
+        )
+
+    # ── Post-processing: mechanical overrides independent of the LLM ───
+    composite = hypothesis.scores.composite if hypothesis.scores and hypothesis.scores.composite is not None else 0.5
+    hallucination_risk = hypothesis.scores.hallucination_risk if hypothesis.scores else 0.0
+
+    original_verdict = feedback.verdict
+    if composite < 0.35:
+        feedback.verdict = "poubelle"
+        feedback.override_reason = f"Post-processing: composite {composite:.3f} < 0.35"
+    elif hallucination_risk > 0.40:
+        feedback.verdict = "poubelle"
+        feedback.override_reason = (
+            f"Post-processing: hallucination_risk {hallucination_risk:.2f} > 0.40"
+        )
+
+    if feedback.verdict != original_verdict:
+        logger.warning(
+            "reviewer_verdict_override",
+            hypothesis_id=hypothesis.id,
+            original=original_verdict,
+            new=feedback.verdict,
+            reason=feedback.override_reason,
+            composite=composite,
+            hallucination_risk=hallucination_risk,
         )
 
     logger.info(
         "review_complete",
         hypothesis_id=hypothesis.id,
         verdict=feedback.verdict,
+        overridden=feedback.override_reason is not None,
         input_tokens=response.input_tokens,
         output_tokens=response.output_tokens,
     )
