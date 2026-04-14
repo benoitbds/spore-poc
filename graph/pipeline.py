@@ -399,8 +399,14 @@ async def run_pipeline(
             total_cost=f"${metrics.get('total_cost_usd', 0):.4f}",
         )
 
-        # Mark progress as complete
-        progress_tracker.complete_run(final_cost=metrics.get("total_cost_usd", 0))
+        # Mark progress: failed if the constitution guard (or any other
+        # node) killed the state; otherwise complete.
+        if final_state.get("killed"):
+            progress_tracker.fail_run(
+                final_state.get("kill_reason") or "Pipeline killed"
+            )
+        else:
+            progress_tracker.complete_run(final_cost=metrics.get("total_cost_usd", 0))
 
         return final_state
 
