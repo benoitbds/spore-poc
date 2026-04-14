@@ -57,6 +57,9 @@ class PipelineState(TypedDict, total=False):
     # Aggregated data
     gap_manifests: list[GapManifest]
 
+    # Reviewer feedback by hypothesis id (persisted by run_pipeline after save)
+    auto_feedback_by_id: dict[str, Any]
+
     # Metrics
     metrics: dict[str, Any]
 

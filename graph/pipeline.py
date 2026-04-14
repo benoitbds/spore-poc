@@ -21,7 +21,14 @@ from agents.impact import impact_agent
 from agents.reviewer import review_hypothesis, AutoFeedback
 from config import get_constitution
 from graph.post_fire_pipeline import run_post_fire_pipeline
-from storage import init_database, save_hypothesis, save_run, update_run, save_metric
+from storage import (
+    init_database,
+    save_hypothesis,
+    save_run,
+    update_run,
+    save_metric,
+    update_hypothesis_auto_feedback,
+)
 from storage.database import get_connection
 from logging_config import get_logger, get_token_tracker, reset_token_tracker
 from progress import get_progress_tracker, reset_progress_tracker
@@ -113,6 +120,11 @@ async def reviewer_and_post_fire(state: PipelineState) -> PipelineState:
 
     fire_briefs: list[dict[str, Any]] = []
 
+    # Collect feedback by hypothesis id so run_pipeline can persist it AFTER
+    # save_hypothesis (which does INSERT OR REPLACE without the feedback
+    # column and would otherwise wipe any value we write here).
+    auto_feedback_by_id: dict[str, Any] = {}
+
     for hypothesis in curated:
         try:
             feedback = await review_hypothesis(hypothesis)
@@ -121,6 +133,7 @@ async def reviewer_and_post_fire(state: PipelineState) -> PipelineState:
                 hypothesis_id=hypothesis.id,
                 verdict=feedback.verdict,
             )
+            auto_feedback_by_id[hypothesis.id] = feedback
 
             if feedback.verdict == "a_tester":
                 # Fire hypothesis — trigger post-fire pipeline
@@ -157,6 +170,7 @@ async def reviewer_and_post_fire(state: PipelineState) -> PipelineState:
     metrics["fire_briefs"] = fire_briefs
     metrics["fire_count"] = len(fire_briefs)
     state["metrics"] = metrics
+    state["auto_feedback_by_id"] = auto_feedback_by_id
 
     return state
 
@@ -340,6 +354,19 @@ async def run_pipeline(
             # Save curated hypotheses
             for hypothesis in final_state.get("curated_hypotheses", []):
                 await save_hypothesis(hypothesis)
+
+            # Persist auto-feedback AFTER save_hypothesis (which does
+            # INSERT OR REPLACE without the auto_feedback_json column and
+            # would wipe the value if written earlier).
+            for hid, feedback in (final_state.get("auto_feedback_by_id") or {}).items():
+                try:
+                    await update_hypothesis_auto_feedback(hid, feedback)
+                except Exception as persist_exc:  # noqa: BLE001
+                    logger.error(
+                        "auto_feedback_persist_failed",
+                        hypothesis_id=hid,
+                        error=str(persist_exc),
+                    )
 
             # Save metrics
             for metric_name, value in metrics.items():
