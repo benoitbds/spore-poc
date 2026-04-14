@@ -260,6 +260,7 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
     # hypothesis_id comes from the state if the pipeline was triggered for a
     # specific stored hypothesis; otherwise we use the brief_id as a placeholder.
     hypothesis_id = state.get("hypothesis_id", brief_id)
+    revision_count = int(state.get("revision_count", 0) or 0)
     try:
         await init_database()
         await save_brief_db(
@@ -275,6 +276,7 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
             status="complete",
             brief_md_path=str(md_path),
             brief_json_path=str(json_path),
+            revision_count=revision_count,
         )
     except Exception as exc:
         logger.error("brief_db_save_failed", brief_id=brief_id, error=str(exc))

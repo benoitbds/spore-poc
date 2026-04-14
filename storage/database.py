@@ -549,7 +549,6 @@ async def save_brief(
 
         consensus_score = None
         panel_verdict = None
-        revision_count = 0
         if panel_data:
             meta = panel_data.get("meta_review", {})
             consensus_score = meta.get("consensus_score")
@@ -559,6 +558,9 @@ async def save_brief(
         kill_reason = kwargs.get("kill_reason")
         brief_md = kwargs.get("brief_md_path")
         brief_json = kwargs.get("brief_json_path")
+        # revision_count comes from the caller (state of the post-fire graph).
+        # Default 0 for legacy callers.
+        revision_count = int(kwargs.get("revision_count", 0) or 0)
 
         await conn.execute(
             """
