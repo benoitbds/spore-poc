@@ -657,26 +657,24 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 6.54,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.55,
+      "verdict": "publish_brief",
       "key_consensus": [
-        "L'hypothèse est théoriquement fondée, mécaniquement plausible pour les systèmes granulaires secs, et s'attaque à un problème industriel concret et coûteux.",
-        "Le protocole expérimental est jugé rigoureux, structuré en phases GO/NO-GO, et propose des prédictions falsifiables claires, ce qui est un point fort majeur.",
-        "Le transfert du principe de fluidisation granulaire (bien établi pour les poudres) aux suspensions denses liquide-solide en écoulement continu représente une avancée translationnelle potentielle, mais constitue également le saut conceptuel le plus risqué."
+        "L'hypothèse est théoriquement fondée, mécaniquement plausible et s'attaque à un problème industriel concret et coûteux (clogging).",
+        "Le protocole expérimental proposé est jugé rigoureux, séquentiel et basé sur des prédictions falsifiables, ce qui constitue une force majeure.",
+        "Le projet est au stade exploratoire (TRL 1-2) et nécessite une validation expérimentale préalable avant toute considération de déploiement ou de financement à grande échelle."
       ],
       "key_disagreements": [
-        "L'impact de l'amortissement visqueux : Le Contrarian et le Domain Expert estiment que la dissipation de l'énergie vibratoire dans le liquide est un obstacle fondamental pouvant invalider la chaîne causale, tandis que le Methodologist considère cela comme un paramètre à caractériser dans le cadre du protocole.",
-        "La dominance des mécanismes de colmatage : Un désaccord existe sur l'hypothèse de base que le colmatage est principalement frictionnel/géométrique. Le Domain Expert et le Contrarian soulignent que pour de nombreuses suspensions réelles, les forces adhésives (cohésives) pourraient dominer, rendant la vibration seule potentiellement inefficace."
+        "L'efficacité du transfert d'énergie vibratoire dans une suspension liquide (damping) est le point de fracture principal. Le Contrarian et le Domain Expert jugent cet obstacle potentiellement rédhibitoire, tandis que le Methodologist et les autres estiment que le protocole est conçu pour le tester.",
+        "La nature dominante du mécanisme de colmatage (friction vs. adhésion) n'est pas tranchée. Les experts de domaine doutent de l'applicabilité aux suspensions cohésives, un point que le protocole initial ne couvre pas explicitement.",
+        "L'impact de la vibration sur la dynamique granulaire est interprété différemment : comme un outil de fluidisation ciblée (hypothèse de base) ou comme un risque de provoquer des effets pervers (ségrégation, usure) pouvant aggraver le colmatage (Contrarian)."
       ],
-      "critical_path": "Le facteur le plus déterminant est la démonstration expérimentale du lien causal entre la vibration (Γ) et la réduction du frottement effectif (μ_eff) dans le système spécifique visé : une suspension dense liquide-solide en écoulement confiné. Sans preuve de ce « maillon faible » identifié par plusieurs reviewers, l'ensemble de la chaîne hypothétique reste spéculatif.",
-      "final_recommendation": "Le panel recommande une révision substantielle avant financement. L'hypothèse est prometteuse et mérite d'être testée, mais le protocole doit d'abord intégrer des expériences pilotes pour valider le postulat fondamental de réduction de friction en milieu liquide et pour délimiter les conditions (taille de particules, viscosité, cohésion) où le mécanisme proposé est applicable. Les préoccupations majeures sur l'amortissement et la nature des forces interparticulaires doivent être traitées par une caractérisation préalable et une redéfinition éventuelle des limites du domaine de validité de l'hypothèse.",
+      "critical_path": "La démonstration expérimentale que l'application de vibration (Γ) dans un milieu liquide visqueux réduit effectivement le frottement interparticulaire (μ_eff) dans les conditions d'écoulement, et que cette réduction est le mécanisme causal conduisant à une augmentation mesurable de φ_c. L'échec à établir ce lien causal invaliderait la chaîne d'argumentation centrale.",
+      "final_recommendation": "Le panel recommande la publication d'un brief de recherche pour cette hypothèse. Elle est suffisamment fondée, testable et pertinente pour justifier une investigation. Cependant, la voie critique identifiée exige que la Phase 1 (in silico) et la Phase 2 (expérimentale) soient exécutées avec une attention particulière portée à la quantification du couplage énergétique en milieu liquide et à l'exclusion des mécanismes adhésifs. Les préoccupations du Contrarian concernant le damping et les dynamiques perverses doivent être intégrées comme des risques explicites à tester et à monitorer dans le protocole. Le financement doit cibler des programmes exploratoires (type ANR PE) pour générer ces preuves de concept décisives.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Intégrer une campagne expérimentale pilote pré-phase 1 pour tester la prédiction centrale (P2) : mesurer l'effet de Γ sur μ_eff dans une configuration rhéologique simple mais pertinente (ex : cellule de cisaillement vibrante) pour la suspension cible, en variant la viscosité du fluide. Ceci doit répondre directement aux 'FAIL REASONS' du Contrarian et aux questions du Domain Expert sur le couplage d'énergie.",
-        "Affiner l'hypothèse et le protocole pour explicitement borner son domaine de validité. Spécifier les types de particules (taille, rugosité, nature de surface) et de fluides (plage de viscosité) pour lesquels le mécanisme frictionnel est supposé dominant, et prévoir des tests de contrôle avec des particules cohésives pour évaluer les limites de la stratégie.",
-        "Renforcer la robustesse méthodologique de la Phase 2 comme suggéré par le Methodologist : ajouter un calcul de puissance statistique formel et automatiser la détection des colmatages pour éliminer les biais potentiels.",
-        "Développer une analyse préliminaire des implications pour le scaling industriel et l'intégration, en réponse aux questions de l'Industrialist, pour mieux positionner la valeur de la preuve de concept vis-à-vis des applications réelles."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.54
     }
   },
   "vulgarization_fr": {

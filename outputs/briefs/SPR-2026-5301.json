@@ -613,27 +613,24 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 7.2,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.97,
+      "verdict": "publish_brief",
       "key_consensus": [
-        "L'hypothèse est théoriquement solide, bien positionnée et repose sur un principe fondamental d'ingénierie des réacteurs (optimisation du profil d'une force motrice). Sa formulation testable avec des critères quantitatifs clairs est une force majeure.",
-        "La méthodologie proposée (approche par étapes, critères GO/NO-GO, contrôle par dose photonique identique) est jugée rigoureuse et adaptée pour gérer le risque. La phase de modélisation in silico est particulièrement appréciée.",
-        "Le potentiel d'impact est reconnu, tant sur le plan fondamental (combler un fossé entre photochimie et ingénierie des procédés) que sur le plan appliqué (réduction du coût du photon, application en synthèse pharmaceutique)."
+        "L'hypothèse est théoriquement solide, bien positionnée et repose sur un principe fondamental d'ingénierie des réacteurs (adapter un gradient de force motrice à un profil cinétique).",
+        "La méthodologie proposée (approche par étapes, critères GO/NO-GO, contrôle par dose photonique totale) est jugée rigoureuse et excellente pour gérer le risque.",
+        "Le potentiel d'impact est reconnu, notamment pour adresser un goulot d'étranglement critique (coût du photon) dans le scale-up de la photochimie, avec des applications potentielles en pharma et chimie fine."
       ],
       "key_disagreements": [
-        "L'ampleur des effets prédits (15-40%, 20-50%) : jugée plausible et ambitieuse par les partisans, mais considérée comme suspecte et potentiellement artefactuelle par le Contrarian, qui y voit un signe de surestimation ou de baseline mal optimisée.",
-        "La vulnérabilité de l'hypothèse aux facteurs confondants : tandis que les experts méthodologique et de domaine soulignent des risques maîtrisables (puissance statistique, validité externe), le Contrarian identifie des « raisons d'échec » critiques (rôle dominant des réactions secondaires, effet thermique confondant) qui, selon lui, pourraient invalider la chaîne causale proposée.",
-        "Le niveau de préparation pour le transfert industriel : l'Industrialiste et le Funding Strategist pointent un TRL bas et des barrières à l'adoption, là où les autres reviewers se concentrent sur la validation académique du principe."
+        "La robustesse du mécanisme causal supposé (suppression des réactions photochimiques secondaires) face à des facteurs confondants (profil thermique, limitations par transfert de matière, autres voies parasites). Le Contrarian juge cela comme une faille critique, tandis que les autres l'identifient comme un risque à gérer.",
+        "L'ampleur des effets prédits (15-40% d'augmentation) : perçue comme ambitieuse mais plausible par les experts du domaine, mais jugée suspecte et potentiellement artefactuelle par le Contrarian.",
+        "Le niveau de préparation pour la généralisation : le Domain Expert et le Methodologist demandent une justification plus solide du choix des réactions modèles et une gestion des tests multiples, tandis que l'Industrialist souligne le risque de transfert vers des systèmes industriels complexes."
       ],
-      "critical_path": "Le facteur le plus déterminant pour le succès/échec de cette hypothèse est la capacité à isoler et démontrer de manière causale que l'amélioration des performances est bien due à l'ingénierie du profil LVRPA (photonique), et non à un effet thermique concomitant ou à une autre variable confondante (hydrodynamique, transfert de matière). La validation requiert des contrôles expérimentaux dédiés pour dissocier ces effets.",
-      "final_recommendation": "Le panel reconnaît le mérite et le fort potentiel de cette hypothèse, mais considère que sa formulation actuelle présente des vulnérabilités expérimentales et conceptuelles qui doivent être adressées avant un engagement complet. Une révision ciblée, intégrant des contrôles robustes contre les principaux facteurs confondants et affinant le plan statistique, est nécessaire. Le projet mérite d'être poursuivi, mais sous une forme renforcée.",
+      "critical_path": "La capacité à démontrer, de manière contrôlée et sans ambiguïté, que l'amélioration des performances est bien due à l'ingénierie du profil LVRPA (et non à un profil thermique concomitant ou à un artefact de mesure), et que ce mécanisme est généralisable au-delà d'une réaction modèle unique et bien choisie.",
+      "final_recommendation": "Le panel recommande la publication du brief, reconnaissant la qualité et le potentiel de l'hypothèse. Sa validation expérimentale doit impérativement adresser les préoccupations méthodologiques (puissance statistique, caractérisation hydrodynamique) et, surtout, inclure des contrôles expérimentaux robustes pour isoler l'effet photique des effets thermiques et fluidiques. La priorité immédiate est une preuve de concept rigoureuse sur un système modèle bien caractérisé, avant d'envisager la généralisation.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Intégrer un plan de contrôle expérimental explicite pour découpler l'effet photique de l'effet thermique. Ceci doit inclure : la caractérisation/contrôle du profil de température sous illumination gradient, et idéalement, l'utilisation d'un système modèle où le produit primaire est non photoactif pour servir de témoin négatif.",
-        "Renforcer le plan méthodologique en ajoutant : (a) une analyse de puissance a priori pour justifier la taille des échantillons (n), (b) une caractérisation hydrodynamique (distribution des temps de séjour) du réacteur de la Phase 2 pour s'assurer de la validité du modèle 1D, et (c) un plan d'analyse statistique pour la Phase 3 incluant la gestion des tests multiples.",
-        "Affiner la justification des réactions modèles au-delà de l'azobenzène pour couvrir un espace cinétique pertinent (réactions consécutives avec produits plus photoactifs) et discuter explicitement de la stratégie pour déterminer le profil LVRPA optimal a priori (via modèle cinétique ou contrôle en temps réel).",
-        "Modérer le langage sur l'ampleur des effets prédits (15-40%) pour refléter qu'il s'agit d'une fourchette cible à valider, et non d'une prédiction garantie, en citant des bases théoriques ou des données préliminaires plus solides."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 7.2
     }
   },
   "vulgarization_fr": {

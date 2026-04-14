@@ -616,26 +616,25 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 5.54,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 5.63,
+      "verdict": "publish_brief",
       "key_consensus": [
-        "Le protocole expérimental en trois phases avec critères GO/NO-GO est jugé rigoureux, bien structuré et constitue un point fort majeur pour gérer le risque.",
-        "L'hypothèse est reconnue comme originale, interdisciplinaire et formulée de manière falsifiable avec des prédictions quantitatives claires.",
-        "Le TRL actuel est très bas (1-2) et le projet est considéré comme une preuve de concept fondamentale, nécessitant des validations préalables avant un déploiement à grande échelle."
+        "Le protocole expérimental est bien structuré, avec une approche par phases et des critères GO/NO-GO clairs, ce qui est un point fort méthodologique.",
+        "L'hypothèse est jugée à haut risque et à très bas niveau de maturité technologique (TRL 1-2), relevant pour l'instant exclusivement de la recherche fondamentale exploratoire.",
+        "La nécessité de démontrer le principe de base du mapping (potentiel modulé → vertex d'interaction effectif) dans un régime contrôlé et simple avant toute validation à grande échelle est un point critique partagé."
       ],
       "key_disagreements": [
-        "La validité fondamentale du mécanisme physique : le méthodologiste et le stratège en finance jugent le protocole testable et prometteur, tandis que le contrarian estime que le postulat de base (mapping potentiel→vertex d'interaction) est probablement invalide dans un régime fortement corrélé.",
-        "L'évaluation du risque et du potentiel : l'industriel et le contrarian voient des failles critiques (modèle économique, validité du signal) justifiant un rejet ou un réexamen profond, tandis que les autres reviewers recommandent une poursuite prudente avec des correctifs."
+        "Le méthodologiste (score 8.2) estime le protocole solide et méritant un financement, tandis que le contrarien (score 4.5) et l'industriel (score 3.5) le jugent trop spéculatif et peu viable, pointant des failles conceptuelles et applicatives.",
+        "L'évaluation de la faisabilité expérimentale diffère radicalement : le méthodologiste identifie des faiblesses techniques surmontables (puissance statistique, contrôles), tandis que le contrarien considère que l'hypothèse centrale (renormalisation propre du vertex d'interaction) est probablement invalide et que les échelles de temps expérimentales sont irréalistes.",
+        "Le financeur (score 6.5) voit un potentiel pour des financements de démarrage, alors que l'industriel ne voit aucun marché commercial viable à court ou moyen terme."
       ],
-      "critical_path": "La validation expérimentale préalable du principe de mapping dans un régime contrôlé (faible interaction U/J ~1) pour démontrer que la modulation du potentiel à particule unique renomme effectivement et de manière mesurable le vertex d'interaction effectif V_eff(q), avant de tester dans le régime fortement corrélé visé.",
-      "final_recommendation": "Le panel reconnaît l'originalité et la rigueur méthodologique de la proposition, mais des doutes fondamentaux sur la validité du mécanisme physique et des lacunes expérimentales critiques doivent être levés. Une révision majeure est requise pour : 1) valider le postulat de base par une expérience préliminaire en régime faiblement corrélé ; 2) renforcer significativement les contrôles expérimentaux contre les biais de température et de mesure. Le projet ne peut passer en Phase 2 sans cette validation préalable.",
+      "critical_path": "La validation expérimentale directe et sans ambiguïté du principe de mapping fondamental : démontrer qu'une modulation de potentiel spatiale spécifique engendre bien le vertex d'interaction effectif V_eff(q) ciblé, et non pas une simple altération de l'énergie cinétique à une particule ou un désordre. Ceci doit être réalisé dans un régime d'interaction faible (U/J ~1) avant toute tentative dans le régime fortement corrélé.",
+      "final_recommendation": "Le panel reconnaît l'originalité et la structuration méthodologique de la proposition, mais le scepticisme profond sur la validité de son principe physique central, couplé à des préoccupations majeures sur la faisabilité expérimentale et l'absence de voie crédible vers une application, conduit à un rejet. Les prérequis conceptuels (validation du mapping) doivent être démontrés dans un cadre plus simple et contrôlé avant qu'un protocole à grande échelle ne soit envisagé. La recommandation est de poursuivre l'idée dans le cadre d'un projet de recherche fondamentale exploratoire à très petit budget, visant d'abord cette validation de principe minimale.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Concevoir et intégrer une expérience de validation préliminaire (Phase 1b) en régime faiblement corrélé (U/J ~1) pour tester directement le mapping entre V(q) modulé et V_eff(q) mesuré (via spectroscopie ou tomographie de processus), comme suggéré par le Contrarian. Ceci est une condition sine qua non.",
-        "Ajouter au protocole des contrôles quantitatifs explicites pour l'adiabaticité et la thermométrie différentielle entre conditions ON/OFF du potentiel modulé, répondant aux faiblesses pointées par le Méthodologiste.",
-        "Développer et spécifier un plan de contrôle expérimental actif pour dissocier les effets sur l'énergie cinétique à une particule de ceux sur le vertex d'interaction, incluant potentiellement un motif de modulation 'témoin' produisant un V(q) cible nul.",
-        "Élaborer une stratégie de consortium ou d'accès garanti à une plateforme de microscope à gaz quantique pour la Phase 3, et réaliser une analyse de puissance statistique formelle pour justifier la taille d'échantillon N≥30."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "reject",
+      "llm_consensus_score": 5.54,
+      "verdict_override_reason": "Python threshold override: consensus 5.63 at iter 2 → publish_brief (LLM said reject)"
     }
   },
   "vulgarization_fr": {

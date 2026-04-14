@@ -644,27 +644,24 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 6.44,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.45,
+      "verdict": "publish_brief",
       "key_consensus": [
         "Le protocole de validation en trois phases avec critères GO/NO-GO est jugé rigoureux et constitue un point fort méthodologique.",
-        "L'idée de transfert interdisciplinaire (bioacoustique → surveillance environnementale) est reconnue comme originale et potentiellement prometteuse.",
-        "La nécessité de renforcer la justification théorique du mécanisme central (suivi de gradient → réduction d'erreur de reconstruction) est un point d'accord majeur parmi les experts."
+        "L'idée de transfert interdisciplinaire (de la bioacoustique au monitoring environnemental) est reconnue comme originale et potentiellement prometteuse pour un besoin applicatif réel.",
+        "Des faiblesses significatives doivent être adressées, notamment la justification théorique du transfert d'algorithme et la validité écologique des phases de test (notamment la Phase 2)."
       ],
       "key_disagreements": [
-        "L'analogie fondamentale entre le suivi d'une source stratégique mobile et la cartographie d'un panache passif est jugée soit 'prometteuse mais à justifier' (Domain Expert, Industrialist), soit 'fondamentalement défectueuse' (Contrarian). Le Methodologist ne la remet pas explicitement en cause.",
-        "L'évaluation du risque de l'approche centralisée en Phase 2 : le Methodologist la voit comme une simplification acceptable mais à améliorer, tandis que le Contrarian y voit une simplification critique masquant le vrai défi des systèmes décentralisés.",
-        "La pertinence du benchmark (grille statique) : le Methodologist et le Funding Strategist l'acceptent, tandis que le Contrarian et le Domain Expert exigent des comparaisons avec des stratégies adaptatives plus solides (ex: random walk, IPP classique)."
+        "La plausibilité du mécanisme central : le Methodologist et le Domain Expert estiment que l'approche peut être validée empiriquement, tandis que le Contrarian juge l'analogie fondamentale (source stratégique vs. champ passif) profondément viciée et prédit un échec catégorique.",
+        "La sévérité des faiblesses : le Methodologist propose des améliorations incrémentales (calcul de puissance, prototype décentralisé), alors que le Domain Expert et le Contrarian exigent un renforcement théorique majeur et des benchmarks plus solides avant toute validation expérimentale.",
+        "L'interprétation des risques : l'Industrialist et le Funding Strategist voient un chemin de maturation technologique et commerciale malgré les incertitudes, tandis que le Contrarian considère les hypothèses de communication et d'estimation de gradient comme potentiellement fatales."
       ],
-      "critical_path": "La capacité à démontrer, par une simulation préliminaire robuste et une analyse théorique, que les règles de coordination par gradient de l'algorithme adapté maximisent effectivement un critère d'information (ex: réduction de variance a posteriori) pour la reconstruction d'un champ scalaire passif et turbulent, et qu'elles surpassent des stratégies adaptatives simples (null hypothesis plus forte).",
-      "final_recommendation": "Le panel reconnaît le potentiel et la rigueur méthodologique du projet, mais juge l'hypothèse centrale insuffisamment étayée théoriquement et confrontée à des objections fondamentales sur sa plausibilité. Une révision majeure est requise avant tout engagement expérimental. Cette révision doit prioritairement combler le fossé théorique entre le mécanisme proposé et l'objectif de reconstruction, et tester l'analogie de base contre des hypothèses nulles plus robustes via des simulations ciblées. Le projet ne peut passer en phase de test sans cette validation préalable.",
+      "critical_path": "La capacité à démontrer, même en simulation (Phase 1), que les règles de coordination décentralisée, conçues pour le suivi d'une source discrète, génèrent effectivement un échantillonnage spatial qui minimise l'erreur de reconstruction L² d'un champ scalaire diffusif et turbulent. Cela nécessite de surmonter l'objection fondamentale du Contrarian et de fournir le lien formel demandé par le Domain Expert entre la heuristique de gradient et un critère d'optimalité reconnu (e.g., réduction de variance a posteriori).",
+      "final_recommendation": "Le panel reconnaît la créativité et la structuration du projet, mais souligne des doutes substantiels sur ses fondements théoriques et sa faisabilité technique. Le verdict final est de publier le brief, car le protocole de validation est suffisamment robuste pour tester l'hypothèse de manière décisive. Cependant, la publication doit impérativement intégrer une discussion approfondie des objections soulevées, notamment l'analogie contestée et les exigences en matière d'estimation de gradient, et présenter les phases successives comme des tests de ces risques critiques. La priorité immédiate doit être l'exécution rigoureuse de la Phase 1, incluant les benchmarks contre des stratégies adaptatives simples et une analyse de sensibilité aux erreurs de modèle d'advection.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Renforcer le lien théorique : Modifier l'hypothèse pour explicitement relier les règles de suivi de gradient à un critère d'Optimal Experimental Design (ex: maximisation de l'Information Mutuelle ou réduction de la variance intégrée a posteriori du GP). Justifier en quoi ce mécanisme est adapté à un champ passif et diffusif, et non seulement à une source stratégique.",
-        "Affiner le protocole de Phase 1 : 1) Inclure un calcul de puissance statistique justifié pour n=30. 2) Ajouter au moins un benchmark actif supplémentaire (ex: random walk avec biais, stratégie greedy basique sur l'incertitude du GP) pour isoler la valeur ajoutée de la coordination complexe. 3) Prévoir et décrire explicitement le traitement des '30 jours' indépendants pour éviter la pseudo-réplication.",
-        "Adresser les 'FAIL REASONS' du Contrarian : Conduire une analyse d'échelle préliminaire pour justifier la portée de communication (50m) par rapport aux échelles caractéristiques du gradient dans le panache simulé. Simuler un scénario où le modèle d'advection prioritaire est erroné pour tester la robustesse de l'algorithme à une erreur de modèle critique.",
-        "Préciser la stratégie de validation : Pour la Phase 3, définir opérationnellement la métrique 'couverture des régions à haute variance' (η) en s'appuyant sur la vérité terrain (C_true) indépendante, évitant toute circularité. Engager explicitement à publier les résultats de la Phase 1, quel que soit le verdict GO/NO-GO."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.5
     }
   },
   "vulgarization_fr": {

@@ -610,26 +610,19 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 6.8,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.84,
+      "verdict": "publish_brief",
       "key_consensus": [
-        "L'hypothèse est conceptuellement solide et bien structurée, fondée sur un transfert théorique prometteur (KPR) vers les nanotechnologies ADN. Le protocole multi-échelles (in silico, smFRET, origami) est une approche méthodologique robuste.",
-        "La préoccupation majeure concerne la pertinence du mécanisme KPR face aux erreurs réelles dans l'assemblage d'origami, jugées souvent comme des pièges cinétiques irréversibles plutôt que des mésappariements réversibles. La validation nécessite de prouver que le circuit cible bien l'erreur dominante.",
-        "L'ajout de complexité (brins 'fuel', réactions parasites) et le compromis vitesse/fidélité sont identifiés comme des risques majeurs pouvant annuler les bénéfices théoriques. Une démonstration de bénéfice net (rendement * fidélité) est requise."
+        "Meta-review parsing failed"
       ],
-      "key_disagreements": [
-        "L'évaluation du risque et du potentiel : le Methodologist et le Funding Strategist sont optimistes sur la faisabilité avec des révisions, tandis que le Contrarian juge les hypothèses de base probablement invalides dans un système complexe.",
-        "La priorité des faiblesses : le Domain Expert et le Contrarian insistent sur des lacunes fondamentales dans la littérature et la physique du système, tandis que le Methodologist et l'Industrialist se concentrent sur des améliorations protocolaires et de validation."
-      ],
-      "critical_path": "Le facteur le plus déterminant est la capacité à démontrer expérimentalement que le mécanisme de relecture cinétique proposé (1) cible et élimine efficacement le type d'erreurs dominant dans un assemblage d'origami réel (réversible vs. irréversible), et (2) offre un bénéfice net en termes de rendement de structures correctes par rapport à une optimisation passive, malgré la complexité et la consommation d'énergie ajoutées.",
-      "final_recommendation": "Le panel recommande une révision substantielle avant toute soumission. L'hypothèse doit être retravaillée pour intégrer une analyse bibliographique complète, affronter directement le défi des pièges cinétiques irréversibles, et inclure des expériences de contrôle critiques pour isoler l'effet KPR des artefacts. La prochaine itération doit fournir un plan pour quantifier le bénéfice pratique (rendement*fidélité) et non seulement le gain théorique de fidélité.",
-      "brief_quality_gate": false,
-      "revision_guidance": [
-        "Renforcer l'analyse bibliographique et la justification physique : Intégrer de manière critique les travaux fondateurs sur la KPR synthétique (Chen, Soloveichik, Winfree, Murugan) et sur les défauts dans les origamis (Yan, Dietz). Justifier explicitement pourquoi le modèle d'erreur réversible est pertinent pour le système cible, ou adapter l'hypothèse.",
-        "Concevoir des expériences de contrôle décisives : Pour la Phase 2 (smFRET), ajouter des contrôles permettant de distinguer l'effet KPR d'un simple blocage stérique/compétitif (ex : brins 'fuel' inactifs). Pour la Phase 3, prévoir une méthode pour discriminer les défauts d'incorporation locale des défauts de pliage global.",
-        "Affronter les 'fail reasons' du Contrarian : 1) Proposer un protocole pour quantifier la fraction d'erreurs réversibles vs. irréversibles dans l'origami cible. 2) Modéliser explicitement les réactions parasites probables des brins 'fuel' et proposer des stratégies de mitigation. 3) Inclure dans les prédictions une analyse du compromis rendement/fidélité sur un temps d'assemblage fini, et définir une métrique de bénéfice net.",
-        "Affiner le plan de validation statistique et paramétrique : Effectuer un calcul formel de puissance pour l'analyse AFM. Dans la Phase 1 (modélisation), inclure une analyse de robustesse/sensibilité pour identifier les paramètres cinétiques les plus critiques à mesurer avec précision."
-      ]
+      "key_disagreements": [],
+      "critical_path": "Manual review needed",
+      "final_recommendation": "Meta-review failed to parse. Python consensus 6.84 at iter 2 → verdict 'publish_brief'.",
+      "brief_quality_gate": true,
+      "revision_guidance": [],
+      "llm_verdict": "parse_failed",
+      "llm_consensus_score": 0.0,
+      "verdict_override_reason": "Meta-reviewer LLM parse failure — Python fallback"
     }
   },
   "vulgarization_fr": {

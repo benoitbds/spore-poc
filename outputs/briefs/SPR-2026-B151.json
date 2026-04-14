@@ -701,26 +701,25 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 6.7,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.72,
+      "verdict": "publish_brief",
       "key_consensus": [
         "Le protocole en trois phases est reconnu comme une structure méthodologique rigoureuse et progressive, représentant un modèle de validation incrémentale.",
-        "L'hypothèse est jugée théoriquement cohérente et présente une proposition de valeur industrielle claire pour le contrôle en ligne de la microstructure dans les procédés de métallurgie.",
-        "Le transfert du filtre de Kalman d'ensemble (EnKF) depuis l'aérospatiale vers la fonderie est considéré comme une approche originale et prometteuse, méritant une investigation préliminaire."
+        "L'hypothèse est jugée théoriquement cohérente et présente une approche de transfert de technologie (aérospatial vers la métallurgie) originale et prometteuse.",
+        "La nécessité d'un renforcement quantitatif du protocole, notamment sur la puissance statistique de la Phase 3 et la robustesse des mesures expérimentales, est un point d'accord unanime.",
+        "L'importance cruciale de s'associer à un partenaire industriel disposant d'une ligne pilote pour les phases de validation expérimentale est soulignée par plusieurs experts."
       ],
       "key_disagreements": [
-        "La faisabilité fondamentale est contestée : le Contrarian et le Domain Expert doutent sévèrement de la fidélité suffisante du modèle multi-physique et de l'observabilité du système avec les capteurs proposés, tandis que le Methodologist et les autres acceptent le principe sous condition de renforcements méthodologiques.",
-        "Le niveau d'ambition de la validation : un désaccord existe sur le caractère réaliste de l'objectif de RMSE ≤15% et sur la robustesse de la méthode de vérité terrain (quench), entre les exigences de rigueur statistique et les doutes sur la stabilité même de la prémisse de validation."
+        "La faisabilité fondamentale de l'hypothèse est contestée. Le Contrarian et le Domain Expert doutent fortement de la capacité du modèle multi-physique à atteindre une fidélité suffisante et de l'observabilité de l'état interne avec les capteurs proposés, tandis que le Méthodologiste et les autres acceptent le principe sous réserve d'améliorations techniques.",
+        "L'évaluation du risque diffère radicalement : le Contrarian identifie des « raisons d'échec » potentiellement fatales (erreur structurelle du modèle, observabilité), alors que les autres reviewers considèrent ces défis comme des obstacles techniques à surmonter dans le cadre d'une approche par phases.",
+        "L'ambition du critère de validation (RMSE ≤15%) est perçue soit comme un objectif ambitieux mais réalisable avec un protocole robuste (Domain Expert, Méthodologiste), soit comme arbitraire et probablement inaccessible compte tenu des incertitudes cumulées (Contrarian)."
       ],
-      "critical_path": "La démonstration préalable, en mode hors-ligne (offline), que le modèle numérique de base peut prédire le profil de la zone pâteuse avec une erreur acceptable (<25% RMSE) contre des données expérimentales de quench, couplée à une analyse formelle d'observabilité prouvant que l'état thermique interne est théoriquement reconstructible à partir des mesures de surface proposées. Sans cette fondation, l'intégration de l'EnKF manque de base solide.",
-      "final_recommendation": "Le panel recommande de procéder à une révision substantielle du protocole avant tout engagement expérimental. La Phase 1 doit être élargie pour inclure une analyse d'observabilité et une validation préliminaire du modèle standalone. Les critères des Phases 2 et 3 doivent être renforcés sur le plan statistique et métrologique. Une collaboration avec un partenaire industriel disposant d'une ligne pilote est identifiée comme essentielle pour la crédibilité des phases ultérieures. L'hypothèse conserve un potentiel significatif mais nécessite des fondations plus solides.",
+      "critical_path": "La démonstration préalable, en Phase 1, que le modèle numérique standalone peut prédire le profil de la zone pâteuse avec une erreur raisonnable (<25% RMSE) face à des données de quench, couplée à une analyse rigoureuse de l'observabilité du système avec la suite de capteurs proposée. Sans cette validation fondatrice, l'intégration de l'EnKF risque d'être un « solutionnisme technologique » appliqué à un problème mal contraint.",
+      "final_recommendation": "Le panel recommande la publication du brief, reconnaissant le mérite intellectuel et le potentiel de l'hypothèse, mais avec des réserves substantielles. La poursuite du projet est conditionnée à l'exécution stricte de la Phase 1, qui doit servir de test décisif des prémisses fondamentales (fidélité du modèle et observabilité). Les phases ultérieures devront intégrer les exigences de robustesse méthodologique (calcul de puissance, protocole de mesure standardisé) et s'appuyer sur un consortium incluant un partenaire industriel pilote. L'accent doit rester sur la validation incrémentale et la quantification des incertitudes à chaque étape.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Renforcer la Phase 1 : Ajouter une analyse formelle d'observabilité/identifiabilité du système avec la suite de capteurs proposée. Inclure une démonstration 'offline' que le modèle multi-physique haute-fidélité seul peut atteindre une prédiction raisonnable (définir un seuil, e.g., RMSE <25%) contre des données de quench existantes.",
-        "Adresser les faiblesses méthodologiques critiques : 1) Fournir un calcul formel de puissance statistique et un plan d'expériences définitif pour la Phase 3. 2) Détailler un protocole standardisé de métallographie avec validation inter-opérateur pour la mesure de l'épaisseur de la zone pâteuse. 3) Modifier la Phase 2 pour inclure des répétitions (N≥3) au point nominal afin d'estimer la variabilité expérimentale.",
-        "Préciser la stratégie de consortium et de validation industrielle : Décrire la démarche pour s'associer avec un partenaire industriel propriétaire d'une ligne pilote de TRC instrumentée, condition sine qua non pour la crédibilité des Phases 2 et 3. Clarifier la stratégie de PI et le modèle économique potentiel.",
-        "Répondre explicitement aux préoccupations du Contrarian : Discuter dans la révision comment les incertitudes structurelles majeures (ex: coefficient de transfert thermique interfacial) et les limites d'observabilité seront spécifiquement abordées par la configuration de l'EnKF (e.g., inflation de covariance, estimation de paramètres), sans se contenter d'affirmations générales sur sa robustesse."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.7
     }
   },
   "vulgarization_fr": {

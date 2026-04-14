@@ -624,26 +624,24 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 7.2,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.91,
+      "verdict": "publish_brief",
       "key_consensus": [
-        "L'hypothèse est scientifiquement fondée, ambitieuse et structurée de manière rigoureuse avec un protocole de validation incrémental et des critères quantitatifs clairs.",
-        "Le lien critique et le point de risque majeur identifié par tous les experts est la fonction de transfert capteur-état (sensor-to-state transfer function), considérée comme le maillon faible et sous-spécifiée du protocole.",
-        "L'approche interdisciplinaire (génie des procédés, modélisation, contrôle) est une force et répond à un besoin industriel clair pour une fabrication additive plus fiable."
+        "L'hypothèse est structurée de manière rigoureuse, avec un protocole de validation incrémental et des critères quantitatifs falsifiables, ce qui est unanimement salué.",
+        "Le cadre conceptuel (CFD -> ROM -> estimation d'état -> MPC) est jugé solide, pertinent et représente une avancée potentiellement significative par rapport aux approches de contrôle existantes en fabrication additive.",
+        "La proposition adresse un besoin industriel critique (réduction des défauts) et possède un avantage compétitif clair si elle fonctionne, justifiant une investigation plus poussée."
       ],
       "key_disagreements": [
-        "Le Contrarian rejette fermement l'hypothèse en raison de l'infaisabilité perçue de la fonction de transfert capteur-état et du manque de robustesse du modèle réduit (ROM), tandis que les autres reviewers l'acceptent sous condition d'adresser ces points.",
-        "L'évaluation du risque diffère : le Methodologist et le Domain Expert estiment que ces défis peuvent être atténués par une validation progressive, alors que le Contrarian les juge fatals pour la boucle de contrôle."
+        "La robustesse et la faisabilité du lien 'capteur-état' (transfer function) : jugé optimiste mais surmontable par les méthodologiste et expert, mais considéré comme un point de rupture fatal (FAIL REASON) par le Contrarian.",
+        "La généralisabilité du modèle réduit (ROM) : l'expert du domaine et le Contrarian soulignent son risque face à des événements hors base d'apprentissage, tandis que le méthodologiste se concentre davantage sur les aspects statistiques de la validation.",
+        "L'évaluation du risque global : le panel est partagé entre une vision où les faiblesses identifiées sont des défis techniques à adresser dans le protocole (majorité) et une vision où elles remettent en cause les fondements mêmes de la boucle de contrôle (Contrarian)."
       ],
-      "critical_path": "La démonstration expérimentale robuste de la fonction de transfert capteur-état, validée non pas sur des pistes simples en environnement contrôlé, mais pendant la fabrication d'une pièce multi-couches avec perturbations, en utilisant une mesure de vérité terrain (ex: synchrotron) pour étalonner et vérifier la précision (R² > 0.9) des estimations en temps réel.",
-      "final_recommendation": "Le panel reconnaît le mérite scientifique et le potentiel de l'hypothèse, mais son acceptation est conditionnée à une révision majeure du protocole pour dérisquer le maillon capteur-état. Il est impératif de prioriser la validation de cette fonction dans des conditions réalistes et de renforcer la justification statistique et les contrôles expérimentaux. Une itération de révision est accordée pour consolider le plan face aux préoccupations unanimes sur ce point critique.",
+      "critical_path": "La démonstration expérimentale que la fonction de transfert 'capteur-état' peut fournir une estimation fiable (R² > 0.9) de la profondeur du keyhole dans des conditions de construction réelles et multi-couches, et non uniquement sur piste simple dans un environnement synchrotron idéal. Ceci est le prérequis indispensable sans lequel le MPC, même avec un ROM parfait, recevra des informations erronées.",
+      "final_recommendation": "Le panel recommande la publication du brief, reconnaissant la qualité et le potentiel de l'hypothèse. La validation doit impérativement prioriser et dérisquer le chaînon 'capteur-état' dès les phases initiales (1 et 2), en concevant des expériences qui testent sa robustesse face aux perturbations réelles. Les préoccupations statistiques (calcul de puissance, randomisation) et de contrôle (groupe 'boucle ouverte') doivent être intégrées au protocole pour renforcer la validité interne. La voie de financement ANR JCJC est identifiée comme la plus adaptée pour cette étape.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Intégrer un plan expérimental dédié et prioritaire pour valider la fonction de transfert capteur-état. Ce plan doit démontrer la capacité à estimer avec précision (R² > 0.9) des variables d'état clés (ex: profondeur du keyhole) pendant la fabrication d'une géométrie non triviale et en présence de perturbations communes (éclaboussures, géométries variables), en utilisant une méthode de vérité terrain (ex: imagerie synchrotron haute vitesse en parallèle).",
-        "Renforcer la section sur la robustesse du modèle réduit (ROM). Décrire explicitement la stratégie pour gérer les états 'hors base' de l'espace des phases (out-of-basis events) et la stochasticité du procédé, et justifier le choix de la technique de réduction de modèle (POD/Galerkin) face aux alternatives non-linéaires pour une application en contrôle.",
-        "Ajouter un calcul de puissance statistique a priori pour justifier la taille d'échantillon (N=10) de la Phase 3, et inclure un groupe contrôle actif supplémentaire (ex: 'boucle ouverte') pour mieux isoler l'effet de l'action prédictive du MPC par rapport à un simple réglage statique optimisé.",
-        "Préciser la stratégie de financement et de consortium pour les phases de validation avancée (Phase 3), en identifiant des partenaires pour l'accès à une machine LPBF instrumentée et à des lignes de synchrotron, comme suggéré par le Funding Strategist."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 7.2
     }
   },
   "vulgarization_fr": {

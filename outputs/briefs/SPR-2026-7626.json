@@ -636,26 +636,24 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 6.8,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.82,
+      "verdict": "publish_brief",
       "key_consensus": [
         "L'hypothèse est mécanistiquement détaillée, ancrée dans un cadre théorique solide (dynamique non-linéaire en catalyse) et formulée de manière falsifiable avec des prédictions quantitatives précises.",
-        "Le protocole de validation en trois phases avec critères GO/NO-GO est bien structuré et apprécié pour sa gestion progressive du risque.",
-        "Le potentiel de rupture scientifique (mécanisme d'auto-réparation) et l'adresse d'un besoin industriel critique (dégradation des catalyseurs) sont reconnus comme des forces majeures du projet."
+        "Le protocole de validation en trois phases avec critères GO/NO-GO est jugé bien structuré et adapté pour une évaluation progressive et une gestion du risque.",
+        "Le potentiel de rupture scientifique et l'adressage d'un besoin industriel critique (dégradation des catalyseurs) sont reconnus comme des forces majeures, justifiant une exploration plus poussée."
       ],
       "key_disagreements": [
-        "La faisabilité du mécanisme central est contestée. Le Contrarian et, dans une moindre mesure, le Domain Expert, doutent que la reconstruction réversible puisse être plus rapide que les voies de désactivation irréversibles (k_reconstruct > 10*k_sinter) dans des nanoparticules réelles, et que l'oscillation cohérente puisse être maintenue à l'échelle nanométrique.",
-        "L'évaluation du risque diffère : le Methodologist et le Funding Strategist estiment que le protocole permet de gérer l'incertitude, tandis que le Contrarian considère les faiblesses comme des raisons d'échec probables (FAIL REASONS). L'Industrialist souligne le fossé technologique vers une application."
+        "Faisabilité du mécanisme central : Le Contrarian et le Domain Expert doutent fortement que la condition cinétique critique (k_reconstruct > 10 * k_sinter) puisse être rencontrée dans des nanoparticules réelles sous conditions opératoires, où les processus irréversibles dominent.",
+        "Observabilité de l'oscillation cohérente : Le Contrarian soulève un défi fondamental sur la possibilité d'un cycle limite cohérent à l'échelle d'une nanoparticule (<10 nm) en raison de l'hétérogénéité des facettes et des fluctuations, tandis que le Methodologist s'inquiète des artefacts expérimentaux pouvant masquer ou imiter le phénomène.",
+        "Impact industriel vs. risque : L'Industrialist reconnaît le potentiel disruptif mais souligne l'énorme fossé entre la validation de principe (TRL 1-2) et l'adoption dans un marché conservateur, pointant un risque commercial élevé."
       ],
-      "critical_path": "La démonstration expérimentale directe, dans un système modèle pertinent, que : 1) une oscillation cohérente et soutenue de la reconstruction de surface (et non seulement du taux de réaction) existe bien avec les paramètres prédits (Δθ, τ) ; et 2) que le taux de cette reconstruction réversible surpasse significativement celui des processus de désactivation irréversibles (frittage, encrassement) sur une durée pertinente. C'est le cœur des préoccupations du Contrarian et du Domain Expert.",
-      "final_recommendation": "Le panel recommande une révision substantielle avant publication. L'hypothèse est scientifiquement séduisante et mérite d'être testée, mais le protocole doit être renforcé pour répondre de front aux doutes sur sa faisabilité physique fondamentale. La révision doit intégrer des contrôles expérimentaux rigoureux contre les artefacts, une analyse de puissance statistique étendue, et surtout, un plan pour quantifier et comparer directement les cinétiques de reconstruction et de désactivation. Une discussion approfondie des limites identifiées par le Contrarian doit figurer dans le manuscrit.",
+      "critical_path": "La démonstration expérimentale directe et sans ambiguïté du cycle limite oscillatoire cohérent (structure et chimie de surface) sur une nanoparticule catalytique unique et active, sur au moins 50 cycles, tout en quantifiant que les taux de désactivation irréversible (frittage, encrassement) sont bien d'un ordre de grandeur inférieurs. C'est le prérequis absolu pour valider le cœur de l'hypothèse et répondre aux objections les plus sévères.",
+      "final_recommendation": "Le panel recommande la publication du brief pour lancement du projet, en reconnaissant son ambition et sa rigueur conceptuelle, mais en soulignant qu'il s'agit d'une hypothèse à haut risque. La Phase 1 (modélisation) doit être approuvée sans réserve. Le passage aux Phases 2 et 3 (validation expérimentale) est conditionné à l'intégration, dans le protocole, des contrôles rigoureux contre les artefacts (faisceau d'électrons, instabilités du réacteur) exigés par le Methodologist, et à la conception d'expériences capables de répondre directement aux défis de faisabilité soulevés par le Contrarian et le Domain Expert, notamment la quantification comparative des cinétiques réversibles et irréversibles.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Intégrer une réponse directe et détaillée aux trois 'FAIL REASONS' du Contrarian. Cela implique de : a) discuter la littérature existante sur les rapports de vitesse reconstruction/désactivation dans des systèmes analogues ; b) modéliser ou discuter explicitement la cohérence des oscillations à l'échelle nanométrique en tenant compte de l'hétérogénéité et des fluctuations ; c) préciser la fenêtre de conditions réactionnelles où la couverture en intermédiaire est effectivement modulable.",
-        "Compléter le protocole expérimental (Phase 2) comme demandé par le Methodologist : ajouter des protocoles de contrôle stricts des artefacts du faisceau d'électrons (ETEM) et une analyse de puissance statistique/plan de répétition pour les expériences de perturbation (Prédictions 2 & 3).",
-        "Renforcer la section sur la validation de l'aspect 'auto-réparation'. Définir des métriques quantitatives claires (ex : taux de frittage mesuré post-mortem, évolution du TOF sur des centaines de cycles) pour distinguer une simple oscillation d'un état véritablement réparateur, comme soulevé par le Domain Expert et le Funding Strategist.",
-        "Ajouter une discussion stratégique initiale, comme suggéré par l'Industrialist et le Funding Strategist, identifiant un système modèle et une réaction pilote précis, ainsi qu'une voie réaliste pour le financement et la validation progressive."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.8
     }
   },
   "vulgarization_fr": {

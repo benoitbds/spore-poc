@@ -727,26 +727,25 @@
       }
     ],
     "meta_review": {
-      "consensus_score": 6.34,
-      "verdict": "revise_and_resubmit",
+      "consensus_score": 6.38,
+      "verdict": "publish_brief",
       "key_consensus": [
-        "L'hypothèse est théoriquement cohérente, bien formulée et adresse un besoin scientifique et appliqué significatif pour la cartographie 3D haute résolution des glaciers tempérés.",
-        "Le protocole de validation progressive (in silico, pilote, validation terrain) est une force majeure, appréciée pour sa structuration et ses critères de passage/abandon clairs.",
-        "Les faiblesses principales identifiées concernent la faisabilité physique et numérique de l'inversion viscoélastique multi-paramètres dans la glace tempérée, notamment les risques de non-unicité, les trade-offs entre paramètres, et les défis pratiques d'acquisition du signal haute fréquence dans un milieu très atténuant."
+        "L'hypothèse est scientifiquement ambitieuse, bien formulée et adresse un besoin critique en glaciologie : cartographier en 3D haute résolution le fabric et les fractures dans la glace tempérée.",
+        "Le protocole de validation progressive (in silico, pilote, validation terrain) est jugé solide et méthodologiquement rigoureux par la majorité des experts.",
+        "Les faiblesses majeures identifiées convergent vers les défis techniques de l'inversion viscoélastique multi-paramètres (trade-offs, non-unicité) et les limites pratiques de l'acquisition sismique en milieu très atténuant.",
+        "Un pré-requis unanime est la nécessité d'une étude de faisabilité synthétique approfondie (Phase 1) pour dé-risquer le principe physique avant toute campagne terrain coûteuse."
       ],
       "key_disagreements": [
-        "Le Contrarian estime que les problèmes de rapport signal/bruit et de gamme dynamique sont probablement fatals (FAIL REASON), tandis que le Domain Expert et le Methodologist considèrent ces défis comme sévères mais surmontables via une étude de faisabilité synthétique rigoureuse et une optimisation de la conception d'acquisition.",
-        "L'évaluation du risque commercial diverge : l'Industrialist voit un marché de niche extrême avec un modèle économique fragile, tandis que le Funding Strategist identifie des voies de financement crédibles pour un projet de recherche fondamentale à haut gain."
+        "Le Contrarian estime que les problèmes de rapport signal/bruit et d'ambiguïté d'inversion sont potentiellement fatals (FAIL REASONS), tandis que le Methodologist et le Domain Expert les jugent sévères mais surmontables avec un protocole renforcé.",
+        "L'Industrialiste et le Funding Strategist soulèvent des doutes sur la viabilité économique et le niveau de maturité technologique (TRL 2-3), alors que les scientifiques se concentrent sur la validité fondamentale.",
+        "L'évaluation du risque diffère : le Contrarian le voit comme existentiel, les autres comme gérable via une planification rigoureuse et une validation incrémentale."
       ],
-      "critical_path": "La démonstration préalable, par modélisation synthétique réaliste, que l'inversion FWI viscoélastique peut séparer de manière unique les signatures du fabric et des fractures dans des conditions réalistes de bruit, d'atténuation (Qs < 50) et d'erreur de modèle de départ. Ceci est le goulot d'étranglement scientifique et technique qui validera ou invalidera le principe physique central avant tout déploiement terrain coûteux.",
-      "final_recommendation": "Le panel recommande une révision substantielle du protocole pour renforcer sa phase de faisabilité (Phase 1). L'hypothèse est scientifiquement prometteuse et mérite d'être poursuivie, mais elle doit intégrer une étude synthétique exhaustive pour répondre aux préoccupations fondamentales sur la stabilité de l'inversion et la détectabilité du signal. Les Phases 2 et 3 doivent être conditionnées aux résultats de cette étude et à l'identification de partenaires/consortiums appropriés. Une soumission pour un financement de type 'Proof of Concept' est recommandée pour cette étape révisée.",
+      "critical_path": "La démonstration, via une modélisation synthétique physiquement réaliste et complète, que l'inversion viscoélastique FWI peut séparer de manière unique les signatures du fabric cristallin et des réseaux de fractures dans des conditions de bruit, d'atténuation et d'incertitude sur le modèle de départ représentatives d'un glacier tempéré. Ceci doit inclure une analyse de puissance statistique robuste pour la phase de validation terrain.",
+      "final_recommendation": "Le panel recommande la publication du brief, reconnaissant la qualité et la pertinence de l'hypothèse, mais en conditionnant son avancement à une Phase 1 (in silico) substantiellement étoffée. Cette phase doit résoudre les questions critiques sur la faisabilité physique et la stabilité de l'inversion soulevées par tous, et particulièrement les 'FAIL REASONS' du Contrarian. Le passage aux phases terrain (2 et 3) ne sera justifié qu'après une démonstration synthétique concluante et la constitution d'un consortium interdisciplinaire solide pour adresser les défis instrumentaux et de validation.",
       "brief_quality_gate": true,
-      "revision_guidance": [
-        "Renforcer la Phase 1 (in silico) en détaillant une étude de faisabilité synthétique réaliste. Celle-ci doit inclure : 1) une modélisation 3D viscoélastique avec des valeurs de Qs réalistes pour la glace tempérée, 2) un modèle de départ dérivé d'une tomographie de temps de trajet bruitée, 3) des tests explicites de la capacité de l'inversion à distinguer des anomalies de fabric et de fracture dans des scénarios ambigus, et 4) une analyse de sensibilité de l'ARM (Acceptance Region Metric) au SNR et aux erreurs du modèle.",
-        "Préciser et quantifier la stratégie pour atténuer le biais de 'l'inverse crime' (Prédiction 3), en définissant explicitement la 'physique complexe' ajoutée aux données synthétiques de test (ex : scattering non modélisé, anisotropie plus complexe).",
-        "Intégrer une analyse de puissance statistique a priori pour la Phase 3, basée sur les effets détectés en Phase 2, afin d'optimiser le nombre de carottes de glace et la densité du profil GPR pour atteindre une puissance >0.8. Préciser les méthodes pour corriger l'autocorrélation spatiale dans les tests.",
-        "Développer un plan de consortium et de financement aligné avec les recommandations du Funding Strategist, en identifiant des programmes cibles (ex : ANR Flash, ERC StG) et les compétences partenaires nécessaires (modélisation viscoélastique, instrumentation sismique en milieu extrême, glaciologie du fabric)."
-      ]
+      "revision_guidance": [],
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.34
     }
   },
   "vulgarization_fr": {
