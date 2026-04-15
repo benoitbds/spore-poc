@@ -300,6 +300,13 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
         panel=panel,
     )
 
+    # save_brief returns (None, None) when the panel verdict is 'reject'.
+    # In the normal graph flow that branch never fires — should_revise_or_publish
+    # already routes 'reject' directly to END. This is a belt-and-braces
+    # guard for callers that invoke save_brief outside the graph.
+    md_path_str = str(md_path) if md_path else ""
+    json_path_str = str(json_path) if json_path else ""
+
     # Register the brief in the SQLite briefs table so the UI picks it up.
     # hypothesis_id comes from the state if the pipeline was triggered for a
     # specific stored hypothesis; otherwise we use the brief_id as a placeholder.
@@ -318,20 +325,20 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
                 "meta_review": dict(panel["meta_review"]),
             },
             status="complete",
-            brief_md_path=str(md_path),
-            brief_json_path=str(json_path),
+            brief_md_path=md_path_str or None,
+            brief_json_path=json_path_str or None,
             revision_count=revision_count,
         )
     except Exception as exc:
         logger.error("brief_db_save_failed", brief_id=brief_id, error=str(exc))
 
-    logger.info("brief_generated", brief_id=brief_id, md_path=str(md_path))
+    logger.info("brief_generated", brief_id=brief_id, md_path=md_path_str)
 
     return {
         **state,
         "brief_id": brief_id,
-        "brief_md_path": str(md_path),
-        "brief_json_path": str(json_path),
+        "brief_md_path": md_path_str,
+        "brief_json_path": json_path_str,
     }
 
 

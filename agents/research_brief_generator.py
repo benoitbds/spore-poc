@@ -474,7 +474,7 @@ async def save_brief(
     protocol: ProtocolOutput,
     panel: PanelOutput,
     vulgarization_fr: dict[str, Any] | None = None,
-) -> tuple[Path, Path]:
+) -> tuple[Path | None, Path | None]:
     """Generate and save the brief as markdown and JSON.
 
     Args:
@@ -487,8 +487,24 @@ async def save_brief(
         panel: Panel review output.
 
     Returns:
-        Tuple of (markdown_path, json_path).
+        Tuple of (markdown_path, json_path). **Both are None** when
+        the panel verdict is ``reject`` — rejected briefs are not
+        exported to ``outputs/briefs/`` so they don't leak into the
+        public-facing web bundle via the shared symlink at
+        ``spore-web/data/briefs/``. The DB row is still persisted by
+        the caller so admin surfaces (Pilotage, Briefs) keep their
+        visibility.
     """
+    meta = panel.get("meta_review") or {}
+    verdict = str(meta.get("verdict", ""))
+    if verdict == "reject":
+        logger.info(
+            "brief_export_skipped_rejected",
+            brief_id=brief_id,
+            verdict=verdict,
+        )
+        return None, None
+
     settings = get_settings()
     briefs_dir = settings.output_dir / "briefs"
     briefs_dir.mkdir(parents=True, exist_ok=True)
