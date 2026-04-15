@@ -11,6 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from api.auth import router as auth_router
 from api.config import CORS_ORIGINS
+from api.stripe_routes import router as stripe_router
 
 app = FastAPI(
     title="SPORE Research API",
@@ -34,3 +35,4 @@ async def health() -> dict[str, str]:
 
 
 app.include_router(auth_router)
+app.include_router(stripe_router)
