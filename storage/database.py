@@ -109,7 +109,11 @@ CREATE TABLE IF NOT EXISTS briefs (
     sharpened_data JSON,
     protocol_data JSON,
     panel_data JSON,
-    vulgarization_data JSON
+    vulgarization_data JSON,
+
+    -- API custom-run flag (1 when reviewer voted 'poubelle' on a paid
+    -- custom collision — brief is still delivered but marked).
+    low_confidence INTEGER DEFAULT 0
 );
 CREATE INDEX IF NOT EXISTS idx_briefs_hypothesis ON briefs(hypothesis_id);
 CREATE INDEX IF NOT EXISTS idx_briefs_status ON briefs(status);
@@ -213,6 +217,15 @@ async def init_database() -> None:
         try:
             await conn.execute(
                 "ALTER TABLE briefs ADD COLUMN vulgarization_data JSON"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+
+        # Migration: add low_confidence flag to briefs (custom-run verdict).
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN low_confidence INTEGER DEFAULT 0"
             )
             await conn.commit()
         except Exception:

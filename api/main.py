@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.auth import router as auth_router
 from api.briefs import router as briefs_router
 from api.config import CORS_ORIGINS
+from api.custom import router as custom_router
 from api.stripe_routes import router as stripe_router
 
 app = FastAPI(
@@ -38,3 +39,4 @@ async def health() -> dict[str, str]:
 app.include_router(auth_router)
 app.include_router(stripe_router)
 app.include_router(briefs_router)
+app.include_router(custom_router)
