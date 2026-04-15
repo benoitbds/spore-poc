@@ -24,7 +24,7 @@ SPORE (Système de Production d'Opportunités de Recherche par Exploration) is a
 - L1 operational: daily cron at 7h, has applied 3+ mutations
 - Provider: DeepSeek V3.2 (~$0.50/100 collisions) with Anthropic fallback
 - Gate Agent needs recalibration (99/100 pass, should reject 40-60%)
-- ReviewerAgent needs recalibration (100% 🤔, should produce ~20% 🗑️ and ~15% 🔥)
+- ReviewerAgent operational (on 72 hypotheses: 24% 🗑️ poubelle / 60% 🤔 intéressant / 17% 🔥 a_tester — within target range; 16/17 🗑️ come from mechanical overrides composite<0.35 or hallucination_risk>0.40). Verdict field is `auto_feedback_json.verdict` (NOT `$.rating`).
 - Post-Fire Pipeline: designed, not yet implemented
 
 ## Code style
