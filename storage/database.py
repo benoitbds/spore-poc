@@ -113,6 +113,61 @@ CREATE TABLE IF NOT EXISTS briefs (
 );
 CREATE INDEX IF NOT EXISTS idx_briefs_hypothesis ON briefs(hypothesis_id);
 CREATE INDEX IF NOT EXISTS idx_briefs_status ON briefs(status);
+
+-- ── API / monétisation tables ─────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    stripe_customer_id TEXT,
+    free_brief_used BOOLEAN DEFAULT FALSE,
+    credits INTEGER DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+CREATE TABLE IF NOT EXISTS purchases (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    brief_id TEXT,
+    type TEXT NOT NULL,                 -- 'single' | 'pack_5' | 'custom' | 'free'
+    amount_cents INTEGER NOT NULL,
+    stripe_session_id TEXT,
+    stripe_payment_intent TEXT,
+    status TEXT DEFAULT 'pending',      -- 'pending' | 'paid' | 'failed' | 'refunded'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    paid_at TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_purchases_user ON purchases(user_id);
+CREATE INDEX IF NOT EXISTS idx_purchases_brief ON purchases(brief_id);
+CREATE INDEX IF NOT EXISTS idx_purchases_session ON purchases(stripe_session_id);
+CREATE INDEX IF NOT EXISTS idx_purchases_user_brief_paid
+    ON purchases(user_id, brief_id, status);
+
+CREATE TABLE IF NOT EXISTS custom_requests (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    domain_a TEXT NOT NULL,
+    domain_b TEXT NOT NULL,
+    purchase_id TEXT REFERENCES purchases(id),
+    status TEXT DEFAULT 'pending',      -- 'pending' | 'paid' | 'running' | 'complete' | 'failed'
+    hypothesis_id TEXT,
+    brief_id TEXT,
+    error_message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_custom_requests_user ON custom_requests(user_id);
+CREATE INDEX IF NOT EXISTS idx_custom_requests_status ON custom_requests(status);
+
+CREATE TABLE IF NOT EXISTS magic_links (
+    token TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP NOT NULL,
+    used BOOLEAN DEFAULT FALSE
+);
+CREATE INDEX IF NOT EXISTS idx_magic_links_user ON magic_links(user_id);
 """
 
 
