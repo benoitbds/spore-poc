@@ -71,7 +71,7 @@ class PanelOutput(TypedDict):
 
 PUBLISH_THRESHOLD = 7.0         # consensus >= 7.0 at iter 1 → publish_brief
 REJECT_THRESHOLD = 4.5          # consensus <  4.5          → reject
-ITER2_PUBLISH_THRESHOLD = 5.5   # at iter 2: >= 5.5 publish, else reject
+ITER2_PUBLISH_THRESHOLD = 6.0   # at iter 2: >= 6.0 publish, else reject
 
 
 def compute_consensus_score(reviews: list[ReviewerOutput]) -> float:
@@ -95,7 +95,7 @@ def threshold_verdict(consensus_score: float, iteration: int) -> str:
     """Python-side verdict from the consensus score and revision iteration.
 
     iter 1: publish if >= 7.0, reject if < 4.5, else revise_and_resubmit.
-    iter 2+: binary — publish if >= 5.5, else reject. No revise at iter 2+.
+    iter 2+: binary — publish if >= 6.0, else reject. No revise at iter 2+.
     """
     if iteration >= 2:
         return "publish_brief" if consensus_score >= ITER2_PUBLISH_THRESHOLD else "reject"
