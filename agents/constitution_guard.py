@@ -11,6 +11,7 @@ sets `state["killed"] = True` and `state["kill_reason"] = "..."` so the graph
 can short-circuit to END via a conditional edge.
 """
 
+import re
 from typing import Any
 
 from config import get_constitution, get_genome
@@ -20,53 +21,63 @@ from logging_config import get_logger
 logger = get_logger("constitution_guard")
 
 
+# Whole-word keywords for HARD-KILL rules. A domain name matching any of these
+# (as a whole word, case-insensitive) is rejected even if the constitution.yaml
+# entry only lists the terse identifier (e.g. "weapons_development").
+HARD_KILL_KEYWORDS: dict[str, list[str]] = {
+    "weapons_development": [
+        "weapons", "weapon", "armament", "munition", "ballistic",
+    ],
+    "surveillance_technology": [
+        "surveillance", "mass monitoring", "facial recognition",
+        "spyware", "tracking",
+    ],
+}
+
+# Phrases that warrant a human-review WARNING but NOT an automatic kill.
+# The constitution rule "any domain with dual-use concerns without human
+# approval" is too vague for unattended enforcement — flag + continue.
+SOFT_WARN_PHRASES: tuple[str, ...] = ("dual-use", "dual use")
+
+
 def _domain_is_excluded(domain_name: str, excluded: list[str]) -> str | None:
-    """Return the matching excluded term if the domain violates, else None.
+    """Return the matching excluded rule if the domain violates a HARD-KILL rule.
 
-    Three matching modes, in order of specificity:
+    Matching:
+      1. Exact match (after _/- → space) against any rule in ``excluded``.
+      2. Whole-word keyword match (regex ``\\b``) against ``HARD_KILL_KEYWORDS``.
 
-    1. **Substring match** (always active): the rule text (normalised) is
-       a substring of the domain text, or vice-versa. Catches literal
-       hits like rule ``weapons`` vs. domain ``weapons_development``.
-
-    2. **Conjunctive token match** (identifier rules only): the rule is a
-       short, snake_case / hyphen-case identifier (<= 2 tokens after
-       normalising ``_-`` to spaces). The rule matches when *every* rule
-       token of length >= 3 appears as a token in the domain. So
-       ``weapons_development`` matches ``Weapons Development Programme``
-       (both tokens present) but not ``Weapons Research`` (missing
-       ``development``) and not ``Science and Technology Studies``
-       (missing ``surveillance`` for rule ``surveillance_technology``).
-
-    3. **Policy rules** (natural-language, > 2 tokens): substring only.
-       Token matching on sentences like ``any domain with dual-use
-       concerns without human approval`` fires on everyday English and
-       is unsafe.
+    Soft concerns (e.g. "dual-use") are handled by ``_domain_soft_warning``
+    and produce a WARNING rather than a kill.
     """
     if not domain_name:
         return None
-    dn_norm = domain_name.lower().replace("_", " ").replace("-", " ")
-    dn_tokens = {t for t in dn_norm.split() if len(t) >= 3}
-    for term in excluded:
-        t_raw = (term or "").strip().lower()
-        if not t_raw:
-            continue
-        t_norm = t_raw.replace("_", " ").replace("-", " ")
-        t_tokens_list = t_norm.split()
-        n_tokens = len(t_tokens_list)
+    dn_lower = domain_name.lower()
+    dn_norm = dn_lower.replace("_", " ").replace("-", " ")
 
-        if t_norm in dn_norm or dn_norm in t_norm:
-            return term
+    # 1. Exact match against constitution rules
+    for rule in excluded:
+        r = (rule or "").strip().lower().replace("_", " ").replace("-", " ")
+        if r and r == dn_norm:
+            return rule
 
-        # Policy sentences: substring only. No token fallback.
-        if n_tokens > 2:
-            continue
+    # 2. Whole-word keyword match against hard-kill keywords
+    for rule, keywords in HARD_KILL_KEYWORDS.items():
+        for kw in keywords:
+            if re.search(r"\b" + re.escape(kw.lower()) + r"\b", dn_lower):
+                return rule
 
-        # Identifier rule (1-2 tokens): require EVERY rule token >= 3
-        # chars to appear in the domain. Empty after filter = no match.
-        t_tokens = {t for t in t_tokens_list if len(t) >= 3}
-        if t_tokens and t_tokens.issubset(dn_tokens):
-            return term
+    return None
+
+
+def _domain_soft_warning(domain_name: str) -> str | None:
+    """Return a description of any SOFT concern about the domain, else None."""
+    if not domain_name:
+        return None
+    dn = domain_name.lower()
+    for phrase in SOFT_WARN_PHRASES:
+        if phrase in dn:
+            return f"domain contains '{phrase}' — human review recommended"
     return None
 
 
@@ -137,6 +148,14 @@ async def check_constitution(
                 state["killed"] = True
                 state["kill_reason"] = reason
                 return state
+            warn = _domain_soft_warning(name)
+            if warn:
+                logger.warning(
+                    "constitution_soft_concern",
+                    run_id=run_id,
+                    domain=name,
+                    note=warn,
+                )
 
     logger.info(
         "constitution_check_pass",
