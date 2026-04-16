@@ -15,6 +15,7 @@ Rate limits: 100 requests/5min without API key, 1000/5min with key.
 import asyncio
 import hashlib
 import json
+import random
 import time
 from typing import Any, Optional
 
@@ -53,6 +54,14 @@ CREATE INDEX IF NOT EXISTS idx_ss_cache_created
 """
 
 
+# Global rate-limit state shared across all SemanticScholarClient instances
+# (and therefore all concurrent custom runs inside the same uvicorn worker).
+_global_lock = asyncio.Lock()
+_global_last_request: float = 0.0
+RATE_LIMIT_INTERVAL = 1.5   # seconds between requests
+RATE_LIMIT_JITTER = 0.3     # random ±jitter added to each wait
+
+
 class SemanticScholarClient:
     """Async client for Semantic Scholar API with cache and retry."""
 
@@ -65,7 +74,6 @@ class SemanticScholarClient:
         settings = get_settings()
         self.api_key = api_key or settings.semantic_scholar_api_key
         self._db_path = settings.db_path
-        self._last_request_time: float = 0.0
         self._cache_initialized = False
 
     # ── Cache ────────────────────────────────────────────────
@@ -119,12 +127,15 @@ class SemanticScholarClient:
     # ── Rate limiting ────────────────────────────────────────
 
     async def _rate_limit(self) -> None:
-        """Enforce 1 request per second."""
-        now = asyncio.get_event_loop().time()
-        elapsed = now - self._last_request_time
-        if elapsed < 1.5:
-            await asyncio.sleep(1.5 - elapsed)
-        self._last_request_time = asyncio.get_event_loop().time()
+        """Enforce RATE_LIMIT_INTERVAL + jitter between requests, globally."""
+        global _global_last_request
+        async with _global_lock:
+            now = asyncio.get_event_loop().time()
+            elapsed = now - _global_last_request
+            min_wait = RATE_LIMIT_INTERVAL + random.uniform(0, RATE_LIMIT_JITTER)
+            if elapsed < min_wait:
+                await asyncio.sleep(min_wait - elapsed)
+            _global_last_request = asyncio.get_event_loop().time()
 
     # ── HTTP helpers ─────────────────────────────────────────
 
