@@ -174,15 +174,25 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
         domain_a=request["domain_a"], domain_b=request["domain_b"],
     )
 
-    # 1. Light enrichment
+    # 1. Light enrichment — detect total SS failure
     dom_a = await _enrich_domain(request["domain_a"])
     dom_b = await _enrich_domain(request["domain_b"])
+    total_abstracts = len(dom_a.context_abstracts) + len(dom_b.context_abstracts)
+    grounding_degraded = total_abstracts == 0
     logger.info(
         "custom_enrichment_done",
         request_id=request_id,
         abstracts_a=len(dom_a.context_abstracts),
         abstracts_b=len(dom_b.context_abstracts),
+        grounding_degraded=grounding_degraded,
     )
+    if grounding_degraded:
+        logger.warning(
+            "custom_enrichment_degraded",
+            request_id=request_id,
+            detail="Semantic Scholar returned 0 abstracts for both domains — "
+                   "pipeline will run without literature grounding",
+        )
 
     collision = _build_collision(dom_a, dom_b)
     state = _initial_state(collision, run_id)
@@ -226,6 +236,7 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
         logger.error("custom_reviewer_failed", request_id=request_id, error=str(exc))
 
     # 4. Post-fire — always, regardless of verdict. Paying user = delivery.
+    #    If SS was down, skip literature grounding (degraded mode).
     try:
         pf_state = await run_post_fire_pipeline(
             hypothesis=hypothesis.bridge.summary,
@@ -233,6 +244,7 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
             mechanisms=hypothesis.bridge.mechanism,
             keywords=[],
             gap_manifest=hypothesis.gap_manifest.model_dump() if hypothesis.gap_manifest else {},
+            grounding_degraded=grounding_degraded,
         )
     except Exception as exc:  # noqa: BLE001
         logger.error("custom_post_fire_failed", request_id=request_id, error=str(exc))
@@ -253,9 +265,11 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
         )
         raise RuntimeError(err)
 
-    # Flag low_confidence on the brief row.
+    # Flag low_confidence and/or low_evidence on the brief row.
     if low_confidence:
         await update_brief(brief_id, low_confidence=1)
+    if grounding_degraded:
+        await update_brief(brief_id, low_evidence=1)
 
     await update_custom_request(
         request_id,
@@ -269,8 +283,15 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
     user = await get_user(request["user_id"])
     if user is not None:
         title = getattr(hypothesis.bridge, "summary", "") or "Votre brief SPORE"
+        degraded_notice = (
+            "\n\nNote : ce brief a été généré avec un accès limité à la "
+            "littérature scientifique. Une version enrichie vous sera "
+            "envoyée sous 7 jours."
+        ) if grounding_degraded else ""
         try:
-            send_brief_ready(user["email"], brief_id, title[:120])
+            send_brief_ready(
+                user["email"], brief_id, title[:120] + degraded_notice,
+            )
         except Exception as exc:  # noqa: BLE001
             logger.error("custom_email_failed", request_id=request_id, error=str(exc))
 
@@ -287,4 +308,5 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
         "brief_id": brief_id,
         "reviewer_verdict": reviewer_verdict,
         "low_confidence": low_confidence,
+        "grounding_degraded": grounding_degraded,
     }
