@@ -231,6 +231,15 @@ async def init_database() -> None:
         except Exception:
             pass  # Column already exists
 
+        # Migration: add retry_count to custom_requests.
+        try:
+            await conn.execute(
+                "ALTER TABLE custom_requests ADD COLUMN retry_count INTEGER DEFAULT 0"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
     """Save a hypothesis to the database."""
