@@ -214,11 +214,12 @@ async def stripe_webhook(
         logger.error("stripe_webhook_signature_fail", error=str(exc))
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "invalid signature")
 
-    event_type = event.get("type")
-    logger.info("stripe_webhook_received", type=event_type, id=event.get("id"))
+    event_dict = event.to_dict()
+    event_type = event_dict.get("type")
+    logger.info("stripe_webhook_received", type=event_type, id=event_dict.get("id"))
 
     if event_type == "checkout.session.completed":
-        session = event["data"]["object"]
+        session = event_dict.get("data", {}).get("object", {})
         await _handle_checkout_completed(session, background_tasks)
 
     # Other events (async payment failures, refunds, …) are acknowledged
