@@ -146,23 +146,28 @@ class SemanticScholarClient:
             headers["x-api-key"] = self.api_key
         return headers
 
+    # Backoff schedule (seconds) for 429 / 5xx / connection errors.
+    _BACKOFF_DELAYS = [2, 5, 10, 20, 40]
+
     async def _request_with_retry(
         self,
         method: str,
         url: str,
         params: dict[str, Any],
-        max_retries: int = 3,
     ) -> Optional[dict[str, Any]]:
-        """Execute an HTTP request with exponential backoff.
+        """Execute an HTTP request with aggressive backoff.
 
-        Backoff: 1s, 2s, 4s.  Retries on 429, 5xx, and connection errors.
+        Backoff: 2s, 5s, 10s, 20s, 40s (5 retries). Retries on 429, 5xx,
+        and connection errors. On final exhaustion, logs a **warning** (not
+        error) and returns None — the caller treats None as "no results" and
+        continues the pipeline with partial data.
 
         Returns:
-            Parsed JSON response, or None on 404.
+            Parsed JSON response, or None on 404 / exhausted retries.
         """
         last_error: Optional[Exception] = None
 
-        for attempt in range(max_retries):
+        for attempt, delay in enumerate(self._BACKOFF_DELAYS):
             await self._rate_limit()
 
             try:
@@ -175,11 +180,11 @@ class SemanticScholarClient:
                         return None
 
                     if response.status_code == 429 or response.status_code >= 500:
-                        delay = (2 ** attempt)  # 1, 2, 4
                         logger.warning(
                             "ss_api_retryable_error",
                             status=response.status_code,
                             attempt=attempt + 1,
+                            max_attempts=len(self._BACKOFF_DELAYS),
                             delay=delay,
                             url=url,
                         )
@@ -191,7 +196,6 @@ class SemanticScholarClient:
 
             except (httpx.ConnectError, httpx.ReadTimeout) as exc:
                 last_error = exc
-                delay = (2 ** attempt)
                 logger.warning(
                     "ss_api_connection_error",
                     error=str(exc),
@@ -200,7 +204,12 @@ class SemanticScholarClient:
                 )
                 await asyncio.sleep(delay)
 
-        logger.error("ss_api_exhausted_retries", url=url, last_error=str(last_error))
+        logger.warning(
+            "ss_api_exhausted_retries",
+            url=url,
+            total_wait=sum(self._BACKOFF_DELAYS),
+            last_error=str(last_error),
+        )
         return None
 
     # ── Public API ───────────────────────────────────────────
