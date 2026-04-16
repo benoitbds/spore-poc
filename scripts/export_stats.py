@@ -28,7 +28,7 @@ def main() -> None:
     total_curated = q(
         "SELECT COUNT(*) as n FROM hypotheses WHERE status IN ('curated','human_reviewed','validated')"
     )[0]["n"]
-    total_briefs = q("SELECT COUNT(*) as n FROM briefs")[0]["n"]
+    total_briefs = q("SELECT COUNT(*) as n FROM briefs WHERE status != 'rejected'")[0]["n"]
 
     fire_count = q(
         "SELECT COUNT(*) as n FROM hypotheses WHERE json_extract(auto_feedback_json, '$.verdict') = 'a_tester'"
@@ -40,12 +40,16 @@ def main() -> None:
     )[0]["n"]
 
     # Novelty average across briefs
-    avg_novelty_row = q("SELECT AVG(novelty_score) as avg FROM briefs WHERE novelty_score IS NOT NULL")
+    avg_novelty_row = q(
+        "SELECT AVG(novelty_score) as avg FROM briefs "
+        "WHERE novelty_score IS NOT NULL AND status != 'rejected'"
+    )
     avg_novelty = avg_novelty_row[0]["avg"] if avg_novelty_row[0]["avg"] else None
 
     # Panel consensus average
     avg_panel_row = q(
-        "SELECT AVG(panel_consensus_score) as avg FROM briefs WHERE panel_consensus_score IS NOT NULL"
+        "SELECT AVG(panel_consensus_score) as avg FROM briefs "
+        "WHERE panel_consensus_score IS NOT NULL AND status != 'rejected'"
     )
     avg_panel = avg_panel_row[0]["avg"] if avg_panel_row[0]["avg"] else None
 
