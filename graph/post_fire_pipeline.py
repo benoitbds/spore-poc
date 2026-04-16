@@ -50,6 +50,7 @@ class PostFireState(TypedDict, total=False):
     mechanisms: str
     keywords: list[str]
     gap_manifest: dict[str, Any]
+    grounding_degraded: bool  # True when SS was unavailable
 
     # Literature Grounding
     grounding: dict[str, Any]
@@ -124,6 +125,35 @@ async def node_persist_grounding_kill(state: PostFireState) -> PostFireState:
         )
 
     return {**state, "brief_id": brief_id}
+
+
+async def node_skip_grounding(state: PostFireState) -> PostFireState:
+    """Inject an empty grounding stub when SS is unavailable.
+
+    The pipeline continues with zero evidence — Sharpening, Protocol,
+    and Panel all handle empty evidence_base gracefully.
+    """
+    logger.warning(
+        "grounding_skipped_degraded",
+        hypothesis=state["hypothesis"][:80],
+    )
+    empty_grounding: dict[str, Any] = {
+        "novelty_assessment": {
+            "score": None,
+            "verdict": "unavailable",
+            "closest_existing_work": [],
+        },
+        "evidence_base": [],
+        "counter_evidence": [],
+        "gap_manifest_update": {
+            "closed_gaps": [],
+            "new_gaps": ["Literature grounding was unavailable — all gaps remain open"],
+            "data_available": [],
+        },
+        "search_queries": [],
+        "kill_reason": None,
+    }
+    return {**state, "grounding": empty_grounding, "kill_reason": None}
 
 
 async def node_literature_grounding(state: PostFireState) -> PostFireState:
@@ -344,6 +374,13 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
 
 # ── Conditional edge functions ───────────────────────────────
 
+def should_skip_grounding(state: PostFireState) -> str:
+    """Route to skip_grounding or full grounding based on degraded flag."""
+    if state.get("grounding_degraded"):
+        return "skip"
+    return "full"
+
+
 def should_continue_after_grounding(state: PostFireState) -> str:
     """Check kill conditions after grounding."""
     if state.get("kill_reason"):
@@ -380,7 +417,9 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow = StateGraph(PostFireState)
 
     # Add nodes
+    workflow.add_node("grounding_router", lambda state: state)  # passthrough
     workflow.add_node("literature_grounding", node_literature_grounding)
+    workflow.add_node("skip_grounding", node_skip_grounding)
     workflow.add_node("persist_grounding_kill", node_persist_grounding_kill)
     workflow.add_node("hypothesis_sharpening", node_hypothesis_sharpening)
     workflow.add_node("experimental_protocol", node_experimental_protocol)
@@ -388,10 +427,21 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("research_brief_generator", node_research_brief)
     workflow.add_node("vulgarization", node_vulgarization)
 
-    # Entry point
-    workflow.set_entry_point("literature_grounding")
+    # Entry point — routes to full grounding or degraded skip
+    workflow.set_entry_point("grounding_router")
+    workflow.add_conditional_edges(
+        "grounding_router",
+        should_skip_grounding,
+        {
+            "full": "literature_grounding",
+            "skip": "skip_grounding",
+        },
+    )
 
-    # Grounding → kill (persisted) or continue to sharpening
+    # Skip grounding → straight to sharpening
+    workflow.add_edge("skip_grounding", "hypothesis_sharpening")
+
+    # Full grounding → kill (persisted) or continue to sharpening
     workflow.add_conditional_edges(
         "literature_grounding",
         should_continue_after_grounding,
@@ -429,6 +479,7 @@ async def run_post_fire_pipeline(
     mechanisms: str,
     keywords: list[str] | None = None,
     gap_manifest: dict[str, Any] | None = None,
+    grounding_degraded: bool = False,
 ) -> PostFireState:
     """Run the complete post-fire pipeline.
 
@@ -438,6 +489,7 @@ async def run_post_fire_pipeline(
         mechanisms: Proposed mechanisms.
         keywords: Optional keywords for search.
         gap_manifest: Optional existing gap manifest.
+        grounding_degraded: If True, skip literature grounding (SS was down).
 
     Returns:
         Final PostFireState with all results.
@@ -448,6 +500,7 @@ async def run_post_fire_pipeline(
         "mechanisms": mechanisms,
         "keywords": keywords or [],
         "gap_manifest": gap_manifest or {},
+        "grounding_degraded": grounding_degraded,
         "kill_reason": None,
         "revision_count": 0,
         "errors": [],

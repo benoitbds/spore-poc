@@ -240,6 +240,15 @@ async def init_database() -> None:
         except Exception:
             pass  # Column already exists
 
+        # Migration: add low_evidence flag to briefs (SS degraded mode).
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN low_evidence INTEGER DEFAULT 0"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
     """Save a hypothesis to the database."""
