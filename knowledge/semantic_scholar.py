@@ -37,8 +37,9 @@ DEFAULT_FIELDS = [
     "authors", "externalIds", "tldr",
 ]
 
-# Cache TTL: 7 days
-CACHE_TTL_SECONDS = 7 * 24 * 3600
+# Cache TTL: 30 days — aggressive caching to survive 429 droughts
+# while we wait for an API key. Scientific papers don't change.
+CACHE_TTL_SECONDS = 30 * 24 * 3600
 
 # Cache schema
 CACHE_SCHEMA = """
