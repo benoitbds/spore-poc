@@ -45,7 +45,7 @@ agents:
     model: deepseek-chat
     parameters:
       max_tokens: 4000
-    prompt_version: literature_grounding_v4
+    prompt_version: literature_grounding_v5
     provider: deepseek
   multi_reviewer_panel:
     model: deepseek-chat
@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-16T07:01:30.187532'
-mutated_by: L1-MUT-20260416-be5fa5
+last_mutated: '2026-04-16T07:01:30.205071'
+mutated_by: L1-MUT-20260416-a79fe7
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
