@@ -81,12 +81,12 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-16T07:01:30.174671'
-mutated_by: L1-MUT-20260416-9148f9
+last_mutated: '2026-04-16T07:01:30.187532'
+mutated_by: L1-MUT-20260416-be5fa5
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
-  distance_max: 0.8
+  distance_max: 0.85
   distance_min: 0.35
   strategy_weights:
     anomaly_guided: 0.25
