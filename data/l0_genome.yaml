@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-17T07:01:41.468356'
-mutated_by: L1-MUT-20260417-eccc3f
+last_mutated: '2026-04-17T07:01:41.479448'
+mutated_by: L1-MUT-20260417-560088
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
@@ -92,7 +92,7 @@ randomness:
     anomaly_guided: 0.25
     historical_template: 0.15
     semantic_distance: 0.3
-    structural_analogy: 0.3
+    structural_analogy: 0.25
   temperature: 0.7
 schedule:
   active_hours: 00:00-23:59
