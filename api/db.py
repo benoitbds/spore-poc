@@ -130,10 +130,20 @@ async def create_magic_link(user_id: str, ttl_hours: int) -> str:
     return token
 
 
-async def consume_magic_link(token: str) -> Optional[str]:
-    """Validate and burn a magic link. Returns the associated user_id or None.
+async def consume_magic_link(token: str) -> Optional[dict[str, Any]]:
+    """Validate a magic link and return its state.
 
-    The row is atomically marked ``used=1`` to prevent token replay.
+    Returns:
+        - ``None`` if the token does not exist or has expired (invalid).
+        - ``{'user_id': str, 'already_used': False}`` when this call is
+          the one that atomically flipped ``used=0 → 1``.
+        - ``{'user_id': str, 'already_used': True}`` when the row was
+          already burned by an earlier call (idempotent replay).
+
+    The caller decides how to react — the verify route treats both
+    hits as authentication success. Returning structured info lets us
+    log replays (useful for frontend bug detection) instead of silently
+    conflating them with invalid tokens.
     """
     now = datetime.now(timezone.utc).isoformat()
     async with get_connection() as conn:
@@ -144,16 +154,19 @@ async def consume_magic_link(token: str) -> Optional[str]:
         row = await cursor.fetchone()
         if row is None:
             return None
-        if int(row["used"]) == 1:
-            return None
         if row["expires_at"] < now:
             return None
-        await conn.execute(
+
+        # Atomic compare-and-swap — cursor.rowcount tells us whether
+        # *this* call was the one that flipped the flag, which survives
+        # any concurrent request hitting the same token.
+        upd = await conn.execute(
             "UPDATE magic_links SET used = 1 WHERE token = ? AND used = 0",
             (token,),
         )
         await conn.commit()
-        return row["user_id"]
+        first_use = (upd.rowcount or 0) == 1
+        return {"user_id": row["user_id"], "already_used": not first_use}
 
 
 # ── Purchases ──────────────────────────────────────────────────────

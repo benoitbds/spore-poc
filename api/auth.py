@@ -143,14 +143,21 @@ async def request_magic_link(payload: MagicLinkRequest) -> MagicLinkResponse:
 
 @router.get("/verify", response_model=VerifyResponse)
 async def verify_magic_link(token: str) -> VerifyResponse:
-    """Burn the magic-link token and return a JWT + user profile."""
-    user_id = await consume_magic_link(token)
-    if user_id is None:
+    """Exchange a magic-link token for a JWT. Idempotent.
+
+    A second call with the same (non-expired) token re-issues a fresh
+    JWT for the same user instead of failing — StrictMode, retries and
+    shared clicks used to cause a valid session to be wiped on the
+    second call because the backend rejected the replay.
+    """
+    state = await consume_magic_link(token)
+    if state is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="invalid, expired, or already-used token",
+            detail="invalid or expired token",
         )
-    user = await get_user(user_id)
+
+    user = await get_user(state["user_id"])
     if user is None:
         # Theoretically unreachable (token FK → user), but guard anyway.
         raise HTTPException(
@@ -158,7 +165,15 @@ async def verify_magic_link(token: str) -> VerifyResponse:
             detail="user missing after token verification",
         )
     jwt_token = issue_jwt(user["id"], user["email"])
-    logger.info("magic_link_verified", user_id=user["id"])
+
+    if state["already_used"]:
+        logger.warning(
+            "magic_link_verified_idempotent",
+            user_id=user["id"], token_prefix=token[:8],
+        )
+    else:
+        logger.info("magic_link_verified", user_id=user["id"])
+
     return VerifyResponse(
         token=jwt_token,
         user=UserPublic(
