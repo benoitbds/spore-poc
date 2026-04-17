@@ -98,41 +98,54 @@ async def get_full_brief(
 
     user_id = current_user["id"]
 
-    # 1. Already owned — always free.
+    # ── LAUNCH MODE: all briefs are free after email auth ──────────
+    # The credit/payment logic below is preserved but commented out.
+    # To re-enable monetisation, uncomment the original block and
+    # remove the launch-mode section.
+
+    # 1. Already owned — always free (no duplicate purchase row).
     if await user_owns_brief(user_id, brief_id):
         logger.info("brief_delivered_owned", user_id=user_id, brief_id=brief_id)
         return _build_response(brief, delivery_reason="owned")
 
-    # 2. First free brief of the user's lifetime.
-    if not current_user["free_brief_used"]:
-        await mark_free_brief_used(user_id)
-        await record_brief_ownership(
-            user_id=user_id, brief_id=brief_id, type_="free", amount_cents=0,
-        )
-        logger.info("brief_delivered_free", user_id=user_id, brief_id=brief_id)
-        return _build_response(brief, delivery_reason="free")
-
-    # 3. Spend a credit.
-    if current_user["credits"] > 0:
-        await update_user_credits(user_id, -1)
-        await record_brief_ownership(
-            user_id=user_id,
-            brief_id=brief_id,
-            type_="single",
-            amount_cents=PRICES["single"],
-        )
-        logger.info("brief_delivered_credit", user_id=user_id, brief_id=brief_id)
-        return _build_response(brief, delivery_reason="credit")
-
-    # 4. Payment required.
-    raise HTTPException(
-        status_code=status.HTTP_402_PAYMENT_REQUIRED,
-        detail={
-            "error": "no_credits",
-            "checkout_url": f"{BASE_URL}/pricing",
-            "message": "No credits left. Buy a single brief (9 €) or a pack (29 € for 5).",
-        },
+    # 2. Launch mode — free for everyone, record ownership.
+    await record_brief_ownership(
+        user_id=user_id, brief_id=brief_id, type_="launch_free", amount_cents=0,
     )
+    logger.info("brief_delivered_launch_free", user_id=user_id, brief_id=brief_id)
+    return _build_response(brief, delivery_reason="free")
+
+    # ── Original monetisation logic (disabled during launch) ───────
+    # # 2. First free brief of the user's lifetime.
+    # if not current_user["free_brief_used"]:
+    #     await mark_free_brief_used(user_id)
+    #     await record_brief_ownership(
+    #         user_id=user_id, brief_id=brief_id, type_="free", amount_cents=0,
+    #     )
+    #     logger.info("brief_delivered_free", user_id=user_id, brief_id=brief_id)
+    #     return _build_response(brief, delivery_reason="free")
+    #
+    # # 3. Spend a credit.
+    # if current_user["credits"] > 0:
+    #     await update_user_credits(user_id, -1)
+    #     await record_brief_ownership(
+    #         user_id=user_id,
+    #         brief_id=brief_id,
+    #         type_="single",
+    #         amount_cents=PRICES["single"],
+    #     )
+    #     logger.info("brief_delivered_credit", user_id=user_id, brief_id=brief_id)
+    #     return _build_response(brief, delivery_reason="credit")
+    #
+    # # 4. Payment required.
+    # raise HTTPException(
+    #     status_code=status.HTTP_402_PAYMENT_REQUIRED,
+    #     detail={
+    #         "error": "no_credits",
+    #         "checkout_url": f"{BASE_URL}/pricing",
+    #         "message": "No credits left.",
+    #     },
+    # )
 
 
 # ── Helpers ────────────────────────────────────────────────────────
