@@ -10,16 +10,52 @@ from __future__ import annotations
 from typing import Annotated, Any, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
+from agents.constitution_guard import _domain_is_excluded
 from logging_config import get_logger
 from api.auth import get_current_user
+from api.config import LAUNCH_MODE
 from api.custom_runner import run_custom_request
-from api.db import get_custom_request
+from api.db import (
+    create_custom_request,
+    create_purchase,
+    get_custom_request,
+    user_has_any_custom_request,
+)
 
 logger = get_logger("api.custom")
 
 router = APIRouter(prefix="/api/custom", tags=["custom"])
+
+
+_EXCLUDED_DOMAINS = [
+    "weapons_development",
+    "surveillance_technology",
+    "any domain with dual-use concerns without human approval",
+]
+
+
+def _assert_domain_allowed(domain: str) -> None:
+    """Raise 400 if ``domain`` would be killed by the constitution guard."""
+    hit = _domain_is_excluded(domain, _EXCLUDED_DOMAINS)
+    if hit:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"domain '{domain}' is excluded by the SPORE constitution "
+                   f"(matches rule '{hit}')",
+        )
+
+
+class CustomFreeRequest(BaseModel):
+    domain_a: str = Field(..., min_length=3, max_length=80)
+    domain_b: str = Field(..., min_length=3, max_length=80)
+
+
+class CustomFreeResponse(BaseModel):
+    custom_request_id: str
+    status: str
+    message: str
 
 
 class CustomStatusResponse(BaseModel):
@@ -38,6 +74,70 @@ class CustomRunResponse(BaseModel):
     id: str
     status: str
     message: str
+
+
+@router.post("/free", response_model=CustomFreeResponse)
+async def custom_free(
+    payload: CustomFreeRequest,
+    background_tasks: BackgroundTasks,
+    current_user: Annotated[dict[str, Any], Depends(get_current_user)],
+) -> CustomFreeResponse:
+    """Launch-mode endpoint — runs a custom collision for free, one per user.
+
+    Bypasses Stripe entirely. Validates the two domains against the
+    constitution exclusion list, enforces a 1-per-user lifetime cap,
+    inserts a purchases row (type='launch_custom_free', amount_cents=0,
+    status='paid') and a matching custom_requests row, then schedules
+    the pipeline to run in a BackgroundTask.
+    """
+    if not LAUNCH_MODE:
+        raise HTTPException(
+            status.HTTP_404_NOT_FOUND, "free custom collisions are not available",
+        )
+
+    if payload.domain_a.strip().lower() == payload.domain_b.strip().lower():
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "'domain_a' and 'domain_b' must be different",
+        )
+    _assert_domain_allowed(payload.domain_a)
+    _assert_domain_allowed(payload.domain_b)
+
+    user_id = current_user["id"]
+
+    if await user_has_any_custom_request(user_id):
+        raise HTTPException(
+            status.HTTP_409_CONFLICT,
+            "Limite atteinte pour l'offre de lancement — une seule "
+            "collision sur mesure offerte par utilisateur.",
+        )
+
+    purchase_id = await create_purchase(
+        user_id=user_id,
+        type_="launch_custom_free",
+        amount_cents=0,
+        status="paid",
+    )
+    request_id = await create_custom_request(
+        user_id=user_id,
+        domain_a=payload.domain_a.strip(),
+        domain_b=payload.domain_b.strip(),
+        purchase_id=purchase_id,
+        status="paid",
+    )
+
+    background_tasks.add_task(_run_wrapper, request_id)
+
+    logger.info(
+        "custom_free_enqueued",
+        user_id=user_id, request_id=request_id,
+        domain_a=payload.domain_a, domain_b=payload.domain_b,
+    )
+    return CustomFreeResponse(
+        custom_request_id=request_id,
+        status="running",
+        message="collision lancée — suivi en temps réel sur /status",
+    )
 
 
 @router.get("/{request_id}/status", response_model=CustomStatusResponse)

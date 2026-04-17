@@ -167,14 +167,26 @@ async def create_purchase(
     stripe_session_id: Optional[str] = None,
     status: str = "pending",
 ) -> str:
-    """Insert a purchase row; returns the new purchase id."""
+    """Insert a purchase row; returns the new purchase id.
+
+    When ``status='paid'`` is passed on creation (free launch-mode flows
+    that bypass Stripe), ``paid_at`` is set to now so the row sorts
+    correctly in purchase-history listings.
+    """
     pid = f"pur_{uuid4().hex[:24]}"
+    paid_at = (
+        datetime.now(timezone.utc).isoformat() if status == "paid" else None
+    )
     async with get_connection() as conn:
         await conn.execute(
             "INSERT INTO purchases "
-            "(id, user_id, brief_id, type, amount_cents, stripe_session_id, status) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (pid, user_id, brief_id, type_, amount_cents, stripe_session_id, status),
+            "(id, user_id, brief_id, type, amount_cents, "
+            "stripe_session_id, status, paid_at) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (
+                pid, user_id, brief_id, type_, amount_cents,
+                stripe_session_id, status, paid_at,
+            ),
         )
         await conn.commit()
     return pid
@@ -280,6 +292,20 @@ async def get_custom_request(request_id: str) -> Optional[dict[str, Any]]:
         )
         row = await cursor.fetchone()
     return dict(row) if row else None
+
+
+async def user_has_any_custom_request(user_id: str) -> bool:
+    """Return True if ``user_id`` already has a custom_request (any status).
+
+    Used by the launch-mode free endpoint to enforce "1 custom per user".
+    """
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            "SELECT 1 FROM custom_requests WHERE user_id = ? LIMIT 1",
+            (user_id,),
+        )
+        row = await cursor.fetchone()
+    return row is not None
 
 
 async def update_custom_request(

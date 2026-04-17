@@ -43,6 +43,12 @@ BASE_URL: str = os.getenv("BASE_URL", "https://spore-research.com")
 API_URL: str = os.getenv("API_URL", "https://api.spore-research.com")
 FROM_EMAIL: str = os.getenv("FROM_EMAIL", "SPORE <noreply@spore-research.com>")
 
+# ── Launch mode ────────────────────────────────────────────────────
+# When true, briefs and 1 custom collision per user are delivered for
+# free (Stripe checkout is bypassed). Flip to "false" to restore the
+# paid flow.
+LAUNCH_MODE: bool = os.getenv("LAUNCH_MODE", "true").strip().lower() == "true"
+
 # ── Product pricing (cents EUR) ────────────────────────────────────
 PRICES: dict[str, int] = {
     "single": 900,      # 9 €  — one brief
