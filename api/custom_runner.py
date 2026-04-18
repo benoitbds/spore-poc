@@ -124,6 +124,39 @@ def _initial_state(collision: Collision, run_id: str) -> PipelineState:
     }
 
 
+async def _pick_surprise_partner(
+    request_id: str, domain_a: str,
+) -> tuple[str, Optional[float]]:
+    """Pick a random partner for ``domain_a`` using the L0 genome's
+    fertile-zone distance bounds. Returns the partner name and the
+    cosine distance (or None when the user's domain isn't in the map).
+    """
+    from config import get_genome
+    from knowledge.domain_map import get_domain_map
+
+    genome = get_genome()
+    randomness = getattr(genome, "randomness", {}) or {}
+    distance_min = float(randomness.get("distance_min", 0.4))
+    distance_max = float(randomness.get("distance_max", 0.7))
+
+    domain_map = get_domain_map("all_science")
+    pick = domain_map.get_random_partner_for(
+        domain_name=domain_a,
+        distance_min=distance_min,
+        distance_max=distance_max,
+    )
+    if pick is None:
+        err = "No domains available for surprise partner selection"
+        logger.error("surprise_partner_unavailable", request_id=request_id, detail=err)
+        await update_custom_request(
+            request_id, status="failed", error_message=err, completed=True,
+        )
+        raise RuntimeError(err)
+
+    partner, distance = pick
+    return partner.name, distance
+
+
 async def _validate_domains(request_id: str, request: dict[str, Any]) -> None:
     """Reject the run if either domain hits the constitution hard-kill list."""
     excluded = [
@@ -161,6 +194,23 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
             "reviewer_verdict": None,
             "low_confidence": False,
         }
+
+    # Surprise mode: domain_b was persisted as an empty-string sentinel.
+    # Resolve it now against the domain map and patch the row so the
+    # status endpoint starts showing the real partner immediately.
+    if not request.get("domain_b"):
+        picked_name, picked_distance = await _pick_surprise_partner(
+            request_id, request["domain_a"],
+        )
+        await update_custom_request(request_id, domain_b=picked_name)
+        request["domain_b"] = picked_name
+        logger.info(
+            "surprise_domain_selected",
+            request_id=request_id,
+            domain_a=request["domain_a"],
+            domain_b=picked_name,
+            distance=picked_distance,
+        )
 
     await _validate_domains(request_id, request)
     await update_custom_request(request_id, status="running")

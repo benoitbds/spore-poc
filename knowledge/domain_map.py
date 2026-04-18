@@ -373,6 +373,53 @@ class DomainMap:
 
         return collisions
 
+    def get_random_partner_for(
+        self,
+        domain_name: str,
+        distance_min: float = 0.4,
+        distance_max: float = 0.7,
+    ) -> Optional[tuple[Domain, Optional[float]]]:
+        """Pick a random partner for ``domain_name`` in the fertile zone.
+
+        Supports the "surprise me" custom-collision mode: the user
+        provides one domain, SPORE picks the partner.
+
+        Behaviour:
+          - If ``domain_name`` matches a known domain in the map, the
+            pick is filtered by the cosine-distance range and the
+            returned tuple's second element is the distance.
+          - If the domain is unknown (free-form user input), falls back
+            to a uniform random draw from the full domain set; the
+            distance is returned as ``None`` since we can't measure it.
+          - Returns ``None`` only if the domain map is empty.
+        """
+        if not self._domains:
+            return None
+
+        domain_a = self.get_domain_by_name(domain_name)
+        if domain_a is not None and self._distance_matrix is not None:
+            idx_a = self._get_domain_index(domain_a.id)
+            if idx_a is not None:
+                candidates: list[tuple[int, float]] = []
+                for j in range(len(self._domains)):
+                    if j == idx_a:
+                        continue
+                    dist = float(self._distance_matrix[idx_a, j])
+                    if distance_min <= dist <= distance_max:
+                        candidates.append((j, dist))
+                if candidates:
+                    j, dist = random.choice(candidates)
+                    return self._domains[j], dist
+
+        # Fallback: user's domain isn't mapped → uniform random pick.
+        partner = random.choice(self._domains)
+        if domain_a is not None and partner.id == domain_a.id:
+            # Extremely unlikely but guard against picking self.
+            candidates_rest = [d for d in self._domains if d.id != partner.id]
+            if candidates_rest:
+                partner = random.choice(candidates_rest)
+        return partner, None
+
     def force_collision(
         self,
         domain_a_name: str,

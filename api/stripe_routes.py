@@ -92,7 +92,15 @@ class CheckoutRequest(BaseModel):
         None, description="Required for type='custom'"
     )
     domain_b: Optional[str] = Field(
-        None, description="Required for type='custom'"
+        None,
+        description="Required for type='custom' in targeted mode; omitted "
+                    "in surprise mode.",
+    )
+    mode: Literal["surprise", "targeted"] = Field(
+        "targeted",
+        description="For type='custom' only: whether the user picks both "
+                    "domains ('targeted') or only domain_a and SPORE draws "
+                    "the partner randomly ('surprise').",
     )
 
 
@@ -117,16 +125,23 @@ async def create_checkout(
     user_id = current_user["id"]
     email = current_user["email"]
 
-    # Custom collisions require two allowed domain names.
+    # Custom collisions require at least domain_a; domain_b is only
+    # mandatory in targeted mode.
     custom_request_id: Optional[str] = None
     if payload.type == "custom":
-        if not payload.domain_a or not payload.domain_b:
+        if not payload.domain_a:
             raise HTTPException(
                 status.HTTP_400_BAD_REQUEST,
-                "'domain_a' and 'domain_b' are required for custom collisions",
+                "'domain_a' is required for custom collisions",
+            )
+        if payload.mode == "targeted" and not payload.domain_b:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "'domain_b' is required for targeted custom collisions",
             )
         _assert_domain_allowed(payload.domain_a)
-        _assert_domain_allowed(payload.domain_b)
+        if payload.domain_b:
+            _assert_domain_allowed(payload.domain_b)
 
     # Pre-insert a pending purchase so the webhook can find it by session id.
     label_map = {"single": "brief", "pack_5": "pack_5", "custom": "custom"}
@@ -142,9 +157,10 @@ async def create_checkout(
         custom_request_id = await create_custom_request(
             user_id=user_id,
             domain_a=payload.domain_a or "",
-            domain_b=payload.domain_b or "",
+            domain_b=payload.domain_b if payload.domain_b else None,
             purchase_id=purchase_id,
             status="pending",
+            mode=payload.mode,
         )
 
     try:

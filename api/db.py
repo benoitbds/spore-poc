@@ -280,18 +280,25 @@ async def record_brief_ownership(
 async def create_custom_request(
     user_id: str,
     domain_a: str,
-    domain_b: str,
+    domain_b: Optional[str],
     purchase_id: Optional[str] = None,
     status: str = "pending",
+    mode: str = "targeted",
 ) -> str:
-    """Insert a custom_request row; returns the new request id."""
+    """Insert a custom_request row; returns the new request id.
+
+    ``domain_b`` may be None or empty for surprise-mode runs — the
+    runner picks the partner and patches the row before starting the
+    pipeline. The underlying column is NOT NULL, so we persist an
+    empty string sentinel in that case.
+    """
     rid = f"cus_{uuid4().hex[:24]}"
     async with get_connection() as conn:
         await conn.execute(
             "INSERT INTO custom_requests "
-            "(id, user_id, domain_a, domain_b, purchase_id, status) "
-            "VALUES (?, ?, ?, ?, ?, ?)",
-            (rid, user_id, domain_a, domain_b, purchase_id, status),
+            "(id, user_id, domain_a, domain_b, purchase_id, status, mode) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (rid, user_id, domain_a, domain_b or "", purchase_id, status, mode),
         )
         await conn.commit()
     return rid
@@ -328,6 +335,7 @@ async def update_custom_request(
     brief_id: Optional[str] = None,
     error_message: Optional[str] = None,
     completed: bool = False,
+    domain_b: Optional[str] = None,
 ) -> None:
     """Patch fields on a custom_request."""
     fields: list[str] = []
@@ -344,6 +352,9 @@ async def update_custom_request(
     if error_message is not None:
         fields.append("error_message = ?")
         values.append(error_message)
+    if domain_b is not None:
+        fields.append("domain_b = ?")
+        values.append(domain_b)
     if completed:
         fields.append("completed_at = ?")
         values.append(datetime.now(timezone.utc).isoformat())

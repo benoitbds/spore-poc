@@ -7,7 +7,7 @@ exists so an operator can re-queue a failed run without hitting Stripe.
 
 from __future__ import annotations
 
-from typing import Annotated, Any, Optional
+from typing import Annotated, Any, Literal, Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from pydantic import BaseModel, Field
@@ -48,8 +48,11 @@ def _assert_domain_allowed(domain: str) -> None:
 
 
 class CustomFreeRequest(BaseModel):
+    mode: Literal["surprise", "targeted"] = "targeted"
     domain_a: str = Field(..., min_length=3, max_length=80)
-    domain_b: str = Field(..., min_length=3, max_length=80)
+    # Required in targeted mode, optional in surprise mode (the runner
+    # picks a random partner via the domain map in that case).
+    domain_b: Optional[str] = Field(default=None, min_length=3, max_length=80)
 
 
 class CustomFreeResponse(BaseModel):
@@ -95,13 +98,20 @@ async def custom_free(
             status.HTTP_404_NOT_FOUND, "free custom collisions are not available",
         )
 
-    if payload.domain_a.strip().lower() == payload.domain_b.strip().lower():
-        raise HTTPException(
-            status.HTTP_400_BAD_REQUEST,
-            "'domain_a' and 'domain_b' must be different",
-        )
+    if payload.mode == "targeted":
+        if not payload.domain_b:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "'domain_b' is required in targeted mode",
+            )
+        if payload.domain_a.strip().lower() == payload.domain_b.strip().lower():
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "'domain_a' and 'domain_b' must be different",
+            )
+        _assert_domain_allowed(payload.domain_b)
+
     _assert_domain_allowed(payload.domain_a)
-    _assert_domain_allowed(payload.domain_b)
 
     user_id = current_user["id"]
 
@@ -121,17 +131,18 @@ async def custom_free(
     request_id = await create_custom_request(
         user_id=user_id,
         domain_a=payload.domain_a.strip(),
-        domain_b=payload.domain_b.strip(),
+        domain_b=payload.domain_b.strip() if payload.domain_b else None,
         purchase_id=purchase_id,
         status="paid",
+        mode=payload.mode,
     )
 
     background_tasks.add_task(_run_wrapper, request_id)
 
     logger.info(
         "custom_free_enqueued",
-        user_id=user_id, request_id=request_id,
-        domain_a=payload.domain_a, domain_b=payload.domain_b,
+        user_id=user_id, request_id=request_id, mode=payload.mode,
+        domain_a=payload.domain_a, domain_b=payload.domain_b or "(surprise)",
     )
     return CustomFreeResponse(
         custom_request_id=request_id,

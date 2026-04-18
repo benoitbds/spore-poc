@@ -249,6 +249,17 @@ async def init_database() -> None:
         except Exception:
             pass  # Column already exists
 
+        # Migration: add mode to custom_requests — 'targeted' (user picks
+        # both domains) or 'surprise' (user picks domain_a, SPORE picks
+        # domain_b randomly).
+        try:
+            await conn.execute(
+                "ALTER TABLE custom_requests ADD COLUMN mode TEXT DEFAULT 'targeted'"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
     """Save a hypothesis to the database."""
