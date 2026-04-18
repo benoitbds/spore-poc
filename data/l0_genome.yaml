@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-18T07:01:31.889308'
-mutated_by: L1-MUT-20260418-61c228
+last_mutated: '2026-04-18T07:01:31.901672'
+mutated_by: L1-MUT-20260418-dc77f2
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
@@ -98,10 +98,10 @@ schedule:
   active_hours: 00:00-23:59
   frequency: manual
 score_weights:
-  coherence: 0.45
-  hallucination_risk: -0.15
-  impact_potential: 0.1
-  novelty: 0.15
+  coherence: 0.4
+  hallucination_risk: -0.2
+  impact_potential: 0.15
+  novelty: 0.2
   testability: 0.45
 sources:
 - semantic_scholar
