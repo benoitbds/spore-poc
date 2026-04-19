@@ -10,7 +10,7 @@ agents:
   curator:
     model: deepseek-chat
     parameters:
-      top_percent: 0.1
+      top_percent: 0.15
     prompt_version: curator_v1
     provider: deepseek
   experimental_protocol:
@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-18T07:01:31.912898'
-mutated_by: L1-MUT-20260418-24ebd3
+last_mutated: '2026-04-19T07:01:25.019434'
+mutated_by: L1-MUT-20260419-72a328
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
