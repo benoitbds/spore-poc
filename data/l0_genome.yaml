@@ -70,7 +70,7 @@ agents:
     parameters:
       max_tokens: 3000
       no_bridge_allowed: true
-      temperature: 0.5
+      temperature: 0.7
     prompt_version: synthesis_v1
     provider: deepseek
   vulgarization:
@@ -99,7 +99,7 @@ schedule:
   frequency: manual
 score_weights:
   coherence: 0.4
-  hallucination_risk: -0.2
+  hallucination_risk: -0.15
   impact_potential: 0.15
   novelty: 0.2
   testability: 0.45
