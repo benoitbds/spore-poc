@@ -83,6 +83,13 @@ agents:
 genome_version: l0_v1
 last_mutated: '2026-04-19T07:01:25.044299'
 mutated_by: L1-MUT-20260419-141b88
+mutation_locks:
+- locked_until: '2026-04-22'
+  path: agents.synthesis.parameters.temperature
+  reason: 'HUMAN-OVERRIDE 78b172b: reverted from 0.5 after score collapse'
+- locked_until: '2026-04-22'
+  path: score_weights.hallucination_risk
+  reason: 'HUMAN-OVERRIDE 78b172b: reverted from -0.2 after score collapse'
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7

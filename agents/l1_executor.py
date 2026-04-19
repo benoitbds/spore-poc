@@ -10,7 +10,7 @@ The Executor:
 """
 
 import subprocess
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 from typing import Optional
 
@@ -76,6 +76,55 @@ def set_nested_value(data: dict, path: str, value: any) -> bool:
         return True
 
     return False
+
+
+def _load_active_locks(
+    genome_path: Path,
+) -> dict[str, tuple[datetime, str]]:
+    """Load active (non-expired) mutation locks from genome YAML.
+
+    Reads the ``mutation_locks`` section and returns a mapping
+    ``target_path -> (locked_until_dt, reason)`` restricted to locks
+    whose ``locked_until`` is strictly in the future. Expired or
+    malformed entries are silently dropped.
+
+    Args:
+        genome_path: Path to genome YAML file.
+
+    Returns:
+        Mapping of locked paths to (expiry datetime, reason).
+    """
+    with open(genome_path) as f:
+        data = yaml.safe_load(f) or {}
+
+    raw_locks = data.get("mutation_locks") or []
+    now = datetime.now()
+    active: dict[str, tuple[datetime, str]] = {}
+
+    for entry in raw_locks:
+        if not isinstance(entry, dict):
+            continue
+        path = entry.get("path")
+        until_raw = entry.get("locked_until")
+        if not path or until_raw is None:
+            continue
+
+        if isinstance(until_raw, datetime):
+            until = until_raw
+        elif isinstance(until_raw, date):
+            until = datetime.combine(until_raw, datetime.min.time())
+        elif isinstance(until_raw, str):
+            try:
+                until = datetime.fromisoformat(until_raw)
+            except ValueError:
+                continue
+        else:
+            continue
+
+        if until > now:
+            active[path] = (until, entry.get("reason", ""))
+
+    return active
 
 
 def apply_mutation_to_genome(
@@ -196,10 +245,13 @@ async def execute_proposal(
         settings = get_settings()
         genome_path = settings.genome_path
 
+    active_locks = _load_active_locks(genome_path)
+
     logger.info(
         "executor_starting",
         mutations_to_apply=len(proposal.mutations),
         dry_run=dry_run,
+        active_locks=len(active_locks),
     )
 
     applied = []
@@ -208,6 +260,20 @@ async def execute_proposal(
     for mutation in proposal.mutations:
         if mutation.status != MutationStatus.VALIDATED:
             failed.append((mutation, "Not validated"))
+            continue
+
+        if mutation.target_path in active_locks:
+            until, reason = active_locks[mutation.target_path]
+            block_msg = f"locked until {until.isoformat()}: {reason}"
+            logger.warning(
+                "mutation_blocked_by_lock",
+                mutation_id=mutation.id,
+                path=mutation.target_path,
+                locked_until=until.isoformat(),
+                reason=reason,
+            )
+            mutation.status = MutationStatus.REJECTED
+            failed.append((mutation, f"Mutation blocked: {block_msg}"))
             continue
 
         if dry_run:
