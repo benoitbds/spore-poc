@@ -158,22 +158,60 @@ async def explorer_agent(state: PipelineState) -> PipelineState:
     # Get domain map for the specified domain
     domain = state.get("domain", "materials_science")
 
+    fix_domain_a = state.get("fix_domain_a")
+
     logger.info(
         "explorer_starting",
         n_collisions=n_collisions,
         distance_range=f"{distance_min}-{distance_max}",
         cross_discipline_ratio=cross_discipline_ratio,
         domain=domain,
+        fix_domain_a=fix_domain_a,
     )
     domain_map = get_domain_map(domain)
 
-    collision_pairs = domain_map.get_multiple_collisions(
-        n=n_collisions,
-        distance_min=distance_min,
-        distance_max=distance_max,
-        unique=True,
-        cross_discipline_ratio=cross_discipline_ratio,
-    )
+    if fix_domain_a:
+        fixed = domain_map.get_domain_by_id(fix_domain_a)
+        if fixed is None:
+            raise ValueError(
+                f"Subdomain not found in {domain!r} domain map: {fix_domain_a!r}"
+            )
+
+        excluded = (
+            state.get("constitution", {})
+            .get("ethics", {})
+            .get("excluded_domains", [])
+        )
+        target_text = f"{fixed.name} {fixed.parent_domain or ''}".lower()
+        for pattern in excluded:
+            if pattern and pattern.lower() in target_text:
+                raise ValueError(
+                    f"Subdomain {fix_domain_a!r} ({fixed.name}, "
+                    f"parent={fixed.parent_domain!r}) matches constitution "
+                    f"excluded_domains pattern {pattern!r}"
+                )
+
+        logger.info(
+            "domain_a_fixed",
+            fixed_id=fix_domain_a,
+            fixed_name=fixed.name,
+            parent_domain=fixed.parent_domain,
+        )
+        collision_pairs = domain_map.get_collisions_with_fixed_domain(
+            fixed_domain_id=fix_domain_a,
+            n=n_collisions,
+            distance_min=distance_min,
+            distance_max=distance_max,
+            unique=True,
+        )
+    else:
+        collision_pairs = domain_map.get_multiple_collisions(
+            n=n_collisions,
+            distance_min=distance_min,
+            distance_max=distance_max,
+            unique=True,
+            cross_discipline_ratio=cross_discipline_ratio,
+        )
 
     if not collision_pairs:
         logger.error("no_collision_pairs_generated")

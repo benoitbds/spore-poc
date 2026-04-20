@@ -27,6 +27,7 @@ async def run_autopilot(
     n_collisions: int = 100,
     domain: str = "all_science",
     send_email: bool = False,
+    fix_domain_a: Optional[str] = None,
 ) -> str:
     """Run autopilot cycle and generate digest.
 
@@ -34,6 +35,8 @@ async def run_autopilot(
         n_collisions: Number of domain collisions to generate
         domain: Domain to explore (materials_science, all_science)
         send_email: Whether to send digest via email
+        fix_domain_a: Optional subdomain ID (e.g. "MED-003") to fix as
+            domain_a on every collision, for targeted runs.
 
     Returns:
         Path to the generated digest file
@@ -45,6 +48,7 @@ async def run_autopilot(
         n_collisions=n_collisions,
         domain=domain,
         send_email=send_email,
+        fix_domain_a=fix_domain_a,
     )
 
     # 1. Initialize database
@@ -62,6 +66,7 @@ async def run_autopilot(
         n_collisions=n_collisions,
         save_to_db=True,
         domain=domain,
+        fix_domain_a=fix_domain_a,
     )
 
     run_metrics = result.get("metrics", {})

@@ -33,6 +33,7 @@ class PipelineState(TypedDict, total=False):
     distance_min: float
     distance_max: float
     domain: str  # Domain to use: "materials_science" or "all_science"
+    fix_domain_a: Optional[str]  # If set, force domain_a to this subdomain ID
     run_id: str
 
     # Exploration phase

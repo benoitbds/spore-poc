@@ -373,6 +373,86 @@ class DomainMap:
 
         return collisions
 
+    def get_collisions_with_fixed_domain(
+        self,
+        fixed_domain_id: str,
+        n: int,
+        distance_min: float = 0.4,
+        distance_max: float = 0.7,
+        unique: bool = True,
+    ) -> list[CollisionPair]:
+        """Generate n collisions with domain_a fixed to a specific subdomain.
+
+        domain_b is chosen from the fertile zone around the fixed domain.
+        No cross_discipline enforcement — the point is to explore anything
+        that's semantically distant from the fixed side, regardless of parent.
+
+        Args:
+            fixed_domain_id: Subdomain ID to fix as domain_a (e.g. "MED-003").
+            n: Number of collisions to generate.
+            distance_min: Minimum cosine distance for domain_b.
+            distance_max: Maximum cosine distance for domain_b.
+            unique: Avoid duplicate partner domains.
+
+        Returns:
+            List of CollisionPair with domain_a == the fixed subdomain.
+
+        Raises:
+            ValueError: if fixed_domain_id is not in the loaded map.
+            RuntimeError: if the map has not been loaded.
+        """
+        if self._distance_matrix is None:
+            raise RuntimeError("Domain map not loaded. Call load() first.")
+
+        idx_fixed = self._get_domain_index(fixed_domain_id)
+        if idx_fixed is None:
+            raise ValueError(
+                f"Subdomain ID not found in domain map: {fixed_domain_id!r}"
+            )
+
+        fixed_domain = self._domains[idx_fixed]
+
+        candidates: list[tuple[int, float]] = []
+        for j in range(len(self._domains)):
+            if j == idx_fixed:
+                continue
+            dist = float(self._distance_matrix[idx_fixed, j])
+            if distance_min <= dist <= distance_max:
+                candidates.append((j, dist))
+
+        if not candidates:
+            logger.warning(
+                "no_partners_in_fertile_zone_for_fixed",
+                fixed_id=fixed_domain_id,
+                fixed_name=fixed_domain.name,
+                distance_range=f"{distance_min}-{distance_max}",
+            )
+            return []
+
+        if unique:
+            selected = random.sample(candidates, min(n, len(candidates)))
+        else:
+            selected = random.choices(candidates, k=n)
+
+        collisions: list[CollisionPair] = []
+        for partner_idx, dist in selected:
+            collisions.append(CollisionPair(
+                domain_a=fixed_domain,
+                domain_b=self._domains[partner_idx],
+                strategy=CollisionStrategy.SEMANTIC_DISTANCE,
+                distance_score=dist,
+            ))
+
+        logger.info(
+            "fixed_domain_collisions_generated",
+            fixed_id=fixed_domain_id,
+            fixed_name=fixed_domain.name,
+            count=len(collisions),
+            unique=unique,
+            candidates_available=len(candidates),
+        )
+        return collisions
+
     def get_random_partner_for(
         self,
         domain_name: str,

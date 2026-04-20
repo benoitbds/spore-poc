@@ -314,15 +314,26 @@ def config():
     is_flag=True,
     help="Send digest via email after completion",
 )
-def autopilot(collisions: int, domain: str, send_email: bool):
+@click.option(
+    "--fix-domain-a",
+    "fix_domain_a",
+    default=None,
+    metavar="SUBDOMAIN_ID",
+    help="Force every collision's domain_a to this subdomain ID "
+    "(e.g. 'MED-003' for Tissue Regeneration). Targeted-run mode.",
+)
+def autopilot(collisions: int, domain: str, send_email: bool, fix_domain_a: str):
     """Run automated hypothesis generation with digest.
 
     Runs N collisions, curates hypotheses, runs impact analysis,
     and generates a markdown digest file. Optionally sends email.
     """
+    subtitle = f"{collisions} collisions in {domain}"
+    if fix_domain_a:
+        subtitle += f" (domain_a fixed: {fix_domain_a})"
     console.print(Panel.fit(
         "[bold blue]SPORE Autopilot[/bold blue] - Automated Hypothesis Generation",
-        subtitle=f"{collisions} collisions in {domain}",
+        subtitle=subtitle,
     ))
 
     async def _autopilot():
@@ -340,6 +351,7 @@ def autopilot(collisions: int, domain: str, send_email: bool):
                     n_collisions=collisions,
                     domain=domain,
                     send_email=send_email,
+                    fix_domain_a=fix_domain_a,
                 )
 
                 progress.update(task, description="Autopilot complete!")

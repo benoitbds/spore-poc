@@ -5,7 +5,7 @@ Explorer → Gate → Synthesis → Critics → Curator → Impact
 """
 
 from datetime import datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Optional
 from uuid import uuid4
 
 from langgraph.graph import StateGraph, END
@@ -265,6 +265,7 @@ async def run_pipeline(
     distance_max: float = 0.7,
     save_to_db: bool = True,
     domain: str = "materials_science",
+    fix_domain_a: Optional[str] = None,
 ) -> PipelineState:
     """Run the complete L0 pipeline.
 
@@ -274,6 +275,9 @@ async def run_pipeline(
         distance_max: Maximum semantic distance for collisions
         save_to_db: Whether to save results to database
         domain: Domain to use for collisions ("materials_science" or "all_science")
+        fix_domain_a: If set (e.g. "MED-003"), force every collision's
+            domain_a to this subdomain. domain_b is still chosen from the
+            fertile zone around it.
 
     Returns:
         Final pipeline state with all results
@@ -310,6 +314,7 @@ async def run_pipeline(
         "distance_min": distance_min,
         "distance_max": distance_max,
         "domain": domain,
+        "fix_domain_a": fix_domain_a,
         "run_id": run_id,
         "collision_pairs": [],
         "collisions": [],
