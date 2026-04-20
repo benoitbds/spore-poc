@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-19T07:01:25.044299'
-mutated_by: L1-MUT-20260419-141b88
+last_mutated: '2026-04-20T07:02:00.716240'
+mutated_by: L1-MUT-20260420-4993b5
 mutation_locks:
 - locked_until: '2026-04-22'
   path: agents.synthesis.parameters.temperature
@@ -105,11 +105,11 @@ schedule:
   active_hours: 00:00-23:59
   frequency: manual
 score_weights:
-  coherence: 0.4
+  coherence: 0.45
   hallucination_risk: -0.15
   impact_potential: 0.15
   novelty: 0.2
-  testability: 0.45
+  testability: 0.5
 sources:
 - semantic_scholar
 - arxiv
