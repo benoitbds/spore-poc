@@ -262,6 +262,11 @@ async def execute_proposal(
             failed.append((mutation, "Not validated"))
             continue
 
+        # TODO: current lock check is exact-path match only.
+        # A mutation on a parent path (e.g. "score_weights") can bypass
+        # a lock on a child (e.g. "score_weights.hallucination_risk").
+        # Fix: check if any locked path startswith the mutation path,
+        # or if the mutation path startswith any locked path.
         if mutation.target_path in active_locks:
             until, reason = active_locks[mutation.target_path]
             block_msg = f"locked until {until.isoformat()}: {reason}"
