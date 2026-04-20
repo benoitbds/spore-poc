@@ -237,13 +237,21 @@ class Constitution:
                 "chaos_floor": 0.10,
                 "max_budget_per_day": 50,
                 "rollback_threshold": 0.15,
-                "max_mutations_per_cycle": 3,
                 "human_approval_required_for": [
                     "scope_change",
                     "new_data_source",
                     "agent_architecture_change",
                     "constitution_modification",
                 ],
+            },
+            "mutation_policy": {
+                "min_cycles_between_mutations_same_path": 3,
+                "max_mutations_per_cycle": 2,
+                "oscillation_detection": {
+                    "enabled": True,
+                    "window_cycles": 5,
+                    "max_reversals_per_path": 1,
+                },
             },
             "philosophy": {
                 "purpose": "Generate testable, novel, interdisciplinary hypotheses",

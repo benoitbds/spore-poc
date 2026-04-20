@@ -90,26 +90,29 @@ not to block all change. Small, reversible changes should generally be approved.
 
 async def evaluate_mutation(
     mutation: Mutation,
-    recent_mutations: list[Mutation],
+    recent_mutations: list[dict],
 ) -> tuple[bool, str, list[str]]:
     """Evaluate a single mutation.
 
     Args:
         mutation: Mutation to evaluate
-        recent_mutations: Recently applied mutations for conflict detection
+        recent_mutations: Recently applied/rejected mutations loaded from the
+            mutations SQLite table (each dict has keys applied_at, mutation_type,
+            target_path, new_value, status)
 
     Returns:
         Tuple of (is_valid, verdict_reason, concerns)
     """
     constitution = get_constitution()
 
-    # Format mutation history
     if recent_mutations:
         history_lines = []
-        for m in recent_mutations[-5:]:  # Last 5
+        for m in recent_mutations[:5]:  # helper already returns newest-first
+            date_str = str(m.get("applied_at", ""))[:10]
             history_lines.append(
-                f"- [{m.created_at.strftime('%Y-%m-%d')}] {m.type.value}: "
-                f"{m.target_path} = {m.new_value} ({m.status.value})"
+                f"- [{date_str}] {m.get('mutation_type', '?')}: "
+                f"{m.get('target_path', '?')} = {m.get('new_value', '?')} "
+                f"({m.get('status', '?')})"
             )
         mutation_history = "\n".join(history_lines)
     else:
@@ -171,7 +174,7 @@ async def evaluate_mutation(
 
 async def evaluate_proposal(
     proposal: StrategyProposal,
-    recent_mutations: list[Mutation],
+    recent_mutations: list[dict],
 ) -> StrategyProposal:
     """Evaluate all mutations in a proposal.
 

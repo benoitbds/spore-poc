@@ -172,6 +172,23 @@ CREATE TABLE IF NOT EXISTS magic_links (
     used BOOLEAN DEFAULT FALSE
 );
 CREATE INDEX IF NOT EXISTS idx_magic_links_user ON magic_links(user_id);
+
+-- L1 mutation history. Populated by agents/l1_executor.py per cycle
+-- (both APPLIED and REJECTED mutations are logged for full audit).
+CREATE TABLE IF NOT EXISTS mutations (
+    id TEXT PRIMARY KEY,
+    cycle_id TEXT NOT NULL,
+    applied_at TIMESTAMP NOT NULL,
+    mutation_type TEXT NOT NULL,
+    target_path TEXT NOT NULL,
+    old_value TEXT,
+    new_value TEXT,
+    justification TEXT,
+    status TEXT NOT NULL,
+    metadata_json TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_mutations_applied_at ON mutations(applied_at);
+CREATE INDEX IF NOT EXISTS idx_mutations_target_path ON mutations(target_path);
 """
 
 
@@ -740,6 +757,112 @@ async def update_brief(brief_id: str, **kwargs: Any) -> bool:
         )
         await conn.commit()
         return result.rowcount > 0
+
+
+# ── L1 mutation history ──────────────────────────────────────────────
+
+@asynccontextmanager
+async def _mutations_connection(db_path: Optional[Path] = None):
+    """Connection helper that accepts an explicit DB path (for tests)."""
+    target = db_path if db_path is not None else get_settings().db_path
+    target.parent.mkdir(parents=True, exist_ok=True)
+    async with aiosqlite.connect(target) as conn:
+        conn.row_factory = aiosqlite.Row
+        yield conn
+
+
+async def save_mutation(
+    mutation_record: dict,
+    db_path: Optional[Path] = None,
+) -> None:
+    """Insert a mutation record into the mutations table.
+
+    Expected keys: id, cycle_id, applied_at, mutation_type, target_path,
+    old_value, new_value, justification, status. Optional: metadata_json.
+    old_value/new_value should already be serialized to strings.
+    """
+    async with _mutations_connection(db_path) as conn:
+        await conn.execute(
+            """INSERT OR REPLACE INTO mutations (
+                id, cycle_id, applied_at, mutation_type, target_path,
+                old_value, new_value, justification, status, metadata_json
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                mutation_record["id"],
+                mutation_record["cycle_id"],
+                mutation_record["applied_at"],
+                mutation_record["mutation_type"],
+                mutation_record["target_path"],
+                mutation_record.get("old_value"),
+                mutation_record.get("new_value"),
+                mutation_record.get("justification"),
+                mutation_record["status"],
+                mutation_record.get("metadata_json"),
+            ),
+        )
+        await conn.commit()
+
+
+async def get_recent_mutations(
+    n_cycles: int = 5,
+    db_path: Optional[Path] = None,
+) -> list[dict]:
+    """Return mutations from the N most recent distinct cycle_ids, newest first."""
+    async with _mutations_connection(db_path) as conn:
+        cursor = await conn.execute(
+            """SELECT cycle_id, MAX(applied_at) AS last_at
+               FROM mutations
+               GROUP BY cycle_id
+               ORDER BY last_at DESC
+               LIMIT ?""",
+            (n_cycles,),
+        )
+        cycle_rows = await cursor.fetchall()
+        if not cycle_rows:
+            return []
+        cycle_ids = [r["cycle_id"] for r in cycle_rows]
+        placeholders = ",".join("?" * len(cycle_ids))
+        cursor = await conn.execute(
+            f"""SELECT id, cycle_id, applied_at, mutation_type, target_path,
+                       old_value, new_value, justification, status, metadata_json
+                FROM mutations
+                WHERE cycle_id IN ({placeholders})
+                ORDER BY applied_at DESC""",
+            cycle_ids,
+        )
+        return [dict(row) for row in await cursor.fetchall()]
+
+
+async def get_mutations_for_path(
+    path: str,
+    n_cycles: int = 5,
+    db_path: Optional[Path] = None,
+) -> list[dict]:
+    """Return mutations on target_path within the N most recent distinct cycle_ids."""
+    async with _mutations_connection(db_path) as conn:
+        cursor = await conn.execute(
+            """SELECT cycle_id, MAX(applied_at) AS last_at
+               FROM mutations
+               GROUP BY cycle_id
+               ORDER BY last_at DESC
+               LIMIT ?""",
+            (n_cycles,),
+        )
+        cycle_rows = await cursor.fetchall()
+        if not cycle_rows:
+            return []
+        cycle_ids = [r["cycle_id"] for r in cycle_rows]
+        placeholders = ",".join("?" * len(cycle_ids))
+        cursor = await conn.execute(
+            f"""SELECT id, cycle_id, applied_at, mutation_type, target_path,
+                       old_value, new_value, justification, status, metadata_json
+                FROM mutations
+                WHERE target_path = ?
+                  AND cycle_id IN ({placeholders})
+                ORDER BY applied_at DESC""",
+            [path] + cycle_ids,
+        )
+        return [dict(row) for row in await cursor.fetchall()]
 
 
 def _row_to_hypothesis(row: aiosqlite.Row) -> Hypothesis:

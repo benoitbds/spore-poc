@@ -109,7 +109,7 @@ Respond with a JSON object:
 ```
 
 IMPORTANT:
-- Maximum 3 mutations per cycle (constitution limit)
+- Maximum 2 mutations per cycle (constitution mutation_policy limit)
 - chaos_floor minimum is 0.10 (constitution limit)
 - source changes require human approval - flag them but don't auto-apply
 - Prioritize mutations by estimated impact
@@ -189,7 +189,7 @@ async def propose_mutations(
 
     # Convert to Mutation objects
     mutations = []
-    for m_data in data.get("mutations", [])[:3]:  # Max 3 per constitution
+    for m_data in data.get("mutations", [])[:2]:  # Max 2 per mutation_policy
         try:
             mutation = Mutation(
                 type=MutationType(m_data["type"]),

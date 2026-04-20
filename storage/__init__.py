@@ -21,6 +21,9 @@ from storage.database import (
     list_briefs,
     get_brief,
     update_brief,
+    save_mutation,
+    get_recent_mutations,
+    get_mutations_for_path,
 )
 
 __all__ = [
@@ -44,4 +47,7 @@ __all__ = [
     "list_briefs",
     "get_brief",
     "update_brief",
+    "save_mutation",
+    "get_recent_mutations",
+    "get_mutations_for_path",
 ]

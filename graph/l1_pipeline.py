@@ -25,7 +25,7 @@ from agents.l1_observer import generate_observation_report
 from agents.l1_strategist import propose_mutations
 from agents.l1_critic import evaluate_proposal
 from agents.l1_executor import execute_proposal
-from storage import init_database
+from storage import init_database, get_recent_mutations
 from logging_config import get_logger, get_token_tracker, reset_token_tracker
 
 logger = get_logger("l1_pipeline")
@@ -106,9 +106,8 @@ async def run_l1_cycle(
         # === PHASE 3: CRITIC ===
         logger.info("phase_3_critic")
 
-        # Load recent mutations for conflict detection
-        # TODO: Load from SQLite once mutations table exists
-        recent_mutations: list[Mutation] = []
+        # Load recent mutations from SQLite for conflict detection
+        recent_mutations = await get_recent_mutations(n_cycles=5)
 
         validated_proposal = await evaluate_proposal(
             strategy_proposal,
@@ -135,6 +134,7 @@ async def run_l1_cycle(
             genome_path=settings.genome_path,
             commit_to_git=not dry_run,
             dry_run=dry_run,
+            cycle_id=cycle_id,
         )
 
         results["mutations_applied"] = [m.model_dump() for m in applied]

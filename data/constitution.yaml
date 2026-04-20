@@ -22,15 +22,31 @@ safety:
   # If metrics degrade by more than this, auto-rollback
   rollback_threshold: 0.15
 
-  # Maximum mutations per L1 cycle (prevents instability)
-  max_mutations_per_cycle: 3
-
   # Actions requiring human approval
   human_approval_required_for:
     - "scope_change"
     - "new_data_source"
     - "agent_architecture_change"
     - "constitution_modification"
+
+# Structural anti-oscillation policy for L1 mutations. Enforced by
+# agents/l1_executor.py at application time (not proposal time).
+mutation_policy:
+  # Minimum number of distinct L1 cycles between two mutations on the
+  # same target_path. Prevents hammering the same parameter.
+  min_cycles_between_mutations_same_path: 3
+
+  # Maximum mutations APPLIED per L1 cycle. The Strategist is instructed
+  # to propose at most this many; the Executor enforces it as a hard cap.
+  max_mutations_per_cycle: 2
+
+  # Detects A -> B -> A reversal patterns on a given path within the
+  # sliding window. A reversal is: proposed new_value matches an
+  # old_value stored in a past mutation on the same path.
+  oscillation_detection:
+    enabled: true
+    window_cycles: 5
+    max_reversals_per_path: 1
 
 philosophy:
   purpose: "Generate testable, novel, interdisciplinary hypotheses"

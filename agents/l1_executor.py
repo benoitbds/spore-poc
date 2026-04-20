@@ -9,22 +9,41 @@ The Executor:
 4. Supports automatic rollback if metrics degrade
 """
 
+import json
 import subprocess
 from datetime import date, datetime
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import yaml
 
-from config import get_settings, get_genome
+from config import get_settings, get_genome, get_constitution
 from models.mutation import (
     Mutation,
     MutationStatus,
     StrategyProposal,
 )
+from storage.database import (
+    save_mutation,
+    get_mutations_for_path,
+    get_recent_mutations,
+)
 from logging_config import get_logger
 
 logger = get_logger("l1_executor")
+
+
+# Fail-safe defaults used when constitution.yaml lacks a mutation_policy section.
+# Mirrored in data/constitution.yaml and config.py:_default_constitution.
+_DEFAULT_MUTATION_POLICY: dict[str, Any] = {
+    "min_cycles_between_mutations_same_path": 3,
+    "max_mutations_per_cycle": 2,
+    "oscillation_detection": {
+        "enabled": True,
+        "window_cycles": 5,
+        "max_reversals_per_path": 1,
+    },
+}
 
 
 def get_nested_value(data: dict, path: str) -> any:
@@ -125,6 +144,94 @@ def _load_active_locks(
             active[path] = (until, entry.get("reason", ""))
 
     return active
+
+
+def _load_mutation_policy() -> dict[str, Any]:
+    """Load mutation_policy from constitution, merge with safe defaults.
+
+    If the section is absent, logs a warning and returns the built-in defaults
+    so that removing the section cannot silently disable safety.
+    """
+    raw = get_constitution().to_dict()
+    section = raw.get("mutation_policy")
+    if section is None:
+        logger.warning(
+            "mutation_policy_missing_using_defaults",
+            defaults=_DEFAULT_MUTATION_POLICY,
+        )
+        return {
+            **_DEFAULT_MUTATION_POLICY,
+            "oscillation_detection": dict(
+                _DEFAULT_MUTATION_POLICY["oscillation_detection"]
+            ),
+        }
+    merged = {**_DEFAULT_MUTATION_POLICY, **section}
+    merged["oscillation_detection"] = {
+        **_DEFAULT_MUTATION_POLICY["oscillation_detection"],
+        **(section.get("oscillation_detection") or {}),
+    }
+    return merged
+
+
+def _find_conflicting_lock(
+    mutation_path: str,
+    active_locks: dict[str, tuple[datetime, str]],
+) -> Optional[str]:
+    """Return a locked path that conflicts with mutation_path, or None.
+
+    Coverage (exact, parent-of-locked, child-of-locked):
+      lock="score_weights.hallucination_risk"
+      mutation="score_weights.hallucination_risk"      -> conflicts (exact)
+      mutation="score_weights"                          -> conflicts (parent of lock)
+      mutation="score_weights.hallucination_risk.x"     -> conflicts (child of lock)
+      mutation="score_weights.novelty"                  -> does NOT conflict (sibling)
+    """
+    for locked_path in active_locks:
+        if mutation_path == locked_path:
+            return locked_path
+        if mutation_path.startswith(locked_path + "."):
+            return locked_path
+        if locked_path.startswith(mutation_path + "."):
+            return locked_path
+    return None
+
+
+def _values_equal(a: Any, b: Any) -> bool:
+    """Compare two mutation values. Float tolerance for numerics; sorted JSON otherwise."""
+    try:
+        return abs(float(a) - float(b)) < 1e-6
+    except (TypeError, ValueError):
+        return json.dumps(a, sort_keys=True, default=str) == json.dumps(
+            b, sort_keys=True, default=str
+        )
+
+
+def _serialize_value(value: Any) -> str:
+    """Serialize a mutation value for SQLite storage (deterministic JSON)."""
+    return json.dumps(value, sort_keys=True, default=str)
+
+
+def _deserialize_value(serialized: Optional[str]) -> Any:
+    if serialized is None:
+        return None
+    try:
+        return json.loads(serialized)
+    except (json.JSONDecodeError, TypeError):
+        return serialized
+
+
+def _count_reversals_to(
+    proposed_new_value: Any,
+    past_mutations: list[dict],
+) -> int:
+    """Count how many past mutations on the same path had old_value matching the
+    proposed new_value. An A -> B -> A pattern yields count=1."""
+    count = 0
+    for m in past_mutations:
+        past_old = _deserialize_value(m.get("old_value"))
+        if _values_equal(proposed_new_value, past_old):
+            count += 1
+    return count
 
 
 def apply_mutation_to_genome(
@@ -229,57 +336,190 @@ async def execute_proposal(
     genome_path: Optional[Path] = None,
     commit_to_git: bool = True,
     dry_run: bool = False,
+    cycle_id: Optional[str] = None,
+    db_path: Optional[Path] = None,
 ) -> tuple[list[Mutation], list[tuple[Mutation, str]]]:
     """Execute all validated mutations in a proposal.
+
+    Lock and policy checks ordering (each one, if triggered, marks the mutation
+    REJECTED and records it to the mutations table without applying):
+      1. exact-or-parent-or-child path lock conflict
+      2. cooldown (same path mutated within min_cycles_between_mutations_same_path)
+      3. per-cycle rate limit (max_mutations_per_cycle applied so far)
+      4. oscillation detection (A -> B -> A within window_cycles)
 
     Args:
         proposal: Proposal with validated mutations
         genome_path: Path to genome file (default: from settings)
         commit_to_git: Whether to commit changes to git
-        dry_run: If True, don't actually apply changes
-
-    Returns:
-        Tuple of (applied_mutations, failed_mutations_with_reasons)
+        dry_run: If True, don't actually apply changes and don't persist history
+        cycle_id: L1 cycle identifier; if None, generates MANUAL-<ts>
+        db_path: Override SQLite path (tests only)
     """
     if genome_path is None:
         settings = get_settings()
         genome_path = settings.genome_path
 
+    if cycle_id is None:
+        cycle_id = f"MANUAL-{datetime.now().strftime('%Y%m%d-%H%M%S')}"
+
     active_locks = _load_active_locks(genome_path)
+    policy = _load_mutation_policy()
+    osc_cfg = policy["oscillation_detection"]
+    max_per_cycle = int(policy["max_mutations_per_cycle"])
+    min_cycles_gap = int(policy["min_cycles_between_mutations_same_path"])
 
     logger.info(
         "executor_starting",
+        cycle_id=cycle_id,
         mutations_to_apply=len(proposal.mutations),
         dry_run=dry_run,
         active_locks=len(active_locks),
+        max_per_cycle=max_per_cycle,
+        min_cycles_gap=min_cycles_gap,
+        oscillation_enabled=osc_cfg["enabled"],
     )
 
-    applied = []
-    failed = []
+    applied: list[Mutation] = []
+    failed: list[tuple[Mutation, str]] = []
+    applied_this_cycle = 0
+
+    async def _record(mutation: Mutation, final_status: MutationStatus) -> None:
+        """Persist mutation outcome to SQLite (skipped in dry_run per design D2)."""
+        if dry_run:
+            return
+        try:
+            await save_mutation(
+                {
+                    "id": mutation.id,
+                    "cycle_id": cycle_id,
+                    "applied_at": datetime.now().isoformat(),
+                    "mutation_type": mutation.type.value,
+                    "target_path": mutation.target_path,
+                    "old_value": _serialize_value(mutation.old_value),
+                    "new_value": _serialize_value(mutation.new_value),
+                    "justification": mutation.justification,
+                    "status": final_status.value,
+                },
+                db_path=db_path,
+            )
+        except Exception as e:
+            logger.warning(
+                "save_mutation_failed",
+                mutation_id=mutation.id,
+                error=str(e),
+            )
 
     for mutation in proposal.mutations:
         if mutation.status != MutationStatus.VALIDATED:
             failed.append((mutation, "Not validated"))
             continue
 
-        # TODO: current lock check is exact-path match only.
-        # A mutation on a parent path (e.g. "score_weights") can bypass
-        # a lock on a child (e.g. "score_weights.hallucination_risk").
-        # Fix: check if any locked path startswith the mutation path,
-        # or if the mutation path startswith any locked path.
-        if mutation.target_path in active_locks:
-            until, reason = active_locks[mutation.target_path]
-            block_msg = f"locked until {until.isoformat()}: {reason}"
+        # 1. Lock check — exact + parent + child conflict
+        conflict = _find_conflicting_lock(mutation.target_path, active_locks)
+        if conflict is not None:
+            until, reason = active_locks[conflict]
+            if conflict == mutation.target_path:
+                scope = "exact"
+            elif mutation.target_path.startswith(conflict + "."):
+                scope = "child-of-lock"
+            else:
+                scope = "parent-of-lock"
+            block_msg = (
+                f"path conflicts with locked '{conflict}' ({scope}), "
+                f"until {until.isoformat()}: {reason}"
+            )
             logger.warning(
                 "mutation_blocked_by_lock",
+                cycle_id=cycle_id,
                 mutation_id=mutation.id,
                 path=mutation.target_path,
+                locked_path=conflict,
+                conflict_scope=scope,
                 locked_until=until.isoformat(),
                 reason=reason,
             )
             mutation.status = MutationStatus.REJECTED
             failed.append((mutation, f"Mutation blocked: {block_msg}"))
+            await _record(mutation, MutationStatus.REJECTED)
             continue
+
+        # 2. Cooldown — same path mutated within last min_cycles_gap cycles
+        recent_on_path = await get_mutations_for_path(
+            mutation.target_path,
+            n_cycles=min_cycles_gap,
+            db_path=db_path,
+        )
+        cooldown_hit = [r for r in recent_on_path if r.get("status") == MutationStatus.APPLIED.value]
+        if cooldown_hit:
+            last = cooldown_hit[0]  # newest first in helper result
+            block_msg = (
+                f"cooldown: path muted in cycle {last.get('cycle_id')} "
+                f"(last {min_cycles_gap} cycles), min_gap={min_cycles_gap}"
+            )
+            logger.warning(
+                "mutation_policy_blocked",
+                cycle_id=cycle_id,
+                mutation_id=mutation.id,
+                path=mutation.target_path,
+                rule="cooldown",
+                min_cycles_gap=min_cycles_gap,
+                previous_cycle_id=last.get("cycle_id"),
+            )
+            mutation.status = MutationStatus.REJECTED
+            failed.append((mutation, f"Mutation blocked: {block_msg}"))
+            await _record(mutation, MutationStatus.REJECTED)
+            continue
+
+        # 3. Rate limit — per current cycle
+        if applied_this_cycle >= max_per_cycle:
+            block_msg = (
+                f"rate limit: {applied_this_cycle} mutations already applied "
+                f"this cycle, max={max_per_cycle}"
+            )
+            logger.warning(
+                "mutation_policy_blocked",
+                cycle_id=cycle_id,
+                mutation_id=mutation.id,
+                path=mutation.target_path,
+                rule="max_per_cycle",
+                max_per_cycle=max_per_cycle,
+                applied_so_far=applied_this_cycle,
+            )
+            mutation.status = MutationStatus.REJECTED
+            failed.append((mutation, f"Mutation blocked: {block_msg}"))
+            await _record(mutation, MutationStatus.REJECTED)
+            continue
+
+        # 4. Oscillation detection — proposed new_value equals a past old_value
+        if osc_cfg.get("enabled"):
+            past_window = await get_mutations_for_path(
+                mutation.target_path,
+                n_cycles=int(osc_cfg["window_cycles"]),
+                db_path=db_path,
+            )
+            reversal_count = _count_reversals_to(mutation.new_value, past_window)
+            max_reversals = int(osc_cfg["max_reversals_per_path"])
+            if reversal_count >= max_reversals:
+                block_msg = (
+                    f"oscillation detected: path has {reversal_count} reversal(s) "
+                    f"in last {osc_cfg['window_cycles']} cycles "
+                    f"(max={max_reversals})"
+                )
+                logger.warning(
+                    "mutation_policy_blocked",
+                    cycle_id=cycle_id,
+                    mutation_id=mutation.id,
+                    path=mutation.target_path,
+                    rule="oscillation",
+                    reversal_count=reversal_count,
+                    max_reversals=max_reversals,
+                    window_cycles=osc_cfg["window_cycles"],
+                )
+                mutation.status = MutationStatus.REJECTED
+                failed.append((mutation, f"Mutation blocked: {block_msg}"))
+                await _record(mutation, MutationStatus.REJECTED)
+                continue
 
         if dry_run:
             logger.info(
@@ -291,9 +531,10 @@ async def execute_proposal(
             mutation.status = MutationStatus.APPLIED
             mutation.applied_at = datetime.now()
             applied.append(mutation)
+            applied_this_cycle += 1
             continue
 
-        # Apply the mutation
+        # Apply the mutation to genome YAML
         success, message = apply_mutation_to_genome(mutation, genome_path)
 
         if not success:
@@ -305,7 +546,6 @@ async def execute_proposal(
             failed.append((mutation, message))
             continue
 
-        # Commit to git
         if commit_to_git:
             git_success, git_message = git_commit_mutation(mutation, genome_path)
             if not git_success:
@@ -319,6 +559,8 @@ async def execute_proposal(
         mutation.status = MutationStatus.APPLIED
         mutation.applied_at = datetime.now()
         applied.append(mutation)
+        applied_this_cycle += 1
+        await _record(mutation, MutationStatus.APPLIED)
 
         logger.info(
             "mutation_applied",
