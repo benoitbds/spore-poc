@@ -28,6 +28,8 @@ async def run_autopilot(
     domain: str = "all_science",
     send_email: bool = False,
     fix_domain_a: Optional[str] = None,
+    distance_min: Optional[float] = None,
+    distance_max: Optional[float] = None,
 ) -> str:
     """Run autopilot cycle and generate digest.
 
@@ -37,6 +39,10 @@ async def run_autopilot(
         send_email: Whether to send digest via email
         fix_domain_a: Optional subdomain ID (e.g. "MED-003") to fix as
             domain_a on every collision, for targeted runs.
+        distance_min: Optional override of the collision distance floor.
+            When None, run_pipeline's default (0.4) is used.
+        distance_max: Optional override of the collision distance ceiling.
+            When None, run_pipeline's default (0.7) is used.
 
     Returns:
         Path to the generated digest file
@@ -49,7 +55,19 @@ async def run_autopilot(
         domain=domain,
         send_email=send_email,
         fix_domain_a=fix_domain_a,
+        distance_min_override=distance_min,
+        distance_max_override=distance_max,
     )
+
+    if distance_min is not None or distance_max is not None:
+        genome_randomness = get_genome().randomness
+        logger.info(
+            "distance_range_overridden",
+            override_min=distance_min,
+            override_max=distance_max,
+            genome_min=genome_randomness.get("distance_min"),
+            genome_max=genome_randomness.get("distance_max"),
+        )
 
     # 1. Initialize database
     await init_database()
@@ -62,12 +80,18 @@ async def run_autopilot(
     # 2. Run pipeline with n_collisions
     logger.info("running_pipeline", n_collisions=n_collisions)
 
-    result = await run_pipeline(
-        n_collisions=n_collisions,
-        save_to_db=True,
-        domain=domain,
-        fix_domain_a=fix_domain_a,
-    )
+    pipeline_kwargs = {
+        "n_collisions": n_collisions,
+        "save_to_db": True,
+        "domain": domain,
+        "fix_domain_a": fix_domain_a,
+    }
+    if distance_min is not None:
+        pipeline_kwargs["distance_min"] = distance_min
+    if distance_max is not None:
+        pipeline_kwargs["distance_max"] = distance_max
+
+    result = await run_pipeline(**pipeline_kwargs)
 
     run_metrics = result.get("metrics", {})
     curated_hypotheses = result.get("curated_hypotheses", [])

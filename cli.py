@@ -322,15 +322,55 @@ def config():
     help="Force every collision's domain_a to this subdomain ID "
     "(e.g. 'MED-003' for Tissue Regeneration). Targeted-run mode.",
 )
-def autopilot(collisions: int, domain: str, send_email: bool, fix_domain_a: str):
+@click.option(
+    "--distance-range",
+    "distance_range",
+    default=None,
+    metavar="MIN-MAX",
+    help="Override the genome's distance_min/distance_max window for "
+    "this run only (does not mutate the genome YAML). Format: "
+    "'0.7-0.9'. Must satisfy 0 <= min < max <= 1.2.",
+)
+def autopilot(
+    collisions: int,
+    domain: str,
+    send_email: bool,
+    fix_domain_a: str,
+    distance_range: str,
+):
     """Run automated hypothesis generation with digest.
 
     Runs N collisions, curates hypotheses, runs impact analysis,
     and generates a markdown digest file. Optionally sends email.
     """
+    distance_min_override = None
+    distance_max_override = None
+    if distance_range:
+        parts = distance_range.split("-")
+        if len(parts) != 2:
+            raise click.BadParameter(
+                f"invalid --distance-range {distance_range!r}: expected MIN-MAX"
+            )
+        try:
+            mn = float(parts[0])
+            mx = float(parts[1])
+        except ValueError:
+            raise click.BadParameter(
+                f"invalid --distance-range {distance_range!r}: non-numeric"
+            )
+        if not (0.0 <= mn < mx <= 1.2):
+            raise click.BadParameter(
+                f"invalid --distance-range {distance_range!r}: "
+                f"must satisfy 0 <= min < max <= 1.2, got min={mn} max={mx}"
+            )
+        distance_min_override = mn
+        distance_max_override = mx
+
     subtitle = f"{collisions} collisions in {domain}"
     if fix_domain_a:
         subtitle += f" (domain_a fixed: {fix_domain_a})"
+    if distance_range:
+        subtitle += f" (distance override: {distance_range})"
     console.print(Panel.fit(
         "[bold blue]SPORE Autopilot[/bold blue] - Automated Hypothesis Generation",
         subtitle=subtitle,
@@ -352,6 +392,8 @@ def autopilot(collisions: int, domain: str, send_email: bool, fix_domain_a: str)
                     domain=domain,
                     send_email=send_email,
                     fix_domain_a=fix_domain_a,
+                    distance_min=distance_min_override,
+                    distance_max=distance_max_override,
                 )
 
                 progress.update(task, description="Autopilot complete!")
