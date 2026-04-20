@@ -93,7 +93,7 @@ async def run_devil_advocate(
                 "coherence": 0.5,
                 "testability": 0.5,
                 "impact_potential": 0.5,
-                "hallucination_risk": 0.5,
+                "hallucination_risk": 0.3,
             },
             "recommendation": "revise",
         }
@@ -174,7 +174,7 @@ async def run_angel_advocate(
                 "coherence": 0.5,
                 "testability": 0.5,
                 "impact_potential": 0.5,
-                "hallucination_risk": 0.5,
+                "hallucination_risk": 0.3,
             },
             "quick_wins": [],
             "recommendation": "explore",
