@@ -62,6 +62,107 @@ RATE_LIMIT_INTERVAL = 1.5   # seconds between requests
 RATE_LIMIT_JITTER = 0.3     # random ±jitter added to each wait
 
 
+class _SSCircuitBreaker:
+    """Singleton circuit breaker for Semantic Scholar API calls.
+
+    State machine:
+      - CLOSED (default): calls proceed normally; consecutive failures counted.
+      - OPEN (after MAX_FAILURES consecutive exhausted retries): calls are
+        skipped immediately for COOLDOWN_SECONDS, returning [] / None.
+      - After cooldown: the next call is allowed through as a probe.
+        If it succeeds → CLOSED. If it fails → OPEN with reset cooldown.
+
+    A "failure" = `_request_with_retry` exhausting its 5 internal retries.
+    Sub-events (single 429 inside the retry loop) do NOT increment.
+    """
+
+    MAX_FAILURES = 3
+    COOLDOWN_SECONDS = 300
+    LOG_THROTTLE_SECONDS = 60
+
+    def __init__(self) -> None:
+        self._lock = asyncio.Lock()
+        self._consecutive_failures = 0
+        self._open_since: Optional[float] = None
+        self._last_skip_log: float = 0.0
+
+    def _is_open_at(self, now: float) -> bool:
+        if self._consecutive_failures < self.MAX_FAILURES:
+            return False
+        if self._open_since is None:
+            return False
+        return (now - self._open_since) < self.COOLDOWN_SECONDS
+
+    def is_open(self) -> bool:
+        """Sync probe of the breaker state. Safe to call from non-async contexts."""
+        return self._is_open_at(time.time())
+
+    async def should_skip(self) -> bool:
+        """Return True if the request must be short-circuited.
+
+        Logs a throttled warning (max 1 per LOG_THROTTLE_SECONDS) so we
+        don't spam the log with one line per skipped call.
+        """
+        async with self._lock:
+            now = time.time()
+            if self._is_open_at(now):
+                if now - self._last_skip_log >= self.LOG_THROTTLE_SECONDS:
+                    remaining = int(self.COOLDOWN_SECONDS - (now - self._open_since))
+                    logger.warning(
+                        "ss_circuit_breaker_skip",
+                        consecutive_failures=self._consecutive_failures,
+                        cooldown_remaining_s=max(remaining, 0),
+                    )
+                    self._last_skip_log = now
+                return True
+            return False
+
+    async def record_success(self) -> None:
+        async with self._lock:
+            was_recovering = self._consecutive_failures >= self.MAX_FAILURES
+            self._consecutive_failures = 0
+            self._open_since = None
+            self._last_skip_log = 0.0
+            if was_recovering:
+                logger.warning(
+                    "ss_circuit_breaker_closed",
+                    message="Semantic Scholar available again",
+                )
+
+    async def record_failure(self) -> None:
+        async with self._lock:
+            self._consecutive_failures += 1
+            if self._consecutive_failures >= self.MAX_FAILURES:
+                first_open = self._open_since is None
+                self._open_since = time.time()
+                self._last_skip_log = 0.0
+                if first_open:
+                    logger.warning(
+                        "ss_circuit_breaker_opened",
+                        consecutive_failures=self._consecutive_failures,
+                        cooldown_seconds=self.COOLDOWN_SECONDS,
+                    )
+                else:
+                    logger.warning(
+                        "ss_circuit_breaker_probe_failed",
+                        cooldown_extended_s=self.COOLDOWN_SECONDS,
+                    )
+
+
+# Module-level singleton: shared across the whole Python process, including
+# all concurrent custom runs and L0/post-fire/explorer agents.
+_ss_circuit_breaker = _SSCircuitBreaker()
+
+
+def get_ss_circuit_breaker() -> _SSCircuitBreaker:
+    return _ss_circuit_breaker
+
+
+def is_ss_circuit_open() -> bool:
+    """Sync helper for orchestrators that need the breaker state."""
+    return _ss_circuit_breaker.is_open()
+
+
 class SemanticScholarClient:
     """Async client for Semantic Scholar API with cache and retry."""
 
@@ -157,14 +258,21 @@ class SemanticScholarClient:
     ) -> Optional[dict[str, Any]]:
         """Execute an HTTP request with aggressive backoff.
 
+        Short-circuits via the global circuit breaker: when OPEN, returns
+        None immediately without contacting the API.
+
         Backoff: 2s, 5s, 10s, 20s, 40s (5 retries). Retries on 429, 5xx,
-        and connection errors. On final exhaustion, logs a **warning** (not
-        error) and returns None — the caller treats None as "no results" and
-        continues the pipeline with partial data.
+        and connection errors. On final exhaustion, records a failure to
+        the breaker, logs a warning, and returns None — the caller treats
+        None as "no results" and continues with partial data.
 
         Returns:
-            Parsed JSON response, or None on 404 / exhausted retries.
+            Parsed JSON response, or None on 404 / exhausted retries / open breaker.
         """
+        breaker = get_ss_circuit_breaker()
+        if await breaker.should_skip():
+            return None
+
         last_error: Optional[Exception] = None
 
         for attempt, delay in enumerate(self._BACKOFF_DELAYS):
@@ -192,6 +300,7 @@ class SemanticScholarClient:
                         continue
 
                     response.raise_for_status()
+                    await breaker.record_success()
                     return response.json()
 
             except (httpx.ConnectError, httpx.ReadTimeout) as exc:
@@ -210,6 +319,7 @@ class SemanticScholarClient:
             total_wait=sum(self._BACKOFF_DELAYS),
             last_error=str(last_error),
         )
+        await breaker.record_failure()
         return None
 
     # ── Public API ───────────────────────────────────────────

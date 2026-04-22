@@ -35,6 +35,7 @@ from agents.multi_reviewer_panel import (
 )
 from agents.research_brief_generator import save_brief
 from agents.vulgarization import vulgarization_agent
+from knowledge import is_ss_circuit_open
 from storage import save_brief as save_brief_db, init_database
 from logging_config import get_logger
 
@@ -168,10 +169,16 @@ async def node_literature_grounding(state: PostFireState) -> PostFireState:
 
     output = await literature_grounding_agent(input_data)
 
+    # If the breaker tripped during this grounding (or was already open),
+    # surface that to downstream nodes via grounding_degraded so they know
+    # the empty evidence_base reflects an outage, not a niche topic.
+    breaker_open = is_ss_circuit_open()
+
     return {
         **state,
         "grounding": dict(output),
         "kill_reason": output["kill_reason"],
+        "grounding_degraded": state.get("grounding_degraded", False) or breaker_open,
     }
 
 
@@ -494,6 +501,13 @@ async def run_post_fire_pipeline(
     Returns:
         Final PostFireState with all results.
     """
+    if not grounding_degraded and is_ss_circuit_open():
+        logger.warning(
+            "post_fire_grounding_skipped_circuit_open",
+            message="Semantic Scholar circuit breaker OPEN — routing to skip_grounding",
+        )
+        grounding_degraded = True
+
     initial_state: PostFireState = {
         "hypothesis": hypothesis,
         "domains": domains,

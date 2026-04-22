@@ -5,6 +5,8 @@ from knowledge.semantic_scholar import (
     SemanticScholarClient,
     get_semantic_scholar_client,
     get_context as get_semantic_scholar_context,
+    is_ss_circuit_open,
+    get_ss_circuit_breaker,
 )
 from knowledge.arxiv_client import (
     ArxivClient,
@@ -19,6 +21,8 @@ __all__ = [
     "SemanticScholarClient",
     "get_semantic_scholar_client",
     "get_semantic_scholar_context",
+    "is_ss_circuit_open",
+    "get_ss_circuit_breaker",
     "ArxivClient",
     "get_arxiv_client",
     "get_arxiv_context",
