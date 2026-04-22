@@ -33,7 +33,7 @@ from agents.multi_reviewer_panel import (
     full_panel_review,
     PanelOutput,
 )
-from agents.research_brief_generator import save_brief
+from agents.research_brief_generator import save_brief, trigger_nextjs_rebuild
 from agents.vulgarization import vulgarization_agent
 from knowledge import is_ss_circuit_open
 from storage import save_brief as save_brief_db, init_database
@@ -312,6 +312,21 @@ async def node_vulgarization(state: PostFireState) -> PostFireState:
             logger.info("vulgarization_saved_db", brief_id=brief_id)
         except Exception as exc:
             logger.error("vulgarization_db_update_failed", error=str(exc))
+
+    # Auto-rebuild Next.js so the new brief surfaces on the public site.
+    # Gated on the publish verdict: reject/killed paths never route here,
+    # but the explicit check is belt-and-braces against routing changes.
+    if state.get("meta_verdict") == "publish_brief":
+        try:
+            await trigger_nextjs_rebuild()
+        except Exception as exc:
+            # Never let a deploy-side failure break the pipeline — the brief
+            # is already on disk and in the DB; a later rebuild will pick it up.
+            logger.error(
+                "nextjs_rebuild_hook_crashed",
+                brief_id=state.get("brief_id"),
+                error=str(exc),
+            )
 
     return {**state, "vulgarization_fr": vulg_dict}
 
