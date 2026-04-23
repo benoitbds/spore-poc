@@ -19,6 +19,16 @@ from logging_config import get_logger
 logger = get_logger("domain_map")
 
 
+class DomainNotInterpretableError(ValueError):
+    """Raised when a free-form user domain string has no fertile-zone partner.
+
+    Distinct from generic ValueError so callers (e.g. the custom runner)
+    can surface a user-facing "please reformulate" message instead of a
+    500. Inherits ValueError for backward compatibility with any
+    ``except ValueError`` guards already in place.
+    """
+
+
 class DomainMap:
     """Manages scientific domains and their embeddings for collision generation."""
 
@@ -458,24 +468,67 @@ class DomainMap:
         domain_name: str,
         distance_min: float = 0.4,
         distance_max: float = 0.7,
+        chaos_floor: float = 0.0,
     ) -> Optional[tuple[Domain, Optional[float]]]:
         """Pick a random partner for ``domain_name`` in the fertile zone.
 
         Supports the "surprise me" custom-collision mode: the user
         provides one domain, SPORE picks the partner.
 
-        Behaviour:
-          - If ``domain_name`` matches a known domain in the map, the
-            pick is filtered by the cosine-distance range and the
-            returned tuple's second element is the distance.
-          - If the domain is unknown (free-form user input), falls back
-            to a uniform random draw from the full domain set; the
-            distance is returned as ``None`` since we can't measure it.
-          - Returns ``None`` only if the domain map is empty.
+        Resolution order:
+          1. If ``domain_name`` matches a known map entry → use the
+             precomputed distance matrix to select a partner in the
+             fertile zone (distance between ``distance_min`` and
+             ``distance_max``).
+          2. If not in the map → embed ``domain_name`` on the fly with
+             the same sentence-transformer and compute cosine distances
+             to the 200 known subdomains, then pick from the fertile
+             zone. Avoids the uniform-random fallback that used to
+             produce incoherent pairs like "Gene Regulatory Networks"
+             × "Quantum Optics".
+          3. ``chaos_floor`` in ``[0, 1]`` is the probability of picking
+             UNIFORMLY from the full set instead (serendipity injection).
+
+        Args:
+            domain_name: User-supplied domain string.
+            distance_min: Lower bound of the fertile zone.
+            distance_max: Upper bound of the fertile zone.
+            chaos_floor: Probability of bypassing the fertile-zone filter
+                for a uniform-random pick. 0 = deterministic fertile zone.
+
+        Returns:
+            ``(partner_domain, cosine_distance)`` — distance is always a
+            float now (on-the-fly computation handles the unknown case).
+            Returns ``None`` only if the map is empty.
+
+        Raises:
+            DomainNotInterpretableError: if ``domain_name`` produces an
+                embedding with zero candidates in the fertile zone. The
+                user should reformulate or switch to targeted mode.
         """
         if not self._domains:
             return None
 
+        # Optional chaos-floor escape hatch
+        if chaos_floor > 0 and random.random() < chaos_floor:
+            partner = random.choice(self._domains)
+            dist = None
+            # Recover a distance if we can (known domain → known index).
+            domain_a = self.get_domain_by_name(domain_name)
+            if domain_a is not None and self._distance_matrix is not None:
+                idx_a = self._get_domain_index(domain_a.id)
+                idx_b = self._get_domain_index(partner.id)
+                if idx_a is not None and idx_b is not None and idx_a != idx_b:
+                    dist = float(self._distance_matrix[idx_a, idx_b])
+            logger.info(
+                "surprise_chaos_floor_fired",
+                domain_a=domain_name,
+                domain_b=partner.name,
+                chaos_floor=chaos_floor,
+            )
+            return partner, dist
+
+        # Path 1: known domain → precomputed distance matrix
         domain_a = self.get_domain_by_name(domain_name)
         if domain_a is not None and self._distance_matrix is not None:
             idx_a = self._get_domain_index(domain_a.id)
@@ -489,16 +542,87 @@ class DomainMap:
                         candidates.append((j, dist))
                 if candidates:
                     j, dist = random.choice(candidates)
+                    logger.info(
+                        "surprise_domain_resolved_via_map",
+                        domain_a=domain_name,
+                        domain_b=self._domains[j].name,
+                        distance_to_b=dist,
+                        fertile_zone_candidates=len(candidates),
+                    )
                     return self._domains[j], dist
 
-        # Fallback: user's domain isn't mapped → uniform random pick.
-        partner = random.choice(self._domains)
-        if domain_a is not None and partner.id == domain_a.id:
-            # Extremely unlikely but guard against picking self.
-            candidates_rest = [d for d in self._domains if d.id != partner.id]
-            if candidates_rest:
-                partner = random.choice(candidates_rest)
-        return partner, None
+        # Path 2: unknown domain → embed on the fly + cosine distances
+        return self._resolve_unknown_domain_via_embedding(
+            domain_name=domain_name,
+            distance_min=distance_min,
+            distance_max=distance_max,
+        )
+
+    def _resolve_unknown_domain_via_embedding(
+        self,
+        domain_name: str,
+        distance_min: float,
+        distance_max: float,
+    ) -> tuple[Domain, float]:
+        """Embed a free-form domain string and pick a fertile-zone partner.
+
+        Uses the same ``SentenceTransformer`` already loaded for the
+        known subdomains so the embeddings live in the same space and
+        distances are directly comparable.
+
+        Raises:
+            DomainNotInterpretableError: when no known subdomain lands
+                inside the fertile zone around the user's embedding.
+        """
+        if self._model is None:
+            # Lazy-init — this is unusual (load() normally populates it),
+            # but guards against a map loaded without embeddings.
+            self._model = SentenceTransformer(self.model_name)
+
+        if self._embeddings is None:
+            raise DomainNotInterpretableError(
+                "Domain map has no embeddings — cannot interpret free-form input"
+            )
+
+        # Match the text-shape used for the known subdomains at load time
+        # ("{name}: {key_concepts joined}") so the embedding is comparable.
+        user_text = f"{domain_name}: "
+        user_vec = self._model.encode([user_text], convert_to_numpy=True)[0]
+
+        # Cosine distance = 1 - cosine similarity, computed against every
+        # known subdomain's embedding (already L2-normalized at load).
+        known_norms = np.linalg.norm(self._embeddings, axis=1, keepdims=True)
+        known_norm = self._embeddings / np.where(known_norms == 0, 1, known_norms)
+        user_norm = user_vec / (np.linalg.norm(user_vec) or 1)
+        sims = np.dot(known_norm, user_norm)
+        distances = np.clip(1.0 - sims, 0.0, 1.0)
+
+        candidates: list[tuple[int, float]] = [
+            (i, float(distances[i]))
+            for i in range(len(self._domains))
+            if distance_min <= distances[i] <= distance_max
+        ]
+
+        if not candidates:
+            closest = int(np.argmin(distances))
+            closest_dist = float(distances[closest])
+            raise DomainNotInterpretableError(
+                f"Domain {domain_name!r} produced no candidates in the fertile "
+                f"zone [{distance_min:.2f}, {distance_max:.2f}]. Closest known "
+                f"subdomain: {self._domains[closest].name!r} at distance "
+                f"{closest_dist:.2f}. Reformulate the input or switch to "
+                f"targeted mode with an explicit domain_b."
+            )
+
+        idx, dist = random.choice(candidates)
+        logger.info(
+            "surprise_domain_resolved_via_embedding",
+            domain_a=domain_name,
+            domain_b=self._domains[idx].name,
+            distance_to_b=dist,
+            fertile_zone_candidates=len(candidates),
+        )
+        return self._domains[idx], dist
 
     def force_collision(
         self,

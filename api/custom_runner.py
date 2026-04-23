@@ -127,24 +127,52 @@ def _initial_state(collision: Collision, run_id: str) -> PipelineState:
 async def _pick_surprise_partner(
     request_id: str, domain_a: str,
 ) -> tuple[str, Optional[float]]:
-    """Pick a random partner for ``domain_a`` using the L0 genome's
-    fertile-zone distance bounds. Returns the partner name and the
-    cosine distance (or None when the user's domain isn't in the map).
+    """Pick a partner for ``domain_a`` using the L0 genome's fertile zone.
+
+    If the user's domain is in the domain map, use the precomputed
+    distance matrix. Otherwise, embed the string on the fly and pick
+    from the same fertile zone — this replaces the old uniform-random
+    fallback that produced incoherent pairs (e.g. GRN × Quantum Optics).
+
+    Returns:
+        Tuple of (partner_name, cosine_distance_or_None). Distance is
+        None only when the genome's chaos_floor path fires on a
+        free-form input where we can't recover the distance.
+
+    Raises:
+        RuntimeError: domain map empty or user domain too far from
+            everything known (surface as a "please reformulate" to the user).
     """
     from config import get_genome
-    from knowledge.domain_map import get_domain_map
+    from knowledge.domain_map import get_domain_map, DomainNotInterpretableError
 
     genome = get_genome()
     randomness = getattr(genome, "randomness", {}) or {}
     distance_min = float(randomness.get("distance_min", 0.4))
     distance_max = float(randomness.get("distance_max", 0.7))
+    chaos_floor = float(randomness.get("chaos_floor", 0.0))
 
     domain_map = get_domain_map("all_science")
-    pick = domain_map.get_random_partner_for(
-        domain_name=domain_a,
-        distance_min=distance_min,
-        distance_max=distance_max,
-    )
+    try:
+        pick = domain_map.get_random_partner_for(
+            domain_name=domain_a,
+            distance_min=distance_min,
+            distance_max=distance_max,
+            chaos_floor=chaos_floor,
+        )
+    except DomainNotInterpretableError as exc:
+        err = str(exc)
+        logger.error(
+            "surprise_partner_uninterpretable",
+            request_id=request_id,
+            domain_a=domain_a,
+            detail=err,
+        )
+        await update_custom_request(
+            request_id, status="failed", error_message=err, completed=True,
+        )
+        raise RuntimeError(err) from exc
+
     if pick is None:
         err = "No domains available for surprise partner selection"
         logger.error("surprise_partner_unavailable", request_id=request_id, detail=err)
