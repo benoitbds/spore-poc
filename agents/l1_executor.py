@@ -578,6 +578,95 @@ async def execute_proposal(
     return applied, failed
 
 
+def rollback_cycle_paths(
+    paths_with_old_values: list[tuple[str, Any]],
+    genome_path: Path,
+    cycle_id: str,
+    reason: str,
+    commit_to_git: bool = True,
+) -> tuple[bool, str]:
+    """Atomically restore several genome paths to their pre-mutation values.
+
+    Used by the L1 auto-rollback orchestrator when a whole cycle's
+    mutations need to be reverted because L0 metrics degraded past the
+    constitution's rollback_threshold. Writes the YAML once and makes
+    a single git commit — cleaner than N sequential ``rollback_mutation``
+    calls for a multi-mutation cycle.
+
+    Args:
+        paths_with_old_values: (target_path, old_value) tuples. Order is
+            not important for correctness (each path is a leaf set).
+        genome_path: Path to l0_genome.yaml.
+        cycle_id: L1 cycle whose mutations are being reverted; used in
+            the ``mutated_by`` field and the git commit subject.
+        reason: Human-readable trigger (e.g. "composite degraded 18%").
+        commit_to_git: Skip the git commit when running from tests.
+
+    Returns:
+        ``(True, summary)`` on success, ``(False, error)`` if any path
+        fails to set or the YAML write fails. Git commit failures do
+        not fail the call — the genome is restored regardless.
+    """
+    if not paths_with_old_values:
+        return False, "no paths to roll back"
+
+    with open(genome_path) as f:
+        genome_data = yaml.safe_load(f)
+
+    for target_path, old_value in paths_with_old_values:
+        if not set_nested_value(genome_data, target_path, old_value):
+            return False, f"failed to restore path: {target_path}"
+
+    genome_data["last_mutated"] = datetime.now().isoformat()
+    genome_data["mutated_by"] = f"L1-AUTO-ROLLBACK-{cycle_id}"
+
+    with open(genome_path, "w") as f:
+        yaml.dump(genome_data, f, default_flow_style=False, allow_unicode=True)
+
+    if commit_to_git:
+        commit_msg_lines = [
+            f"[L1] AUTO-ROLLBACK cycle {cycle_id}",
+            "",
+            reason,
+            "",
+            f"Reverted {len(paths_with_old_values)} mutation(s):",
+        ]
+        for target_path, _ in paths_with_old_values:
+            commit_msg_lines.append(f"  - {target_path}")
+        commit_msg_lines += ["", "Co-Authored-By: SPORE L1 Auto-Rollback <noreply@spore.local>"]
+        commit_msg = "\n".join(commit_msg_lines)
+
+        try:
+            subprocess.run(
+                ["git", "add", str(genome_path)],
+                check=True,
+                capture_output=True,
+                cwd=genome_path.parent,
+            )
+            subprocess.run(
+                ["git", "commit", "-m", commit_msg],
+                check=True,
+                capture_output=True,
+                text=True,
+                cwd=genome_path.parent,
+            )
+        except subprocess.CalledProcessError as e:
+            logger.warning(
+                "rollback_git_commit_failed",
+                cycle_id=cycle_id,
+                stderr=str(getattr(e, "stderr", ""))[:300],
+            )
+            # Don't fail the rollback — genome is restored on disk.
+
+    logger.warning(
+        "cycle_auto_rolled_back",
+        cycle_id=cycle_id,
+        n_paths=len(paths_with_old_values),
+        reason=reason,
+    )
+    return True, f"rolled back {len(paths_with_old_values)} path(s) for cycle {cycle_id}"
+
+
 def check_for_rollback(
     mutation: Mutation,
     metrics_before: dict[str, float],

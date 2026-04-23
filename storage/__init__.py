@@ -24,6 +24,7 @@ from storage.database import (
     save_mutation,
     get_recent_mutations,
     get_mutations_for_path,
+    update_mutation_status,
 )
 
 __all__ = [
@@ -50,4 +51,5 @@ __all__ = [
     "save_mutation",
     "get_recent_mutations",
     "get_mutations_for_path",
+    "update_mutation_status",
 ]

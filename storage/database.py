@@ -833,6 +833,24 @@ async def get_recent_mutations(
         return [dict(row) for row in await cursor.fetchall()]
 
 
+async def update_mutation_status(
+    mutation_id: str,
+    new_status: str,
+    db_path: Optional[Path] = None,
+) -> bool:
+    """Update a mutation row's status (e.g. 'applied' -> 'rolled_back').
+
+    Returns True if one row was updated, False otherwise.
+    """
+    async with _mutations_connection(db_path) as conn:
+        cursor = await conn.execute(
+            "UPDATE mutations SET status = ? WHERE id = ?",
+            (new_status, mutation_id),
+        )
+        await conn.commit()
+        return cursor.rowcount > 0
+
+
 async def get_mutations_for_path(
     path: str,
     n_cycles: int = 5,

@@ -25,6 +25,7 @@ from agents.l1_observer import generate_observation_report
 from agents.l1_strategist import propose_mutations
 from agents.l1_critic import evaluate_proposal
 from agents.l1_executor import execute_proposal
+from agents.l1_rollback import check_and_apply_rollback
 from storage import init_database, get_recent_mutations
 from logging_config import get_logger, get_token_tracker, reset_token_tracker
 
@@ -67,6 +68,24 @@ async def run_l1_cycle(
     }
 
     try:
+        # === PHASE 0: ROLLBACK CHECK ===
+        # Evaluates the previous applied cycle against post-mutation L0 metrics
+        # and reverts the whole cycle if degradation exceeds the constitution's
+        # rollback_threshold (default 0.15). Runs before observer so the rest
+        # of the pipeline sees the (possibly restored) genome state.
+        logger.info("phase_0_rollback_check")
+        rollback_result = await check_and_apply_rollback(
+            genome_path=settings.genome_path,
+        )
+        results["rollback_check"] = rollback_result
+        if rollback_result.get("status") == "rolled_back":
+            logger.warning(
+                "phase_0_applied_rollback",
+                cycle_id=rollback_result.get("cycle_id"),
+                worst_metric=rollback_result.get("worst_metric"),
+                worst_degradation=rollback_result.get("worst_degradation"),
+            )
+
         # === PHASE 1: OBSERVER ===
         logger.info("phase_1_observer")
         observation_report = await generate_observation_report(limit_runs)

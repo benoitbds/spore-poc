@@ -16,6 +16,7 @@ Usage:
 """
 
 import asyncio
+import json
 import sys
 import tempfile
 from datetime import datetime, timedelta
@@ -474,6 +475,241 @@ async def test_oscillation_detection(report) -> None:
         db_path.unlink(missing_ok=True)
 
 
+# ── auto-rollback tests ───────────────────────────────────────────────
+
+async def _seed_run(
+    db_path: Path,
+    run_id: str,
+    completed_at: datetime,
+    bridge_rate: float,
+) -> None:
+    """Insert a completed run row for the rollback aggregator to aggregate."""
+    async with aiosqlite.connect(db_path) as conn:
+        await conn.execute(
+            """INSERT OR REPLACE INTO runs
+               (id, started_at, completed_at, collisions_requested, collisions_processed,
+                hypotheses_generated, bridge_rate, total_tokens_in, total_tokens_out,
+                total_cost_usd, status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                run_id,
+                completed_at.isoformat(),
+                completed_at.isoformat(),
+                100, 100, int(bridge_rate * 100),
+                bridge_rate,
+                0, 0, 0.0,
+                "completed",
+            ),
+        )
+        await conn.commit()
+
+
+async def _seed_hypothesis(
+    db_path: Path,
+    hyp_id: str,
+    generated_at: datetime,
+    composite: float,
+    status: str = "generated",
+) -> None:
+    scores_json = json.dumps({"composite": composite, "coherence": 0.4, "novelty": 0.3})
+    collision_json = json.dumps({"domain_a": {"name": "A"}, "domain_b": {"name": "B"}})
+    bridge_json = json.dumps({"summary": "test"})
+    async with aiosqlite.connect(db_path) as conn:
+        await conn.execute(
+            """INSERT OR REPLACE INTO hypotheses
+               (id, generated_at, genome_version, collision_json, bridge_json,
+                scores_json, kill_condition, status)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                hyp_id, generated_at.isoformat(), "l0_v1",
+                collision_json, bridge_json, scores_json,
+                "n/a", status,
+            ),
+        )
+        await conn.commit()
+
+
+async def test_rollback_triggers_on_degradation(report) -> None:
+    """A cycle whose post-mutation metrics degrade > threshold is reverted."""
+    from agents.l1_rollback import check_and_apply_rollback
+
+    with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as tf:
+        genome_path = Path(tf.name)
+    db_path = await _make_temp_db()
+    try:
+        # Genome snapshot: post-mutation state (what's on disk now)
+        genome_post = {
+            "score_weights": {
+                "coherence": 0.4,
+                "hallucination_risk": -0.5,  # bad value the mutation applied
+                "novelty": 0.2,
+            },
+        }
+        with open(genome_path, "w") as f:
+            yaml.dump(genome_post, f)
+
+        base = datetime.now()
+        # 5 pre-mutation runs with GOOD metrics (bridge 0.9, composite 0.65)
+        for i in range(5):
+            ts = base - timedelta(hours=24 + i)
+            await _seed_run(db_path, f"RUN-PRE-{i}", ts, bridge_rate=0.9)
+            await _seed_hypothesis(db_path, f"HYP-PRE-{i}-a", ts, composite=0.70)
+            await _seed_hypothesis(
+                db_path, f"HYP-PRE-{i}-b", ts, composite=0.60, status="curated",
+            )
+
+        # The cycle being evaluated — applied between pre and post runs.
+        applied_at = base - timedelta(hours=20)
+        await _seed_mutation(
+            db_path, cycle_id="CYCLE-BAD",
+            path="score_weights.hallucination_risk",
+            old_value=-0.15,                                   # good baseline
+            new_value=-0.5,                                    # what bricked it
+            applied_at=applied_at, status="applied",
+        )
+
+        # 3 post-mutation runs with DEGRADED metrics (bridge 0.4, composite 0.30)
+        for i in range(3):
+            ts = base - timedelta(hours=15 - i)
+            await _seed_run(db_path, f"RUN-POST-{i}", ts, bridge_rate=0.4)
+            await _seed_hypothesis(db_path, f"HYP-POST-{i}-a", ts, composite=0.35)
+            # curation rate also tanked: only 1 of 3 hypotheses curated
+            if i == 0:
+                await _seed_hypothesis(
+                    db_path, f"HYP-POST-{i}-b", ts, composite=0.30, status="curated",
+                )
+            else:
+                await _seed_hypothesis(db_path, f"HYP-POST-{i}-b", ts, composite=0.25)
+
+        result = await check_and_apply_rollback(
+            genome_path=genome_path,
+            db_path=db_path,
+        )
+
+        if result["status"] != "rolled_back":
+            report(f"FAIL [rollback trigger] expected rolled_back, got {result}")
+            return
+
+        report(
+            f"PASS [rollback trigger] worst_metric={result['worst_metric']}, "
+            f"degradation={result['worst_degradation']:.1%}, "
+            f"threshold={result['threshold']:.0%}"
+        )
+
+        # Genome restoration: the bad value (-0.5) must be replaced by old (-0.15)
+        with open(genome_path) as f:
+            restored = yaml.safe_load(f)
+        if restored["score_weights"]["hallucination_risk"] == -0.15:
+            report("PASS [rollback genome] hallucination_risk restored to -0.15")
+        else:
+            report(
+                f"FAIL [rollback genome] got "
+                f"{restored['score_weights']['hallucination_risk']}, expected -0.15"
+            )
+
+        # DB status: mutation row marked rolled_back
+        past_on_path = await get_mutations_for_path(
+            "score_weights.hallucination_risk", n_cycles=5, db_path=db_path,
+        )
+        if any(m["status"] == "rolled_back" for m in past_on_path):
+            report("PASS [rollback db] mutation marked rolled_back")
+        else:
+            report(f"FAIL [rollback db] mutation not marked: {past_on_path}")
+
+    finally:
+        genome_path.unlink(missing_ok=True)
+        db_path.unlink(missing_ok=True)
+
+
+async def test_rollback_skips_insufficient_runs(report) -> None:
+    """Fewer than MIN_POST_MUTATION_RUNS after the mutation -> defer."""
+    from agents.l1_rollback import check_and_apply_rollback
+
+    with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as tf:
+        genome_path = Path(tf.name)
+    db_path = await _make_temp_db()
+    try:
+        with open(genome_path, "w") as f:
+            yaml.dump({"score_weights": {"coherence": 0.4}}, f)
+
+        base = datetime.now()
+        await _seed_mutation(
+            db_path, cycle_id="CYCLE-RECENT",
+            path="score_weights.coherence",
+            old_value=0.3, new_value=0.45,
+            applied_at=base - timedelta(minutes=5),
+            status="applied",
+        )
+        # Only ONE post-mutation run (< MIN=2)
+        await _seed_run(db_path, "RUN-ONLY-ONE", base - timedelta(minutes=2), 0.5)
+
+        result = await check_and_apply_rollback(genome_path=genome_path, db_path=db_path)
+        if result["status"] == "insufficient_runs" and result["runs_after"] == 1:
+            report("PASS [rollback defer] only 1 post-mutation run -> insufficient_runs")
+        else:
+            report(f"FAIL [rollback defer] expected insufficient_runs, got {result}")
+    finally:
+        genome_path.unlink(missing_ok=True)
+        db_path.unlink(missing_ok=True)
+
+
+async def test_rollback_skips_within_threshold(report) -> None:
+    """Degradation below threshold -> within_threshold, no rollback."""
+    from agents.l1_rollback import check_and_apply_rollback
+
+    with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as tf:
+        genome_path = Path(tf.name)
+    db_path = await _make_temp_db()
+    try:
+        # Initial genome with a "mutated" value
+        with open(genome_path, "w") as f:
+            yaml.dump({"score_weights": {"coherence": 0.4}}, f)
+
+        base = datetime.now()
+        # Good pre-mutation runs
+        for i in range(5):
+            ts = base - timedelta(hours=24 + i)
+            await _seed_run(db_path, f"RUN-PRE-{i}", ts, bridge_rate=0.80)
+            await _seed_hypothesis(db_path, f"HYP-PRE-{i}", ts, composite=0.60)
+
+        applied_at = base - timedelta(hours=20)
+        await _seed_mutation(
+            db_path, cycle_id="CYCLE-MILD",
+            path="score_weights.coherence",
+            old_value=0.4, new_value=0.45,
+            applied_at=applied_at, status="applied",
+        )
+
+        # Post-mutation: only 5% degradation (well below 15%)
+        for i in range(3):
+            ts = base - timedelta(hours=15 - i)
+            await _seed_run(db_path, f"RUN-POST-{i}", ts, bridge_rate=0.76)
+            await _seed_hypothesis(db_path, f"HYP-POST-{i}", ts, composite=0.57)
+
+        result = await check_and_apply_rollback(genome_path=genome_path, db_path=db_path)
+        if result["status"] == "within_threshold":
+            report(
+                f"PASS [rollback skip mild] max_deg={max(result['per_metric_degradation'].values()):.1%} "
+                f"below threshold={result['threshold']:.0%}"
+            )
+        else:
+            report(f"FAIL [rollback skip mild] expected within_threshold, got {result}")
+    finally:
+        genome_path.unlink(missing_ok=True)
+        db_path.unlink(missing_ok=True)
+
+
+async def test_rollback_threshold_from_constitution(report) -> None:
+    """Sanity: the orchestrator reads rollback_threshold from constitution.yaml."""
+    from agents.l1_rollback import _rollback_threshold
+    t = _rollback_threshold()
+    # constitution.yaml has 0.15; tolerate ±0.001 for float read from YAML
+    if abs(t - 0.15) < 0.001:
+        report(f"PASS [rollback threshold] read {t} from constitution")
+    else:
+        report(f"FAIL [rollback threshold] expected 0.15, got {t}")
+
+
 # ── runner ────────────────────────────────────────────────────────────
 
 async def run_tests() -> int:
@@ -493,6 +729,14 @@ async def run_tests() -> int:
     await test_rate_limit_per_cycle(report)
     print()
     await test_oscillation_detection(report)
+    print()
+    await test_rollback_threshold_from_constitution(report)
+    print()
+    await test_rollback_skips_insufficient_runs(report)
+    print()
+    await test_rollback_skips_within_threshold(report)
+    print()
+    await test_rollback_triggers_on_degradation(report)
 
     failures = sum(1 for r in results if r.startswith("FAIL"))
     print()
