@@ -16,7 +16,7 @@ st.set_page_config(
     },
 )
 
-from views import dashboard, briefs, hypotheses, digests, evolution, pilotage
+from views import dashboard, briefs, hypotheses, digests, evolution, pilotage, admin
 
 
 PAGES = {
@@ -26,6 +26,7 @@ PAGES = {
     "📰 Digests": digests,
     "🧬 Évolution": evolution,
     "⚙️ Pilotage": pilotage,
+    "🔧 Admin": admin,
 }
 
 
