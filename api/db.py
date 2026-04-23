@@ -336,17 +336,61 @@ async def get_custom_request(request_id: str) -> Optional[dict[str, Any]]:
 
 
 async def user_has_any_custom_request(user_id: str) -> bool:
-    """Return True if ``user_id`` already has a custom_request (any status).
+    """Return True if ``user_id`` has a confirmed custom_request.
 
-    Used by the launch-mode free endpoint to enforce "1 custom per user".
+    Excludes rows in ``pending_email_verification`` — those are created by the
+    anonymous-signup flow and shouldn't count toward the 1-per-user quota
+    until the user has actually verified their email (at which point the
+    status is promoted to ``pending``).
+
+    Used by the launch-mode free endpoints to enforce "1 custom per user".
     """
     async with get_connection() as conn:
         cursor = await conn.execute(
-            "SELECT 1 FROM custom_requests WHERE user_id = ? LIMIT 1",
+            "SELECT 1 FROM custom_requests "
+            "WHERE user_id = ? AND status != 'pending_email_verification' "
+            "LIMIT 1",
             (user_id,),
         )
         row = await cursor.fetchone()
     return row is not None
+
+
+async def get_pending_email_verification_requests(
+    user_id: str,
+) -> list[dict[str, Any]]:
+    """Return this user's custom_requests awaiting email verification.
+
+    Populated by ``POST /api/custom/free-signup`` for anonymous users; drained
+    by ``GET /api/auth/verify`` after the JWT is issued — each row is promoted
+    to ``pending`` and its pipeline is enqueued.
+    """
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            "SELECT * FROM custom_requests "
+            "WHERE user_id = ? AND status = 'pending_email_verification' "
+            "ORDER BY created_at ASC",
+            (user_id,),
+        )
+        rows = await cursor.fetchall()
+    return [dict(r) for r in rows]
+
+
+async def update_custom_request_status(
+    request_id: str,
+    new_status: str,
+) -> bool:
+    """Flip a custom_request's status (e.g. pending_email_verification → pending).
+
+    Returns True if exactly one row was updated, False otherwise.
+    """
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            "UPDATE custom_requests SET status = ? WHERE id = ?",
+            (new_status, request_id),
+        )
+        await conn.commit()
+        return cursor.rowcount == 1
 
 
 async def update_custom_request(

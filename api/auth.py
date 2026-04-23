@@ -15,9 +15,9 @@ Flow:
 from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
-from typing import Annotated, Any
+from typing import Annotated, Any, Optional
 
-from fastapi import APIRouter, Depends, Header, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, status
 from jose import JWTError, jwt
 from pydantic import BaseModel, EmailStr, Field
 
@@ -32,9 +32,30 @@ from api.db import (
     consume_magic_link,
     create_magic_link,
     get_or_create_user,
+    get_pending_email_verification_requests,
     get_user,
+    update_custom_request_status,
 )
 from api.emails import send_magic_link
+
+
+def safe_next_path(raw: Optional[str]) -> Optional[str]:
+    """Sanitize a post-verify redirect target to prevent open-redirect abuse.
+
+    Accepts only relative paths starting with ``/`` (and not ``//``, which
+    browsers treat as protocol-relative → external host). Caps length and
+    rejects control characters. Returns ``None`` if unsafe.
+    """
+    if not raw:
+        return None
+    n = raw.strip()
+    if not n or len(n) > 500:
+        return None
+    if not n.startswith("/") or n.startswith("//") or n.startswith("/\\"):
+        return None
+    if any(c in n for c in ("\n", "\r", "\t", "\x00")):
+        return None
+    return n
 
 logger = get_logger("api.auth")
 
@@ -46,6 +67,10 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 class MagicLinkRequest(BaseModel):
     email: EmailStr = Field(..., description="Email to send the magic link to")
+    next: Optional[str] = Field(
+        default=None,
+        description="Relative post-verify redirect (e.g. '/custom/cus_xxx/status')",
+    )
 
 
 class MagicLinkResponse(BaseModel):
@@ -127,28 +152,48 @@ async def get_current_user(
 
 @router.post("/magic-link", response_model=MagicLinkResponse)
 async def request_magic_link(payload: MagicLinkRequest) -> MagicLinkResponse:
-    """Create/find the user and email them a one-shot sign-in link."""
+    """Create/find the user and email them a one-shot sign-in link.
+
+    The optional ``next`` query-target is propagated into the email link so
+    the verify flow can land the user on the page that triggered the signup
+    (e.g. a pending custom-collision status page) instead of the default
+    ``/discoveries``. Unsafe values are silently dropped.
+    """
     user = await get_or_create_user(payload.email)
     token = await create_magic_link(user["id"], ttl_hours=MAGIC_LINK_EXPIRY_HOURS)
+    safe_next = safe_next_path(payload.next)
     try:
-        send_magic_link(payload.email, token)
+        send_magic_link(payload.email, token, next_path=safe_next)
     except Exception:  # noqa: BLE001 — already logged by send_magic_link
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail="could not send magic link email",
         )
-    logger.info("magic_link_requested", user_id=user["id"], email=payload.email)
+    logger.info(
+        "magic_link_requested",
+        user_id=user["id"],
+        email=payload.email,
+        next=safe_next,
+    )
     return MagicLinkResponse(ok=True, message="Check your email")
 
 
 @router.get("/verify", response_model=VerifyResponse)
-async def verify_magic_link(token: str) -> VerifyResponse:
+async def verify_magic_link(
+    token: str,
+    background_tasks: BackgroundTasks,
+) -> VerifyResponse:
     """Exchange a magic-link token for a JWT. Idempotent.
 
     A second call with the same (non-expired) token re-issues a fresh
     JWT for the same user instead of failing — StrictMode, retries and
     shared clicks used to cause a valid session to be wiped on the
     second call because the backend rejected the replay.
+
+    On a first-use verification, any ``custom_requests`` rows still in
+    ``pending_email_verification`` for this user are promoted to
+    ``pending`` and their pipelines are enqueued as background tasks.
+    Idempotent replays skip this step — the rows are already promoted.
     """
     state = await consume_magic_link(token)
     if state is None:
@@ -173,6 +218,28 @@ async def verify_magic_link(token: str) -> VerifyResponse:
         )
     else:
         logger.info("magic_link_verified", user_id=user["id"])
+        # Promote any pending-verification custom_requests and enqueue them.
+        # Import locally to avoid a circular dep (api.custom imports api.auth).
+        from api.custom import _run_wrapper
+
+        pending = await get_pending_email_verification_requests(user["id"])
+        for row in pending:
+            request_id = row["id"]
+            promoted = await update_custom_request_status(request_id, "pending")
+            if not promoted:
+                logger.warning(
+                    "pending_custom_promotion_skipped",
+                    request_id=request_id, user_id=user["id"],
+                )
+                continue
+            background_tasks.add_task(_run_wrapper, request_id)
+            logger.info(
+                "pending_custom_enqueued_on_verify",
+                request_id=request_id,
+                user_id=user["id"],
+                domain_a=row.get("domain_a"),
+                domain_b=row.get("domain_b"),
+            )
 
     return VerifyResponse(
         token=jwt_token,

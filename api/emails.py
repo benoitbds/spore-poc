@@ -50,9 +50,24 @@ def _button(href: str, label: str) -> str:
     )
 
 
-def send_magic_link(email: str, token: str) -> None:
-    """Send a magic-link email. Link points at ``{BASE_URL}/auth/verify?token=…``."""
+def send_magic_link(email: str, token: str, next_path: str | None = None) -> None:
+    """Send a magic-link email.
+
+    Link points at ``{BASE_URL}/auth/verify?token=…`` (+ ``&next=…`` when
+    provided). ``VerifyClient.tsx`` already reads the ``next`` query param
+    and redirects to it on successful verification, falling back to
+    ``/discoveries`` when absent.
+
+    Args:
+        email: Recipient address.
+        token: One-shot magic-link token.
+        next_path: Optional post-verify redirect; must be a relative path
+            starting with ``/`` (the caller is responsible for sanitizing).
+    """
+    from urllib.parse import quote
     link = f"{BASE_URL}/auth/verify?token={token}"
+    if next_path:
+        link += f"&next={quote(next_path, safe='/')}"
     html = (
         '<div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">'
         '<h2 style="color:#111;">Votre accès SPORE</h2>'
