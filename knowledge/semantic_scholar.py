@@ -513,10 +513,26 @@ _client: Optional[SemanticScholarClient] = None
 
 
 def get_semantic_scholar_client() -> SemanticScholarClient:
-    """Get the global Semantic Scholar client."""
+    """Get the global Semantic Scholar client (singleton).
+
+    Emits a one-shot startup log on first instantiation indicating
+    whether the Semantic Scholar API key is loaded. With a key the
+    rate budget is 1 req/s cumulative; without it the anonymous
+    quota is much lower and 429s are frequent.
+    """
     global _client
     if _client is None:
         _client = SemanticScholarClient()
+        if _client.api_key:
+            logger.info(
+                "ss_api_key_loaded",
+                message="Semantic Scholar API key loaded",
+            )
+        else:
+            logger.warning(
+                "ss_api_key_missing",
+                message="No Semantic Scholar API key found — using anonymous access",
+            )
     return _client
 
 
