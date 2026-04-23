@@ -21,6 +21,11 @@ from storage.database import get_connection
 async def get_or_create_user(email: str) -> dict[str, Any]:
     """Return the user row for ``email``, creating it if absent.
 
+    When a new row is INSERTED (i.e. first time this email is seen),
+    fires a fire-and-forget admin notification via Resend. Existing
+    users short-circuit the SELECT branch and do NOT trigger a notif,
+    so returning visitors signing in with a magic link stay silent.
+
     Returns a dict with keys: id, email, created_at, stripe_customer_id,
     free_brief_used (bool), credits (int).
     """
@@ -31,6 +36,7 @@ async def get_or_create_user(email: str) -> dict[str, Any]:
         )
         row = await cursor.fetchone()
         if row is not None:
+            # Existing account → magic-link re-login, no admin notif.
             return _user_row_to_dict(row)
 
         user_id = f"usr_{uuid4().hex[:24]}"
@@ -44,7 +50,22 @@ async def get_or_create_user(email: str) -> dict[str, Any]:
             "SELECT * FROM users WHERE id = ?", (user_id,)
         )
         row = await cursor.fetchone()
-        return _user_row_to_dict(row)
+
+    user_dict = _user_row_to_dict(row)
+
+    # Fresh INSERT → notify admin. Guarded try/except on top of the one
+    # inside send_admin_new_signup itself, in case of unexpected import
+    # or runtime errors. Signup flow must never raise here.
+    try:
+        from api.emails import send_admin_new_signup
+        send_admin_new_signup(
+            email=user_dict["email"],
+            created_at=str(user_dict["created_at"]),
+        )
+    except Exception:  # noqa: BLE001
+        pass
+
+    return user_dict
 
 
 async def get_user(user_id: str) -> Optional[dict[str, Any]]:

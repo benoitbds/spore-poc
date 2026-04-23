@@ -16,6 +16,20 @@ logger = get_logger("api.emails")
 resend.api_key = RESEND_API_KEY
 
 
+# Admin-side notifications (to operators, not paying users).
+ADMIN_NOTIFICATION_EMAIL = "benoit.bds@gmail.com"
+
+# Disposable / test email domains — signups from these MUST NOT spam the
+# admin inbox. Matched as a case-insensitive "@{domain}" suffix so
+# "yopmailx.com" and "foo.mail-tester.com" don't accidentally get skipped.
+_TEST_EMAIL_DOMAINS = ("yopmail.com", "mail-tester.com")
+
+
+def _is_test_email(email: str) -> bool:
+    lower = (email or "").strip().lower()
+    return any(lower.endswith(f"@{d}") for d in _TEST_EMAIL_DOMAINS)
+
+
 def _footer_html() -> str:
     return (
         '<hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />'
@@ -91,6 +105,43 @@ def send_brief_ready(email: str, brief_id: str, title: str) -> None:
         logger.info("brief_ready_sent", email=email, brief_id=brief_id, resend_id=resp.get("id"))
     except Exception as exc:  # noqa: BLE001
         logger.error("brief_ready_send_failed", email=email, brief_id=brief_id, error=str(exc))
+
+
+def send_admin_new_signup(email: str, created_at: str) -> None:
+    """Notify the admin inbox that a brand-new user just signed up.
+
+    Fire-and-forget: every failure mode (Resend outage, bad env, HTTP
+    timeout) is logged and swallowed — a broken admin notification must
+    never 500 the signup flow.
+
+    Silently skipped when the signup email matches a test domain
+    (yopmail.com, mail-tester.com) to avoid spamming the admin during
+    dev / load testing.
+    """
+    if _is_test_email(email):
+        logger.info("admin_signup_notif_skipped_test_domain", email=email)
+        return
+
+    body = (
+        "Nouvel utilisateur inscrit sur SPORE\n"
+        "\n"
+        f"Email : {email}\n"
+        f"Date : {created_at}\n"
+    )
+    try:
+        resp = resend.Emails.send({
+            "from": FROM_EMAIL,
+            "to": ADMIN_NOTIFICATION_EMAIL,
+            "subject": f"SPORE — Nouvel inscrit : {email}",
+            "text": body,
+        })
+        logger.info(
+            "admin_signup_notif_sent",
+            email=email,
+            resend_id=resp.get("id"),
+        )
+    except Exception as exc:  # noqa: BLE001 — signup must not depend on email
+        logger.error("admin_signup_notif_failed", email=email, error=str(exc))
 
 
 def send_purchase_confirmation(email: str, type_: str, amount_cents: int) -> None:
