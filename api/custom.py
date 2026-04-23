@@ -74,6 +74,11 @@ class CustomStatusResponse(BaseModel):
     error_message: Optional[str] = None
     created_at: Optional[str] = None
     completed_at: Optional[str] = None
+    # Stub-brief flags — set when the custom-runner delivered an honest
+    # no-bridge analysis instead of a full pipeline brief. The frontend
+    # switches to an info-banner presentation when is_stub is True.
+    is_stub: bool = False
+    stub_reason: Optional[str] = None
 
 
 class CustomRunResponse(BaseModel):
@@ -283,23 +288,42 @@ async def custom_status(
     request_id: str,
     current_user: Annotated[dict[str, Any], Depends(get_current_user)],
 ) -> CustomStatusResponse:
-    """Return the state of a custom_request. Owner-only."""
+    """Return the state of a custom_request. Owner-only.
+
+    When the request has a ``brief_id``, the response also includes
+    ``is_stub`` / ``stub_reason`` by reading the corresponding brief
+    row — the frontend uses these to render the non-error banner when
+    the runner delivered an honest no-bridge analysis.
+    """
     request = await get_custom_request(request_id)
     if request is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "custom request not found")
     if request["user_id"] != current_user["id"]:
         # Don't leak existence — generic 404.
         raise HTTPException(status.HTTP_404_NOT_FOUND, "custom request not found")
+
+    is_stub = False
+    stub_reason: Optional[str] = None
+    brief_id = request.get("brief_id")
+    if brief_id:
+        from storage.database import get_brief
+        brief_row = await get_brief(brief_id)
+        if brief_row is not None:
+            is_stub = bool(brief_row.get("is_stub"))
+            stub_reason = brief_row.get("stub_reason")
+
     return CustomStatusResponse(
         id=request["id"],
         status=request["status"],
         domain_a=request["domain_a"],
         domain_b=request["domain_b"],
         hypothesis_id=request.get("hypothesis_id"),
-        brief_id=request.get("brief_id"),
+        brief_id=brief_id,
         error_message=request.get("error_message"),
         created_at=request.get("created_at"),
         completed_at=request.get("completed_at"),
+        is_stub=is_stub,
+        stub_reason=stub_reason,
     )
 
 

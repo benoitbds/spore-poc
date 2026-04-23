@@ -266,6 +266,24 @@ async def init_database() -> None:
         except Exception:
             pass  # Column already exists
 
+        # Migration: stub-brief flag + reason — for custom collisions
+        # where Synthesis refused to bridge the two domains. We still
+        # deliver a short honest analysis instead of a 'failed' row.
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN is_stub INTEGER DEFAULT 0"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN stub_reason TEXT"
+            )
+            await conn.commit()
+        except Exception:
+            pass  # Column already exists
+
         # Migration: add mode to custom_requests — 'targeted' (user picks
         # both domains) or 'surprise' (user picks domain_a, SPORE picks
         # domain_b randomly).
@@ -702,6 +720,34 @@ async def save_brief(
                 json.dumps(panel_data) if panel_data else None,
                 json.dumps(vulgarization_data) if vulgarization_data else None,
             ),
+        )
+        await conn.commit()
+
+
+async def save_stub_brief(
+    brief_id: str,
+    hypothesis_id: str,
+    stub_reason: str,
+    brief_md_path: Optional[str] = None,
+    brief_json_path: Optional[str] = None,
+) -> None:
+    """Persist a stub brief — no pipeline data, just the honest analysis.
+
+    Used when the custom-runner can't produce a real brief (e.g. Synthesis
+    returned no_bridge_found) but we still owe the paying user something
+    actionable. Sets ``is_stub=1`` and ``stub_reason`` so the frontend
+    can render a distinct, non-error presentation.
+    """
+    async with get_connection() as conn:
+        await conn.execute(
+            """
+            INSERT OR REPLACE INTO briefs (
+                id, hypothesis_id, status,
+                brief_md_path, brief_json_path,
+                is_stub, stub_reason
+            ) VALUES (?, ?, 'complete', ?, ?, 1, ?)
+            """,
+            (brief_id, hypothesis_id, brief_md_path, brief_json_path, stub_reason),
         )
         await conn.commit()
 

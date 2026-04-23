@@ -37,6 +37,7 @@ from models.domain import Domain
 from storage.database import (
     init_database,
     save_hypothesis,
+    save_stub_brief,
     update_hypothesis_auto_feedback,
     update_brief,
 )
@@ -185,6 +186,76 @@ async def _pick_surprise_partner(
     return partner.name, distance
 
 
+async def _persist_stub_brief(
+    request_id: str,
+    user_id: str,
+    domain_a: str,
+    domain_b: str,
+    no_bridge_reason: str,
+) -> None:
+    """Render, persist and deliver a stub brief for an unbridgeable pair.
+
+    Writes the Markdown + JSON files under ``outputs/briefs/`` just like
+    a normal brief, inserts a ``briefs`` row with ``is_stub=1``, flips the
+    ``custom_requests`` row to ``status='complete'`` with the stub brief
+    id, and emails the customer the link.
+    """
+    from pathlib import Path
+    from agents.stub_brief import generate_stub_brief, stub_brief_to_json
+    from config import get_settings
+
+    stub = await generate_stub_brief(
+        domain_a=domain_a,
+        domain_b=domain_b,
+        no_bridge_reason=no_bridge_reason,
+        stub_reason="no_bridge_found",
+    )
+
+    settings = get_settings()
+    briefs_dir = Path(settings.output_dir) / "briefs"
+    briefs_dir.mkdir(parents=True, exist_ok=True)
+    md_path = briefs_dir / f"{stub['brief_id']}.md"
+    json_path = briefs_dir / f"{stub['brief_id']}.json"
+    md_path.write_text(stub["markdown"], encoding="utf-8")
+    json_path.write_text(stub_brief_to_json(stub), encoding="utf-8")
+
+    # Stub briefs have no hypothesis_id — we satisfy the NOT NULL FK-ish
+    # constraint by storing the request_id as a placeholder. The frontend
+    # distinguishes via is_stub; no joins against hypotheses are needed.
+    await save_stub_brief(
+        brief_id=stub["brief_id"],
+        hypothesis_id=request_id,
+        stub_reason=stub["stub_reason"],
+        brief_md_path=str(md_path),
+        brief_json_path=str(json_path),
+    )
+
+    await update_custom_request(
+        request_id,
+        status="complete",
+        brief_id=stub["brief_id"],
+        completed=True,
+    )
+
+    logger.info(
+        "custom_stub_brief_delivered",
+        request_id=request_id,
+        brief_id=stub["brief_id"],
+        reason="no_bridge_found",
+        md_path=str(md_path),
+    )
+
+    user = await get_user(user_id)
+    if user is not None:
+        try:
+            send_brief_ready(user["email"], stub["brief_id"], stub["title"])
+        except Exception as exc:  # noqa: BLE001 — non-fatal
+            logger.error(
+                "stub_brief_email_failed",
+                request_id=request_id, error=str(exc),
+            )
+
+
 async def _validate_domains(request_id: str, request: dict[str, Any]) -> None:
     """Reject the run if either domain hits the constitution hard-kill list."""
     excluded = [
@@ -292,12 +363,44 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
 
     curated = state.get("curated_hypotheses", [])
     if not curated:
-        err = "Pipeline produced no curated hypothesis for this collision."
-        logger.error("custom_no_hypothesis", request_id=request_id, detail=err)
-        await update_custom_request(
-            request_id, status="failed", error_message=err, completed=True,
+        # Synthesis refused to bridge the two domains (state["no_bridges"])
+        # or Curator dropped everything. Rather than fail silently on a
+        # paying user, generate a stub brief with an honest analysis.
+        no_bridges = state.get("no_bridges", []) or []
+        no_bridge_reason = ""
+        if no_bridges:
+            first = no_bridges[0]
+            no_bridge_reason = (
+                getattr(first, "reason", None)
+                or (first.get("reason") if isinstance(first, dict) else "")
+                or ""
+            )
+        if not no_bridge_reason:
+            no_bridge_reason = (
+                "Synthesis returned no hypothesis; no explicit reason recorded."
+            )
+        logger.warning(
+            "custom_no_bridge_generating_stub",
+            request_id=request_id,
+            domain_a=request["domain_a"],
+            domain_b=request["domain_b"],
+            reason_length=len(no_bridge_reason),
         )
-        raise RuntimeError(err)
+        await _persist_stub_brief(
+            request_id=request_id,
+            user_id=request["user_id"],
+            domain_a=request["domain_a"],
+            domain_b=request["domain_b"],
+            no_bridge_reason=no_bridge_reason,
+        )
+        return {
+            "hypothesis_id": None,
+            "brief_id": None,  # populated by the caller via DB if needed
+            "reviewer_verdict": None,
+            "low_confidence": False,
+            "grounding_degraded": grounding_degraded,
+            "is_stub": True,
+        }
 
     hypothesis = curated[0]
     await save_hypothesis(hypothesis)
