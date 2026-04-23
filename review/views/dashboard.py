@@ -21,7 +21,7 @@ from components.kpi_card import kpi_card, verdict_badge
 # ── Data loaders ─────────────────────────────────────────────
 
 async def _load_kpis():
-    """Load the 4 header KPIs."""
+    """Load the 5 header KPIs."""
     await init_database()
 
     async with get_connection() as conn:
@@ -70,13 +70,54 @@ async def _load_kpis():
         row = await cursor.fetchone()
         cost_month = row["total"] or 0
 
+        # Total registered users
+        cursor = await conn.execute("SELECT COUNT(*) as n FROM users")
+        users_total = (await cursor.fetchone())["n"]
+
     return {
         "briefs_month": briefs_month,
         "briefs_prev": briefs_prev,
         "fire_rate": (fire_count / total_reviewed) if total_reviewed else 0,
         "avg_novelty": avg_novelty,
         "cost_month": cost_month,
+        "users_total": users_total,
     }
+
+
+async def _load_users():
+    """Return user rows + paid-purchase count, newest first."""
+    async with get_connection() as conn:
+        cursor = await conn.execute("""
+            SELECT
+                u.id,
+                u.email,
+                u.created_at,
+                u.free_brief_used,
+                u.credits,
+                COALESCE(SUM(CASE WHEN p.status = 'paid' THEN 1 ELSE 0 END), 0) AS n_purchases
+            FROM users u
+            LEFT JOIN purchases p ON p.user_id = u.id
+            GROUP BY u.id, u.email, u.created_at, u.free_brief_used, u.credits
+            ORDER BY u.created_at DESC
+        """)
+        return [dict(row) for row in await cursor.fetchall()]
+
+
+_FR_MONTHS_ABBR = [
+    "jan.", "fév.", "mars", "avr.", "mai", "juin",
+    "juil.", "août", "sept.", "oct.", "nov.", "déc.",
+]
+
+
+def _fr_date(raw: str) -> str:
+    """'2026-04-23 12:34:56' or ISO -> '23 avr. 2026'. Falls back to raw on parse failure."""
+    if not raw:
+        return ""
+    try:
+        dt = datetime.fromisoformat(str(raw).replace("Z", ""))
+    except (ValueError, TypeError):
+        return str(raw)[:10]
+    return f"{dt.day} {_FR_MONTHS_ABBR[dt.month - 1]} {dt.year}"
 
 
 async def _load_activity_data(days: int = 30):
@@ -194,8 +235,8 @@ def render():
 
     kpis = run_async(_load_kpis())
 
-    # ── Row 1: 4 KPIs ────────────────────────────────────────
-    c1, c2, c3, c4 = st.columns(4)
+    # ── Row 1: 5 KPIs ────────────────────────────────────────
+    c1, c2, c3, c4, c5 = st.columns(5)
 
     with c1:
         delta = None
@@ -214,6 +255,9 @@ def render():
 
     with c4:
         kpi_card("💰 Coût ce mois", format_cost(kpis["cost_month"]))
+
+    with c5:
+        kpi_card("👥 Utilisateurs", str(kpis["users_total"]), help_text="Comptes inscrits via magic-link")
 
     st.markdown("---")
 
@@ -362,3 +406,25 @@ def render():
             st.caption(f"Total: {total} hypothèses")
         else:
             st.info("Aucune donnée reviewer.")
+
+    st.markdown("---")
+
+    # ── Row 4: Registered users ──────────────────────────────
+    st.subheader("👥 Utilisateurs inscrits")
+    users = run_async(_load_users())
+
+    if not users:
+        st.info("Aucun utilisateur inscrit pour le moment.")
+    else:
+        df = pd.DataFrame([
+            {
+                "Email": u["email"],
+                "Inscription": _fr_date(u["created_at"]),
+                "Crédits": int(u["credits"] or 0),
+                "Brief gratuit": "oui" if u["free_brief_used"] else "non",
+                "Achats payés": int(u["n_purchases"] or 0),
+            }
+            for u in users
+        ])
+        st.dataframe(df, use_container_width=True, hide_index=True)
+        st.caption(f"Total: {len(users)} utilisateur(s)")
