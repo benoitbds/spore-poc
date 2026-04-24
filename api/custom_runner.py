@@ -228,6 +228,9 @@ async def _persist_stub_brief(
         stub_reason=stub["stub_reason"],
         brief_md_path=str(md_path),
         brief_json_path=str(json_path),
+        # Phase 2: mirror the stub markdown into SQLite so the frontend
+        # Server Component can render without a disk read.
+        body_markdown=stub["markdown"],
     )
 
     await update_custom_request(

@@ -9,7 +9,10 @@ from typing import Any, AsyncIterator, Optional
 import aiosqlite
 
 from config import get_settings
+from logging_config import get_logger
 from models.hypothesis import Hypothesis, HumanFeedback, HypothesisStatus
+
+logger = get_logger("storage.database")
 from agents.reviewer import AutoFeedback, AutoFeedbackScores
 
 # SQL Schema
@@ -113,7 +116,13 @@ CREATE TABLE IF NOT EXISTS briefs (
 
     -- API custom-run flag (1 when reviewer voted 'poubelle' on a paid
     -- custom collision — brief is still delivered but marked).
-    low_confidence INTEGER DEFAULT 0
+    low_confidence INTEGER DEFAULT 0,
+
+    -- Phase 2 of the SSG-to-DB refactor: full Markdown rendering of the
+    -- brief, mirrored from outputs/briefs/{id}.md so spore-web can read
+    -- it directly from SQLite without touching disk. Backfilled by
+    -- scripts/backfill_body_markdown.py for rows created pre-Phase-2.
+    body_markdown TEXT
 );
 CREATE INDEX IF NOT EXISTS idx_briefs_hypothesis ON briefs(hypothesis_id);
 CREATE INDEX IF NOT EXISTS idx_briefs_status ON briefs(status);
@@ -283,6 +292,20 @@ async def init_database() -> None:
             await conn.commit()
         except Exception:
             pass  # Column already exists
+
+        # Migration: body_markdown — Phase 2 of the SSG-to-DB refactor.
+        # Mirrors outputs/briefs/{id}.md inside the briefs row so the
+        # Next.js Server Component can render the full brief from a
+        # single SQLite read. Backfill for legacy rows lives in
+        # scripts/backfill_body_markdown.py.
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN body_markdown TEXT"
+            )
+            await conn.commit()
+            logger.info("db_migration_body_markdown_added")
+        except Exception:
+            logger.debug("db_migration_body_markdown_already_present")
         try:
             await conn.execute(
                 "ALTER TABLE briefs ADD COLUMN stub_reason TEXT"
@@ -700,6 +723,9 @@ async def save_brief(
         # revision_count comes from the caller (state of the post-fire graph).
         # Default 0 for legacy callers.
         revision_count = int(kwargs.get("revision_count", 0) or 0)
+        # Phase 2: full markdown rendering, mirrored from disk so the
+        # frontend Server Component can render without a file read.
+        body_markdown = kwargs.get("body_markdown")
 
         await conn.execute(
             """
@@ -711,8 +737,8 @@ async def save_brief(
                 panel_consensus_score, panel_verdict, revision_count,
                 brief_md_path, brief_pdf_path, brief_json_path,
                 grounding_data, sharpened_data, protocol_data, panel_data,
-                vulgarization_data
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                vulgarization_data, body_markdown
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 brief_id, hypothesis_id, status,
@@ -726,6 +752,7 @@ async def save_brief(
                 json.dumps(protocol_data) if protocol_data else None,
                 json.dumps(panel_data) if panel_data else None,
                 json.dumps(vulgarization_data) if vulgarization_data else None,
+                body_markdown,
             ),
         )
         await conn.commit()
@@ -737,6 +764,7 @@ async def save_stub_brief(
     stub_reason: str,
     brief_md_path: Optional[str] = None,
     brief_json_path: Optional[str] = None,
+    body_markdown: Optional[str] = None,
 ) -> None:
     """Persist a stub brief — no pipeline data, just the honest analysis.
 
@@ -744,6 +772,12 @@ async def save_stub_brief(
     returned no_bridge_found) but we still owe the paying user something
     actionable. Sets ``is_stub=1`` and ``stub_reason`` so the frontend
     can render a distinct, non-error presentation.
+
+    Args:
+        body_markdown: Phase 2 of the SSG-to-DB refactor. Mirror of the
+            ``.md`` file that ``_persist_stub_brief`` writes to disk so
+            the Next.js Server Component can render the analysis from a
+            single SQLite read.
     """
     async with get_connection() as conn:
         await conn.execute(
@@ -751,10 +785,13 @@ async def save_stub_brief(
             INSERT OR REPLACE INTO briefs (
                 id, hypothesis_id, status,
                 brief_md_path, brief_json_path,
-                is_stub, stub_reason
-            ) VALUES (?, ?, 'complete', ?, ?, 1, ?)
+                is_stub, stub_reason, body_markdown
+            ) VALUES (?, ?, 'complete', ?, ?, 1, ?, ?)
             """,
-            (brief_id, hypothesis_id, brief_md_path, brief_json_path, stub_reason),
+            (
+                brief_id, hypothesis_id, brief_md_path, brief_json_path,
+                stub_reason, body_markdown,
+            ),
         )
         await conn.commit()
 

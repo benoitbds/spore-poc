@@ -10,7 +10,7 @@ Conditional edges:
 """
 
 from datetime import date
-from typing import Any, TypedDict
+from typing import Any, Optional, TypedDict
 from uuid import uuid4
 
 from langgraph.graph import StateGraph, END
@@ -359,6 +359,22 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
     md_path_str = str(md_path) if md_path else ""
     json_path_str = str(json_path) if json_path else ""
 
+    # Phase 2: mirror the just-written .md into the body_markdown column
+    # so the frontend Server Component can render without touching disk.
+    # Best-effort: a missing/unreadable file just skips the column —
+    # the file remains the source of truth until the next backfill.
+    body_markdown: Optional[str] = None
+    if md_path is not None:
+        try:
+            body_markdown = md_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            logger.warning(
+                "brief_body_markdown_read_failed",
+                brief_id=brief_id,
+                path=md_path_str,
+                error=str(exc),
+            )
+
     # Register the brief in the SQLite briefs table so the UI picks it up.
     # hypothesis_id comes from the state if the pipeline was triggered for a
     # specific stored hypothesis; otherwise we use the brief_id as a placeholder.
@@ -380,6 +396,7 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
             brief_md_path=md_path_str or None,
             brief_json_path=json_path_str or None,
             revision_count=revision_count,
+            body_markdown=body_markdown,
         )
     except Exception as exc:
         logger.error("brief_db_save_failed", brief_id=brief_id, error=str(exc))
