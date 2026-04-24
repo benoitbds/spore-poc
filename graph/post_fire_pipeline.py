@@ -371,11 +371,15 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
     revision_count = int(state.get("revision_count", 0) or 0)
     try:
         await init_database()
+        # Mirror ``domains`` onto sharpened_data so the frontend cards
+        # (which read sharpened_data.domains via briefRowToBrief) show the
+        # collision pair without needing to crack open the sidecar JSON.
+        sharpened_for_db = {**dict(sharpened), "domains": list(state["domains"])}
         await save_brief_db(
             brief_id=brief_id,
             hypothesis_id=hypothesis_id,
             grounding_data=state.get("grounding"),
-            sharpened_data=dict(sharpened),
+            sharpened_data=sharpened_for_db,
             protocol_data=dict(protocol),
             panel_data={
                 "reviews": [dict(r) for r in panel["reviews"]],

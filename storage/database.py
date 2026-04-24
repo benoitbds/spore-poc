@@ -765,6 +765,7 @@ async def save_stub_brief(
     brief_md_path: Optional[str] = None,
     brief_json_path: Optional[str] = None,
     body_markdown: Optional[str] = None,
+    domains: Optional[list[str]] = None,
 ) -> None:
     """Persist a stub brief — no pipeline data, just the honest analysis.
 
@@ -778,19 +779,26 @@ async def save_stub_brief(
             ``.md`` file that ``_persist_stub_brief`` writes to disk so
             the Next.js Server Component can render the analysis from a
             single SQLite read.
+        domains: The [domain_a, domain_b] pair for the collision. Stored
+            inside ``sharpened_data.domains`` so the /discoveries cards
+            can show the pair — stubs have no other sharpened payload.
     """
+    sharpened_json = (
+        json.dumps({"domains": list(domains)}) if domains else None
+    )
     async with get_connection() as conn:
         await conn.execute(
             """
             INSERT OR REPLACE INTO briefs (
                 id, hypothesis_id, status,
                 brief_md_path, brief_json_path,
-                is_stub, stub_reason, body_markdown
-            ) VALUES (?, ?, 'complete', ?, ?, 1, ?, ?)
+                is_stub, stub_reason, body_markdown,
+                sharpened_data
+            ) VALUES (?, ?, 'complete', ?, ?, 1, ?, ?, ?)
             """,
             (
                 brief_id, hypothesis_id, brief_md_path, brief_json_path,
-                stub_reason, body_markdown,
+                stub_reason, body_markdown, sharpened_json,
             ),
         )
         await conn.commit()

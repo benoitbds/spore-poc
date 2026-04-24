@@ -231,6 +231,9 @@ async def _persist_stub_brief(
         # Phase 2: mirror the stub markdown into SQLite so the frontend
         # Server Component can render without a disk read.
         body_markdown=stub["markdown"],
+        # Feed the /discoveries cards — stubs carry no other sharpened
+        # payload, so domains land inside sharpened_data.domains.
+        domains=[domain_a, domain_b],
     )
 
     await update_custom_request(
