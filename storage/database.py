@@ -209,6 +209,13 @@ async def get_connection() -> AsyncIterator[aiosqlite.Connection]:
 async def init_database() -> None:
     """Initialize database schema."""
     async with get_connection() as conn:
+        # Switch to WAL the first time the DB is initialized — necessary for
+        # concurrent reads from a separate Node.js process (spore-web) while
+        # spore-api keeps writing. WAL is persistent (written to the DB
+        # header) so this runs at most once per fresh install. Idempotent.
+        await conn.execute("PRAGMA journal_mode=WAL")
+        await conn.commit()
+
         await conn.executescript(SCHEMA)
         await conn.commit()
 
