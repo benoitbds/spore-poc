@@ -258,27 +258,9 @@ async def _persist_stub_brief(
                 request_id=request_id, error=str(exc),
             )
 
-    # Trigger Next.js rebuild so the stub appears in the static set.
-    # Without this, the next-server's _cache + the Next HTTP cache
-    # would 404 the new URL until a manual rebuild. Mirror what
-    # graph/post_fire_pipeline.node_vulgarization does for real briefs;
-    # the 5-min file debounce in trigger_nextjs_rebuild coalesces
-    # multiple stubs created in quick succession into one rebuild.
-    from agents.research_brief_generator import trigger_nextjs_rebuild
-    try:
-        await trigger_nextjs_rebuild()
-        logger.info(
-            "custom_stub_brief_rebuild_triggered",
-            request_id=request_id,
-            brief_id=stub["brief_id"],
-        )
-    except Exception as exc:  # noqa: BLE001 — never block delivery on deploy
-        logger.error(
-            "custom_stub_brief_rebuild_failed",
-            request_id=request_id,
-            brief_id=stub["brief_id"],
-            error=str(exc),
-        )
+    # No rebuild hook: since Phase 2, spore-web reads SQLite directly,
+    # so the freshly committed stub brief is visible to the next
+    # /discoveries/{id} request without any static-rebuild cycle.
 
 
 async def _validate_domains(request_id: str, request: dict[str, Any]) -> None:

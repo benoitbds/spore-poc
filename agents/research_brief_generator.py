@@ -2,16 +2,9 @@
 
 Compiles all pipeline outputs into a structured markdown document (4-6 pages)
 and a JSON version for programmatic access.
-
-Also exposes ``trigger_nextjs_rebuild``: a hook called by the post-fire
-graph after a brief is fully published so the static Next.js site picks
-up the new brief without a manual ``npm run build`` + ``pm2 restart``.
 """
 
-import asyncio
 import json
-import subprocess
-import time
 from datetime import date
 from pathlib import Path
 from typing import Any
@@ -23,125 +16,6 @@ from config import get_settings
 from logging_config import get_logger
 
 logger = get_logger("research_brief_generator")
-
-
-# ── Next.js rebuild hook ────────────────────────────────────────────
-
-# PM2 and npm ship via nvm; cron's minimal PATH does not include them.
-# We call the absolute paths so the hook works from any invocation context
-# (cron, PM2-managed API worker, interactive shell).
-_NEXTJS_NPM_BIN = "/home/baq/.nvm/versions/node/v24.14.0/bin/npm"
-_NEXTJS_PM2_BIN = "/home/baq/.nvm/versions/node/v24.14.0/bin/pm2"
-_NEXTJS_WEB_CWD = "/home/baq/Projects/spore-web"
-_NEXTJS_PM2_PROCESS = "spore-web"
-
-# Debounce state: a tiny file on /tmp holding the last rebuild timestamp.
-# Survives across separate Python invocations (cron autopilot, API workers)
-# so a burst of briefs published within 5 min triggers only one rebuild.
-_NEXTJS_DEBOUNCE_FILE = Path("/tmp/spore-nextjs-last-rebuild")
-_NEXTJS_DEBOUNCE_SECONDS = 300
-
-
-def _nextjs_debounce_recent() -> tuple[bool, float]:
-    """Return (skip?, age_seconds) based on the debounce file."""
-    try:
-        last = float(_NEXTJS_DEBOUNCE_FILE.read_text().strip())
-    except (FileNotFoundError, ValueError, OSError):
-        return False, 0.0
-    age = time.time() - last
-    return age < _NEXTJS_DEBOUNCE_SECONDS, age
-
-
-async def trigger_nextjs_rebuild() -> bool:
-    """Rebuild Next.js + restart its PM2 process after a brief publication.
-
-    Non-fatal on every failure mode (PM2 missing, npm build error, timeout,
-    binaries not found): logs and returns False so the post-fire pipeline
-    never crashes because of a deploy-side issue.
-
-    Uses ``asyncio.to_thread`` so the ~90s rebuild doesn't block the async
-    event loop — important for the API worker which serves concurrent
-    users via BackgroundTask.
-
-    Returns:
-        True if the rebuild succeeded end-to-end. False if debounced,
-        skipped (PM2 process missing), or any step failed.
-    """
-    skip, age = _nextjs_debounce_recent()
-    if skip:
-        logger.info(
-            "nextjs_rebuild_debounced",
-            last_rebuild_age_s=int(age),
-            debounce_s=_NEXTJS_DEBOUNCE_SECONDS,
-        )
-        return False
-
-    try:
-        check = await asyncio.to_thread(
-            subprocess.run,
-            [_NEXTJS_PM2_BIN, "describe", _NEXTJS_PM2_PROCESS],
-            capture_output=True, text=True, timeout=10,
-        )
-    except (subprocess.TimeoutExpired, FileNotFoundError) as exc:
-        logger.warning("nextjs_pm2_unavailable", error=str(exc))
-        return False
-    if check.returncode != 0:
-        logger.warning(
-            "nextjs_pm2_process_missing",
-            process=_NEXTJS_PM2_PROCESS,
-            stderr=check.stderr[:200],
-        )
-        return False
-
-    logger.info("nextjs_rebuild_starting", cwd=_NEXTJS_WEB_CWD)
-    try:
-        build = await asyncio.to_thread(
-            subprocess.run,
-            [_NEXTJS_NPM_BIN, "run", "build"],
-            cwd=_NEXTJS_WEB_CWD,
-            capture_output=True, text=True, timeout=120,
-        )
-    except subprocess.TimeoutExpired:
-        logger.error("nextjs_build_timeout", timeout_s=120)
-        return False
-    except FileNotFoundError as exc:
-        logger.error("nextjs_npm_bin_missing", error=str(exc))
-        return False
-    if build.returncode != 0:
-        logger.error(
-            "nextjs_build_failed",
-            returncode=build.returncode,
-            stderr=build.stderr[-500:],
-        )
-        return False
-
-    try:
-        restart = await asyncio.to_thread(
-            subprocess.run,
-            [_NEXTJS_PM2_BIN, "restart", _NEXTJS_PM2_PROCESS],
-            capture_output=True, text=True, timeout=30,
-        )
-    except subprocess.TimeoutExpired:
-        logger.error("nextjs_pm2_restart_timeout")
-        return False
-    if restart.returncode != 0:
-        logger.error(
-            "nextjs_pm2_restart_failed",
-            returncode=restart.returncode,
-            stderr=restart.stderr[:500],
-        )
-        return False
-
-    try:
-        _NEXTJS_DEBOUNCE_FILE.write_text(str(time.time()))
-    except OSError as exc:
-        logger.warning("nextjs_debounce_write_failed", error=str(exc))
-
-    logger.info(
-        "nextjs_rebuilt_and_restarted",
-        process=_NEXTJS_PM2_PROCESS,
-    )
-    return True
 
 
 def _doi_link(doi: str | None) -> str:
