@@ -28,7 +28,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from config import get_settings
 from logging_config import get_logger, setup_logging
-from storage import init_database
+from storage.database import init_database
 from storage.database import get_connection
 
 logger = get_logger("scripts.backfill_body_markdown")
