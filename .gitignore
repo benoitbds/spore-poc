@@ -29,6 +29,11 @@ data/spore.db-shm
 data/openalex_topics_cache.json
 data/domains/*.backup_*
 
+# Pipeline outputs (regeneratable — historical files already tracked stay tracked)
+outputs/briefs/
+outputs/SPORE-*.yaml
+outputs/batches/
+
 # Claude Code internals
 .claude/
 
