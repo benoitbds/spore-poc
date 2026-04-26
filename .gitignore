@@ -33,6 +33,12 @@ data/domains/*.backup_*
 outputs/briefs/
 outputs/SPORE-*.yaml
 outputs/batches/
+outputs/digests/
+outputs/observation_L1-*.json
+outputs/strategy_L1-*.json
+
+# Local convenience scripts (not part of the project)
+start_streamlit.sh
 
 # Claude Code internals
 .claude/
