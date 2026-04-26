@@ -38,7 +38,7 @@ logger = get_logger("scripts.generate_batch_for_review")
 
 # ── Configuration ────────────────────────────────────────────────────
 
-DOMAIN_A: str = "Muscle regenerative medicine"
+DOMAIN_A: str = "Skeletal Muscle"
 COUNT: int = 5
 SYSTEM_USER_EMAIL: str = "system-batch@spore-research.com"
 PARALLEL: int = 1  # sequential by default — don't saturate DeepSeek
