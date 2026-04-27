@@ -52,6 +52,56 @@ All SPORE agent prompts follow this pattern:
 6. Examples if needed
 7. Edge cases and fallbacks
 
+## Refactor execution — "audit oversight" rule
+
+When executing a multi-step refactor against an upfront audit (e.g. sprint
+N1.1 "découverte → brief / hypothèse / piste"), and grep at execution
+time reveals an occurrence not listed in the original audit, apply this
+rule INSTEAD of stopping with a STOP arbitrage.
+
+### Auto-include in the current étape commit if all 3 are true
+1. **Fix unambigu** — mechanical transformation, no decision (e.g. same
+   path replacement applied throughout the diff).
+2. **Taxonomie cohérente avec l'étape en cours** — the occurrence
+   belongs to the same object class as the étape (e.g. internal app
+   link → "internal links" étape ; FR user-facing string → "rebranding"
+   étape).
+3. **Scope général du refactor** — the occurrence sits inside the
+   global perimeter of the chantier (e.g. N1.1 = applicative code +
+   scripts + runtime config).
+
+When the 3 hold:
+- Include the fix in the étape's commit.
+- Add a short note in the commit BODY (not the subject):
+  ``Note: <file> initialement non listé dans l'audit, détecté par grep
+  de complétude au moment de l'exécution.``
+- Brief chat mention for traceability:
+  ``Audit oversight inclus dans étape <N> : <chemin/fichier> (ligne X).
+  Critères OK : fix unambigu + taxonomie <étape> + scope <refactor>.
+  Note ajoutée au body du commit.``
+- DO NOT create a STOP.
+
+### STOP required, OR park out of scope, when
+- **(i) Hors scope général** of the refactor (e.g. README, docs/, pure
+  doc files) → park as a "to-backlog" follow-up commit, do not include
+  in the étape commit.
+- **(ii) Ambiguous fix** — multiple possible targets, or non-trivial
+  transformation → STOP with a proposed arbitrage.
+- **(iii) Inconsistent taxonomy** — the occurrence belongs to an étape
+  already committed or to a different future étape → STOP to decide
+  reclassement (separate commit ? amend ? defer ?).
+
+### Meta — for the next refactor of this caliber
+
+Widen the initial audit grep beyond ``src/``:
+- ``scripts/``
+- ``*.config.{js,ts,mjs}``
+- ``README*``, ``docs/``
+- test files (``test_*.sh``, ``*.test.ts``)
+
+Then classify each hit into its étape or explicitly out-of-scope, rather
+than discovering oversights at execution time.
+
 ## Current priority
 Implement the Post-Fire Pipeline as described in SPORE_Post_Fire_Pipeline_v1.md:
 1. `semantic_scholar.py` — API client with retry/cache
