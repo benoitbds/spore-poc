@@ -53,6 +53,14 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Détails** : ajout `operatingSystem: 'Web'`, `image`, helper `toIsoUtc` pour timezones ISO 8601
 - **Validation Google** : 2 éléments valides (Article + SoftwareApplication), 0 erreur critique
 
+### S3 — Niveau 1 quick wins
+- **Date** : 27 avril 2026
+- **Tag rollback** : `pre-s3`
+- **Branche** : `feat/s3-niveau-1-quickwins` (mergée + supprimée)
+- **Livre** : N1.4, N1.5, N1.7
+- **Détails** : badge épistémique sous le H1 des briefs, phrase manifeste promue en tagline principale de la home, "DOIs vérifiés sur Semantic Scholar" dans le copy pricing
+- **Commit unique** : `b9bd2dd` (merge `bc83ed6`)
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -83,16 +91,19 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Fichier** : `agents/vulgarization_fr.py` (à confirmer)
 - **Risque** : impact sur tous les nouveaux briefs générés. À tester sur 3-5 briefs avant déploiement pipeline.
 
-### 🔧 N1.4 — Badge statut épistémique sur chaque brief
-- **Effort** : 1h
-- **Cible** : ligne sous le titre type *"Hypothèse non testée · Générée par IA · Non validée par des pairs"*
-- **Fichier** : `src/components/BriefDetail*` ou `src/app/briefs/[id]/page.tsx`
-- **Sprint code candidat** : S3
+### ✅ N1.4 — Badge statut épistémique sur chaque brief
+- **Statut** : Done
+- **Livré par** : S3
+- **Commit** : `b9bd2dd`
+- **Note** : badge "Hypothèse générée par IA · Pré-publication · À tester expérimentalement" sous le H1 de chaque brief. Formulation positive (option 2 vs triple négation initiale).
+- **Fichier modifié** : `src/app/briefs/[id]/BriefDetailClient.tsx`
 
-### 🔧 N1.5 — Promouvoir la phrase manifeste en home
-- **Effort** : 30 min
-- **Phrase** : *"Une hypothèse nulle bien documentée vaut mieux qu'une fausse promesse d'unification"* (validée par 2 personas indépendamment)
-- **Fichier** : `src/app/page.tsx`
+### ✅ N1.5 — Promouvoir la phrase manifeste en home
+- **Statut** : Done
+- **Livré par** : S3
+- **Commit** : `b9bd2dd`
+- **Note** : la phrase manifeste était déjà présente en sous-titre discret. Inversion avec la phrase descriptive : manifeste en tagline primaire, descriptive en sous-titre.
+- **Fichier modifié** : `src/app/page.tsx` (lignes 172-180)
 
 ### 🔧 N1.6 — Repositionner Collision sur mesure
 - **Effort** : 1h
@@ -101,11 +112,12 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - Lien "Collision sur mesure" dans la nav principale (top nav)
 - **Fichiers** : `src/app/pricing/PricingClient.tsx`, `src/components/Header.tsx`
 
-### 🔧 N1.7 — "100% DOIs vérifiés sur Semantic Scholar"
-- **Effort** : 5 min (pure substitution de chaîne)
-- **Avant** : "100% références vérifiées"
-- **Après** : "100% DOIs vérifiés sur Semantic Scholar"
-- **Localisation** : à grepper
+### ✅ N1.7 — "DOIs vérifiés sur Semantic Scholar"
+- **Statut** : Done
+- **Livré par** : S3
+- **Commit** : `b9bd2dd`
+- **Note** : remplacé "références vérifiées" par "DOIs vérifiés sur Semantic Scholar" dans le copy pricing et la meta description.
+- **Fichiers modifiés** : `src/app/pricing/PricingClient.tsx:24`, `src/app/pricing/page.tsx:7`
 
 ---
 
