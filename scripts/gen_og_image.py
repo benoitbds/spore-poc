@@ -104,7 +104,7 @@ def make_og_image() -> Image.Image:
     )
     draw.text(
         (72, 425),
-        "les découvertes de demain",
+        "les hypothèses de demain",
         fill=EMERALD_GLOW,
         font=tag_font,
     )
