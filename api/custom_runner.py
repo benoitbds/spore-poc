@@ -231,7 +231,7 @@ async def _persist_stub_brief(
         # Phase 2: mirror the stub markdown into SQLite so the frontend
         # Server Component can render without a disk read.
         body_markdown=stub["markdown"],
-        # Feed the /discoveries cards — stubs carry no other sharpened
+        # Feed the /briefs cards — stubs carry no other sharpened
         # payload, so domains land inside sharpened_data.domains.
         domains=[domain_a, domain_b],
     )
@@ -263,7 +263,7 @@ async def _persist_stub_brief(
 
     # No rebuild hook: since Phase 2, spore-web reads SQLite directly,
     # so the freshly committed stub brief is visible to the next
-    # /discoveries/{id} request without any static-rebuild cycle.
+    # /briefs/{id} request without any static-rebuild cycle.
 
 
 async def _validate_domains(request_id: str, request: dict[str, Any]) -> None:
