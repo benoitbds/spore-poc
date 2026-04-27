@@ -44,7 +44,7 @@ agents:
   literature_grounding:
     model: deepseek-chat
     parameters:
-      max_tokens: 6000
+      max_tokens: 8000
     prompt_version: literature_grounding_v7
     provider: deepseek
   multi_reviewer_panel:
@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-26T04:00:32.503071'
-mutated_by: L1-MUT-20260426-39ac51
+last_mutated: '2026-04-27T04:00:34.961931'
+mutated_by: L1-MUT-20260427-55b24a
 mutation_locks:
 - locked_until: '2026-04-22'
   path: agents.synthesis.parameters.temperature
