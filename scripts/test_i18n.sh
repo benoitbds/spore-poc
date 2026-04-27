@@ -50,7 +50,7 @@ REQUIRED_FR=(
 # Pages à tester (publiques, pas besoin d'auth)
 PAGES=(
   "/"
-  "/discoveries"
+  "/briefs"
   "/pricing"
   "/custom"
   "/how-it-works"
@@ -100,7 +100,7 @@ echo ""
 
 # Test 3 : Pages brief — vérifier les labels du teaser (pas besoin d'auth)
 echo "--- Labels brief teaser (vue FR) ---"
-BRIEF=$(curl -s "${BASE}/discoveries/SPR-2026-5301")
+BRIEF=$(curl -s "${BASE}/briefs/SPR-2026-5301")
 BRIEF_CLEAN=$(echo "$BRIEF" | perl -0777 -pe 's{<script[^>]*>.*?</script>}{}gs')
 
 BRIEF_FR_REQUIRED=(

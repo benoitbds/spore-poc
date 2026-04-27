@@ -4,7 +4,7 @@ Why this exists
 ---------------
 For the first 40-ish briefs (both pipeline output and stubs), the
 ``domains`` field was only ever written to the ``outputs/briefs/<id>.json``
-sidecar — never mirrored into SQLite. The /discoveries cards read
+sidecar — never mirrored into SQLite. The /briefs cards read
 ``sharpened_data.domains`` via ``briefRowToBrief`` and were therefore
 falling back to ``[]``, rendering "× —" on every card.
 

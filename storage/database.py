@@ -780,7 +780,7 @@ async def save_stub_brief(
             the Next.js Server Component can render the analysis from a
             single SQLite read.
         domains: The [domain_a, domain_b] pair for the collision. Stored
-            inside ``sharpened_data.domains`` so the /discoveries cards
+            inside ``sharpened_data.domains`` so the /briefs cards
             can show the pair — stubs have no other sharpened payload.
     """
     sharpened_json = (

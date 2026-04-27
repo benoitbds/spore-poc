@@ -56,7 +56,7 @@ def send_magic_link(email: str, token: str, next_path: str | None = None) -> Non
     Link points at ``{BASE_URL}/auth/verify?token=…`` (+ ``&next=…`` when
     provided). ``VerifyClient.tsx`` already reads the ``next`` query param
     and redirects to it on successful verification, falling back to
-    ``/discoveries`` when absent.
+    ``/briefs`` when absent.
 
     Args:
         email: Recipient address.

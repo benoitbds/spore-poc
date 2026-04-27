@@ -157,7 +157,7 @@ async def request_magic_link(payload: MagicLinkRequest) -> MagicLinkResponse:
     The optional ``next`` query-target is propagated into the email link so
     the verify flow can land the user on the page that triggered the signup
     (e.g. a pending custom-collision status page) instead of the default
-    ``/discoveries``. Unsafe values are silently dropped.
+    ``/briefs``. Unsafe values are silently dropped.
     """
     user = await get_or_create_user(payload.email)
     token = await create_magic_link(user["id"], ttl_hours=MAGIC_LINK_EXPIRY_HOURS)

@@ -262,7 +262,7 @@ def format_markdown_report(
                 f"novelty {s.get('novelty_score'):.2f}"
             )
             lines.append(
-                f"  → https://spore-research.com/discoveries/{s['brief_id']}"
+                f"  → https://spore-research.com/briefs/{s['brief_id']}"
             )
     else:
         lines.append(
