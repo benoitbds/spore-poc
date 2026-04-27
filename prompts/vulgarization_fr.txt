@@ -8,7 +8,27 @@ REGLES ABSOLUES :
 - ECRIS EN FRANÇAIS, même si l'hypothèse d'origine est en anglais
 - JAMAIS de jargon non expliqué. Si un terme technique est indispensable, explique-le en une incise
 - Le titre français ne doit PAS être une traduction littérale : reformule pour accrocher
-- L'analogie "Imaginez que..." doit être tirée du quotidien (cuisine, sport, ville, objets familiers) — pas d'autres domaines scientifiques
+
+RÈGLES SUR LE SUJET ÉNONCIATIF :
+- INTERDIT d'écrire "les chercheurs", "les scientifiques", "ils ont proposé", "l'équipe a montré" pour désigner l'hypothèse SPORE elle-même.
+- L'hypothèse n'a pas été proposée par "des chercheurs" : elle est générée par SPORE.
+- Utilise une voix IMPERSONNELLE : "cette hypothèse propose...", "le protocole suggère...", "l'approche consiste à...", "le mécanisme repose sur..."
+- Tu peux mentionner "les chercheurs" UNIQUEMENT pour parler des auteurs des références bibliographiques déjà publiées (ex: "des travaux antérieurs de chercheurs sur X montrent que...")
+- Évite aussi : "des scientifiques pensent que", "les experts s'accordent à dire" — tournures passe-partout sans contenu
+
+RÈGLE STRICTE SUR LES ANALOGIES :
+- UNE SEULE analogie tirée du quotidien dans tout le brief, et UNIQUEMENT dans le champ "imagine_that".
+- Aucune analogie dans "hypothesis_in_brief", "why_it_matters", "concretely", "reviewers_say".
+- L'analogie doit éclairer le mécanisme central, pas juste l'illustrer superficiellement.
+- Diversifie les registres au fil des briefs : pas systématiquement culinaire ou domestique. Varie : artisanat, sport, urbanisme, transport, instruments de musique, jeux, jardinage, mécanique, etc.
+- Si le mécanisme est trop technique pour une analogie pertinente, écris simplement "imagine_that" en termes très concrets sans forcer la métaphore.
+
+RÈGLE ANTI-LYRISME :
+- INTERDIT les phrases conclusives lyriques type : "pourrait sauver des millions de patients", "ouvre la voie à une révolution", "transforme notre compréhension du monde", "promet de changer la vie de millions de gens".
+- Préfère la précision technique : "permettrait de mesurer X dans Y", "réduirait le coût de tel diagnostic", "fournirait un protocole reproductible pour tester Z".
+- L'enthousiasme se gagne par la précision, pas par les superlatifs.
+
+AUTRES RÈGLES ABSOLUES :
 - Reste honnête : si l'hypothèse est spéculative, dis-le. N'invente rien qui ne soit pas dans le brief
 - Niveau de lecture : un élève de seconde doit comprendre
 - Pas de longueur excessive : dense, percutant, fluide
@@ -48,16 +68,16 @@ FORMAT DE SORTIE (JSON strict) :
 ```json
 {{
     "title_fr": "Titre français accrocheur (pas une traduction littérale, max 100 caractères)",
-    "hypothesis_in_brief": "L'hypothèse en 2-3 phrases accessibles niveau lycéen. Pas de jargon. Pose la question de départ et ce que propose le chercheur.",
-    "why_it_matters": "Pourquoi c'est important, en 3-5 phrases, en langage courant. Quels problèmes réels cela pourrait aider à résoudre ? Qui en bénéficierait ?",
-    "imagine_that": "Une analogie concrète tirée du quotidien, commençant par 'Imaginez que...' ou similaire. 3-5 phrases. L'analogie doit éclairer le mécanisme central, pas juste l'illustrer superficiellement.",
+    "hypothesis_in_brief": "L'hypothèse en 2-3 phrases accessibles niveau lycéen. Pas de jargon, pas d'analogie. Voix impersonnelle. Pose la question de départ et ce que propose l'approche.",
+    "why_it_matters": "Pourquoi c'est important, en 3-5 phrases, en langage courant. Quels problèmes réels cela pourrait aider à résoudre, qui en bénéficierait. Précision technique, pas de superlatifs.",
+    "imagine_that": "Une seule analogie concrète tirée du quotidien, commençant par 'Imaginez que...' ou similaire. 3-5 phrases. L'analogie doit éclairer le mécanisme central. Cette section est la seule où une analogie est autorisée.",
     "concretely": {{
-        "intro": "1-2 phrases d'introduction sur comment on va tester l'idée",
-        "phase1": "Phase 1 (in silico / simulation) en 1-2 phrases accessibles",
-        "phase2": "Phase 2 (expérience de labo) en 1-2 phrases accessibles",
-        "phase3": "Phase 3 (validation à plus grande échelle) en 1-2 phrases accessibles"
+        "intro": "1-2 phrases d'introduction sur comment l'approche va être testée. Voix impersonnelle, pas d'analogie.",
+        "phase1": "Phase 1 (in silico / simulation) en 1-2 phrases accessibles. Pas d'analogie.",
+        "phase2": "Phase 2 (expérience de labo) en 1-2 phrases accessibles. Pas d'analogie.",
+        "phase3": "Phase 3 (validation à plus grande échelle) en 1-2 phrases accessibles. Pas d'analogie."
     }},
-    "reviewers_say": "Synthèse du panel en 4-6 phrases en français. Que pensent les 5 experts ? Quels sont leurs arguments pour et contre ? Finir par le verdict global et ce qu'il faudrait pour y croire."
+    "reviewers_say": "Synthèse du panel en 4-6 phrases en français. Que pense le panel ? Quels sont les arguments pour et contre ? Finir par le verdict global et ce qu'il faudrait pour y croire. Pas d'analogie."
 }}
 ```
 
