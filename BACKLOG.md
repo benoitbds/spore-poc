@@ -61,6 +61,16 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Détails** : badge épistémique sous le H1 des briefs, phrase manifeste promue en tagline principale de la home, "DOIs vérifiés sur Semantic Scholar" dans le copy pricing
 - **Commit unique** : `b9bd2dd` (merge `bc83ed6`)
 
+### S4 — Refonte prompt vulgarization_fr + re-vulgarisation batch
+- **Date** : 28 avril 2026
+- **Tag rollback** : `pre-s4`
+- **Branche** : `feat/s4-vulgarization-prompt-refonte` (mergée + supprimée)
+- **Livre** : N1.3
+- **Détails** : refonte du prompt avec 3 nouvelles règles (voix impersonnelle, 1 analogie max dans `imagine_that`, anti-lyrisme). Extension du script `scripts/backfill_vulgarization.py` avec flags `--dry-run`, `--brief-id`, `--diff-against-current`. Re-vulgarisation de 22 vrais briefs (DB + JSON files synchronisés). 16 stubs (is_stub=1) skippés volontairement (relèvent du pipeline `stub_brief.py`, traités plus tard via N2.10).
+- **Coût LLM** : ~$0.013 sur DeepSeek pour le batch
+- **Commits** : `364ea85` (prompt+script) + `7d0d2e8` (data) + `bdf46a1` (merge)
+- **Backup DB** : `data/spore.db.pre-s4.bak` à supprimer après J+7 (vers le 5 mai)
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -82,14 +92,13 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Commits principaux** : `e09d225` (S2) + `11660dd` (S2.1)
 - **Note** : `Article` + author `SoftwareApplication`. Les warnings restants (offers, aggregateRating) sont volontairement laissés — mettre des valeurs serait du fake structured data
 
-### 🔧 N1.3 — Refondre prompt vulgarization_fr
-- **Effort** : 2-3h prompt engineering + tests sur 3-5 briefs
-- **Cibles** :
-  - Bannir "les chercheurs", "les scientifiques", "ils ont proposé" → utiliser "SPORE", "le modèle propose", voix impersonnelle
-  - Limiter à UNE analogie filée par brief, diversifier les registres
-  - Éviter conclusions lyriques type "pourrait sauver des millions de patients"
-- **Fichier** : `agents/vulgarization_fr.py` (à confirmer)
-- **Risque** : impact sur tous les nouveaux briefs générés. À tester sur 3-5 briefs avant déploiement pipeline.
+### ✅ N1.3 — Refondre prompt vulgarization_fr
+- **Statut** : Done (sur 22/24 vrais briefs — voir dette ci-dessous)
+- **Livré par** : S4
+- **Commits** : `364ea85` (prompt+script) + `7d0d2e8` (data)
+- **Note** : 3 règles intégrées au prompt (voix impersonnelle, 1 analogie max dans `imagine_that`, anti-lyrisme). Pré-validation sur SPR-2026-0386 puis batch sur 22 briefs. Vérification post-batch : 0 occurrence des tics énonciatifs interdits sur 4 briefs samples en prod.
+- **Fichier modifié** : `prompts/vulgarization_fr.txt` (réécrit), `scripts/backfill_vulgarization.py` (étendu)
+- **Dette** : 2 vrais briefs sans JSON file (SPR-2026-7C1B, SPR-2026-B172) vivent en DB only avec ancien prompt — voir section Maintenance.
 
 ### ✅ N1.4 — Badge statut épistémique sur chaque brief
 - **Statut** : Done
@@ -239,6 +248,17 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 ---
 
 ## Maintenance et dette technique
+
+### 📋 N1.3 dette : 2 vrais briefs sans JSON file
+- **Briefs concernés** : `SPR-2026-7C1B` ("Cuisiner des matériaux quantiques sur mesure avec de la lumière"), `SPR-2026-B172` ("Une plante stressée change de stratégie pour trouver son azote")
+- **Statut actuel** : DB OK avec ancien prompt, JSON files manquants depuis le filesystem (`outputs/briefs/`)
+- **Conséquence** : nouveau prompt N1.3 non appliqué à ces 2 briefs en DB. Frontend les sert avec l'ancienne vulgarization.
+- **Plan** : reconstruire les JSON files depuis la DB via un script ad-hoc, puis re-vulgariser via `backfill_vulgarization.py --brief-id`
+- **Effort** : 30-60 min (mini-sprint ad-hoc, hors backlog principal)
+
+### ⏳ Cleanup `data/spore.db.pre-s4.bak`
+- **Échéance** : 5 mai 2026 (J+7 après S4)
+- **Action** : `rm data/spore.db.pre-s4.bak` après confirmation que les nouvelles vulgarizations en prod n'ont pas créé de régression utilisateur
 
 ### ⏳ Cleanup `data/spore.db.pre-n1-1.bak`
 - **Échéance** : 4 mai 2026 (J+7 après S1)
