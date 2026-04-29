@@ -71,6 +71,13 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Commits** : `364ea85` (prompt+script) + `7d0d2e8` (data) + `bdf46a1` (merge)
 - **Backup DB** : `data/spore.db.pre-s4.bak` à supprimer après J+7 (vers le 5 mai)
 
+### S4.1 — Résolution dette N1.3 (2 briefs MISSING)
+- **Date** : 28 avril 2026
+- **Branche** : `feat/s4-1-debt-2-missing-briefs` (mergée + supprimée)
+- **Livre** : N1.3 (complétion 22/24 → 24/24)
+- **Détails** : reconstruction des 2 JSON files manquants depuis la DB (SPR-2026-7C1B "Cuisiner des matériaux quantiques sur mesure avec de la lumière", SPR-2026-B172 "Quand une plante stressée bricole ses racines : le détour inattendu de l'acide salicylique"). Champs `original_hypothesis` et `domains` laissés vides — ces 2 briefs étant antérieurs au format actuel, l'info n'est pas récupérable depuis la DB. Application du nouveau prompt N1.3 via le script de backfill.
+- **Commits** : `9728913` (data) + `d5fd8ce` (merge)
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -93,12 +100,11 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Note** : `Article` + author `SoftwareApplication`. Les warnings restants (offers, aggregateRating) sont volontairement laissés — mettre des valeurs serait du fake structured data
 
 ### ✅ N1.3 — Refondre prompt vulgarization_fr
-- **Statut** : Done (sur 22/24 vrais briefs — voir dette ci-dessous)
+- **Statut** : Done (24/24 vrais briefs)
 - **Livré par** : S4
 - **Commits** : `364ea85` (prompt+script) + `7d0d2e8` (data)
 - **Note** : 3 règles intégrées au prompt (voix impersonnelle, 1 analogie max dans `imagine_that`, anti-lyrisme). Pré-validation sur SPR-2026-0386 puis batch sur 22 briefs. Vérification post-batch : 0 occurrence des tics énonciatifs interdits sur 4 briefs samples en prod.
 - **Fichier modifié** : `prompts/vulgarization_fr.txt` (réécrit), `scripts/backfill_vulgarization.py` (étendu)
-- **Dette** : 2 vrais briefs sans JSON file (SPR-2026-7C1B, SPR-2026-B172) vivent en DB only avec ancien prompt — voir section Maintenance.
 
 ### ✅ N1.4 — Badge statut épistémique sur chaque brief
 - **Statut** : Done
@@ -249,12 +255,15 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 ## Maintenance et dette technique
 
-### 📋 N1.3 dette : 2 vrais briefs sans JSON file
-- **Briefs concernés** : `SPR-2026-7C1B` ("Cuisiner des matériaux quantiques sur mesure avec de la lumière"), `SPR-2026-B172` ("Une plante stressée change de stratégie pour trouver son azote")
-- **Statut actuel** : DB OK avec ancien prompt, JSON files manquants depuis le filesystem (`outputs/briefs/`)
-- **Conséquence** : nouveau prompt N1.3 non appliqué à ces 2 briefs en DB. Frontend les sert avec l'ancienne vulgarization.
-- **Plan** : reconstruire les JSON files depuis la DB via un script ad-hoc, puis re-vulgariser via `backfill_vulgarization.py --brief-id`
-- **Effort** : 30-60 min (mini-sprint ad-hoc, hors backlog principal)
+### 📋 Méta-bug architecture L1↔runtime (identifié S6)
+- **Découvert par** : sprints S5/S6 (audits pipeline)
+- **Symptôme** : ≥3 paramètres du génome `data/l0_genome.yaml` sont mutés par L1 mais jamais consommés par le pipeline runtime. Le L1 fait des modifications cosmétiques sans effet fonctionnel.
+- **Paramètres fantômes confirmés** : `randomness.distance_max`, `randomness.distance_min`, `randomness.strategy_weights.semantic_distance`. Probablement d'autres (audit non exhaustif).
+- **Bug secondaire** : l'auto-rollback L1 (commit `b42f5bb` du 23 avril) n'a jamais déclenché en 5 jours malgré une chute apparente de production. Hypothèse : ses signaux d'observation surveillent `hypotheses_generated` (resté stable à 5-11/jour) et pas `briefs_published_per_day` (tombé à 0/jour pour les briefs L0).
+- **Conséquences** : auto-tuning partiellement décoratif, faux signal de "système qui s'améliore", investigation S5/S6 partie sur fausses pistes (mutations L1 fantômes accusées à tort).
+- **Sprint candidat** : S6b — audit complet du génome (chaque clé : consommée ou fantôme), décisions par clé (supprimer / wire au runtime / déplacer en config legacy), fix de l'auto-rollback observer pour qu'il surveille les bonnes métriques.
+- **Effort estimé** : 1-2 jours
+- **Priorité** : moyenne (n'affecte pas les utilisateurs directement, mais l'auto-tuning est inutilisable en l'état)
 
 ### ⏳ Cleanup `data/spore.db.pre-s4.bak`
 - **Échéance** : 5 mai 2026 (J+7 après S4)
