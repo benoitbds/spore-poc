@@ -182,6 +182,26 @@ CREATE TABLE IF NOT EXISTS magic_links (
 );
 CREATE INDEX IF NOT EXISTS idx_magic_links_user ON magic_links(user_id);
 
+-- Newsletter opt-in (N4.1). Double opt-in: confirmation_token verifies the
+-- email, unsubscribe_token enables one-click unsub from any newsletter
+-- email (RGPD + CAN-SPAM friendly). One row per email (UNIQUE).
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    source TEXT NOT NULL,                 -- 'brief:SPR-XXXX' | 'about' | 'home' | …
+    brief_id TEXT,                        -- nullable; the brief id when source = brief
+    subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    confirmed BOOLEAN DEFAULT 0,          -- flips to 1 after the user clicks the confirm link
+    confirmation_token TEXT,              -- nullable once confirmed (or rotated on resend)
+    confirmed_at TIMESTAMP,
+    unsubscribed BOOLEAN DEFAULT 0,
+    unsubscribed_at TIMESTAMP,
+    unsubscribe_token TEXT NOT NULL       -- stable per row, embedded in every newsletter email
+);
+CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
+CREATE INDEX IF NOT EXISTS idx_newsletter_confirmation_token ON newsletter_subscribers(confirmation_token);
+CREATE INDEX IF NOT EXISTS idx_newsletter_unsubscribe_token ON newsletter_subscribers(unsubscribe_token);
+
 -- L1 mutation history. Populated by agents/l1_executor.py per cycle
 -- (both APPLIED and REJECTED mutations are logged for full audit).
 CREATE TABLE IF NOT EXISTS mutations (

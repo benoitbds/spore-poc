@@ -434,6 +434,157 @@ async def update_custom_request(
         await conn.commit()
 
 
+# ── Newsletter subscribers ─────────────────────────────────────────
+
+
+async def create_subscriber(
+    email: str,
+    source: str,
+    brief_id: Optional[str] = None,
+) -> dict[str, Any]:
+    """Insert a brand-new newsletter subscriber row.
+
+    Generates both ``confirmation_token`` (single-shot, used to flip
+    ``confirmed=1``) and ``unsubscribe_token`` (stable, embedded in every
+    newsletter email so the user can opt out in one click).
+
+    Caller must ensure no row exists for ``email`` — the UNIQUE constraint
+    will raise otherwise. The router uses ``get_subscriber_by_email``
+    first to decide between create / refresh.
+    """
+    confirmation_token = uuid4().hex
+    unsubscribe_token = uuid4().hex
+    async with get_connection() as conn:
+        await conn.execute(
+            "INSERT INTO newsletter_subscribers "
+            "(email, source, brief_id, confirmation_token, unsubscribe_token) "
+            "VALUES (?, ?, ?, ?, ?)",
+            (email, source, brief_id, confirmation_token, unsubscribe_token),
+        )
+        await conn.commit()
+        cursor = await conn.execute(
+            "SELECT * FROM newsletter_subscribers WHERE email = ?", (email,)
+        )
+        row = await cursor.fetchone()
+    return _subscriber_row_to_dict(row)
+
+
+async def get_subscriber_by_email(email: str) -> Optional[dict[str, Any]]:
+    """Return the newsletter row for ``email`` or None."""
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            "SELECT * FROM newsletter_subscribers WHERE email = ?", (email,)
+        )
+        row = await cursor.fetchone()
+    return _subscriber_row_to_dict(row) if row else None
+
+
+async def get_subscriber_by_confirmation_token(
+    token: str,
+) -> Optional[dict[str, Any]]:
+    """Return the newsletter row whose ``confirmation_token`` matches, or None."""
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            "SELECT * FROM newsletter_subscribers WHERE confirmation_token = ?",
+            (token,),
+        )
+        row = await cursor.fetchone()
+    return _subscriber_row_to_dict(row) if row else None
+
+
+async def get_subscriber_by_unsubscribe_token(
+    token: str,
+) -> Optional[dict[str, Any]]:
+    """Return the newsletter row whose ``unsubscribe_token`` matches, or None."""
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            "SELECT * FROM newsletter_subscribers WHERE unsubscribe_token = ?",
+            (token,),
+        )
+        row = await cursor.fetchone()
+    return _subscriber_row_to_dict(row) if row else None
+
+
+async def refresh_subscriber_confirmation(
+    email: str,
+    source: str,
+    brief_id: Optional[str] = None,
+) -> dict[str, Any]:
+    """Regenerate the confirmation token for an existing subscriber.
+
+    Resets ``confirmed=0`` (required: a re-subscribe must re-confirm) and
+    clears any prior ``unsubscribed`` flag so users who unsubscribed and
+    later changed their mind can opt back in via the same form. Updates
+    ``source`` / ``brief_id`` to the latest signup context.
+
+    Note: ``unsubscribe_token`` is intentionally NOT rotated — keeping it
+    stable means any old newsletter email's footer link still works.
+    """
+    new_token = uuid4().hex
+    async with get_connection() as conn:
+        await conn.execute(
+            "UPDATE newsletter_subscribers "
+            "SET confirmation_token = ?, "
+            "    confirmed = 0, "
+            "    confirmed_at = NULL, "
+            "    unsubscribed = 0, "
+            "    unsubscribed_at = NULL, "
+            "    source = ?, "
+            "    brief_id = ?, "
+            "    subscribed_at = CURRENT_TIMESTAMP "
+            "WHERE email = ?",
+            (new_token, source, brief_id, email),
+        )
+        await conn.commit()
+        cursor = await conn.execute(
+            "SELECT * FROM newsletter_subscribers WHERE email = ?", (email,)
+        )
+        row = await cursor.fetchone()
+    return _subscriber_row_to_dict(row)
+
+
+async def mark_subscriber_confirmed(subscriber_id: int) -> None:
+    """Flip ``confirmed=1`` and stamp ``confirmed_at``. Idempotent."""
+    now = datetime.now(timezone.utc).isoformat()
+    async with get_connection() as conn:
+        await conn.execute(
+            "UPDATE newsletter_subscribers "
+            "SET confirmed = 1, confirmed_at = ? "
+            "WHERE id = ? AND confirmed = 0",
+            (now, subscriber_id),
+        )
+        await conn.commit()
+
+
+async def mark_subscriber_unsubscribed(subscriber_id: int) -> None:
+    """Flip ``unsubscribed=1`` and stamp ``unsubscribed_at``. Idempotent."""
+    now = datetime.now(timezone.utc).isoformat()
+    async with get_connection() as conn:
+        await conn.execute(
+            "UPDATE newsletter_subscribers "
+            "SET unsubscribed = 1, unsubscribed_at = ? "
+            "WHERE id = ? AND unsubscribed = 0",
+            (now, subscriber_id),
+        )
+        await conn.commit()
+
+
+def _subscriber_row_to_dict(row: Any) -> dict[str, Any]:
+    return {
+        "id": int(row["id"]),
+        "email": row["email"],
+        "source": row["source"],
+        "brief_id": row["brief_id"],
+        "subscribed_at": row["subscribed_at"],
+        "confirmed": bool(row["confirmed"]),
+        "confirmation_token": row["confirmation_token"],
+        "confirmed_at": row["confirmed_at"],
+        "unsubscribed": bool(row["unsubscribed"]),
+        "unsubscribed_at": row["unsubscribed_at"],
+        "unsubscribe_token": row["unsubscribe_token"],
+    }
+
+
 async def link_custom_request_to_purchase(
     stripe_session_id: str,
     purchase_id: str,
