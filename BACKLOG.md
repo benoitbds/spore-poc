@@ -105,6 +105,14 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Commits spore-web** : `93a81b4` (component) + `5f91993` (brief integration) + `ca44ba4` (static pages)
 - **Effort réel** : ~1.5j (estimation initiale 0.5j sous-estimait — le périmètre RGPD-clean + migration cross-repo était plus large)
 
+### S6.2 — Page Méthodologie + tooltip Nouveauté (N2.7)
+- **Date** : 1er mai 2026
+- **Tag rollback** : `pre-n2-7` (sur spore-web)
+- **Branche** : `feat/n2-7-methodology-page` (à merger + supprimer)
+- **Livre** : N2.7
+- **Détails** : décision tranchée — transparence radicale sur la nature heuristique du score Nouveauté plutôt que prétendre à une formule. Page `/methodology` créée (server component, pattern aligné sur `/about`, 6 sections, anchors `#novelty`, `#panel`, `#kill-rate`, `#references`, `#costs`, `#stack`). Composant `<NoveltyScoreTooltip />` (client component, pas de dep tooltip ajoutée — pure CSS + useState + useEffect) wired sur 4 emplacements (home MiniStat avg + HeroBadge featured brief, /stats QualityCard, /briefs sort selector conditional sur sort=novelty, brief detail RechercheSections). Lien Méthodologie ajouté au footer (entre À propos et Mentions légales). Callout "page Méthodologie" inséré au bas de `/how-it-works` avant le CTA. N2.7-bis ajouté en backlog pour un futur score algorithmique (embeddings + absence de cooccurrence).
+- **Commits** : `508873f` (page) + `6ada002` (tooltip + wiring) + `8efc5d5` (footer/how-it-works links)
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -196,9 +204,17 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Cible** : encart "Voir aussi : SPR-XXXX — hypothèse voisine" si similarité cosinus > 0.85
 - **Bonus** : lier rétroactivement les doublons identifiés par Robert (66E7/3403, FBF3/7516, cluster 0386)
 
-### 📋 N2.7 — Documenter la métrique de Nouveauté
-- **Effort** : 0.5 jour
-- **Cible** : info-bulle au survol/tap sur le score, page `/methodology` ou section dans `/how-it-works`
+### ✅ N2.7 — Documenter la métrique de Nouveauté
+- **Statut** : Done
+- **Livré par** : S6.2
+- **Commits** : `508873f` (page) + `6ada002` (tooltip + wiring) + `8efc5d5` (footer/how-it-works links)
+- **Note** : page `/methodology` créée avec transparence radicale sur la nature heuristique du score (auto-évaluation LLM, pas une métrique calculée). 6 sections : Nouveauté, Consensus du panel, kill rate, vérification bibliographique, coûts publics, stack. Composant réutilisable `<NoveltyScoreTooltip />` (CSS+state pur, sans nouvelle dep) wired sur 4 emplacements (home avg + featured brief, /stats QualityCard, /briefs sort selector quand sort=novelty, brief detail Novelty section). Lien dans footer + callout au bas de /how-it-works pointant vers `/methodology`. Cette page **désamorce la critique court terme** (Margaux : « sur quoi est calculé 0.85 ? ») mais ne remplace pas un vrai score algorithmique → voir N2.7-bis.
+
+### 📋 N2.7-bis — Implémenter un score Nouveauté algorithmique
+- **Effort** : 2-3 jours
+- **Cible** : remplacer ou compléter l'auto-évaluation LLM par un score basé sur (a) distance sémantique entre les deux domaines via embeddings sentence-transformers déjà en stack, (b) absence de cooccurrence dans le corpus Semantic Scholar des 5 dernières années
+- **Contexte** : le sprint S6.2 (N2.7) a documenté la nature heuristique du score actuel sur `/methodology`. La page mentionne explicitement ce sprint comme évolution prévue ("un sprint futur N2.7-bis implémentera un score algorithmique…").
+- **Priorité** : moyenne (le sprint S6.2 désamorce la critique court terme, mais un vrai score serait un argument fort pour les profils Margaux qui attendent une métrique objective)
 
 ### 📋 N2.8 — Badges Preprint/Conference/Journal sur les références
 - **Effort** : 0.5 jour
