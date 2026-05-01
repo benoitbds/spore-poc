@@ -243,13 +243,79 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - *"Une hypothèse nulle bien documentée vaut mieux qu'une fausse promesse d'unification"* (manifeste, 2 personas indépendants)
   - *"Le moteur de sérendipité structurée — proposer les ponts interdisciplinaires que personne n'a encore formulés"*
 
-### 🤔 D3 — Modèle pricing : unitaire vs abonnement
-- **Données** : Christophe pousse Substack 15€/mois, Margaux paiera 9€ unitaire si CTA inline, Aïcha+Hugo ne paieront jamais
-- **Question secondaire** : faut-il un mécanisme indirect de monétisation (partage/viralité) pour les profils non-payants ?
+### ✅ D3 — Modèle pricing (tranchée 1er mai 2026)
+- **Décision** : modèle multi-flux. Unitaire 9€ maintenu (canal d'acquisition), 
+  abonnement Substack-style 15€/mois prioritaire (levier MRR principal), 
+  tier B2B en préparation passive (lead capture inbound, pas d'outreach actif).
+- **Pack 5 brèves à 29€** : supprimé — trop proche du unitaire, pas assez 
+  engageant pour la rétention.
+- **Justification** : cadrage humain "side project qui doit générer des revenus, 
+  ne limitons pas". B2B serait le plus gros levier économique mais cycle de 
+  vente long incompatible avec un side project. Abonnement Substack-style est 
+  le levier MRR compatible avec le bandwidth disponible. Unitaire reste comme 
+  achat impulsif d'entrée.
+- **Implications** : 
+  - N3.2 (abonnement thématique) devient priorité haute
+  - N3.5 (CTA inline) devient priorité haute pour activation Stripe
+  - N4.x (trafic) devient priorité immédiate (pas de revenu sans trafic)
 
 ### 🤔 D4 — Boucle de retour expérimental
 - **Lien** : N3.6
 - **Question** : ouvrir maintenant ou après pricing + diversification thématique ?
+
+---
+
+## Niveau 4 — Trafic et acquisition (cycle continu)
+
+### 📋 N4.1 — Capture email newsletter sur chaque brief
+- **Effort** : 0.5 jour
+- **Cible** : bloc opt-in en fin de chaque brief (sous le contenu Recherche), 
+  texte type "Vous avez aimé cette analyse ? Recevez le prochain brief SPORE 
+  par email — pas de spam, désinscription en 1 clic." + champ email
+- **Stack** : Resend (déjà en place), nouvelle table `newsletter_subscribers` 
+  en SQLite
+- **Métrique de succès** : taux d'opt-in > 3% des lecteurs de brief
+
+### 📋 N4.2 — Lead magnet PDF "Anthologie SPORE"
+- **Effort** : 0.5 jour
+- **Cible** : compilation des 5-10 meilleures brèves (ou des 5 meilleures 
+  collisions non productives selon Robert) en un PDF téléchargeable contre email
+- **Promotion** : footer du site, posts LinkedIn, page À propos
+- **Métrique de succès** : 50+ téléchargements dans le premier mois
+
+### 📋 N4.3 — Newsletter SPORE V1
+- **Effort** : 1.5-2 jours (setup + premier numéro)
+- **Stack** : Substack ou Beehiiv (gratuit, pas de friction)
+- **Cadence cible** : bi-mensuelle au démarrage, hebdomadaire si traction
+- **Format type** : 1 brief mis en avant + 2-3 brefs en bref + 1 collision 
+  non productive du mois
+- **Cross-link** : bouton "S'abonner à la newsletter" en home et /briefs
+- **Métrique de succès** : 100 abonnés à la fin du premier mois
+
+### 📋 N4.4 — Workflow outreach researcher-to-researcher
+- **Effort** : 0.5 jour setup + 30 min par brief publié
+- **Méthode** : pour chaque brief, identifier les 2-3 auteurs les plus cités 
+  dans la base de preuves, leur envoyer un email court (template à créer) 
+  invitant à commenter l'hypothèse formulée
+- **Stack** : template d'email + script d'extraction d'auteurs depuis les briefs 
+  + suivi dans Airtable ou Google Sheets
+- **Métrique de succès** : taux de réponse > 8%, 1+ témoignage public d'expert 
+  par mois
+
+### 📋 N4.5 — Calendrier LinkedIn structuré
+- **Effort** : 0.5 jour pour template + 30 min par post
+- **Cadence** : 4 posts par mois (1 par semaine), chacun mettant en avant un 
+  brief avec : titre punchy, analogie centrale, lien vers le brief, hashtags 
+  niche scientifique
+- **Métrique de succès** : impressions cumulées > 10 000/mois à 3 mois
+
+### 📋 N4.6 — Notification "alerte nouvelle hypothèse dans votre univers"
+- **Effort** : 1 jour
+- **Prérequis** : N2.4 (tags univers de vie)
+- **Cible** : opt-in lors de l'inscription, cron qui envoie un digest hebdo 
+  des nouvelles hypothèses dans les univers cochés par l'utilisateur
+- **Métrique de succès** : taux d'ouverture > 35%, taux de retour sur le site 
+  via cette notif > 15%
 
 ---
 
