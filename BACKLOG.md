@@ -95,6 +95,16 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Fichiers** : `src/app/about/page.tsx` (nouveau), `src/components/Footer.tsx`
 - **Commits** : `43ce3d9`
 
+### S5.C — Capture email newsletter (N4.1)
+- **Date** : 1er mai 2026
+- **Tags rollback** : `pre-n4-1` (sur spore-poc et spore-web)
+- **Branches** : `feat/n4-1-newsletter-capture` (sur les deux repos, à merger + supprimer)
+- **Livre** : N4.1
+- **Détails** : nouveau router FastAPI `api/newsletter.py` (POST subscribe / GET confirm / GET unsubscribe), table `newsletter_subscribers` ajoutée à `storage/database.py` (auto-créée via le lifespan FastAPI nouvellement câblé sur `init_database()`), `send_newsletter_confirmation()` ajouté à `api/emails.py` avec en-têtes RFC 8058 one-click. Côté frontend : composant `<NewsletterOptIn />` monté en fin de chaque page brief, helper `subscribeNewsletter` dans `src/lib/api.ts`, 3 pages statiques `/newsletter/{confirmed,unsubscribed,error}` (noindex). Architecture Python backend + UI thin client, alignée sur le pattern `api/auth.py` (token-based + Resend). 10 tests fonctionnels verts en local sur instance uvicorn dédiée (port 8043) avec yopmail.
+- **Commits spore-poc** : `1ef523e` (schema) + `2c293a2` (API + lifespan)
+- **Commits spore-web** : `93a81b4` (component) + `5f91993` (brief integration) + `ca44ba4` (static pages)
+- **Effort réel** : ~1.5j (estimation initiale 0.5j sous-estimait — le périmètre RGPD-clean + migration cross-repo était plus large)
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -287,14 +297,15 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 ## Niveau 4 — Trafic et acquisition (cycle continu)
 
-### 📋 N4.1 — Capture email newsletter sur chaque brief
-- **Effort** : 0.5 jour
-- **Cible** : bloc opt-in en fin de chaque brief (sous le contenu Recherche), 
-  texte type "Vous avez aimé cette analyse ? Recevez le prochain brief SPORE 
-  par email — pas de spam, désinscription en 1 clic." + champ email
-- **Stack** : Resend (déjà en place), nouvelle table `newsletter_subscribers` 
-  en SQLite
-- **Métrique de succès** : taux d'opt-in > 3% des lecteurs de brief
+### ✅ N4.1 — Capture email newsletter sur chaque brief
+- **Statut** : Done
+- **Livré par** : S5.C
+- **Commits** :
+  - spore-poc : `1ef523e` (db schema) + `2c293a2` (API endpoints + lifespan)
+  - spore-web : `93a81b4` (component) + `5f91993` (brief integration) + `ca44ba4` (static pages)
+- **Note** : système complet de capture email en place. Composant `<NewsletterOptIn />` réutilisable monté en fin de chaque page brief (visible sur les deux onglets Comprendre / Recherche). Stockage SQLite (table `newsletter_subscribers`, 11 colonnes, 3 indexes). Double opt-in via Resend avec en-têtes RFC 8058 (`List-Unsubscribe-Post: One-Click`) pour Gmail / Apple Mail. Tokens uniques pour confirmation et désinscription (UUID hex). Confirmation et désinscription idempotentes (replay safe). Pages statiques `/newsletter/confirmed`, `/newsletter/unsubscribed`, `/newsletter/error` en place (noindex). Conforme RGPD (lien désinscription dans chaque email, mention transparente, `auth: false` côté client). 10 tests fonctionnels verts (subscribe / DB / confirm / re-subscribe 409 / unsubscribe / token invalide / email invalide). FastAPI lifespan ajouté à `api/main.py` qui appelle `init_database()` au boot — la table se crée automatiquement après merge + restart spore-api.
+- **Métrique à suivre** : taux d'opt-in sur les visiteurs de brief (cible > 3%), nombre d'inscrits confirmés/jour
+- **Stack** : Resend (déjà en place côté `api/emails.py`), table `newsletter_subscribers` créée via le pattern `init_database()`
 
 ### 📋 N4.2 — Lead magnet PDF "Anthologie SPORE"
 - **Effort** : 0.5 jour
