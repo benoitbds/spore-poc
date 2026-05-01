@@ -78,13 +78,22 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Détails** : reconstruction des 2 JSON files manquants depuis la DB (SPR-2026-7C1B "Cuisiner des matériaux quantiques sur mesure avec de la lumière", SPR-2026-B172 "Quand une plante stressée bricole ses racines : le détour inattendu de l'acide salicylique"). Champs `original_hypothesis` et `domains` laissés vides — ces 2 briefs étant antérieurs au format actuel, l'info n'est pas récupérable depuis la DB. Application du nouveau prompt N1.3 via le script de backfill.
 - **Commits** : `9728913` (data) + `d5fd8ce` (merge)
 
-### S5 — Promouvoir Collision sur mesure (N1.6)
+### S5.A — Promouvoir Collision sur mesure (N1.6)
 - **Date** : 1er mai 2026
 - **Tag rollback** : `pre-n1-6` (sur spore-web)
-- **Branche** : `feat/n1-6-custom-collision-priority` (à merger + supprimer)
+- **Branche** : `feat/n1-6-custom-collision-priority` (mergée + supprimée)
 - **Livre** : N1.6
 - **Détails** : refonte zone primaire de `/pricing` en grille 2 colonnes ("Brief gratuit" + "Collision sur mesure offerte"), badge "★ L'offre signature de SPORE" sur la 2e carte, CTA "Réserver ma collision" → `/custom`. Lien "Collision sur mesure" ajouté dans la nav principale (desktop + mobile) pointant vers `/custom`. Section "Bientôt disponible" préservée intacte (refonte différée à l'activation Stripe).
-- **Commits** : `2c01e55` (pricing) + `033b33f` (nav)
+- **Commits** : `2c01e55` (pricing) + `033b33f` (nav) + `d192fb2` (merge)
+
+### S5.B — Page À propos (N2.3)
+- **Date** : 1er mai 2026
+- **Tag rollback** : `pre-n2-3` (sur spore-web)
+- **Branche** : `feat/n2-3-about-page` (à merger + supprimer)
+- **Livre** : N2.3
+- **Détails** : création de la route `/about` (server component, pattern aligné sur `how-it-works/page.tsx`). Contenu en 7 sections (qui / pourquoi / ce que SPORE fait / ce que SPORE n'est pas / limites assumées / soutien / phrase manifeste). Mention nominative (Benoît Baqué de Sariac), email contact, lien GitHub `spore-web`, statut SoBaq micro-entreprise. Lien "À propos" ajouté en première position de la rangée institutionnelle du Footer (avant Mentions légales / Confidentialité). Metadata SEO complète : `title: "À propos"` (template `%s | SPORE`), description, `canonical: /about`, OpenGraph `type: article` avec `og-default.png`, Twitter card `summary_large_image`.
+- **Fichiers** : `src/app/about/page.tsx` (nouveau), `src/components/Footer.tsx`
+- **Commits** : `43ce3d9`
 
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
@@ -154,9 +163,12 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Effort** : 0.5 jour (option A) ou 1 jour (option B)
 - **Décision pendante** : option A (forcer la langue dans le prompt) vs option B (générer 2 versions complètes)
 
-### 📋 N2.3 — Page "À propos" avec un visage humain
-- **Effort** : 0.5 jour
-- **Contenu** : nom (Benoît Baqué de Sariac), parcours, statut solo developer, philosophie, lien LinkedIn/GitHub
+### ✅ N2.3 — Page "À propos" avec un visage humain
+- **Statut** : Done
+- **Livré par** : S5.B
+- **Commit** : `43ce3d9`
+- **Note** : page `/about` créée avec contenu complet (qui / pourquoi / ce que SPORE fait / ce que SPORE n'est pas / limites assumées / soutien / phrase manifeste). Inclut nom (Benoît Baqué de Sariac), email contact (`benoit@spore-research.com`), lien GitHub `spore-web`, mention SoBaq micro-entreprise. Lien "À propos" ajouté en première position des liens institutionnels du Footer (avant Mentions légales / Confidentialité). Metadata SEO complète (title, description, OpenGraph type:article, Twitter card summary_large_image).
+- **Fichiers modifiés** : `src/app/about/page.tsx` (nouveau), `src/components/Footer.tsx`
 
 ### 📋 N2.4 — Tags par "univers de vie"
 - **Effort** : 1 jour
