@@ -10,7 +10,7 @@ from __future__ import annotations
 import resend
 from logging_config import get_logger
 
-from api.config import BASE_URL, FROM_EMAIL, RESEND_API_KEY
+from api.config import API_URL, BASE_URL, FROM_EMAIL, RESEND_API_KEY
 
 logger = get_logger("api.emails")
 resend.api_key = RESEND_API_KEY
@@ -157,6 +157,83 @@ def send_admin_new_signup(email: str, created_at: str) -> None:
         )
     except Exception as exc:  # noqa: BLE001 — signup must not depend on email
         logger.error("admin_signup_notif_failed", email=email, error=str(exc))
+
+
+def _newsletter_footer_html(unsubscribe_url: str) -> str:
+    """Footer with the mandatory one-click unsubscribe link.
+
+    Per RGPD / CAN-SPAM, every newsletter email — including the
+    double-opt-in confirmation — carries a stable unsubscribe link the
+    user can hit without authentication.
+    """
+    return (
+        '<hr style="border:none;border-top:1px solid #eee;margin:24px 0;" />'
+        '<p style="color:#888;font-size:12px;">'
+        "SPORE Research &middot; "
+        f'<a href="{BASE_URL}" style="color:#888;">spore-research.com</a>'
+        "</p>"
+        '<p style="color:#888;font-size:11px;line-height:1.5;">'
+        "Vous recevez cet email parce que vous vous êtes inscrit à la "
+        "newsletter SPORE depuis le site spore-research.com. "
+        f'<a href="{unsubscribe_url}" style="color:#888;">'
+        "Se désinscrire en un clic</a>."
+        "</p>"
+    )
+
+
+def send_newsletter_confirmation(
+    email: str,
+    confirmation_token: str,
+    unsubscribe_token: str,
+) -> None:
+    """Send the double-opt-in confirmation email for the SPORE newsletter.
+
+    The confirmation link points at the FastAPI backend
+    (``/api/newsletter/confirm?token=…``); the backend flips
+    ``confirmed=1`` and 302-redirects to the frontend
+    ``/newsletter/confirmed`` page. The unsubscribe link sits in the
+    footer (mandatory) and points at
+    ``/api/newsletter/unsubscribe?token=…``.
+    """
+    confirm_url = f"{API_URL}/api/newsletter/confirm?token={confirmation_token}"
+    unsub_url = f"{API_URL}/api/newsletter/unsubscribe?token={unsubscribe_token}"
+    html = (
+        '<div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto;">'
+        '<h2 style="color:#111;">Confirmez votre inscription</h2>'
+        "<p>Merci de votre intérêt pour SPORE.</p>"
+        "<p>Pour finaliser votre inscription à la newsletter et recevoir "
+        "les prochaines hypothèses, cliquez sur le bouton ci-dessous.</p>"
+        + _button(confirm_url, "Confirmer mon inscription")
+        + '<p style="color:#666;font-size:13px;">'
+        "Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br />"
+        f'<a href="{confirm_url}" style="color:#666;word-break:break-all;">{confirm_url}</a>'
+        "</p>"
+        + _newsletter_footer_html(unsub_url)
+        + "</div>"
+    )
+    try:
+        resp = resend.Emails.send({
+            "from": FROM_EMAIL,
+            "to": email,
+            "subject": "Confirmez votre inscription à la newsletter SPORE",
+            "html": html,
+            "headers": {
+                # RFC 2369 + RFC 8058: one-click unsubscribe headers help
+                # Gmail / Apple Mail surface a native unsubscribe affordance.
+                "List-Unsubscribe": f"<{unsub_url}>",
+                "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+            },
+        })
+        logger.info(
+            "newsletter_confirmation_sent",
+            email=email, resend_id=resp.get("id"),
+        )
+    except Exception as exc:  # noqa: BLE001 — surfaced as 502 by the route
+        logger.error(
+            "newsletter_confirmation_send_failed",
+            email=email, error=str(exc),
+        )
+        raise
 
 
 def send_purchase_confirmation(email: str, type_: str, amount_cents: int) -> None:
