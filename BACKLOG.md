@@ -78,6 +78,14 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Détails** : reconstruction des 2 JSON files manquants depuis la DB (SPR-2026-7C1B "Cuisiner des matériaux quantiques sur mesure avec de la lumière", SPR-2026-B172 "Quand une plante stressée bricole ses racines : le détour inattendu de l'acide salicylique"). Champs `original_hypothesis` et `domains` laissés vides — ces 2 briefs étant antérieurs au format actuel, l'info n'est pas récupérable depuis la DB. Application du nouveau prompt N1.3 via le script de backfill.
 - **Commits** : `9728913` (data) + `d5fd8ce` (merge)
 
+### S5 — Promouvoir Collision sur mesure (N1.6)
+- **Date** : 1er mai 2026
+- **Tag rollback** : `pre-n1-6` (sur spore-web)
+- **Branche** : `feat/n1-6-custom-collision-priority` (à merger + supprimer)
+- **Livre** : N1.6
+- **Détails** : refonte zone primaire de `/pricing` en grille 2 colonnes ("Brief gratuit" + "Collision sur mesure offerte"), badge "★ L'offre signature de SPORE" sur la 2e carte, CTA "Réserver ma collision" → `/custom`. Lien "Collision sur mesure" ajouté dans la nav principale (desktop + mobile) pointant vers `/custom`. Section "Bientôt disponible" préservée intacte (refonte différée à l'activation Stripe).
+- **Commits** : `2c01e55` (pricing) + `033b33f` (nav)
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -120,12 +128,12 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Note** : la phrase manifeste était déjà présente en sous-titre discret. Inversion avec la phrase descriptive : manifeste en tagline primaire, descriptive en sous-titre.
 - **Fichier modifié** : `src/app/page.tsx` (lignes 172-180)
 
-### 🔧 N1.6 — Repositionner Collision sur mesure
-- **Effort** : 1h
-- **Cibles** :
-  - Première position sur `/pricing` (avant Brief unitaire et Pack 5)
-  - Lien "Collision sur mesure" dans la nav principale (top nav)
-- **Fichiers** : `src/app/pricing/PricingClient.tsx`, `src/components/Header.tsx`
+### ✅ N1.6 — Repositionner Collision sur mesure
+- **Statut** : Done
+- **Livré par** : S5
+- **Commits** : `2c01e55` (pricing) + `033b33f` (nav)
+- **Note** : Custom Collision promue en zone primaire de `/pricing` (grille 2 colonnes avec carte "Brief gratuit"), badge "★ L'offre signature de SPORE". Lien "Collision sur mesure" ajouté dans nav principale (desktop + mobile) pointant vers `/custom` (flow de réservation actionnable). Section "Bientôt disponible" préservée intacte (refonte avec activation Stripe).
+- **Fichiers modifiés** : `src/app/pricing/PricingClient.tsx`, `src/components/Header.tsx`
 
 ### ✅ N1.7 — "DOIs vérifiés sur Semantic Scholar"
 - **Statut** : Done
