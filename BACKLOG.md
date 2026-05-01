@@ -122,6 +122,16 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Détails** : décision tranchée — transparence radicale sur la nature heuristique du score Nouveauté plutôt que prétendre à une formule. Page `/methodology` créée (server component, pattern aligné sur `/about`, 6 sections, anchors `#novelty`, `#panel`, `#kill-rate`, `#references`, `#costs`, `#stack`). Composant `<NoveltyScoreTooltip />` (client component, pas de dep tooltip ajoutée — pure CSS + useState + useEffect) wired sur 4 emplacements (home MiniStat avg + HeroBadge featured brief, /stats QualityCard, /briefs sort selector conditional sur sort=novelty, brief detail RechercheSections). Lien Méthodologie ajouté au footer (entre À propos et Mentions légales). Callout "page Méthodologie" inséré au bas de `/how-it-works` avant le CTA. N2.7-bis ajouté en backlog pour un futur score algorithmique (embeddings + absence de cooccurrence).
 - **Commits** : `508873f` (page) + `6ada002` (tooltip + wiring) + `8efc5d5` (footer/how-it-works links)
 
+### S6.3 — Lead magnet PDF Anthologie (N4.2)
+- **Date** : 1er mai 2026
+- **Tags rollback** : `pre-n4-2` (sur spore-poc et spore-web)
+- **Branches** : `feat/n4-2-anthology-pdf` (sur les deux repos, à merger + supprimer)
+- **Livre** : N4.2
+- **Détails** : générateur PDF via WeasyPrint + Jinja2 (`scripts/generate_anthology.py` + `templates/anthology/anthology.{html.j2,css}`) → 8 briefs FR vulgarisés sur ~12 pages A4 (cover noir + préambule + TOC + 8 sections + page de fin avec phrase manifeste). Endpoint `POST /api/anthology/request` réutilise `newsletter_subscribers` avec `source='anthology_download'`, branche sur 3 états (new/unconfirmed/confirmed), envoie email Resend avec lien PDF public + lien confirmation newsletter (uniquement si subscriber non confirmé). Page `/anthology` (preview 8 titres + form), `/anthology/sent` (noindex). Bandeau footer site-wide. Bullet dans `/about`. URL publique du PDF servie statiquement par Next à `/downloads/spore-anthology-2026.pdf` (option α — pas de token gating).
+- **Commits spore-poc** : `bea47e7` (script + templates) + `cbc84c5` (API endpoint + email)
+- **Commits spore-web** : `4815192` (UI + footer) + `ec731b3` (about)
+- **Effort réel** : ~1.5j
+
 ### S0 (méta) — Setup remote git GitHub
 - **Date** : 27 avril 2026
 - **Livre** : pas un item produit, mais une dette infra critique
@@ -332,12 +342,17 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Métrique à suivre** : taux d'opt-in sur les visiteurs de brief (cible > 3%), nombre d'inscrits confirmés/jour
 - **Stack** : Resend (déjà en place côté `api/emails.py`), table `newsletter_subscribers` créée via le pattern `init_database()`
 
-### 📋 N4.2 — Lead magnet PDF "Anthologie SPORE"
-- **Effort** : 0.5 jour
-- **Cible** : compilation des 5-10 meilleures brèves (ou des 5 meilleures 
-  collisions non productives selon Robert) en un PDF téléchargeable contre email
-- **Promotion** : footer du site, posts LinkedIn, page À propos
-- **Métrique de succès** : 50+ téléchargements dans le premier mois
+### ✅ N4.2 — Lead magnet PDF "Anthologie SPORE"
+- **Statut** : Done
+- **Livré par** : S6.3
+- **Commits** :
+  - spore-poc : `bea47e7` (PDF script + templates) + `cbc84c5` (API endpoint + email)
+  - spore-web : `4815192` (UI + footer banner) + `ec731b3` (about update)
+- **Note** : workflow complet de lead-magnet. PDF généré par `scripts/generate_anthology.py` (WeasyPrint + Jinja2) à partir de 8 briefs sélectionnés (mix top panel × top novelty validé en audit S6) → `public/downloads/spore-anthology-2026.pdf` (~360 ko, A4 print-ready, 12+ pages : cover noir + préambule + TOC + 8 briefs vulgarisés + page de fin avec phrase manifeste). Endpoint `POST /api/anthology/request` réutilise la table `newsletter_subscribers` (source='anthology_download'), gère 3 cas (new/unconfirmed/confirmed), envoie un email Resend avec lien direct PDF + lien optionnel de confirmation newsletter. Page `/anthology` (preview des 8 titres + form) et `/anthology/sent` (confirmation, noindex). Bandeau emerald discret en haut du Footer (📕) sur toutes les pages. Bullet ajouté dans `/about`. PDF en URL publique (option α) — la capture email qualifie le lead, ne le bloque pas.
+- **Stack** : WeasyPrint 68.1 + markdown-it-py 4.0.0 (ajoutés à pyproject.toml via `uv add`). Libs système déjà présentes (cairo, pango, gdk-pixbuf, libffi, shared-mime-info). uv.lock gitignoré (note dans .gitignore pour passer en tracked plus tard).
+- **Tests** : 3 tests endpoint verts (subscribe → DB row source='anthology_download' / email envoyé via Resend / pages frontend rendues) sur uvicorn dédié port 8043 + dev frontend port 3050. PDF rendu : 8 briefs présents, stats correctes (collisions = SUM(runs.collisions_processed) = 2895, kill rate 98,7 %), aucun marqueur Jinja non résolu.
+- **Métrique à suivre** : 50+ téléchargements dans le premier mois (compteur = COUNT distinct emails dans `newsletter_subscribers WHERE source='anthology_download'`)
+- **Effort réel** : ~1.5j (estimation initiale 0.5j sous-estimait — typo PDF + templates Jinja + 5 fichiers UI + tests croisés)
 
 ### 📋 N4.3 — Newsletter SPORE V1
 - **Effort** : 1.5-2 jours (setup + premier numéro)
