@@ -9,14 +9,14 @@ tu trouves son email, tu envoies, tu mets à jour le tracking CSV.
 
 ## Lancer le script
 
-Pour un brief précis :
+Pour un brief précis (template anglais par défaut) :
 
 ```bash
 cd ~/Projects/spore-poc
 .venv/bin/python scripts/outreach_extract.py --brief-id SPR-2026-816D
 ```
 
-Pour tous les briefs publiés (38 actuellement) :
+Pour tous les briefs publiés :
 
 ```bash
 cd ~/Projects/spore-poc
@@ -27,9 +27,48 @@ Output :
 - `outputs/outreach/{brief_id}/{author_lastname}_{doi_short}.md` — un fichier par auteur
 - `outputs/outreach/_tracking.csv` — ledger central, append-only
 
+Le tracking CSV est **créé automatiquement au premier run** (avec son
+header standard) même si aucun brouillon n'est ajouté. Tu n'as donc
+jamais besoin de le créer à la main — le script garantit son existence.
+
 Le script est idempotent : relancer ne réécrit pas les rows déjà présentes
 dans le CSV (tes annotations manuelles sont préservées). Les fichiers .md
-en revanche sont réécrits à chaque run avec le contenu actuel.
+en revanche sont écrits seulement pour les nouveaux couples
+(brief, auteur). Si tu veux régénérer un .md (ex. après un changement de
+template), supprime la row correspondante dans le CSV puis relance.
+
+## Choix de la langue de l'email
+
+Le template par défaut est en **anglais** — la majorité des chercheurs
+cités dans les briefs sont non-francophones (équipes Max Planck,
+américaines, italiennes, japonaises, chinoises…). Force le template FR
+seulement quand tu as confirmé que l'auteur est francophone :
+
+```bash
+# EN par défaut (recommandé pour > 80 % des cas)
+.venv/bin/python scripts/outreach_extract.py --brief-id SPR-2026-816D
+
+# FR explicite — à utiliser pour les équipes francophones identifiées
+.venv/bin/python scripts/outreach_extract.py --brief-id SPR-2026-816D --lang fr
+```
+
+**Cas d'usage de `--lang fr`** : équipes affiliées CNRS, INRAE, INSERM,
+CEA, INRIA, universités françaises et belges francophones (ULB, UCLouvain,
+ULiège), Université de Montréal et autres établissements québécois,
+universités africaines francophones. **Pour tout le reste, EN par défaut.**
+
+**Note sur le titre** : le template EN cherche d'abord
+`vulgarization.title_en` (rare), puis le titre scientifique formel dans
+`sharpened.title` (toujours en EN, présent sur ~60 % des briefs). Si
+aucun titre EN n'est disponible, le script bascule sur le titre FR avec
+un warning stderr — tu vois alors la note et tu décides si l'email
+mérite une réécriture manuelle avant envoi.
+
+**Changement de langue après envoi** : la déduplication est par
+`(brief_id, author_name)`. Si tu as déjà extrait Lombardi en EN et que
+tu veux refaire son email en FR, le script saute (skipped) — c'est
+volontaire pour éviter les doublons. Pour basculer, supprime sa ligne
+dans `_tracking.csv` puis relance avec `--lang fr`.
 
 ## Trouver l'email d'un auteur
 

@@ -391,6 +391,13 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 ## Maintenance et dette technique
 
+### ✅ Hotfix S6.1-bis — Outreach workflow fixes (1er mai 2026)
+- **Tracking CSV** : création automatique au premier run garantie via `ensure_tracking_csv()` appelée en début de `main()`. Bug d'origine : le script ne créait le fichier que via la branche append, donc une exécution sans nouveau draft (stub sans evidence_base, ou run idempotent où tout est skip) laissait le fichier inexistant.
+- **Template par défaut basculé en EN** : l'écrasante majorité des chercheurs cités sont non-francophones (Max Planck, USA, Italie, Japon, Chine). EN désormais default ; FR via `--lang fr` pour les équipes francophones identifiées (CNRS, INRAE, INSERM, UCLouvain, UQ, etc.).
+- **Variante FR conservée** : ancien template renommé en `templates/outreach_email_fr.md`, nouveau `templates/outreach_email_en.md`. Variable `{brief_title_en}` ajoutée (pioche dans `sharpened.title` qui est toujours en EN, fallback sur `title_fr` avec warning stderr).
+- **Idempotence** : dédoublonnage toujours par `(brief_id, author_name)` indépendamment de la langue — basculement de langue post-extraction nécessite suppression manuelle de la row CSV (documenté dans `scripts/README_outreach.md`).
+- **Commits** : `c16a676` (fix CSV + lang infra dans le script) + `bac43a7` (template EN) + `782f93f` (README)
+
 ### 📋 Méta-bug architecture L1↔runtime (identifié S6)
 - **Découvert par** : sprints S5/S6 (audits pipeline)
 - **Symptôme** : ≥3 paramètres du génome `data/l0_genome.yaml` sont mutés par L1 mais jamais consommés par le pipeline runtime. Le L1 fait des modifications cosmétiques sans effet fonctionnel.

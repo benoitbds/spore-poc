@@ -46,9 +46,14 @@ from typing import Any, Iterator, Optional
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DB_PATH = REPO_ROOT / "data" / "spore.db"
-TEMPLATE_PATH = REPO_ROOT / "templates" / "outreach_email.md"
+TEMPLATE_DIR = REPO_ROOT / "templates"
 OUTPUT_ROOT = REPO_ROOT / "outputs" / "outreach"
 TRACKING_CSV = OUTPUT_ROOT / "_tracking.csv"
+
+TEMPLATE_BY_LANG = {
+    "en": TEMPLATE_DIR / "outreach_email_en.md",
+    "fr": TEMPLATE_DIR / "outreach_email_fr.md",
+}
 
 # Hard caps — the deontology the README documents.
 MAX_AUTHORS_PER_PAPER = 3       # only the first 3 listed authors get emailed
@@ -176,9 +181,13 @@ def _citation_count(paper: dict[str, Any]) -> int:
 def _build_draft(brief: dict[str, Any], author: str, paper: dict[str, Any]) -> dict[str, Any]:
     first_name, last_name = _split_name(author)
     domains = _extract_domains(brief)
+    title_fr = _brief_title_fr(brief)
+    title_en, title_en_is_fallback = _brief_title_en(brief)
     return {
         "brief_id": brief["id"],
-        "brief_title": _brief_title(brief),
+        "brief_title": title_fr,
+        "brief_title_en": title_en,
+        "brief_title_en_is_fallback": title_en_is_fallback,
         "domain_a": domains[0],
         "domain_b": domains[1],
         "author_name": author,
@@ -209,12 +218,37 @@ def _split_name(full_name: str) -> tuple[str, str]:
     return (" ".join(parts[:-1]), parts[-1])
 
 
-def _brief_title(brief: dict[str, Any]) -> str:
+def _brief_title_fr(brief: dict[str, Any]) -> str:
     """Prefer the FR vulgarised title, fall back to the sharpened EN title."""
     fr = (brief["vulgarization"].get("title_fr") or "").strip()
     if fr:
         return fr
     return (brief["sharpened"].get("title") or "").strip() or brief["id"]
+
+
+def _brief_title_en(brief: dict[str, Any]) -> tuple[str, bool]:
+    """Pick the best EN title for outreach, plus a "is fallback" flag.
+
+    Preference order:
+      1. ``vulgarization.title_en``       (rare — observed in 0/38 briefs)
+      2. ``sharpened.title``              (formal EN scientific title)
+      3. ``vulgarization.title_fr``       (FALLBACK — log a warning)
+      4. brief id                          (last resort, never empty)
+
+    Returns ``(title, is_fallback)``. ``is_fallback=True`` when only a
+    French source was found — caller emits a stderr note inviting the
+    user to ship the French brief URL or to write a custom email.
+    """
+    title_en = (brief["vulgarization"].get("title_en") or "").strip()
+    if title_en:
+        return (title_en, False)
+    sharpened_title = (brief["sharpened"].get("title") or "").strip()
+    if sharpened_title:
+        return (sharpened_title, False)
+    fr = (brief["vulgarization"].get("title_fr") or "").strip()
+    if fr:
+        return (fr, True)
+    return (brief["id"], True)
 
 
 def _extract_domains(brief: dict[str, Any]) -> tuple[str, str]:
@@ -261,16 +295,24 @@ def _topic_keywords(title: str) -> str:
 
 
 def render_email(template: str, draft: dict[str, Any]) -> str:
-    """Fill {placeholders} in the template. Raises on any missing key."""
+    """Fill {placeholders} in the template. Raises on any missing key.
+
+    The mapping carries both FR (``brief_title``) and EN
+    (``brief_title_en``) variants of the title so the same draft dict
+    can render against either ``outreach_email_fr.md`` or
+    ``outreach_email_en.md`` — extra keys are harmless, the leftover
+    detector only flags placeholders that remain in the rendered text.
+    """
     mapping = {
         "first_name": draft["first_name"],
         "last_name": draft["last_name"],
         "paper_title": draft["paper_title_short"],
         "year": str(draft["year"] or ""),
         "brief_title": draft["brief_title"],
+        "brief_title_en": draft["brief_title_en"],
         "domain_a": draft["domain_a"],
         "domain_b": draft["domain_b"],
-        "key_finding_short": draft["key_finding_short"] or "votre travail",
+        "key_finding_short": draft["key_finding_short"] or "your work",
         "topic_short": draft["topic_short"],
         "brief_url": draft["brief_url"],
     }
@@ -321,14 +363,34 @@ def load_existing_tracking_keys() -> set[tuple[str, str]]:
     return keys
 
 
-def append_tracking_rows(rows: list[dict[str, Any]]) -> None:
-    """Append-only CSV writer. Creates the file with header on first call."""
+def ensure_tracking_csv() -> bool:
+    """Create the tracking CSV with its header if it doesn't exist yet.
+
+    Run unconditionally at the start of every invocation so the file is
+    guaranteed to materialise — even on briefs that yield zero new
+    drafts (stub briefs without ``evidence_base``, or re-runs where
+    every author is already in the CSV). Idempotent: existing file is
+    left untouched.
+
+    Returns True if the file was just created, False if it already
+    existed.
+    """
     OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
-    write_header = not TRACKING_CSV.exists()
+    if TRACKING_CSV.exists():
+        return False
+    with TRACKING_CSV.open("w", encoding="utf-8", newline="") as fh:
+        writer = csv.DictWriter(fh, fieldnames=CSV_FIELDS)
+        writer.writeheader()
+    return True
+
+
+def append_tracking_rows(rows: list[dict[str, Any]]) -> None:
+    """Append-only CSV writer. Header is guaranteed by ensure_tracking_csv()."""
+    if not rows:
+        return
+    OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
     with TRACKING_CSV.open("a", encoding="utf-8", newline="") as fh:
         writer = csv.DictWriter(fh, fieldnames=CSV_FIELDS)
-        if write_header:
-            writer.writeheader()
         for row in rows:
             writer.writerow(row)
 
@@ -358,14 +420,32 @@ def build_tracking_row(draft: dict[str, Any]) -> dict[str, Any]:
 def process_brief(
     brief: dict[str, Any],
     template: str,
+    lang: str,
     seen_keys: set[tuple[str, str]],
 ) -> tuple[int, int]:
-    """Generate drafts for one brief. Returns (written, skipped_duplicates)."""
+    """Generate drafts for one brief. Returns (written, skipped_duplicates).
+
+    Emits a stderr warning when ``lang='en'`` and the brief only has a
+    French title — the rendered email falls back to the FR string and
+    Bac may want to write that one by hand instead.
+    """
     drafts = extract_author_drafts(brief)
     written = 0
     skipped = 0
     new_tracking: list[dict[str, Any]] = []
+    fallback_warned = False
     for draft in drafts:
+        if (
+            lang == "en"
+            and draft["brief_title_en_is_fallback"]
+            and not fallback_warned
+        ):
+            print(
+                f"  ⚠ {brief['id']}: no English title in DB, using French "
+                f"fallback in EN draft — review before sending",
+                file=sys.stderr,
+            )
+            fallback_warned = True
         key = (draft["brief_id"], draft["author_name"])
         if key in seen_keys:
             skipped += 1
@@ -375,8 +455,7 @@ def process_brief(
         new_tracking.append(build_tracking_row(draft))
         seen_keys.add(key)
         written += 1
-    if new_tracking:
-        append_tracking_rows(new_tracking)
+    append_tracking_rows(new_tracking)
     return written, skipped
 
 
@@ -389,14 +468,34 @@ def main() -> int:
         action="store_true",
         help="Process every brief with status='complete'",
     )
+    parser.add_argument(
+        "--lang",
+        choices=("en", "fr"),
+        default="en",
+        help=(
+            "Email template language (default: 'en'). Use 'fr' only when "
+            "you've confirmed the recipient is francophone (CNRS, INRAE, "
+            "INSERM, French/Belgian-FR/Quebec affiliations)."
+        ),
+    )
     args = parser.parse_args()
 
-    template = TEMPLATE_PATH.read_text(encoding="utf-8")
+    template_path = TEMPLATE_BY_LANG[args.lang]
+    if not template_path.exists():
+        print(f"ERR: template missing at {template_path}", file=sys.stderr)
+        return 1
+    template = template_path.read_text(encoding="utf-8")
+
+    csv_was_created = ensure_tracking_csv()
+    if csv_was_created:
+        print(f"Tracking CSV initialised at {TRACKING_CSV}")
     seen_keys = load_existing_tracking_keys()
 
     total_written = 0
     total_skipped = 0
     briefs_processed = 0
+
+    print(f"Template: {template_path.name} (lang={args.lang})")
 
     with open_readonly() as conn:
         if args.brief_id:
@@ -404,14 +503,14 @@ def main() -> int:
             if brief is None:
                 print(f"ERR: brief {args.brief_id} not found or has no grounding_data", file=sys.stderr)
                 return 1
-            written, skipped = process_brief(brief, template, seen_keys)
+            written, skipped = process_brief(brief, template, args.lang, seen_keys)
             total_written += written
             total_skipped += skipped
             briefs_processed = 1
             print(f"{args.brief_id}: {written} drafts written, {skipped} skipped (already in CSV)")
         else:
             for brief in fetch_all_published(conn):
-                written, skipped = process_brief(brief, template, seen_keys)
+                written, skipped = process_brief(brief, template, args.lang, seen_keys)
                 total_written += written
                 total_skipped += skipped
                 briefs_processed += 1
