@@ -105,6 +105,15 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Commits spore-web** : `93a81b4` (component) + `5f91993` (brief integration) + `ca44ba4` (static pages)
 - **Effort réel** : ~1.5j (estimation initiale 0.5j sous-estimait — le périmètre RGPD-clean + migration cross-repo était plus large)
 
+### S6.1 — Workflow outreach researcher-to-researcher (N4.4)
+- **Date** : 1er mai 2026
+- **Tag rollback** : `pre-s6-1` (sur spore-poc)
+- **Branche** : `feat/s6-1-outreach-workflow` (à merger + supprimer)
+- **Livre** : N4.4
+- **Détails** : pas d'envoi automatique — le sprint livre l'outillage de génération de brouillons et le tracking. Script `scripts/outreach_extract.py` (430 lignes, sqlite3 readonly, dédoublonnage intra-brief par citation_count), template FR `templates/outreach_email.md` (placeholders : first_name / last_name / paper_title / year / brief_title / domain_a / domain_b / topic_short / key_finding_short / brief_url), doc `scripts/README_outreach.md` (sources d'email, règles déontologiques, cadence 5-10/semaine, métriques). `outputs/outreach/` gitignoré.
+- **Commits** : `69ca04b` (template) + `afdb973` (script) + `88bf3fd` (docs + gitignore)
+- **Service impacté** : aucun (script CLI standalone, lecture seule sur la DB)
+
 ### S6.2 — Page Méthodologie + tooltip Nouveauté (N2.7)
 - **Date** : 1er mai 2026
 - **Tag rollback** : `pre-n2-7` (sur spore-web)
@@ -339,15 +348,14 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Cross-link** : bouton "S'abonner à la newsletter" en home et /briefs
 - **Métrique de succès** : 100 abonnés à la fin du premier mois
 
-### 📋 N4.4 — Workflow outreach researcher-to-researcher
-- **Effort** : 0.5 jour setup + 30 min par brief publié
-- **Méthode** : pour chaque brief, identifier les 2-3 auteurs les plus cités 
-  dans la base de preuves, leur envoyer un email court (template à créer) 
-  invitant à commenter l'hypothèse formulée
-- **Stack** : template d'email + script d'extraction d'auteurs depuis les briefs 
-  + suivi dans Airtable ou Google Sheets
-- **Métrique de succès** : taux de réponse > 8%, 1+ témoignage public d'expert 
-  par mois
+### ✅ N4.4 — Workflow outreach researcher-to-researcher
+- **Statut** : Done
+- **Livré par** : S6.1
+- **Commits** : `69ca04b` (template) + `afdb973` (script) + `88bf3fd` (docs + gitignore)
+- **Note** : workflow semi-automatique. Script `scripts/outreach_extract.py` lit la base SQLite en read-only (`mode=ro`), extrait pour chaque brief publié les auteurs cités dans `grounding_data.evidence_base[*].authors` (cap à 3 par paper), dédoublonne par `(brief, author)` en gardant le paper avec le plus de citations, génère un brouillon d'email personnalisé par auteur dans `outputs/outreach/{brief_id}/{lastname}_{doi_short}.md`. Tracking append-only `outputs/outreach/_tracking.csv` avec 14 colonnes (envoi, date, email_address, response, follow-up, notes) — préserve les annotations manuelles entre runs grâce au skip des `(brief, author)` déjà présents. Modes `--brief-id` ou `--all-published`. Template `templates/outreach_email.md` non commercial (transparence projet, kill rate 98%, mention humain in the loop). Doc complète `scripts/README_outreach.md` (sources d'email, déontologie, cadence, métriques). `outputs/outreach/` gitignoré (PII auteurs).
+- **Test** : run sur SPR-2026-816D — 6 brouillons générés à partir de 2 papers (3 auteurs chacun, 0 doublon intra-brief). Re-run idempotent (6 skipped, CSV inchangé). Email vérifié : tous les placeholders résolus, FR vulgarisé, domaines depuis `sharpened_data.domains`.
+- **Métrique à suivre** : taux de réponse > 8% (`response_received / email_sent` dans le CSV), 1+ témoignage public d'expert par mois
+- **Étape suivante humaine** : envoi manuel des emails (5-10/semaine), recherche d'email d'auteur sur Google Scholar / page institutionnelle, mise à jour du CSV après envoi
 
 ### 📋 N4.5 — Calendrier LinkedIn structuré
 - **Effort** : 0.5 jour pour template + 30 min par post

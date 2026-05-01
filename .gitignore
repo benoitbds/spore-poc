@@ -37,6 +37,10 @@ outputs/digests/
 outputs/observation_L1-*.json
 outputs/strategy_L1-*.json
 
+# Outreach workflow (N4.4) — generated email drafts and tracking CSV
+# contain author personal emails after manual annotation. Local only.
+outputs/outreach/
+
 # Local convenience scripts (not part of the project)
 start_streamlit.sh
 
