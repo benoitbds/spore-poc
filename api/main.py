@@ -17,6 +17,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from api.account_routes import router as account_router
+from api.anthology import router as anthology_router
 from api.auth import router as auth_router
 from api.briefs import router as briefs_router
 from api.config import CORS_ORIGINS
@@ -65,3 +66,4 @@ app.include_router(stripe_router)
 app.include_router(briefs_router)
 app.include_router(custom_router)
 app.include_router(newsletter_router)
+app.include_router(anthology_router)
