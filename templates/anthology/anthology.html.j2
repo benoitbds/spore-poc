@@ -1,0 +1,192 @@
+{# SPORE Anthology PDF — Jinja2 template rendered by scripts/generate_anthology.py.
+   The matching CSS lives in anthology.css, loaded as <link>. WeasyPrint
+   resolves relative paths from base_url= passed to HTML(). #}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>SPORE — Anthologie {{ year }}</title>
+  <link rel="stylesheet" href="anthology.css">
+</head>
+<body>
+
+<section class="cover">
+  <div>
+    <hr>
+    <p class="brand">SPORE</p>
+  </div>
+  <div>
+    <h1 class="title">L'Anthologie</h1>
+    <p class="subtitle">
+      Huit hypothèses scientifiques interdisciplinaires<br>
+      sélectionnées dans nos {{ months_period }} premiers mois.
+    </p>
+  </div>
+  <div>
+    <p class="meta">
+      <strong>{{ generation_date_fr }}</strong><br>
+      Le moteur d'hypothèses interdisciplinaires<br>
+      spore-research.com
+    </p>
+  </div>
+</section>
+
+<section class="preamble">
+  <h1>Préambule</h1>
+  <p class="lede">
+    Ce document n'est pas un journal scientifique. C'est un échantillon
+    de propositions exploratoires : huit hypothèses, générées par
+    croisement de domaines distants, qu'aucune équipe humaine n'avait
+    formulées avant que SPORE ne le fasse.
+  </p>
+
+  <h2>Qu'est-ce que SPORE</h2>
+  <p>
+    SPORE est un moteur d'hypothèses scientifiques interdisciplinaires.
+    À chaque cycle, le système tire au sort deux domaines parmi
+    {{ domains_count }}, génère via LLM (DeepSeek + Claude) un pont causal
+    hypothétique entre les deux, le soumet à un panel de critique
+    automatisé (cinq personas IA), et vérifie chaque référence
+    bibliographique via Semantic Scholar. Sur {{ total_collisions }} collisions
+    tentées, {{ total_briefs }} briefs ont été publiés ({{ kill_rate }} % de rejet
+    assumé). Chaque brief publié est livré avec son protocole expérimental
+    en trois phases, ses prédictions falsifiables, et sa base de preuves
+    cliquable.
+  </p>
+
+  <h2>Qu'est-ce que cette anthologie</h2>
+  <p>
+    Une sélection éditoriale de huit briefs parmi les {{ total_briefs }} publiés —
+    mix entre les meilleurs scores du panel et les plus hauts scores de
+    nouveauté. L'objectif n'est pas l'exhaustivité, c'est de donner une
+    image cohérente du registre que SPORE explore : de la chimie quantique
+    aux protéines de novo, des matériaux catalytiques à l'agronomie de la
+    rhizosphère.
+  </p>
+
+  <h2>Comment lire ce PDF</h2>
+  <p>
+    Chaque brief tient sur une à deux pages et suit la même structure :
+    une analogie d'entrée (« imaginez que… »), l'hypothèse en bref,
+    pourquoi c'est intéressant, comment la tester en pratique, ce qu'en
+    pense le panel de cinq relecteurs. Un lien renvoie au brief complet
+    en ligne, qui contient le protocole détaillé, les prédictions
+    chiffrées et la bibliographie vérifiée.
+  </p>
+
+  <h2>Ce que SPORE n'est pas</h2>
+  <p>
+    SPORE produit des hypothèses, pas des résultats. Aucun brief de cette
+    anthologie n'a été testé expérimentalement. Le panel de cinq IA
+    détecte les incohérences internes, pas la contradiction du réel. La
+    seule validation qui compte est expérimentale — et elle dépasse le
+    périmètre de SPORE. Lisez ces briefs comme on lit une carte
+    d'opportunités, pas comme un compte-rendu de découvertes.
+  </p>
+</section>
+
+<section class="toc">
+  <h1>Table des matières</h1>
+  <ol>
+  {% for brief in briefs %}
+    <li>
+      <span class="toc-title">{{ brief.title_fr }}</span>
+      <span class="toc-domains">{{ brief.domain_a }} × {{ brief.domain_b }}</span>
+    </li>
+  {% endfor %}
+  </ol>
+</section>
+
+{% for brief in briefs %}
+<section class="brief">
+  <header>
+    <span class="brief-id">{{ brief.id }}</span>
+    <span class="domains">
+      {{ brief.domain_a }}<span class="x">×</span>{{ brief.domain_b }}
+    </span>
+    <h1>{{ brief.title_fr }}</h1>
+    <div class="scores">
+      <span><span class="score-label">Panel</span><span class="score-value">{{ brief.panel_score }} / 10</span></span>
+      <span><span class="score-label">Nouveauté</span><span class="score-value">{{ brief.novelty_score }} / 1.0</span></span>
+    </div>
+  </header>
+
+  <p class="imagine-that">{{ brief.imagine_that }}</p>
+
+  <h2>L'hypothèse en bref</h2>
+  <p>{{ brief.hypothesis_in_brief }}</p>
+
+  <h2>Pourquoi c'est intéressant</h2>
+  <p>{{ brief.why_it_matters }}</p>
+
+  {% if brief.concretely %}
+  <h2>Concrètement</h2>
+  {% if brief.concretely.intro %}<p>{{ brief.concretely.intro }}</p>{% endif %}
+  {% if brief.concretely.phase1 %}<p class="protocol-phase">{{ brief.concretely.phase1 }}</p>{% endif %}
+  {% if brief.concretely.phase2 %}<p class="protocol-phase">{{ brief.concretely.phase2 }}</p>{% endif %}
+  {% if brief.concretely.phase3 %}<p class="protocol-phase">{{ brief.concretely.phase3 }}</p>{% endif %}
+  {% endif %}
+
+  {% if brief.reviewers_say %}
+  <h2>Le panel dit</h2>
+  <p>{{ brief.reviewers_say }}</p>
+  {% endif %}
+
+  <p class="brief-link">
+    → Brief complet : <a href="https://spore-research.com/briefs/{{ brief.id }}">spore-research.com/briefs/{{ brief.id }}</a>
+  </p>
+</section>
+{% endfor %}
+
+<section class="closing">
+  <h1>Et maintenant ?</h1>
+
+  <p class="quote">
+    Une hypothèse nulle bien documentée vaut mieux qu'une fausse promesse
+    d'unification.
+  </p>
+
+  <p>
+    C'est la phrase qui guide SPORE. Le succès n'est pas mesuré au nombre
+    de briefs publiés, mais à la qualité des hypothèses générées et à
+    l'honnêteté de leur statut. Chaque brief de ce document est une
+    proposition exploratoire, livrée avec ses doutes intacts.
+  </p>
+
+  <h2>Découvrir SPORE en ligne</h2>
+  <p>
+    Site : <a href="https://spore-research.com">spore-research.com</a><br>
+    Méthodologie complète : <a href="https://spore-research.com/methodology">spore-research.com/methodology</a><br>
+    Statistiques en temps réel : <a href="https://spore-research.com/stats">spore-research.com/stats</a>
+  </p>
+
+  <h2>Réagir à un brief</h2>
+  <p>
+    Si vous êtes chercheur dans un des domaines couverts par cette
+    anthologie et que vous avez un avis — encourageant, critique,
+    méthodologique — un email suffit :
+    <a href="mailto:benoit@spore-research.com">benoit@spore-research.com</a>.
+    SPORE est un projet personnel ; les retours humains sont rares et
+    précieux.
+  </p>
+
+  <h2>Collision sur mesure</h2>
+  <p>
+    Vous voulez voir SPORE croiser deux domaines de votre choix ? Une
+    collision est offerte par utilisateur pendant la phase de lancement :
+    <a href="https://spore-research.com/custom">spore-research.com/custom</a>.
+  </p>
+
+  <p class="legal">
+    SPORE est conçu, développé et opéré par Benoît Baqué de Sariac
+    (SoBaq, micro-entreprise enregistrée en mai 2026) depuis Nantes.
+    Side project autonome, sans levée de fonds ni affiliation
+    institutionnelle. Code source frontend ouvert sur
+    github.com/benoitbds/spore-web. PDF généré automatiquement par
+    <code>scripts/generate_anthology.py</code> le {{ generation_date_fr }} à partir
+    de la base SQLite publique. Diffusion libre — citation appréciée.
+  </p>
+</section>
+
+</body>
+</html>

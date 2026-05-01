@@ -1,0 +1,376 @@
+/* Print stylesheet for the SPORE Anthology PDF (N4.2).
+ *
+ * Designed for A4. WeasyPrint renders this directly — no browser
+ * intermediate. All sizes in mm/pt for predictable print output.
+ *
+ * Palette mirrors the website:
+ *   ink-900   #07070a   (dark — used sparingly on print)
+ *   mist-100  #f4f4f5   (very light)
+ *   emerald   #10B981   (accent)
+ *   amber     #F59E0B   (accent — for the "★ signature" badge tone)
+ * On paper we invert: dark ink on white background for readability.
+ */
+
+@page {
+  size: A4;
+  margin: 22mm 20mm 22mm 20mm;
+  @bottom-center {
+    content: counter(page);
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 9pt;
+    color: #888;
+  }
+  @top-right {
+    content: "SPORE — Anthologie 2026";
+    font-family: 'Georgia', 'Times New Roman', serif;
+    font-size: 8pt;
+    color: #aaa;
+    font-style: italic;
+  }
+}
+
+/* Cover page: no header/footer chrome, full bleed feel. */
+@page :first {
+  margin: 0;
+  @top-right { content: ""; }
+  @bottom-center { content: ""; }
+}
+
+/* Reset */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 11pt;
+}
+
+body {
+  margin: 0;
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 11pt;
+  line-height: 1.55;
+  color: #15151a;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-weight: 400;
+  color: #07070a;
+  page-break-after: avoid;
+}
+
+p {
+  margin: 0 0 0.6em 0;
+  orphans: 3;
+  widows: 3;
+}
+
+a {
+  color: #047857;
+  text-decoration: none;
+  word-wrap: break-word;
+}
+
+/* ── Cover page ─────────────────────────────────────────────────── */
+
+.cover {
+  page: cover;
+  page-break-after: always;
+  height: 297mm;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 35mm 25mm;
+  background: #07070a;
+  color: #f4f4f5;
+}
+
+.cover .brand {
+  font-family: 'Georgia', serif;
+  font-size: 14pt;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: #34d399;
+}
+
+.cover .title {
+  font-family: 'Georgia', serif;
+  font-size: 56pt;
+  line-height: 1.05;
+  font-style: italic;
+  color: #fafafa;
+  margin: 0;
+}
+
+.cover .subtitle {
+  font-family: 'Georgia', serif;
+  font-size: 16pt;
+  font-style: italic;
+  color: #a1a1aa;
+  margin-top: 1em;
+  max-width: 130mm;
+}
+
+.cover .meta {
+  font-family: 'Georgia', serif;
+  font-size: 10pt;
+  color: #71717a;
+  letter-spacing: 0.1em;
+}
+
+.cover .meta strong {
+  color: #34d399;
+  font-weight: 400;
+}
+
+.cover hr {
+  border: none;
+  border-top: 1px solid #34d399;
+  width: 60mm;
+  margin: 0 0 2em 0;
+}
+
+/* ── Preamble ───────────────────────────────────────────────────── */
+
+.preamble {
+  page-break-after: always;
+}
+
+.preamble h1 {
+  font-size: 28pt;
+  font-style: italic;
+  margin: 0 0 0.5em 0;
+}
+
+.preamble .lede {
+  font-size: 13pt;
+  line-height: 1.5;
+  color: #444;
+  font-style: italic;
+  margin: 0 0 2em 0;
+  border-left: 2px solid #10B981;
+  padding-left: 14pt;
+}
+
+.preamble h2 {
+  font-size: 13pt;
+  margin-top: 2em;
+  margin-bottom: 0.3em;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #047857;
+}
+
+.preamble p {
+  font-size: 11pt;
+  line-height: 1.6;
+  text-align: justify;
+}
+
+/* ── Table of contents ──────────────────────────────────────────── */
+
+.toc {
+  page-break-after: always;
+}
+
+.toc h1 {
+  font-size: 28pt;
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+
+.toc ol {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  counter-reset: brief;
+}
+
+.toc li {
+  counter-increment: brief;
+  margin-bottom: 1em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px dotted #ccc;
+}
+
+.toc li::before {
+  content: counter(brief, decimal-leading-zero);
+  font-family: 'Georgia', serif;
+  font-size: 10pt;
+  color: #10B981;
+  margin-right: 14pt;
+  font-style: italic;
+}
+
+.toc .toc-title {
+  font-size: 12pt;
+  color: #15151a;
+  font-style: italic;
+}
+
+.toc .toc-domains {
+  display: block;
+  margin-top: 4pt;
+  font-size: 9pt;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #888;
+}
+
+/* ── Brief sections ─────────────────────────────────────────────── */
+
+.brief {
+  page-break-before: always;
+}
+
+.brief header {
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 1em;
+  margin-bottom: 1.5em;
+}
+
+.brief .brief-id {
+  font-family: 'Courier New', monospace;
+  font-size: 9pt;
+  color: #888;
+  letter-spacing: 0.05em;
+}
+
+.brief .domains {
+  display: inline-block;
+  margin-left: 1em;
+  font-size: 9pt;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #047857;
+}
+
+.brief .domains .x {
+  margin: 0 6pt;
+  color: #aaa;
+}
+
+.brief h1 {
+  font-size: 24pt;
+  font-style: italic;
+  line-height: 1.15;
+  margin: 0.4em 0 0.4em 0;
+  color: #07070a;
+}
+
+.brief .scores {
+  display: flex;
+  gap: 2em;
+  font-size: 9pt;
+  color: #555;
+  margin-top: 0.6em;
+}
+
+.brief .scores .score-label {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #888;
+  margin-right: 6pt;
+}
+
+.brief .scores .score-value {
+  font-family: 'Courier New', monospace;
+  color: #047857;
+}
+
+.brief .imagine-that {
+  font-style: italic;
+  font-size: 12pt;
+  color: #333;
+  border-left: 2px solid #10B981;
+  padding-left: 14pt;
+  margin: 1em 0 1.5em 0;
+  line-height: 1.5;
+}
+
+.brief h2 {
+  font-size: 11pt;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #047857;
+  margin-top: 1.6em;
+  margin-bottom: 0.4em;
+  font-weight: 600;
+}
+
+.brief p {
+  font-size: 11pt;
+  line-height: 1.6;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.brief .protocol-phase {
+  margin-bottom: 0.6em;
+}
+
+.brief .protocol-phase strong {
+  color: #047857;
+  font-weight: 600;
+}
+
+.brief .brief-link {
+  margin-top: 2em;
+  padding-top: 1em;
+  border-top: 1px dotted #ddd;
+  font-size: 9pt;
+  font-style: italic;
+  color: #555;
+}
+
+.brief .brief-link a {
+  font-family: 'Courier New', monospace;
+  font-style: normal;
+  color: #10B981;
+}
+
+/* ── Closing page ───────────────────────────────────────────────── */
+
+.closing {
+  page-break-before: always;
+}
+
+.closing h1 {
+  font-size: 28pt;
+  font-style: italic;
+  margin: 0 0 1em 0;
+}
+
+.closing .quote {
+  font-size: 14pt;
+  font-style: italic;
+  color: #047857;
+  border-left: 2px solid #10B981;
+  padding-left: 14pt;
+  margin: 1.5em 0 2em 0;
+  line-height: 1.4;
+}
+
+.closing h2 {
+  font-size: 11pt;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: #047857;
+  margin-top: 1.5em;
+  margin-bottom: 0.3em;
+}
+
+.closing p {
+  font-size: 10pt;
+  line-height: 1.5;
+}
+
+.closing .legal {
+  margin-top: 3em;
+  padding-top: 1em;
+  border-top: 1px solid #ddd;
+  font-size: 8pt;
+  color: #888;
+  line-height: 1.5;
+}
