@@ -53,6 +53,50 @@ def _get_reviewer_prompt() -> str:
     return load_prompt("reviewer")
 
 
+def evaluate_override(
+    composite: float,
+    hallucination_risk: float,
+) -> Optional[tuple[str, str]]:
+    """Mechanical post-LLM override. Returns ``(verdict, reason)`` or ``None``.
+
+    Recalibrated S6.4 (2 May 2026) — see BACKLOG hotfix note. The old
+    rule ``composite < 0.35 OR halluc > 0.40`` was killing 12 / 13 curated
+    hypotheses over the past 8 days, against the historical 20 %
+    poubelle target. Diagnosis: DeepSeek drift on hallucination_risk
+    attribution after the 200 → 500 domain corpus expansion shifted the
+    distribution upwards.
+
+    The new rule keeps three orthogonal kill paths, each requiring a
+    genuinely strong signal rather than a single barely-above-threshold
+    metric:
+
+    1. **Very low composite** (< 0.35): the hypothesis as a whole is weak.
+    2. **Stacked low composite + high halluc** (composite < 0.42 AND
+       halluc > 0.55): mediocre on its own + bibliographic risk.
+    3. **Extreme hallucination_risk** (> 0.65): even a strong composite
+       doesn't rescue a hypothesis the critic flagged as fabrication-prone.
+
+    Returns ``None`` when the LLM verdict should stand.
+    """
+    if composite < 0.35:
+        return (
+            "poubelle",
+            f"Post-processing: composite {composite:.2f} < 0.35",
+        )
+    if composite < 0.42 and hallucination_risk > 0.55:
+        return (
+            "poubelle",
+            f"Post-processing: low composite ({composite:.2f}) + "
+            f"high hallucination ({hallucination_risk:.2f})",
+        )
+    if hallucination_risk > 0.65:
+        return (
+            "poubelle",
+            f"Post-processing: hallucination {hallucination_risk:.2f} > 0.65",
+        )
+    return None
+
+
 def format_hypothesis_for_review(hypothesis: Hypothesis) -> str:
     """Format hypothesis data for the reviewer prompt."""
     lines = []
@@ -223,14 +267,11 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
     hallucination_risk = hypothesis.scores.hallucination_risk if hypothesis.scores else 0.0
 
     original_verdict = feedback.verdict
-    if composite < 0.35:
-        feedback.verdict = "poubelle"
-        feedback.override_reason = f"Post-processing: composite {composite:.3f} < 0.35"
-    elif hallucination_risk > 0.40:
-        feedback.verdict = "poubelle"
-        feedback.override_reason = (
-            f"Post-processing: hallucination_risk {hallucination_risk:.2f} > 0.40"
-        )
+    override = evaluate_override(composite, hallucination_risk)
+    if override is not None:
+        new_verdict, new_reason = override
+        feedback.verdict = new_verdict
+        feedback.override_reason = new_reason
 
     if feedback.verdict != original_verdict:
         logger.warning(
