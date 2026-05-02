@@ -400,13 +400,45 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - Tests : 5/5 verts (`/fr/test`, `/en/test`, lien switch FR↔EN, /, /about) + build production passe
 - Commits : `a3158eb` (foundation) + `c93ae06` (middleware) + `2ce0ab0` (test page)
 
-### 📋 S7.2 — Migration pages structurelles
-- [ ] **Activer la détection navigateur sur la racine `/`** — élargir le matcher du middleware vers `'/((?!api|_next|_vercel|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)'`, retirer la branche unreachable
-- [ ] **Migrer toutes les pages existantes vers `[locale]/`** AVANT d'élargir le matcher (sinon 404 sur les pages non migrées)
-- [ ] **Refactor `src/app/layout.tsx`** : l'attribut `<html lang="fr">` est actuellement hardcodé. Soit le déplacer dans `[locale]/layout.tsx` (pattern standard Next.js — le root devient un passthrough), soit dériver `lang` via `headers()`. Décision à arbitrer.
-- [ ] **Header / Footer / Navigation** localisés (utilisation de `useTranslations`)
-- [ ] **Strings UI** (boutons, statuts, labels, badges épistémiques)
-- [ ] **Suppression de l'ancienne structure non-localisée** une fois toutes les pages migrées et testées
+### 🔄 S7.2 — Migration pages structurelles (validée 2 mai 2026, partielle)
+**Livré** :
+- [x] 12 routes migrées sous `src/app/[locale]/` : `/`, `/about`, `/methodology`, `/how-it-works`, `/anthology` (page seule), `/briefs`, `/briefs/[id]`, `/stats`, `/pricing`, `/privacy`, `/legal`, `/custom` (page seule)
+- [x] Root layout refactor : chrome (Header/Footer/LaunchBanner) déplacé dans `[locale]/layout.tsx`. `app/layout.tsx` minimal (HTML shell + fonts + AuthProvider). `<html lang="fr">` reste hardcoded au root (TODO S7.3 pour devenir locale-aware via headers ou root group)
+- [x] Middleware élargi : matcher `'/((?!api|_next|_vercel|.*\\..*).*)'`, smart root redirect active (`/` → `/fr` ou `/en` selon Accept-Language). SKIP_LOCALE_PATHS pour `auth/`, `newsletter/`, `payment/`, `account`, `anthology/sent`, `custom/[id]/status` — preserve les emails et redirects Stripe legacy
+- [x] LanguageSwitcher monté dans le Header (desktop + mobile drawer)
+- [x] Chrome localisé : Header (6 nav items + aria), Footer (Explore + About + institutional links + anthology banner + manifeste), LaunchBanner (offre + close)
+- [x] Widgets localisés : NewsletterOptIn (heading, subtitle, form labels, états, privacy note), NoveltyScoreTooltip (aria, body, link)
+- [x] Sitemap bilingue avec annotations `xhtml:link rel="alternate" hreflang="…"` (Google-recommended) — 22 entries statiques + 76 brief entries
+- [x] Tests : build green (105 pages SSG dont 76 brief paths localisés × 2), 11/11 fonctionnels verts (root redirect 307, /fr/* + /en/*, LanguageSwitcher reciprocal, skip-list intacte)
+
+**Routes laissées à la racine (S7.2-bis)** : auth/verify, newsletter/{confirmed,unsubscribed,error}, payment/{success,cancel}, custom/[id]/status, anthology/sent, account. Voir S7.2-bis ci-dessous.
+
+**Reporté à S7.3** (étiqueté pour clarté) :
+- [ ] **Hreflangs dans `generateMetadata` de chaque page** (alternates.languages) — actuellement seul le sitemap les porte ; pour SEO complet il faut aussi les avoir dans le `<head>` de chaque page
+- [ ] **Page-level UI strings** : home metrics labels, briefs sort UI, brief detail tabs ("💡 Comprendre" / "🔬 Recherche"), anthology preview headings, pricing cards, custom form, stats cards
+- [ ] **Migration `next/link` → `@/i18n/routing` Link** dans les pages migrées (préservation auto du locale lors des navigations internes ; actuellement les Links FR sortent du locale ce qui force le middleware à re-redirect)
+- [ ] **Long-form editorial content** : déjà planifié comme S7.3 contenu
+
+**Commits** : `f441825` (root layout) + `5f36b6e` (middleware + LanguageSwitcher) + `d44c843` (chrome strings) + `63fa17d` (widget strings) + `a2d09a1` (sitemap)
+
+### 📋 S7.2-bis — Migration des routes transactionnelles (à planifier)
+- Routes à migrer : `/auth/verify`, `/newsletter/{confirmed,unsubscribed,error}`, `/payment/{success,cancel}`, `/custom/[id]/status`, `/anthology/sent`, `/account`
+- **Pré-requis cross-repo** :
+  1. Modifier `api/emails.py` (spore-poc) pour pointer vers les nouvelles URLs `/{locale}/...`
+  2. Updater Stripe dashboard avec les nouvelles `success_url`/`cancel_url`
+  3. Coordonner deployment frontend + backend
+- **Stratégie de redirection legacy** :
+  - Ajouter dans `next.config.js` des redirects 301 :
+    - `/auth/verify` → `/fr/auth/verify` (ou détection cookie locale)
+    - `/newsletter/confirmed` → `/fr/newsletter/confirmed`
+    - etc.
+  - Garder ces redirects 6+ mois pour ne pas casser les emails legacy
+- **Question ouverte** : quelle locale choisir pour un user qui clique un email avant qu'on ait stocké sa préférence ? Options :
+  (a) Toujours `/fr` (default historique du site)
+  (b) Détection navigateur Accept-Language
+  (c) Stocker la locale dans le `subscriber_id` ou le token
+- **Effort estimé** : 0.5-1 jour avec coordination spore-poc + spore-web
+- **Priorité** : moyenne (à faire avant que le compteur de subscribers passe 100)
 
 ### 📋 S7.3 — Migration pages éditoriales
 - [ ] `/about`, `/methodology`, `/how-it-works`, `/anthology`, `/custom`
