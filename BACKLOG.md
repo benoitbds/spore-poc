@@ -389,6 +389,38 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 ---
 
+## Niveau 7 — Internationalisation (FR + EN)
+
+### 🔄 S7.1 — i18n Foundation (validée 2 mai 2026)
+- next-intl 4.11 installé, configuration routing en place (`localePrefix: 'always'`, locales `fr` + `en`, defaultLocale `fr`)
+- Middleware avec **matcher restreint** `/(fr|en)/:path*` (Option α validée pendant le sprint pour ne pas casser les pages existantes)
+- Branche logique de détection navigateur (Accept-Language → `/fr` ou `/en`) **wired mais unreachable** côté code — sera activée en S7.2 quand toutes les pages auront leur version `[locale]/`
+- Structure parallèle `src/app/[locale]/` avec layout (NextIntlClientProvider only, pas de `<html>`/`<body>`) + `[locale]/test/page.tsx` validant la mécanique
+- Pages existantes (/, /about, /briefs, /custom, /pricing, /methodology, /anthology, /how-it-works, /stats…) **intactes** pour le moment, servies par l'arbre `src/app/...` non localisé
+- Tests : 5/5 verts (`/fr/test`, `/en/test`, lien switch FR↔EN, /, /about) + build production passe
+- Commits : `a3158eb` (foundation) + `c93ae06` (middleware) + `2ce0ab0` (test page)
+
+### 📋 S7.2 — Migration pages structurelles
+- [ ] **Activer la détection navigateur sur la racine `/`** — élargir le matcher du middleware vers `'/((?!api|_next|_vercel|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)'`, retirer la branche unreachable
+- [ ] **Migrer toutes les pages existantes vers `[locale]/`** AVANT d'élargir le matcher (sinon 404 sur les pages non migrées)
+- [ ] **Refactor `src/app/layout.tsx`** : l'attribut `<html lang="fr">` est actuellement hardcodé. Soit le déplacer dans `[locale]/layout.tsx` (pattern standard Next.js — le root devient un passthrough), soit dériver `lang` via `headers()`. Décision à arbitrer.
+- [ ] **Header / Footer / Navigation** localisés (utilisation de `useTranslations`)
+- [ ] **Strings UI** (boutons, statuts, labels, badges épistémiques)
+- [ ] **Suppression de l'ancienne structure non-localisée** une fois toutes les pages migrées et testées
+
+### 📋 S7.3 — Migration pages éditoriales
+- [ ] `/about`, `/methodology`, `/how-it-works`, `/anthology`, `/custom`
+- [ ] Manifeste home (« Une hypothèse nulle bien documentée… ») — décider si on traduit ou si on garde la version FR comme signature
+- [ ] Traduction LLM + review humaine sur les textes longs
+- [ ] **hreflangs SEO** sur toutes les pages traduites (lien réciproque FR↔EN dans le `<head>`)
+
+### 📋 S7.4 — Briefs bilingues
+- [ ] Page `/[locale]/briefs/[id]` avec contenu bilingue
+- [ ] Stratégie pour la vulgarisation FR existante des 38 briefs : (a) garder FR-only avec note, (b) traduire à la demande via LLM, (c) regénérer en EN à partir du `sharpened_data.title` qui est déjà en EN
+- [ ] Adapter `vulgarization_data` schema en DB pour stocker `title_en`, `imagine_that_en`, etc. (ou un sous-objet `en` parallèle au FR)
+
+---
+
 ## Maintenance et dette technique
 
 ### ✅ S6.4 — Recalibrer ReviewerAgent override (2 mai 2026)
