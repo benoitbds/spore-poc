@@ -440,7 +440,42 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - **Effort estimé** : 0.5-1 jour avec coordination spore-poc + spore-web
 - **Priorité** : moyenne (à faire avant que le compteur de subscribers passe 100)
 
-### 📋 S7.3 — Migration pages éditoriales
+### 🔄 S7.3 — Migration pages éditoriales (foundation 2 mai 2026 ; éditorial reporté en S7.3-bis)
+**Livré** (foundation architecturale + SEO) :
+- [x] **`<html lang>` dynamique** : root layout (`app/layout.tsx`) est désormais async, lit la locale via `getLocale()` de next-intl/server. `/fr/*` rend `<html lang="fr">`, `/en/*` rend `<html lang="en">`, et les routes skip-list (auth, newsletter, payment) restent en `lang="fr"` par fallback du routing default. Vérifié via curl.
+- [x] **Migration `next/link` → `@/i18n/routing` Link** dans 9 fichiers `.tsx` sous `src/app/[locale]/` : navigation interne préserve le locale automatiquement (1 redirect en moins par clic).
+- [x] **Tagline officielle EN** adoptée : `"SPORE — A research collision engine"` (remplace la traduction littérale).
+- [x] **Manifeste officiel EN** adopté : `"A well-documented dead end is worth more than a glib unification."` (remplace la traduction littérale "null hypothesis").
+- [x] **Bandeau bilingual sur `/en/anthology`** : composant Server Component `<BilingualNotice />` qui rend une note explicative au-dessus des 8 titres FR (conservés comme décidé en S7.2). `/fr/anthology` ne rend rien d'extra.
+- [x] **Helper `src/lib/i18n-seo.ts`** : `localeAlternates(locale, path)` pour générer les `alternates: { canonical, languages: { fr, en, x-default } }` que chaque `generateMetadata` doit attacher. Wiring cross-pages reporté en S7.3-bis.
+- [x] **Build green** sur la branche, tests fondations verts (lang dynamique, manifesto/tagline, bandeau bilingual)
+
+**Reporté en S7.3-bis** (le gros morceau éditorial) :
+- [ ] **Traduction éditoriale ciselée** (~2000 mots, niveau Nature) :
+  - Home `[locale]/page.tsx` (manifeste home + FeaturedHero + sections "Comment ça marche en bref")
+  - `/[locale]/about/page.tsx` (~600 mots, signature personnelle)
+  - `/[locale]/methodology/page.tsx` (~700 mots, prose technique)
+  - `/[locale]/how-it-works/page.tsx` (~250 mots, 3 principes + funnel + CTA)
+  - `/[locale]/anthology/page.tsx` (preview text autour des titres FR)
+  - `/[locale]/custom/CustomClient.tsx` (form labels, status messages)
+  - `/[locale]/pricing/PricingClient.tsx` (3 cartes + FAQ + manifesto reprise)
+  - `/[locale]/privacy/page.tsx`, `/[locale]/legal/page.tsx` (textes légaux courts)
+- [ ] **Page-level UI strings restantes** (~80-120 strings) : briefs sort (Panel/Nouveauté/Date), brief detail tabs ("💡 Comprendre" / "🔬 Recherche"), home metrics labels, stats cards, anthology preview headings, brief sections internes
+- [ ] **BriefDetailClient.tsx** strings (~1100 lignes, ~80 strings FR à clé) — overlap avec S7.4 briefs bilingues
+- [ ] **Hreflangs dans chaque `generateMetadata`** via le helper `localeAlternates()` (pour l'instant le sitemap global porte les hreflangs au niveau site, mais chaque page devrait aussi les avoir dans son `<head>`)
+- [ ] **Markdown collocation** pour les longs contenus éditoriaux (about, methodology) si on bascule en `src/content/{page}.{locale}.md` avec react-markdown — décision à arbitrer (Inline JSON vs Markdown)
+
+**Commits S7.3 foundation** : `6c2009d` (link migration) + `7e97aae` (html lang) + `776f1a9` (tagline + manifesto + bilingual notice + helper)
+
+**Note de cadrage** : le sprint S7.3 spec original demandait ~5-8h de travail éditorial soigné. La foundation architecturale (lang dynamique, link migration, helper SEO, bandeau, alignements officiels FR/EN) a été livrée en ~1.5h. La traduction ciselée des ~2000 mots éditoriaux (about + methodology + home + how-it-works) demande un sprint dédié (S7.3-bis) pour atteindre la qualité Nature-grade que le spec exige. **Ne pas la rusher** — un mauvais EN sur /about coûte plus cher en crédibilité qu'un FR temporaire visible sur /en/.
+
+### 📋 S7.3-bis — Traduction éditoriale ciselée (à venir)
+- Voir scope reporté ci-dessus dans S7.3
+- Style guide : Nature editorial, formel ("do not", pas "don't"), termes signature (SPORE, kill rate, brief, panel review, collision, domain), interdire "discover/discovery"/"revolutionary"/"AI-driven", phrase manifeste officielle, tagline officielle
+- Effort estimé : 1-1.5 jour (translation + relecture + test rendu)
+- Priorité : haute (le contenu /en/ reste largement en FR sans S7.3-bis)
+
+### 📋 S7.3 — Migration pages éditoriales (legacy, voir 🔄 S7.3 ci-dessus)
 - [ ] `/about`, `/methodology`, `/how-it-works`, `/anthology`, `/custom`
 - [ ] Manifeste home (« Une hypothèse nulle bien documentée… ») — décider si on traduit ou si on garde la version FR comme signature
 - [ ] Traduction LLM + review humaine sur les textes longs
