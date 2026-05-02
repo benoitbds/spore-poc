@@ -469,11 +469,33 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 **Note de cadrage** : le sprint S7.3 spec original demandait ~5-8h de travail éditorial soigné. La foundation architecturale (lang dynamique, link migration, helper SEO, bandeau, alignements officiels FR/EN) a été livrée en ~1.5h. La traduction ciselée des ~2000 mots éditoriaux (about + methodology + home + how-it-works) demande un sprint dédié (S7.3-bis) pour atteindre la qualité Nature-grade que le spec exige. **Ne pas la rusher** — un mauvais EN sur /about coûte plus cher en crédibilité qu'un FR temporaire visible sur /en/.
 
-### 📋 S7.3-bis — Traduction éditoriale ciselée (à venir)
-- Voir scope reporté ci-dessus dans S7.3
-- Style guide : Nature editorial, formel ("do not", pas "don't"), termes signature (SPORE, kill rate, brief, panel review, collision, domain), interdire "discover/discovery"/"revolutionary"/"AI-driven", phrase manifeste officielle, tagline officielle
-- Effort estimé : 1-1.5 jour (translation + relecture + test rendu)
-- Priorité : haute (le contenu /en/ reste largement en FR sans S7.3-bis)
+### 🔄 S7.3-bis — Traduction éditoriale ciselée (3 pages livrées 2 mai 2026 ; reste reporté en S7.3-residual)
+**Livré** :
+- [x] **`/about`** intégralement traduit EN — 7 sections (who/why/what/what-not/limits/support/last-thing), ~660 mots EN, signature personnelle préservée, citations historiques (penicillin/CRISPR/PageRank/AlphaFold) conservées, manifeste officiel "A well-documented dead end is worth more than a glib unification."
+- [x] **`/methodology`** intégralement traduit EN — 6 sections (novelty/panel/kill-rate/refs/costs/stack) + intro + footer, ~720 mots EN, callouts amber "Acknowledged limitations" et cyan "Meta-Reviewer verdict" préservés, vocabulaire produit conservé (kill rate, brief, panel review, collision, domain)
+- [x] **`/how-it-works`** intégralement traduit EN — funnel + 3 principles + methodology pointer + CTA, ~250 mots EN, "SPORE proposes; humans dispose" comme principe 1
+- [x] **Hreflangs per-page** sur les 3 pages traduites via `localeAlternates()` (canonical + fr/en/x-default)
+- [x] Style guide respecté : registre formel, no contractions, "researcher" pas "scientist", "domain" réservé au sens produit, "discover/discovery" évité (sauf section "Not a scientific discovery tool" où c'est la négation explicite du label), "revolutionary"/"AI-driven" évités, manifesto + tagline officiels
+- [x] Ratio mots EN/FR : 0.94× (dans la cible 0.85-1.0×)
+- [x] Translation notes file `S7-3-bis-translation-notes.md` (gitignored) avec ~25 choix non-triviaux annotés pour review humaine
+- [x] **Commits** : `4aadcea` (deps remark-gfm) + `6c64ece` (bundles fr/en) + `23825fe` (pages wired)
+
+**Reporté en S7.3-residual** (volume non-tractable en une session de qualité Nature-grade) :
+- [ ] **Home `[locale]/page.tsx`** FeaturedHero + "Comment ça marche en bref" — manifeste/tagline déjà alignés en S7.3-foundation, reste ~30 strings éditoriaux
+- [ ] **`/anthology` editorial text** — "Au sommaire" header, preview block, copy autour des 8 titres (~15 strings)
+- [ ] **`/custom` CustomClient form** — 457 lignes, ~30 strings (form labels, status messages, error messages)
+- [ ] **`/pricing` PricingClient cards** — 3 plan cards + FAQ + manifesto reprise (~30 strings)
+- [ ] **`/privacy`, `/legal`** — textes légaux courts mais nécessitent review legal pour version EN
+- [ ] **BriefDetailClient.tsx** strings (~80 strings dans 1100 lignes) — overlap avec S7.4 briefs bilingues
+- [ ] **Page-level UI strings** restants : briefs sort UI, brief detail tabs, stats cards, anthology preview headings
+- [ ] **Hreflangs sur toutes les autres pages** (10 pages restantes) via `generateMetadata` async + `localeAlternates()`
+
+**Note de cadrage** : Le sprint S7.3-bis original demandait ~5-8h de travail pour livrer TOUT en un seul livrable. La portion delivrée (~1.5h) couvre les 3 pages éditoriales les plus visibles et les plus importantes pour la crédibilité (about, methodology, how-it-works). Le reste représente ~3-4h additionnelles pour les pages secondaires + UI strings page-level + hreflangs systématiques. Privilégier cette qualité sur les 3 pages clés et trancher au coup par coup pour les autres est plus défendable qu'un sprint étendu où la qualité dérive.
+
+### 📋 S7.3-residual — Compléter la couverture EN (~3-4h, à planifier)
+- Voir scope reporté ci-dessus
+- Priorité : haute pour `/anthology`, `/custom`, `/pricing` (visiteurs EN les rencontrent vite), moyenne pour `/privacy` `/legal` (legal review requis)
+- Bloque : rien ; le site fonctionne en EN sur les pages structurellement clés
 
 ### 📋 S7.3 — Migration pages éditoriales (legacy, voir 🔄 S7.3 ci-dessus)
 - [ ] `/about`, `/methodology`, `/how-it-works`, `/anthology`, `/custom`
