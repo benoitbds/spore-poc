@@ -391,6 +391,17 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 ## Maintenance et dette technique
 
+### ✅ S6.4 — Recalibrer ReviewerAgent override (2 mai 2026)
+- **Diagnostic** : 12 hypothèses sur 13 forcées en `poubelle` depuis le 24 avril → 0 brief publié pendant 8 jours. Distribution réelle 73/20/8 (poubelle/intéressant/a_tester) vs cible historique 20/63/17.
+- **Cause** : drift de la calibration LLM (DeepSeek) sur l'attribution de `hallucination_risk`, ou fallout de l'expansion corpus 200→500 domaines qui a déplacé la distribution. Pas un bug, une calibration qui n'est plus alignée.
+- **Fix** : règle conjuguée plus défendable épistémiquement (kill si composite très bas OU composite moyen + halluc haut OU halluc extrême). Logique extraite dans `agents.reviewer.evaluate_override(composite, hallucination_risk) -> Optional[(verdict, reason)]` pour tester sans LLM.
+- **Backtest** sur les 13 hypothèses depuis le 24 avril :
+  - Ancienne règle : 12 poubelle, 1 intéressant
+  - Nouvelle règle : 3 poubelle (les vraiment faibles), 10 intéressant
+- **Tests** : 9 tests unitaires verts (`tests/test_reviewer_override.py`), couvrent les 3 paths de kill + les boundaries (composite=0.35, halluc=0.65) + un cas de régression (SPORE-2026-04-26-de5ee40d).
+- **Suivi** : observer la distribution sur 5-7 prochains runs cron, ajuster si dérive.
+- **Commits** : `6bc95f4` (fix + extraction helper) + `13046c1` (tests)
+
 ### ✅ Hotfix S6.1-bis — Outreach workflow fixes (1er mai 2026)
 - **Tracking CSV** : création automatique au premier run garantie via `ensure_tracking_csv()` appelée en début de `main()`. Bug d'origine : le script ne créait le fichier que via la branche append, donc une exécution sans nouveau draft (stub sans evidence_base, ou run idempotent où tout est skip) laissait le fichier inexistant.
 - **Template par défaut basculé en EN** : l'écrasante majorité des chercheurs cités sont non-francophones (Max Planck, USA, Italie, Japon, Chine). EN désormais default ; FR via `--lang fr` pour les équipes francophones identifiées (CNRS, INRAE, INSERM, UCLouvain, UQ, etc.).
