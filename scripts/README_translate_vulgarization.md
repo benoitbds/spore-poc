@@ -107,6 +107,26 @@ The script's prompt enforces SPORE's EN editorial register:
 - **Nature editorial**: precise, economical, formal authority. No
   contractions ("do not", not "don't"). No marketing-speak. No
   first-person plural ("SPORE" or rephrase, not "we").
+- **Spelling**: **British English** throughout — "favourable",
+  "analyse", "organise", "behaviour", "colour", "modelled",
+  "centred", "fibre", "haemoglobin", "-ise" verb endings
+  (recognise / characterise / summarise), date format "1 May 2026".
+  US spellings are caught by the post-translation validator and
+  surface as warnings; if they keep slipping through despite the
+  prompt directive, the operational fallback is to add a Python
+  post-process replacement pass (not implemented yet — Phase 1-bis
+  prototype on SPR-2026-816D landed clean).
+- **Voice — per field** (Phase 1-bis):
+  - `imagine_that` — **active voice + second-person** ("you measure",
+    "you can deduce", "you must describe"). The reader is invited
+    into the analogy. Pedagogical, tactile, slightly conversational.
+    Contractions still forbidden ("you cannot" not "you can't").
+  - everything else (`title`, `hypothesis_in_brief`, `why_it_matters`,
+    `reviewers_say`, `concretely.*`) — **passive voice +
+    impersonal constructions** ("the parameters are extracted", "the
+    hypothesis is tested"). Formal Nature-grade register.
+  Configured via the `FIELD_VOICE_GUIDANCE` dict at the top of the
+  script — easy to extend when a new field needs its own voice.
 - **Forbidden vocabulary**: "discover" / "discovery" / "discoveries"
   (use "finding", "advance", or rephrase). Allowed only inside an
   explicit negation, e.g. "not a discovery", per the precedent set
@@ -115,29 +135,21 @@ The script's prompt enforces SPORE's EN editorial register:
   yields, "verified through Semantic Scholar". Domain (SPORE
   product term), collision (domain meeting), brief (research brief),
   panel review, panel reviewer.
-- **Vulgarisation tone**: preserve the analogy ("Imagine that..."),
-  educated-but-non-expert audience, no over-simplification.
+- **Tone**: educated-but-non-expert audience, no over-simplification,
+  preserve original sentence rhythm.
 - **Preservation**: proper names, numbers, units, dates, markdown
-  formatting (bold, italics, lists) all carry through verbatim.
+  formatting (bold, italics, lists) all carry through verbatim — the
+  EN output should not invent markdown that is not in the FR source.
 
-The full prompt lives at the top of
-`scripts/translate_brief_vulgarization.py` (`TRANSLATION_PROMPT`).
+The base prompt lives at the top of
+`scripts/translate_brief_vulgarization.py` (`BASE_PROMPT`); the
+per-field voice blocks live just below in `FIELD_VOICE_GUIDANCE`.
 
 ## Quality validation
 
-For each translated field the script runs four heuristic checks:
+For each translated field the script runs five heuristic checks:
 
-1. **Forbidden bare "discover/discovery"** — flagged unless every
-   occurrence is inside an explicit negation. `WARNING` only; the
-   field is still written.
-2. **Contractions** (do not, can not, etc.) — flagged. `WARNING`
-   only.
-3. **Length ratio** — EN char-length divided by FR char-length must
-   sit in `[0.70, 1.20]`. The earlier sprint spec called for
-   `[0.85, 1.10]` but EN is systematically shorter than FR for this
-   register; broadened to flag only egregiously truncated or
-   doubled output. `WARNING` only.
-4. **Residual French** — title fields starting with FR articles
+1. **Residual French** — title fields starting with FR articles
    (`que`, `qui`, `le`, `la`, `les`, `une`, `un`, `des`, `du`,
    `de`, `aux`, `avec`, `pour`, `sans`, `sur`, `dans`) or any field
    containing FR fragments (`c'est`, `qu'il`, `pourquoi`,
@@ -145,6 +157,23 @@ For each translated field the script runs four heuristic checks:
    This is a **STOP** condition — the batch halts immediately so
    the operator can recalibrate the prompt before silently-FR
    payloads land in the EN column.
+2. **Forbidden bare "discover/discovery"** — flagged unless every
+   occurrence is inside an explicit negation. `WARNING` only; the
+   field is still written.
+3. **Contractions** (don't, can't, you'll, etc.) — flagged.
+   `WARNING` only.
+4. **US spellings** (analyze, organize, color, favor, behavior,
+   modeled, centered, fiber, ...) — flagged when the prompt
+   instruction to use British English is not honoured. `WARNING`
+   only; the operational fallback per the sprint spec is a Python
+   post-process replacement pass if prompting alone cannot keep
+   the LLM honest. "meter" is intentionally not flagged
+   (false-positive risk on the measuring-device sense).
+5. **Length ratio** — EN char-length divided by FR char-length must
+   sit in `[0.70, 1.20]`. The earlier sprint spec called for
+   `[0.85, 1.10]` but EN is systematically shorter than FR for this
+   register; broadened to flag only egregiously truncated or
+   doubled output. `WARNING` only.
 
 Warnings are printed to stdout per brief with the failing field path
 and the offending pattern. They do not block writes.
