@@ -284,6 +284,31 @@ def _validate_field(
 # ── Translation ────────────────────────────────────────────────────────
 
 
+def _strip_wrapping_bold(text: str) -> str:
+    """Drop markdown bold when the LLM wrapped the entire field in ``**``.
+
+    The LLM occasionally returns ``**Title**`` for short standalone
+    fields (the title field is the empirical offender) even though the
+    FR source has no emphasis. Phase 3 of S7.4 surfaced one production
+    instance (SPR-2026-FBF3 title); this strip protects in depth so the
+    same drift is silent on future runs.
+
+    Inline bold inside longer prose ("**Phase 1:** ...") is preserved —
+    the function only fires when the *entire* trimmed text is wrapped
+    in a single matching ``**`` pair.
+    """
+    stripped = text.strip()
+    if not (stripped.startswith("**") and stripped.endswith("**")):
+        return text
+    # Only strip if the wrapping is a single pair — i.e. the inner text
+    # contains no further ``**`` markers. Otherwise we would corrupt
+    # legitimate inline-bolded prose.
+    inner = stripped[2:-2]
+    if "**" in inner:
+        return text
+    return inner.strip()
+
+
 async def _translate_one_field(
     client,
     field_name: str,
@@ -319,6 +344,7 @@ async def _translate_one_field(
         text = text[1:-1]
     if text.startswith("```") and text.endswith("```"):
         text = text.strip("`").strip()
+    text = _strip_wrapping_bold(text)
 
     return text, {
         "input_tokens": response.input_tokens,
