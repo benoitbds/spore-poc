@@ -41,7 +41,7 @@ logger = get_logger("translate_brief_vulgarization")
 
 # ── Prompt ─────────────────────────────────────────────────────────────
 
-TRANSLATION_PROMPT = """You are a scientific translator specializing in interdisciplinary research vulgarization. Translate the following French text into English following these strict rules:
+BASE_PROMPT = """You are a scientific translator specializing in interdisciplinary research vulgarization. Translate the following French text into English following these strict rules:
 
 REGISTER: Nature editorial - precise, economical, formal authority. No contractions ("do not" not "don't"). No marketing-speak. No "we" (use "SPORE" or rephrase).
 
@@ -69,9 +69,8 @@ VOCABULARY:
 - "domain" : use for SPORE's scientific domains.
 - "hypothesis" / "hypotheses" / "researcher" / "yields" / "verified through Semantic Scholar" : preferred terms.
 
-TONE FOR VULGARIZATION:
-- Preserve the analogy structure ("Imagine that..." / "Imagine you...")
-- Keep the pedagogical clarity. The audience is educated but non-expert.
+TONE:
+- The audience is educated but non-expert.
 - Do NOT over-simplify scientific terms. The audience is sophisticated.
 - Maintain the original sentence rhythm where possible.
 
@@ -79,11 +78,42 @@ PRESERVATION:
 - Preserve all proper names (people, places, institutions, equipment).
 - Preserve all numbers, units, dates as-is.
 - Preserve markdown formatting (bold, italics, lists).
-- If a French expression has no clean English equivalent, prefer scientific clarity over literal translation.
+- If a French expression has no clean English equivalent, prefer scientific clarity over literal translation."""
 
-INPUT: {french_text}
 
-OUTPUT: ONLY the English translation, nothing else. No preamble, no explanation, no quotes around the translation."""
+# Per-field voice guidance. The translation script appends one of these
+# blocks to BASE_PROMPT depending on which JSON field is being
+# translated. ``imagine_that`` is the analogy lead-in — pedagogical,
+# tactile, second-person. Every other field uses the formal Nature-grade
+# passive register typical of scientific abstracts.
+FIELD_VOICE_GUIDANCE = {
+    "imagine_that": (
+        "VOICE FOR THIS FIELD: Use ACTIVE voice and second-person address "
+        "(\"you measure\", \"you can deduce\", \"you must describe\"). "
+        "The reader is invited into the analogy. Keep the pedagogical, "
+        "tactile, slightly conversational tone of the original French. "
+        "Preserve the analogy structure (\"Imagine that...\" / "
+        "\"Imagine you...\"). Contractions are still forbidden "
+        "(\"you cannot\" not \"you can't\")."
+    ),
+    "default": (
+        "VOICE FOR THIS FIELD: Use PASSIVE voice and impersonal "
+        "constructions (\"the parameters are extracted\", \"the "
+        "hypothesis is tested\"). Avoid second-person address. "
+        "Maintain the formal Nature-grade register throughout."
+    ),
+}
+
+
+def _build_prompt(field_name: str, french_text: str) -> str:
+    """Compose the per-call prompt: BASE + field-specific voice + IO."""
+    voice = FIELD_VOICE_GUIDANCE.get(field_name, FIELD_VOICE_GUIDANCE["default"])
+    return (
+        f"{BASE_PROMPT}\n\n{voice}\n\n"
+        f"INPUT: {french_text}\n\n"
+        "OUTPUT: ONLY the English translation, nothing else. "
+        "No preamble, no explanation, no quotes around the translation."
+    )
 
 
 # ── Output JSON shape ──────────────────────────────────────────────────
@@ -254,9 +284,18 @@ def _validate_field(
 # ── Translation ────────────────────────────────────────────────────────
 
 
-async def _translate_one_field(client, fr_text: str) -> tuple[str, dict[str, int]]:
-    """Translate a single string. Returns (en_text, usage_dict)."""
-    prompt = TRANSLATION_PROMPT.format(french_text=fr_text)
+async def _translate_one_field(
+    client,
+    field_name: str,
+    fr_text: str,
+) -> tuple[str, dict[str, int]]:
+    """Translate a single string. Returns (en_text, usage_dict).
+
+    ``field_name`` selects the per-field voice guidance from
+    FIELD_VOICE_GUIDANCE (active+second-person for ``imagine_that``,
+    formal passive for everything else).
+    """
+    prompt = _build_prompt(field_name, fr_text)
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1500,
@@ -309,7 +348,7 @@ async def translate_brief(
     total_out = 0
 
     # Title — single field, no FR-key special handling.
-    en_title, usage = await _translate_one_field(client, fr_title)
+    en_title, usage = await _translate_one_field(client, "title", fr_title)
     total_cost += usage["cost_usd"]
     total_in += usage["input_tokens"]
     total_out += usage["output_tokens"]
@@ -328,7 +367,7 @@ async def translate_brief(
         if not fr_text.strip():
             en_payload[field] = ""
             continue
-        en_text, usage = await _translate_one_field(client, fr_text)
+        en_text, usage = await _translate_one_field(client, field, fr_text)
         total_cost += usage["cost_usd"]
         total_in += usage["input_tokens"]
         total_out += usage["output_tokens"]
@@ -349,7 +388,7 @@ async def translate_brief(
         if not fr_text.strip():
             en_concretely[sub] = ""
             continue
-        en_text, usage = await _translate_one_field(client, fr_text)
+        en_text, usage = await _translate_one_field(client, sub, fr_text)
         total_cost += usage["cost_usd"]
         total_in += usage["input_tokens"]
         total_out += usage["output_tokens"]
