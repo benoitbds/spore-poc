@@ -575,6 +575,13 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - **Commits spore-web** : `2de425d` (backend), `1d9a796` (BriefDetailClient), `e98c880` (cards + haystack), `8204c79` (translation docs)
   - **Décisions notables** archivées dans `docs/i18n-translation-decisions/s7-4.md` (spore-web)
   - **Bug content noté pour follow-up** : `SPR-2026-FBF3` a son titre EN wrappé dans `**...**` markdown (déviation translator). Fix : strip `^\*\*` / `\*\*$` dans `translate_brief_vulgarization.py` puis re-traduire avec `--force`. Hors scope Phase 3 (le rendering est correct, c'est la donnée qui déraille)
+- [x] **Phase 3-fix ✅ — Strip bold leak + re-traduction FBF3 (3 mai 2026)**
+  - Helper `_strip_wrapping_bold(text)` ajouté à `_translate_one_field` (défense en profondeur ; n'agit que sur les wrappers complets, préserve le bold inline)
+  - 8 cas unitaires couverts (wrap simple, whitespace autour, bold inline, multiple `**`, no-wrap)
+  - Audit complet des 40 briefs × 9 champs feuille : seul `SPR-2026-FBF3.title` était affecté
+  - Re-traduction `--force` sur FBF3 : titre clean (« Intelligent stem cells for repairing arteries without causing damage », sans `**`)
+  - Coût Phase 3-fix : **$0.0004**
+  - Commits : `a4205dd` (strip helper)
 - [ ] **Phase 4 📋 — Pipeline post-fire pour briefs futurs + PDF anthologie EN**
   - Modifier `agents/vulgarization.py` (ou ajouter `agents/translation.py` post-fire) pour produire EN nativement à la création
   - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR
