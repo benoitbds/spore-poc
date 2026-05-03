@@ -540,6 +540,13 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - Prototype validé sur SPR-2026-816D : titre EN « Metalloproteins come clean: a quantum method to decode their electronic secrets » + 9 champs traduits proprement, 0 warning, 0 fragment FR détecté
   - Coût observé prototype : **$0.0004** (vs estimation $0.005) — DeepSeek prompt cache divise par 10× après le premier call. Coût batch projeté pour 38 briefs : **~$0.02**
   - Commits : `06d3a17` (DB), `9755e4c` (script), `0618964` (README)
+- [x] **Phase 1-bis ✅ — Recalibration prompt UK + mix voix (3 mai 2026)**
+  - Phase 1 produisait un mix UK/US (« favourable » + « analyzed ») et appliquait le même registre passif partout. Fix en 2 axes :
+  - **British English** : ajout d'un bloc SPELLING explicite dans le prompt (favourable / analyse / organise / behaviour / colour / modelled / centred / fibre / haemoglobin / -ise endings / date format « 1 May 2026 »). Validation Python ajoutée pour flagger les spellings US résiduels (warning, fallback opérationnel = post-process Python si le LLM ignore la consigne ; pas nécessaire en pratique sur 816D)
+  - **Voix différentielle** : `BASE_PROMPT` + `FIELD_VOICE_GUIDANCE` dict ; `imagine_that` → voix ACTIVE deuxième personne (« you measure », « you cannot », « you must »), tout le reste → voix PASSIVE Nature-grade. Architecture extensible : ajouter une clé au dict pour un nouveau champ avec voix custom
+  - Re-traduction de SPR-2026-816D validée : 0 spelling US (validateur strict), UK present (haemoglobin, behaviour, analysed, favourable), `you` présent dans `imagine_that` uniquement, voix passive intacte sur `hypothesis_in_brief` / `why_it_matters` / `reviewers_say` / `concretely.*`
+  - Coût Phase 1-bis (re-translation) : **$0.0008** (cache miss sur le nouveau prompt → premier call non caché)
+  - Commits : `86d2319` (UK spelling), `f18c33f` (voice differential), `5f86917` (README)
 - [ ] **Phase 2 📋 — Backfill batch sur les 37 autres briefs**
   - Commande : `.venv/bin/python scripts/translate_brief_vulgarization.py --missing-only`
   - Durée estimée : ~10 min wall time
