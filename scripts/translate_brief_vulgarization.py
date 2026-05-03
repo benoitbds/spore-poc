@@ -45,6 +45,21 @@ TRANSLATION_PROMPT = """You are a scientific translator specializing in interdis
 
 REGISTER: Nature editorial - precise, economical, formal authority. No contractions ("do not" not "don't"). No marketing-speak. No "we" (use "SPORE" or rephrase).
 
+SPELLING: Use British English consistently. Examples:
+- "favourable" not "favorable"
+- "analyse" / "analysed" / "analysing" not "analyze"
+- "organise" / "organised" not "organize"
+- "behaviour" not "behavior"
+- "colour" not "color"
+- "modelled" / "modelling" not "modeled"
+- "centred" not "centered"
+- "fibre" not "fiber"
+- "metre" not "meter" (the unit)
+- "-ise" verb endings, not "-ize" (recognise, characterise, summarise)
+- Date format: "1 May 2026" not "May 1, 2026"
+
+If you produce a US spelling, you must self-correct.
+
 VOCABULARY:
 - "découverte" / "discovery" : FORBIDDEN. Use "finding", "advance", or rephrase.
 - "kill rate" : keep as-is (product term).
@@ -112,6 +127,31 @@ _CONTRACTIONS = re.compile(
     r")\b",
     re.IGNORECASE,
 )
+
+# US-spelling forms we explicitly forbid. The prompt instructs the LLM to
+# use British English (favourable, analyse, organise, behaviour, ...) so
+# any of these appearing in the output is a calibration miss. Warning
+# only; the operational fallback is a Python post-process replacement
+# pass if the LLM cannot be convinced via prompting alone.
+_US_SPELLINGS = re.compile(
+    r"\b("
+    r"analyze|analyzes|analyzed|analyzing|"
+    r"organize|organizes|organized|organizing|"
+    r"recognize|recognizes|recognized|recognizing|"
+    r"characterize|characterizes|characterized|characterizing|"
+    r"summarize|summarizes|summarized|summarizing|"
+    r"realize|realizes|realized|realizing|"
+    r"emphasize|emphasizes|emphasized|emphasizing|"
+    r"color|colors|colored|coloring|"
+    r"favor|favors|favored|favoring|favorable|"
+    r"behavior|behaviors|"
+    r"modeled|modeling|"
+    r"centered|centering|"
+    r"fiber|fibers"
+    r")\b",
+    re.IGNORECASE,
+)
+
 
 # Heuristic markers that an output is still in French. These are common
 # FR function words and articles that virtually never start an English
@@ -189,7 +229,15 @@ def _validate_field(
             f"register requires written-out forms"
         )
 
-    # 4. Length ratio.
+    # 4. US spellings (prompt enforces British English).
+    us_hits = _US_SPELLINGS.findall(en_text)
+    if us_hits:
+        warnings.append(
+            f"{field_path}: US spelling(s) detected ({us_hits[:5]}); "
+            f"register requires British English"
+        )
+
+    # 5. Length ratio.
     fr_len = max(len(fr_text), 1)
     ratio = len(en_text) / fr_len
     if not 0.70 <= ratio <= 1.20:
