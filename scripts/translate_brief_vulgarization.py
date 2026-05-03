@@ -510,10 +510,21 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "Default: skip rows that already have an EN payload."
         ),
     )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help=(
+            "Print extra per-brief progress lines: per-brief duration, "
+            "running total cost, total elapsed wall time. Useful for batch "
+            "runs."
+        ),
+    )
     return parser
 
 
 async def main() -> None:
+    import time
+
     args = _build_arg_parser().parse_args()
 
     await init_database()
@@ -535,6 +546,8 @@ async def main() -> None:
     skipped = 0
     failed = 0
     halted = False
+    running_cost = 0.0
+    batch_started_at = time.monotonic()
 
     for i, (brief_id, fr_json, en_json) in enumerate(rows, 1):
         print(f"\n[{i}/{len(rows)}] {brief_id}")
@@ -554,6 +567,7 @@ async def main() -> None:
             failed += 1
             continue
 
+        brief_started_at = time.monotonic()
         try:
             en_payload, warnings, usage = await translate_brief(brief_id, fr_payload)
         except FrenchInOutputError as exc:
@@ -566,9 +580,19 @@ async def main() -> None:
             print(f"  FAIL {brief_id}: {exc}")
             failed += 1
             continue
+        brief_elapsed = time.monotonic() - brief_started_at
+        running_cost += usage["cost_usd"]
 
         print(f"  translated {brief_id} — title: {en_payload.get('title', '?')[:80]}")
         print(f"  cost ${usage['cost_usd']:.4f} ({usage['input_tokens']:,} in / {usage['output_tokens']:,} out)")
+
+        if args.verbose:
+            elapsed_total = time.monotonic() - batch_started_at
+            print(
+                f"  [verbose] this brief: {brief_elapsed:.1f}s | "
+                f"running cost: ${running_cost:.4f} | "
+                f"total elapsed: {int(elapsed_total // 60)}m {int(elapsed_total % 60)}s"
+            )
 
         if warnings:
             print(f"  WARNINGS ({len(warnings)}):")
