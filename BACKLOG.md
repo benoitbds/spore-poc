@@ -477,8 +477,12 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - [x] **Hreflangs per-page** sur les 3 pages traduites via `localeAlternates()` (canonical + fr/en/x-default)
 - [x] Style guide respecté : registre formel, no contractions, "researcher" pas "scientist", "domain" réservé au sens produit, "discover/discovery" évité (sauf section "Not a scientific discovery tool" où c'est la négation explicite du label), "revolutionary"/"AI-driven" évités, manifesto + tagline officiels
 - [x] Ratio mots EN/FR : 0.94× (dans la cible 0.85-1.0×)
-- [x] Translation notes file `S7-3-bis-translation-notes.md` (gitignored) avec ~25 choix non-triviaux annotés pour review humaine
-- [x] **Commits** : `4aadcea` (deps remark-gfm) + `6c64ece` (bundles fr/en) + `23825fe` (pages wired)
+- [x] Translation notes file archivé dans `docs/i18n-translation-decisions/s7-3-bis.md` (post-review) — ~25 choix non-triviaux conservés pour cohérence des sprints i18n suivants
+- [x] **Commits livraison** : `4aadcea` (deps remark-gfm) + `6c64ece` (bundles fr/en) + `23825fe` (pages wired)
+- [x] **Commits S7.3-bis-fix** (review humaine appliquée 3 mai 2026) : `61d12bf` (fixes 8/8) + `d4fec8a` (notes archivées)
+  - Bug fix : 11 étapes pipeline `/how-it-works` traduites EN (PipelineAnimation refactor + namespace `howItWorks.steps`), corpus 200→500 domaines mis à jour FR+EN
+  - 6 corrections éditoriales : "Industrial reviewer" → "Industry reviewer", italiques `<em>productive/plausible</em>` réintégrés (split aboutPage.section5_p1 en 5 clés), guillemets « » → " " sur 4 occurrences en.json, reformulation Why SPORE exists (born from / yielding), "linguistic representational space" réintégré, "empirical contradiction" remplace "contradiction by reality"
+  - 9/9 tests fonctionnels verts post-fix
 
 **Reporté en S7.3-residual** (volume non-tractable en une session de qualité Nature-grade) :
 - [ ] **Home `[locale]/page.tsx`** FeaturedHero + "Comment ça marche en bref" — manifeste/tagline déjà alignés en S7.3-foundation, reste ~30 strings éditoriaux
