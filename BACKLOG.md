@@ -547,11 +547,17 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - Re-traduction de SPR-2026-816D validée : 0 spelling US (validateur strict), UK present (haemoglobin, behaviour, analysed, favourable), `you` présent dans `imagine_that` uniquement, voix passive intacte sur `hypothesis_in_brief` / `why_it_matters` / `reviewers_say` / `concretely.*`
   - Coût Phase 1-bis (re-translation) : **$0.0008** (cache miss sur le nouveau prompt → premier call non caché)
   - Commits : `86d2319` (UK spelling), `f18c33f` (voice differential), `5f86917` (README)
-- [ ] **Phase 2 📋 — Backfill batch sur les 37 autres briefs**
-  - Commande : `.venv/bin/python scripts/translate_brief_vulgarization.py --missing-only`
-  - Durée estimée : ~10 min wall time
-  - Coût estimé : ~$0.02 total
-  - Reviewer humain sur 3-5 briefs random après batch pour calibrer (titre + 1-2 champs prose)
+- [x] **Phase 2 ✅ — Backfill batch sur les 39 autres briefs (3 mai 2026)**
+  - Ajout du flag `--verbose` au script (durée par brief + coût cumulé + temps total écoulé) pour la visibilité batch
+  - Run via `.venv/bin/python scripts/translate_brief_vulgarization.py --missing-only --verbose`
+  - **39 briefs traduits, 0 skipped, 0 failed** (le décompte initial du sprint disait 37 ; 2 briefs supplémentaires accumulés depuis)
+  - **Coût total : $0.0158** (vs estimation $0.02) — 351 calls LLM, 226 K input / 22 K output ; le prompt cache DeepSeek a divisé le coût d'environ 4× après le premier brief
+  - **Durée wall-clock : 9 min** (vs estimation 10 min)
+  - **Validation UK** : 0 spelling US sur les 40 briefs (regex strict avec word boundaries)
+  - **Validation voix** : 0 brief sans marqueur deuxième-personne dans `imagine_that` (en élargissant le détecteur à `imagine|you|your|yours|yourself` pour couvrir les analogies en troisième-personne dans l'impératif « Imaginez X »), 0 fuite `you/your` dans les champs passifs (`hypothesis_in_brief` / `why_it_matters` / `reviewers_say`) sur les 40 briefs
+  - **3 warnings** length-ratio sur des titres (3B42 / 9463 / CDCD ; ratios 0.62-0.69) — compressions éditoriales valides (questions rhétoriques FR → titres Nature-grade EN) ; pas un signal de qualité, simplement le seuil 0.70 est légèrement trop strict pour les titres
+  - Sample human review en chat (5 briefs aléatoires : 28B2 / B151 / 6FEB / 0929 / 35F1) — qualité OK
+  - Commits Phase 2 : `508d15d` (--verbose flag)
 - [ ] **Phase 3 📋 — Frontend wiring (spore-web)**
   - `BriefDetailClient.tsx` : lire `vulgarization_data_en` quand `locale='en'`, fallback sur `vulgarization_data` (FR) avec banner si EN manque
   - `BriefsClient.tsx` : adapter `briefHaystack()` pour indexer la version EN sur `/en/briefs` (sinon le search ne trouve rien sur les pages EN)
