@@ -345,6 +345,21 @@ async def init_database() -> None:
         except Exception:
             pass  # Column already exists
 
+        # Migration (S7.4 Phase 1): English vulgarisation column. Holds the
+        # JSON translated from vulgarization_data with the same nested
+        # shape (title, hypothesis_in_brief, why_it_matters, imagine_that,
+        # concretely.{intro,phase1,phase2,phase3}, reviewers_say). Written
+        # by scripts/translate_brief_vulgarization.py; consumed by spore-
+        # web's BriefDetailClient when locale=en (Phase 3 wiring).
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN vulgarization_data_en JSON"
+            )
+            await conn.commit()
+            logger.info("db_migration_vulgarization_data_en_added")
+        except Exception:
+            logger.debug("db_migration_vulgarization_data_en_already_present")
+
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
     """Save a hypothesis to the database."""
