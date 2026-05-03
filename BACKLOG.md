@@ -558,13 +558,23 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - **3 warnings** length-ratio sur des titres (3B42 / 9463 / CDCD ; ratios 0.62-0.69) — compressions éditoriales valides (questions rhétoriques FR → titres Nature-grade EN) ; pas un signal de qualité, simplement le seuil 0.70 est légèrement trop strict pour les titres
   - Sample human review en chat (5 briefs aléatoires : 28B2 / B151 / 6FEB / 0929 / 35F1) — qualité OK
   - Commits Phase 2 : `508d15d` (--verbose flag)
-- [ ] **Phase 3 📋 — Frontend wiring (spore-web)**
-  - `BriefDetailClient.tsx` : lire `vulgarization_data_en` quand `locale='en'`, fallback sur `vulgarization_data` (FR) avec banner si EN manque
-  - `BriefsClient.tsx` : adapter `briefHaystack()` pour indexer la version EN sur `/en/briefs` (sinon le search ne trouve rien sur les pages EN)
-  - `EditorialBriefCard.tsx` : utiliser le titre EN sur `/en/`
-  - `[locale]/page.tsx` FeaturedHero : retirer le stopgap « FR title kept on /en/ »
-  - Update `briefMetaTitle` / `briefMetaDescription` / `briefOgDescription` dans `src/lib/seo.ts` pour sortir EN sur `/en/` (actuellement FR-only)
-  - Hreflangs `/[locale]/briefs/[id]` déjà ajoutés en S7.3-residual-fix ✅
+- [x] **Phase 3 ✅ — Frontend wiring spore-web (3 mai 2026)**
+  - Branche `feat/s7-4-phase3-frontend-wiring` sur spore-web (tag `pre-s7-4-phase3`)
+  - **Backend types + DB adapter** : `VulgarizationEn` interface (clés neutres : `title` au lieu de `title_fr`), `BriefRow.vulgarization_data_en` ajouté à `JSON_COLUMNS`, `briefRowToBrief` parse, `briefToTeaser` forward au teaser
+  - **SEO helpers locale-aware** : `briefMetaTitle` / `briefMetaDescription` / `briefOgDescription` acceptent `locale` et préfèrent `vulgarization_en` quand `locale='en'`, fallback en cascade sur FR puis `sharpened.formal_statement`
+  - **BriefDetailClient bilingue** :
+    - Default tab = `recherche` sur `/en/`, `comprendre` sur `/fr/`
+    - Default lang = `en` sur `/en/`, `fr` sur `/fr/`
+    - Header title résolu via la langue active du payload
+    - ComprendreTab a 3 branches : EN (depuis `vulgarization_en`, 5 sections), FR (existant), fallback summary-based pour briefs legacy
+    - `effectiveLang` : flip automatique sur le payload disponible si la langue choisie manque ; toggle conserve le choix utilisateur ; chip « FR fallback » / « EN fallback » signale la substitution
+  - **EditorialBriefCard** : `vulg_en.title` / `imagine_that` sur `/en/`, fallback vers FR puis sharpened pour briefs legacy
+  - **BriefsClient haystack** : indexe FR + EN ensemble — recherche `métalloprotéines` sur `/en/briefs` ET `metalloproteins` sur `/fr/briefs` matchent le bon brief
+  - **Sitemap** : déjà bilingue avant ce sprint (S7.2 + S7.3-residual-fix) ; vérifié 38 briefs × 2 locales = 76 URLs avec `xhtml:link rel="alternate"` complets
+  - **6 tests fonctionnels validés** via curl sur build local : H1 EN, OG title EN, JSON payload contient `vulgarization_en`, Recherche default sur `/en/`, FR sections sur `/fr/` (regression), cards EN sur `/en/briefs`, sitemap counts OK, 3 briefs random (28B2 / B151 / 6FEB) rendent EN propre
+  - **Commits spore-web** : `2de425d` (backend), `1d9a796` (BriefDetailClient), `e98c880` (cards + haystack), `8204c79` (translation docs)
+  - **Décisions notables** archivées dans `docs/i18n-translation-decisions/s7-4.md` (spore-web)
+  - **Bug content noté pour follow-up** : `SPR-2026-FBF3` a son titre EN wrappé dans `**...**` markdown (déviation translator). Fix : strip `^\*\*` / `\*\*$` dans `translate_brief_vulgarization.py` puis re-traduire avec `--force`. Hors scope Phase 3 (le rendering est correct, c'est la donnée qui déraille)
 - [ ] **Phase 4 📋 — Pipeline post-fire pour briefs futurs + PDF anthologie EN**
   - Modifier `agents/vulgarization.py` (ou ajouter `agents/translation.py` post-fire) pour produire EN nativement à la création
   - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR
