@@ -530,10 +530,34 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 - [ ] Traduction LLM + review humaine sur les textes longs
 - [ ] **hreflangs SEO** sur toutes les pages traduites (lien réciproque FR↔EN dans le `<head>`)
 
-### 📋 S7.4 — Briefs bilingues
-- [ ] Page `/[locale]/briefs/[id]` avec contenu bilingue
-- [ ] Stratégie pour la vulgarisation FR existante des 38 briefs : (a) garder FR-only avec note, (b) traduire à la demande via LLM, (c) regénérer en EN à partir du `sharpened_data.title` qui est déjà en EN
-- [ ] Adapter `vulgarization_data` schema en DB pour stocker `title_en`, `imagine_that_en`, etc. (ou un sous-objet `en` parallèle au FR)
+### 🔄 S7.4 — Briefs bilingues (en cours)
+- [x] **Phase 1 ✅ — Infrastructure traduction vulgarization (3 mai 2026)**
+  - Migration DB : colonne `vulgarization_data_en JSON` ajoutée à `briefs` (try/except idempotent dans `init_database()`)
+  - Script `scripts/translate_brief_vulgarization.py` : modes `--brief-id` / `--missing-only` / `--all` / `--dry-run` / `--force`, 9 calls LLM par brief (un par champ feuille), DeepSeek primary + Anthropic fallback via `get_llm_client('translation')`
+  - Validation qualité par champ : forbidden discover/discovery, contractions, ratio longueur 0.70-1.20, fragments FR résiduels (STOP la batch)
+  - Stratégie retenue : option (b) traduire la vulgarisation FR existante via LLM (pas regénérer ni garder FR-only) — préserve la signature éditoriale et l'analogie déjà calibrée
+  - Schema retenu : sous-objet EN parallèle au FR avec clés neutres (`title` au lieu de `title_en`, parce que la colonne porte déjà le suffixe `_en`)
+  - Prototype validé sur SPR-2026-816D : titre EN « Metalloproteins come clean: a quantum method to decode their electronic secrets » + 9 champs traduits proprement, 0 warning, 0 fragment FR détecté
+  - Coût observé prototype : **$0.0004** (vs estimation $0.005) — DeepSeek prompt cache divise par 10× après le premier call. Coût batch projeté pour 38 briefs : **~$0.02**
+  - Commits : `06d3a17` (DB), `9755e4c` (script), `0618964` (README)
+- [ ] **Phase 2 📋 — Backfill batch sur les 37 autres briefs**
+  - Commande : `.venv/bin/python scripts/translate_brief_vulgarization.py --missing-only`
+  - Durée estimée : ~10 min wall time
+  - Coût estimé : ~$0.02 total
+  - Reviewer humain sur 3-5 briefs random après batch pour calibrer (titre + 1-2 champs prose)
+- [ ] **Phase 3 📋 — Frontend wiring (spore-web)**
+  - `BriefDetailClient.tsx` : lire `vulgarization_data_en` quand `locale='en'`, fallback sur `vulgarization_data` (FR) avec banner si EN manque
+  - `BriefsClient.tsx` : adapter `briefHaystack()` pour indexer la version EN sur `/en/briefs` (sinon le search ne trouve rien sur les pages EN)
+  - `EditorialBriefCard.tsx` : utiliser le titre EN sur `/en/`
+  - `[locale]/page.tsx` FeaturedHero : retirer le stopgap « FR title kept on /en/ »
+  - Update `briefMetaTitle` / `briefMetaDescription` / `briefOgDescription` dans `src/lib/seo.ts` pour sortir EN sur `/en/` (actuellement FR-only)
+  - Hreflangs `/[locale]/briefs/[id]` déjà ajoutés en S7.3-residual-fix ✅
+- [ ] **Phase 4 📋 — Pipeline post-fire pour briefs futurs + PDF anthologie EN**
+  - Modifier `agents/vulgarization.py` (ou ajouter `agents/translation.py` post-fire) pour produire EN nativement à la création
+  - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR
+  - Variante EN du PDF anthologie (template `templates/pdf/anthology_en.tex` ou équivalent)
+- **Coût estimé total** : ~$0.02 pour les 38 briefs existants ; ~$0.0005 par nouveau brief
+- **Bloque** : Phase 3 dépend de Phase 2 (backfill) ; Phase 4 indépendant et peut être priorisé séparément
 
 ---
 
