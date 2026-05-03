@@ -496,8 +496,31 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
 
 **Note de cadrage** : Le sprint S7.3-bis original demandait ~5-8h de travail pour livrer TOUT en un seul livrable. La portion delivrée (~1.5h) couvre les 3 pages éditoriales les plus visibles et les plus importantes pour la crédibilité (about, methodology, how-it-works). Le reste représente ~3-4h additionnelles pour les pages secondaires + UI strings page-level + hreflangs systématiques. Privilégier cette qualité sur les 3 pages clés et trancher au coup par coup pour les autres est plus défendable qu'un sprint étendu où la qualité dérive.
 
-### 📋 S7.3-residual — Compléter la couverture EN (~3-4h, à planifier)
-- Voir scope reporté ci-dessus
+### 🔄 S7.3-residual Lot 1 — Pages outreach-critical traduites (3 mai 2026)
+**Livré** :
+- [x] **Home `[locale]/page.tsx`** intégralement traduit (chrome + featured-hero badges + "Other briefs" section + "How SPORE works" pitch + 3 step cards + metrics labels + empty state). Featured-hero brief title et hook restent FR par design (stopgap jusqu'à S7.4 EN brief content). Page passée en async server component avec `setRequestLocale` + `getTranslations` + hreflangs via `localeAlternates('/')`.
+- [x] **`/briefs` listing page** : metadata async avec stat-aware locale-specific description, hreflangs `/briefs`. H1 + intro + CTA traduits. `BriefsClient` (client component) wired pour sort UI (Panel/Novelty/Date), search placeholder + aria, count copy avec ICU plural rules (`{n, plural, =0 {no brief} one {# brief published} other {# briefs published}}`), reset link, no-results empty state.
+- [x] **`/briefs/[id]` chrome** : `BriefDetailClient` tabs `💡 Comprendre` / `🔬 Recherche` → `💡 Understand` / `🔬 Research`, badge épistémique "AI-generated hypothesis · Pre-publication · To be tested experimentally". Section labels deeper (Hypothesis/Predictions/Protocol/References inside RechercheSections) **deferred** S7.4 puisque le contenu brief lui-même reste FR.
+- [x] **`/anthology` AnthologyClient form** : label, email placeholder, button states (Idle/Loading), error messages (invalid email + fallback), GDPR privacy note.
+- [x] **6 nouveaux namespaces messages bundles** (FR + EN) : `home.*` étendu, `anthologyPage.*`, `customPage.*`, `briefsPage.*`, `briefDetailPage.*` (~80 keys total).
+- [x] **Hreflangs per-page via `localeAlternates()`** sur `/`, `/briefs` (en plus des 3 pages S7.3-bis : `/about`, `/methodology`, `/how-it-works`).
+- [x] **Translation notes** archivées dans `docs/i18n-translation-decisions/s7-3-residual-lot1.md` (~229 lignes documentant 15+ choix non-triviaux : featured-hero stopgap, "Inside this anthology", plural=0 stiffness, "industry reviewer" continuité, GDPR-compliant, etc.)
+- [x] **Commits** : `da8280f` (namespaces) + `7b1ab79` (home) + `a78b0a4` (briefs list + page) + `eba54d8` (brief detail tabs) + `9757d19` (anthology form) + `750ac92` (translation notes)
+
+**Reporté en S7.3-residual Lot 2** :
+- [ ] **`/anthology` page.tsx chrome** : kicker, intro, "Inside this anthology" header, "What you will find in the PDF" + 3 bullets — translations existent en JSON mais page non wirée
+- [ ] **`/custom` CustomClient.tsx** (457 lignes, ~30 strings) — form labels, status messages
+- [ ] **`/pricing` PricingClient.tsx** (~30 strings) — 3 plan cards + FAQ
+- [ ] **`/privacy`, `/legal`** — textes légaux courts (legal review requise pour version EN)
+- [ ] **`/stats` UI strings** — cards labels
+- [ ] **Brief detail deeper section labels** dans `RechercheSections` / `ComprendreTab` — overlap S7.4
+- [ ] **Hreflangs sur `/anthology`, `/custom`, `/pricing`, `/privacy`, `/legal`, `/stats`, `/briefs/[id]`** — Le `/briefs/[id]` necessite refactor du metadata pour gérer 76 routes SSG localisées avec `briefMetaTitle` helper FR-only — risqué, à scoper ensemble avec S7.4
+
+### 📋 S7.3-residual Lot 2 — Pages secondaires (~2-3h, à venir)
+- Wiring des translations existantes (anthology page, custom, pricing) + traduction des pages restantes (privacy, legal, stats)
+- Hreflangs systématiques sur les 6 pages restantes
+- Effort estimé : 2-3h pour pages secondaires + 1h pour `/briefs/[id]` metadata (risque modéré sur le refactor SSG)
+- Priorité : moyenne (pages moins traffiquées que home / briefs / brief detail)
 - Priorité : haute pour `/anthology`, `/custom`, `/pricing` (visiteurs EN les rencontrent vite), moyenne pour `/privacy` `/legal` (legal review requis)
 - Bloque : rien ; le site fonctionne en EN sur les pages structurellement clés
 
