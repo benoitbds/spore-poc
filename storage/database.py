@@ -360,6 +360,25 @@ async def init_database() -> None:
         except Exception:
             logger.debug("db_migration_vulgarization_data_en_already_present")
 
+        # Migration (S7.4 Phase 3-fix-v2.C): English panel-review column.
+        # Holds the JSON translated from panel_data with the same shape:
+        # reviews[].{strengths, weaknesses, critical_questions,
+        # recommendation} (per reviewer prose) +
+        # meta_review.{key_consensus, key_disagreements, critical_path,
+        # final_recommendation, revision_guidance}. Backend tokens
+        # (reviewer_persona, verdict, scores) are copied verbatim — only
+        # the prose is translated. Written by
+        # scripts/translate_brief_panel.py; consumed by spore-web's
+        # ReviewerPanel + RechercheSections when locale=en.
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN panel_data_en JSON"
+            )
+            await conn.commit()
+            logger.info("db_migration_panel_data_en_added")
+        except Exception:
+            logger.debug("db_migration_panel_data_en_already_present")
+
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
     """Save a hypothesis to the database."""
