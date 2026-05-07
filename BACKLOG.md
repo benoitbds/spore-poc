@@ -590,9 +590,15 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - **Tests curl** validés : C1C5 affiche « Oxidative stress in 'flashing' mode to preserve muscle » sur `/en` + « Imagine that you are watering a plant… » comme hook ; neighbours sur `/en/briefs/SPR-2026-816D` affichent « Bacteria that light up to reveal » + « What if our genes had » (EN), `/fr` regression intacte
   - Branche `feat/s7-4-phase3-fix-v2-a-stopgaps` sur spore-web (non poussée)
   - Commits : `7359441` (FeaturedHero), `4f0e81d` (neighborTitle)
-- [ ] **Phase 3-fix-v2.B 📋 — Research tab UI strings (~2h)**
-  - ~50 strings hardcoded FR sur le tab Research : TOC items (12), BriefToc h3 (1), ReferencesPreview (4), PanelPreview (1), Paywall + UnlockCta (10), RechercheSections h2 (9), Dt labels (2), Documents (2), ProtocolTimeline (7), ReviewerPanel chrome (2 + 2 call sites verdictLabel legacy)
-  - `lib/labels.ts` (~40 entries) : approche additive (mapping i18n parallèle, garder labels.ts intact pour les surfaces hors `[locale]`)
+- [x] **Phase 3-fix-v2.B ✅ — Research tab UI strings (7 mai 2026)**
+  - **11 namespaces ajoutés** dans `messages/{fr,en}.json` (~60 keys) : `paywall.*` (13), `protocol.*` (10), `reviewerPanel.*` (3), `personas.*` (5, keyed on DB tokens), `severity.*` (4), `support_type.*` (5), `briefDetailPage.toc_*` (13), `briefDetailPage.research_*` (10 incluant translationNotice), `briefDetailPage.references_*` (3 avec ICU plurals), `briefDetailPage.predictions_*` (4), `briefDetailPage.documents_*` (2), `briefDetailPage.panelHeader_title`
+  - **3 composants refactorés** : `BriefDetailClient` (TOC, RecherchePreview, RechercheSections, PaywallPanel, UnlockCta, Dt, Documents — drops legacy imports `label` et `verdictLabel`), `ReviewerPanel` (Consensus / Points de consensus / Chemin critique + persona via `tPersonas` + verdict via `tVerdicts`), `ProtocolTimeline` (Calendrier, Budget, Phase, Coût, Durée, GO, NO-GO, Démarrage rapide + phase labels via `phaseLabel_{1,2,3}`)
+  - **Stratégie additive sur `lib/labels.ts`** : non modifié, toujours consommé par AccountClient/CustomClient/StatusClient hors `[locale]`. Smoke test `/fr/custom` h1 toujours en FR ✓
+  - **Tests fonctionnels OK** : TOC EN visible (« Hypothesis and mechanism », « State of the art », etc.), personas EN (« Devil's advocate », « Industry reviewer »), paywall CTA EN (« Receive my access »), ICU plural EN « 2 of 2 references », régression `/fr/briefs` Comprendre tab + panel cards FR intacts, sub-sprint A (FeaturedHero + neighbours) toujours green
+  - **Choix de traduction** archivés dans `docs/i18n-translation-decisions/s7-4-phase3-fix-v2-b.md` (spore-web)
+  - **Reste FR sur le tab Research /en** : la prose de `panel_data` (strengths/weaknesses/recommendation/critical_path/key_consensus/key_disagreements/final_recommendation) — c'est du DB content, scope sub-sprint C
+  - Branche `feat/s7-4-phase3-fix-v2-b-research-chrome` sur spore-web (non poussée)
+  - Commits : `8ac591d` (messages), `2280f7a` (BriefDetailClient), `ba56b62` (ReviewerPanel), `d17f5eb` (ProtocolTimeline), `fa3c47a` (docs)
 - [ ] **Phase 3-fix-v2.C 📋 — Panel data DB translation (~2h + ~$0.30)**
   - Migration DB spore-poc : colonne `panel_data_en JSON`
   - Script `scripts/translate_brief_panel.py` (miroir Phase 1+2 sur `vulgarization_data_en`)
