@@ -583,6 +583,21 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - **(spore-web) Neighbour titles localisés** : sur `/en/briefs/[id]`, les previews previous/next affichaient encore les titres FR (« Des bactéries qui s'allument… ») malgré le contenu EN au-dessus. `neighborTitle(b, locale)` accepte le locale et choisit `vulg_en.title` sur `/en/`, fallback en cascade sur FR puis `sharpened.title`. Branche `feat/s7-4-phase3-fix-neighbours` sur spore-web (non poussée).
   - Coût Phase 3-fix : **$0.0004**
   - Commits : `a4205dd` (spore-poc strip helper), `3e57ddb` (spore-web neighbour titles)
+- [x] **Phase 3-fix-v2.A ✅ — Stopgap logic fixes (7 mai 2026)**
+  - Diagnostic Claude for Chrome a révélé que 2 stopgaps S7.3-residual-fix avaient survécu à Phase 3 — `FeaturedHero` sur `/en/` montrait toujours le titre FR de C1C5 (« Un stress oxydant en mode 'clignotant'… ») alors que la traduction EN existe en DB depuis Phase 2 ; `neighborTitle` sur `/en/briefs/[id]` montrait FR pour les previews previous/next
+  - **FeaturedHero** (`[locale]/page.tsx`) refactor locale-aware : `vulg_en.title` / `imagine_that` quand `locale='en'`, fallback vers `vulg_fr` puis `sharpened`. Commentaire « stopgap » supprimé.
+  - **neighborTitle** (`briefs/[id]/page.tsx`) : signature `(b, locale)`, picks `vulg_en.title` sur `/en/`, fallback FR puis `sharpened.title`. `BriefNeighbors` reçoit `locale` en prop.
+  - **Tests curl** validés : C1C5 affiche « Oxidative stress in 'flashing' mode to preserve muscle » sur `/en` + « Imagine that you are watering a plant… » comme hook ; neighbours sur `/en/briefs/SPR-2026-816D` affichent « Bacteria that light up to reveal » + « What if our genes had » (EN), `/fr` regression intacte
+  - Branche `feat/s7-4-phase3-fix-v2-a-stopgaps` sur spore-web (non poussée)
+  - Commits : `7359441` (FeaturedHero), `4f0e81d` (neighborTitle)
+- [ ] **Phase 3-fix-v2.B 📋 — Research tab UI strings (~2h)**
+  - ~50 strings hardcoded FR sur le tab Research : TOC items (12), BriefToc h3 (1), ReferencesPreview (4), PanelPreview (1), Paywall + UnlockCta (10), RechercheSections h2 (9), Dt labels (2), Documents (2), ProtocolTimeline (7), ReviewerPanel chrome (2 + 2 call sites verdictLabel legacy)
+  - `lib/labels.ts` (~40 entries) : approche additive (mapping i18n parallèle, garder labels.ts intact pour les surfaces hors `[locale]`)
+- [ ] **Phase 3-fix-v2.C 📋 — Panel data DB translation (~2h + ~$0.30)**
+  - Migration DB spore-poc : colonne `panel_data_en JSON`
+  - Script `scripts/translate_brief_panel.py` (miroir Phase 1+2 sur `vulgarization_data_en`)
+  - Batch 38 briefs : ~530 calls LLM, ~$0.30, ~30 min wall
+  - Frontend wiring spore-web : ReviewerPanel + RechercheSections lisent `panel_en` quand `locale='en'`
 - [ ] **Phase 4 📋 — Pipeline post-fire pour briefs futurs + PDF anthologie EN**
   - Modifier `agents/vulgarization.py` (ou ajouter `agents/translation.py` post-fire) pour produire EN nativement à la création
   - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR
