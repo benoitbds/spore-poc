@@ -599,17 +599,38 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - **Reste FR sur le tab Research /en** : la prose de `panel_data` (strengths/weaknesses/recommendation/critical_path/key_consensus/key_disagreements/final_recommendation) — c'est du DB content, scope sub-sprint C
   - Branche `feat/s7-4-phase3-fix-v2-b-research-chrome` sur spore-web (non poussée)
   - Commits : `8ac591d` (messages), `2280f7a` (BriefDetailClient), `ba56b62` (ReviewerPanel), `d17f5eb` (ProtocolTimeline), `fa3c47a` (docs)
-- [ ] **Phase 3-fix-v2.C 📋 — Panel data DB translation (~2h + ~$0.30)**
-  - Migration DB spore-poc : colonne `panel_data_en JSON`
-  - Script `scripts/translate_brief_panel.py` (miroir Phase 1+2 sur `vulgarization_data_en`)
-  - Batch 38 briefs : ~530 calls LLM, ~$0.30, ~30 min wall
-  - Frontend wiring spore-web : ReviewerPanel + RechercheSections lisent `panel_en` quand `locale='en'`
+- [x] **Phase 3-fix-v2.C ✅ — Panel data DB translation (7 mai 2026)**
+  - **Migration DB** : colonne `panel_data_en JSON` ajoutée sur `briefs` (try/except idempotent)
+  - **Script `scripts/translate_brief_panel.py`** : miroir de Phase 1+2, voix passive Nature-grade uniformément, listes traduites en blocs `---`-séparés, idempotent
+  - **2 bugs production découverts mid-batch** :
+    - Hallucinations sur strings placeholder FR ("Manual review needed" → 1144 chars de prose fabriquée). Fix : `_PLACEHOLDER_MAP` reconnaît 5 patterns connus, retourne EN équivalent sans LLM call. Re-translation `--force` sur 6FEB + 7C1B.
+    - 4 briefs avec leak `discover/discovery` malgré l'instruction FORBIDDEN du prompt. Fix : `_replace_forbidden_discover` post-process inside `_llm_call` qui mappe chaque forme à un substitut neutre (discovery → finding, discoveries → findings, discovered/discovers/discover → identified/identifies/identify, discovering → identifying), respecte les négations explicites. Re-translation des 4 briefs.
+  - **Batch final** : 26 briefs traduits (les autres = stubs sans panel_data), 0 missing après retries, 0 STOP, 0 violations résiduelles
+  - **Coût total** : **~$0.06** (initial $0.0482 + retries ~$0.013) — 5× sous l'estimation $0.30
+  - **Durée** : 28 min wall pour le batch initial + ~3 min retries
+  - **Frontend wiring spore-web** : `Brief.panel_en?: Panel`, `BriefTeaser.{panel_en, panel_preview_en}`, `briefRowToBrief` + `briefToTeaser` + `JSON_COLUMNS` étendus. `RechercheSections` reçoit `panelEn?` prop, `RecherchePreview` reçoit `lang`, `PanelPreviewCard` switch via `panel_preview_en` quand locale=en. `briefHaystack` indexe le panel prose EN (asymétrique : FR pas indexé car derrière paywall, hors public Brief shape).
+  - **Tests fonctionnels OK** : reviewer key_points EN visibles sur /en pre-unlock ("The protocol adopts...", "The hypothesis directly addresses..."), 0 fragment FR, /fr regression intacte, sub-sprint A + B regressions OK
+  - **Décisions** archivées dans `docs/i18n-translation-decisions/s7-4-phase3-fix-v2-c.md` (spore-web)
+  - **Reste FR (non bloquant)** : `verdict_override_reason`, `funding_strategist.funding_programs[].rationale`, `llm_*` meta-fields — pas rendus en UI actuelle
+  - Branche `feat/s7-4-phase3-fix-v2-c-panel-data` sur spore-web (non poussée)
+  - Commits spore-poc : `ab0893b` (DB), `38b4daf` (script). Commits spore-web : `2ace073` (types/db), `2f6b8de` (BriefDetailClient panel wiring), `48c05c9` (haystack), `f515a3f` (docs)
 - [ ] **Phase 4 📋 — Pipeline post-fire pour briefs futurs + PDF anthologie EN**
   - Modifier `agents/vulgarization.py` (ou ajouter `agents/translation.py` post-fire) pour produire EN nativement à la création
-  - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR
+  - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR + panel review FR (réutiliser les helpers `translate_brief()` + `translate_panel()` existants)
   - Variante EN du PDF anthologie (template `templates/pdf/anthology_en.tex` ou équivalent)
-- **Coût estimé total** : ~$0.02 pour les 38 briefs existants ; ~$0.0005 par nouveau brief
-- **Bloque** : Phase 3 dépend de Phase 2 (backfill) ; Phase 4 indépendant et peut être priorisé séparément
+
+### S7.4 BILAN COMPLET (7 mai 2026)
+- **Phase 1** ✅ (Infrastructure DB + script vulgarization + prototype 816D, 3 mai)
+- **Phase 1-bis** ✅ (Recalibration prompt UK + mix voix, 3 mai)
+- **Phase 2** ✅ (Batch 39 briefs vulgarization, $0.0158, 9 min, 3 mai)
+- **Phase 3** ✅ (Frontend wiring brief detail + cards + sitemap, 3 mai)
+- **Phase 3-fix** ✅ (Bold leak FBF3 + neighbour titles localisés, 3 mai)
+- **Phase 3-fix-v2.A** ✅ (Stopgap logic fixes FeaturedHero + neighbours, 7 mai)
+- **Phase 3-fix-v2.B** ✅ (Research tab UI strings — 11 namespaces, 60+ keys, 7 mai)
+- **Phase 3-fix-v2.C** ✅ (Panel data DB translation — 26 briefs, $0.06, 7 mai)
+- **TOTAL coût LLM** : **~$0.08** sur l'ensemble du chantier i18n (Phase 1-bis prototype + Phase 2 batch + Phase 3-fix bold strip + Phase 3-fix-v2.C panel batch + retries)
+- **TOTAL temps** : 1 journée (3 mai) + 1 journée (7 mai)
+- **Résultat** : Site EN intégralement cohérent et défendable pour outreach scientifique senior. Toggle FR/EN intra-brief fonctionnel sur les 26 briefs avec panel_data. Pas de FR-leak chrome. Pas de FR-leak content (modulo les exceptions documentées : verdict_override_reason, funding_programs.rationale, llm_* meta-fields — non rendus en UI).
 
 ---
 
