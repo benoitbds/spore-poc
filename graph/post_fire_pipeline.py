@@ -34,6 +34,10 @@ from agents.multi_reviewer_panel import (
     PanelOutput,
 )
 from agents.research_brief_generator import save_brief
+from agents.translation import (
+    translate_panel_data,
+    translate_vulgarization_data,
+)
 from agents.vulgarization import vulgarization_agent
 from knowledge import is_ss_circuit_open
 from storage import save_brief as save_brief_db, init_database
@@ -77,6 +81,17 @@ class PostFireState(TypedDict, total=False):
 
     # Vulgarization
     vulgarization_fr: dict[str, Any]
+
+    # S7.4 Phase 4 — EN translations populated by translation_hook
+    # after vulgarization. May be absent if the LLM call fails — the
+    # brief stays FR-only with frontend fallback.
+    vulgarization_en: dict[str, Any]
+    panel_en: dict[str, Any]
+
+    # Stub flag — set when the brief is a stub (Synthesis refused to
+    # bridge the pair). Stubs skip the translation_hook because they
+    # carry no panel/vulgarization payload to translate.
+    is_stub: bool
 
     # Errors
     errors: list[dict[str, Any]]
@@ -320,6 +335,210 @@ async def node_vulgarization(state: PostFireState) -> PostFireState:
     return {**state, "vulgarization_fr": vulg_dict}
 
 
+# ── S7.4 Phase 4: post-fire translation hook ─────────────────
+
+
+async def _persist_translation_updates(
+    brief_id: str,
+    updates: dict[str, Any],
+) -> None:
+    """UPDATE briefs SET (panel_data_en | vulgarization_data_en) for brief_id.
+
+    Mirrors the inline-UPDATE pattern used by ``node_vulgarization``.
+    Only touches the columns present in ``updates``; absent payloads
+    leave their column NULL (the brief stays FR-only on that layer).
+    """
+    import json as _json
+    from storage.database import get_connection
+
+    if not updates:
+        return
+
+    set_clauses: list[str] = []
+    params: list[Any] = []
+    for col, payload in updates.items():
+        set_clauses.append(f"{col} = ?")
+        params.append(_json.dumps(payload, ensure_ascii=False))
+    params.append(brief_id)
+
+    sql = f"UPDATE briefs SET {', '.join(set_clauses)} WHERE id = ?"
+    async with get_connection() as conn:
+        await conn.execute(sql, params)
+        await conn.commit()
+
+
+async def _patch_json_sidecar(
+    json_path: str | None,
+    updates: dict[str, Any],
+) -> None:
+    """Patch ``outputs/briefs/{id}.json`` with EN translation blocks.
+
+    Adds ``vulgarization_en`` and/or ``panel_en`` keys (matching the
+    EN columns) to the disk sidecar so offline tools (anthology PDF,
+    outreach extraction) see the EN payload alongside the FR.
+    Best-effort: a missing file or write error is logged and the DB
+    update remains the source of truth.
+    """
+    import json as _json
+    from pathlib import Path as _Path
+
+    if not json_path or not updates:
+        return
+
+    # Map DB column name to JSON sidecar key. The sidecar already
+    # uses ``vulgarization_fr`` for the FR vulgarization block; we
+    # use ``vulgarization_en`` for the EN counterpart and ``panel_en``
+    # for the EN panel.
+    sidecar_keys = {
+        "vulgarization_data_en": "vulgarization_en",
+        "panel_data_en": "panel_en",
+    }
+
+    try:
+        p = _Path(json_path)
+        if not p.exists():
+            logger.debug("translation_sidecar_missing", path=str(p))
+            return
+        data = _json.loads(p.read_text(encoding="utf-8"))
+        for col, payload in updates.items():
+            key = sidecar_keys.get(col)
+            if key is not None:
+                data[key] = payload
+        p.write_text(
+            _json.dumps(data, indent=2, ensure_ascii=False),
+            encoding="utf-8",
+        )
+        logger.info("translation_sidecar_patched", path=str(p))
+    except Exception as exc:
+        logger.error(
+            "translation_sidecar_patch_failed",
+            path=str(json_path),
+            error=str(exc),
+        )
+
+
+async def node_translation_hook(state: PostFireState) -> dict[str, Any]:
+    """Translate vulgarization_data and panel_data FR -> EN.
+
+    Called after ``node_vulgarization`` once both FR payloads are
+    persisted to the briefs row. Persists the EN counterparts into
+    ``vulgarization_data_en`` and ``panel_data_en``, plus patches the
+    on-disk JSON sidecar.
+
+    Properties:
+      * **Idempotent** — calling twice on the same brief produces the
+        same result (translation is deterministic up to LLM
+        non-determinism, and the UPDATE replaces existing values).
+      * **Resilient** — if either translator fails, the brief stays
+        FR-only on that layer with a logged error; the pipeline
+        progresses to END normally so the FR brief is still
+        published.
+      * **Conditional** — skipped for stub briefs (no panel/vulg
+        payload to translate) and for briefs whose brief_id was not
+        set upstream (defensive — should not happen on the publish
+        path).
+    """
+    brief_id = state.get("brief_id")
+    if not brief_id:
+        logger.warning("translation_hook_no_brief_id")
+        return {}
+
+    if state.get("is_stub"):
+        logger.info("translation_hook_skip_stub", brief_id=brief_id)
+        return {}
+
+    panel_payload = state.get("panel")
+    vulg_payload = state.get("vulgarization_fr")
+
+    if not panel_payload and not vulg_payload:
+        logger.warning(
+            "translation_hook_nothing_to_translate", brief_id=brief_id
+        )
+        return {}
+
+    updates: dict[str, Any] = {}
+    state_updates: dict[str, Any] = {}
+
+    if vulg_payload:
+        try:
+            vulg_en, warnings, usage = await translate_vulgarization_data(
+                brief_id, dict(vulg_payload)
+            )
+            updates["vulgarization_data_en"] = vulg_en
+            state_updates["vulgarization_en"] = vulg_en
+            logger.info(
+                "translation_hook_vulgarization_done",
+                brief_id=brief_id,
+                warnings_count=len(warnings),
+                cost_usd=usage.get("cost_usd"),
+            )
+            if warnings:
+                logger.warning(
+                    "translation_hook_vulgarization_warnings",
+                    brief_id=brief_id,
+                    warnings=warnings[:5],
+                )
+        except Exception as exc:  # noqa: BLE001
+            logger.error(
+                "translation_hook_vulgarization_failed",
+                brief_id=brief_id,
+                error=str(exc),
+            )
+
+    if panel_payload:
+        try:
+            panel_en, warnings, usage = await translate_panel_data(
+                brief_id, dict(panel_payload)
+            )
+            updates["panel_data_en"] = panel_en
+            state_updates["panel_en"] = panel_en
+            logger.info(
+                "translation_hook_panel_done",
+                brief_id=brief_id,
+                warnings_count=len(warnings),
+                cost_usd=usage.get("cost_usd"),
+            )
+            if warnings:
+                logger.warning(
+                    "translation_hook_panel_warnings",
+                    brief_id=brief_id,
+                    warnings=warnings[:5],
+                )
+        except Exception as exc:  # noqa: BLE001
+            logger.error(
+                "translation_hook_panel_failed",
+                brief_id=brief_id,
+                error=str(exc),
+            )
+
+    if not updates:
+        logger.warning(
+            "translation_hook_no_updates_persisted",
+            brief_id=brief_id,
+            note="both translators failed — brief stays FR-only",
+        )
+        return {**state, **state_updates}
+
+    try:
+        await init_database()
+        await _persist_translation_updates(brief_id, updates)
+        logger.info(
+            "translation_hook_db_updated",
+            brief_id=brief_id,
+            columns=list(updates.keys()),
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error(
+            "translation_hook_db_update_failed",
+            brief_id=brief_id,
+            error=str(exc),
+        )
+
+    await _patch_json_sidecar(state.get("brief_json_path"), updates)
+
+    return {**state, **state_updates}
+
+
 async def node_research_brief(state: PostFireState) -> PostFireState:
     """Generate and save the research brief."""
     brief_id = f"SPR-{date.today().strftime('%Y')}-{uuid4().hex[:4].upper()}"
@@ -458,6 +677,7 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("multi_reviewer_panel", node_multi_reviewer_panel)
     workflow.add_node("research_brief_generator", node_research_brief)
     workflow.add_node("vulgarization", node_vulgarization)
+    workflow.add_node("translation_hook", node_translation_hook)
 
     # Entry point — routes to full grounding or degraded skip
     workflow.set_entry_point("grounding_router")
@@ -500,7 +720,8 @@ def create_post_fire_pipeline() -> StateGraph:
     )
 
     workflow.add_edge("research_brief_generator", "vulgarization")
-    workflow.add_edge("vulgarization", END)
+    workflow.add_edge("vulgarization", "translation_hook")
+    workflow.add_edge("translation_hook", END)
 
     return workflow
 
