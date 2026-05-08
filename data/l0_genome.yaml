@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-05-08T04:00:39.662085'
-mutated_by: L1-MUT-20260508-981a86
+last_mutated: '2026-05-08T04:00:39.683765'
+mutated_by: L1-MUT-20260508-19b0e5
 mutation_locks:
 - locked_until: '2026-04-22'
   path: agents.synthesis.parameters.temperature
@@ -100,7 +100,7 @@ randomness:
     historical_template: 0.25
     semantic_distance: 0.45
     structural_analogy: 0.2
-  temperature: 0.85
+  temperature: 0.9
 schedule:
   active_hours: 00:00-23:59
   frequency: manual
