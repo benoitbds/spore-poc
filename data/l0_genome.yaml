@@ -10,7 +10,7 @@ agents:
   curator:
     model: deepseek-chat
     parameters:
-      top_percent: 0.12
+      top_percent: 0.15
     prompt_version: curator_v1
     provider: deepseek
   experimental_protocol:
@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-05-07T04:00:39.551043'
-mutated_by: L1-MUT-20260507-d7908c
+last_mutated: '2026-05-08T04:00:39.662085'
+mutated_by: L1-MUT-20260508-981a86
 mutation_locks:
 - locked_until: '2026-04-22'
   path: agents.synthesis.parameters.temperature
