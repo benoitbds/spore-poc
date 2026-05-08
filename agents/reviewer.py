@@ -56,6 +56,7 @@ def _get_reviewer_prompt() -> str:
 def evaluate_override(
     composite: float,
     hallucination_risk: float,
+    current_verdict: Optional[str] = None,
 ) -> Optional[tuple[str, str]]:
     """Mechanical post-LLM override. Returns ``(verdict, reason)`` or ``None``.
 
@@ -66,7 +67,7 @@ def evaluate_override(
     attribution after the 200 → 500 domain corpus expansion shifted the
     distribution upwards.
 
-    The new rule keeps three orthogonal kill paths, each requiring a
+    The rule keeps three orthogonal kill paths, each requiring a
     genuinely strong signal rather than a single barely-above-threshold
     metric:
 
@@ -75,6 +76,24 @@ def evaluate_override(
        halluc > 0.55): mediocre on its own + bibliographic risk.
     3. **Extreme hallucination_risk** (> 0.65): even a strong composite
        doesn't rescue a hypothesis the critic flagged as fabrication-prone.
+
+    S8.1 (8 May 2026) adds a symmetric promotion path. Diagnosis: zero
+    a_tester verdicts produced since 24 April. The LLM reviewer scores
+    "intéressant" with composite/halluc inside the historical a_tester
+    range but does not promote the verdict on its own. Calibrated on
+    16 a_tester hypotheses produced 7-23 April 2026: composite spans
+    0.411-0.518 (avg 0.471), halluc spans 0.10-0.50 (avg 0.35).
+
+    4. **Promotion intéressant -> a_tester** (S8.1): when the LLM
+       verdict is ``intéressant`` and ``composite >= 0.45`` and
+       ``hallucination_risk <= 0.40``, promote to ``a_tester``. The
+       0.45 floor captures 14/16 historical a_tester cases; the 0.40
+       halluc ceiling is conservative (avg historical 0.35) and
+       excludes any signal of bibliographic fabrication.
+
+    The ``current_verdict`` parameter is optional with default ``None``
+    — call sites that do not need the promotion path can keep the
+    two-arg signature, in which case only the kill paths apply.
 
     Returns ``None`` when the LLM verdict should stand.
     """
@@ -93,6 +112,20 @@ def evaluate_override(
         return (
             "poubelle",
             f"Post-processing: hallucination {hallucination_risk:.2f} > 0.65",
+        )
+    # S8.1 — symmetric promotion path. Only fires when the LLM stopped
+    # at "intéressant" with scores inside the historical a_tester
+    # range. Idempotent on already-a_tester or already-poubelle verdicts.
+    if (
+        current_verdict == "intéressant"
+        and composite >= 0.45
+        and hallucination_risk <= 0.40
+    ):
+        return (
+            "a_tester",
+            f"Post-processing: composite {composite:.2f} >= 0.45 + "
+            f"hallucination {hallucination_risk:.2f} <= 0.40 "
+            "(intéressant -> a_tester)",
         )
     return None
 
@@ -267,7 +300,11 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
     hallucination_risk = hypothesis.scores.hallucination_risk if hypothesis.scores else 0.0
 
     original_verdict = feedback.verdict
-    override = evaluate_override(composite, hallucination_risk)
+    override = evaluate_override(
+        composite,
+        hallucination_risk,
+        current_verdict=original_verdict,
+    )
     if override is not None:
         new_verdict, new_reason = override
         feedback.verdict = new_verdict
