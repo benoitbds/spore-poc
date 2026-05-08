@@ -667,6 +667,29 @@ Chantier i18n SPORE complet. Tous les sprints clos :
 - **Suivi** : observer la distribution sur 5-7 prochains runs cron, ajuster si dérive.
 - **Commits** : `6bc95f4` (fix + extraction helper) + `13046c1` (tests)
 
+### ✅ S8.1 — Override Python promotion intéressant→a_tester (8 mai 2026)
+- **Diagnostic S8.1 + S8.1-bis** : 0 a_tester depuis le 24 avril (15 jours) malgré le fix S6.4. Le fix S6.4 a corrigé l'over-kill (intéressants ne tombent plus en poubelle) mais le LLM ne promeut plus jamais intéressant→a_tester de lui-même. Cause probable : drift LLM sur la calibration des verdicts + fallout expansion corpus 200→500 domaines qui pousse la coherence/impact vers le bas.
+- **Fix** : règle quatrième symétrique aux 3 règles de kill S6.4, ajoutée dans `evaluate_override()`. Promeut `intéressant → a_tester` si `composite ≥ 0.45 ET hallucination_risk ≤ 0.40`. Le paramètre `current_verdict` est ajouté à la signature avec défaut `None` pour rétrocompatibilité.
+- **Calibration empirique** sur 16 a_tester historiques (7-23 avril 2026) :
+  - composite range observé : **0.411–0.518** (avg 0.471) → seuil 0.45 capture 14/16
+  - hallucination range observé : **0.10–0.50** (avg 0.35) → seuil 0.40 conservateur, exclut tout signal de fabrication
+- **Backtest** :
+  - 13-24 avril (référence) : 5 intéressants seraient promus (37423fce, 7fa75d9d, 671129f4, bee1b9b6, a0b4f2ba) — tous avec composite ≥ 0.45 ET halluc ≤ 0.40
+  - Post-3 mai : **1 intéressant promu** (e1c3b07c, composite 0.526 / halluc 0.25), débloque la sécheresse de production
+  - Post-3 mai à halluc 0.42-0.53 : **NON promus** (991ed571, 9089d50d) — le plafond 0.40 conservateur tient
+- **Propriétés** :
+  - Idempotent : ne re-promote pas un verdict déjà a_tester (gate `current_verdict == "intéressant"`)
+  - Honore le kill qualitatif LLM : poubelle reste poubelle même avec scores correct (le LLM peut connaître quelque chose de qualitatif que les scores ratent)
+  - Rétrocompatible : appels à 2 args fonctionnent toujours (kill paths only)
+- **Tests** : `tests/test_reviewer_override.py` étendu à **18 tests** (9 S6.4 regression + 9 S8.1 nouveaux). Cas couverts : promotion typique, edge cases (égalité aux seuils 0.45/0.40), refus en composite/halluc trop hauts/bas, idempotence (a_tester déjà), pas-promote-poubelle, omission `current_verdict`, backtest 6 cas réels (5 ref + 1 post-3-mai), backtest 2 refus borderline halluc.
+- **Symétrie pattern** : S6.4 = 3 règles mécaniques de kill négatives ; S8.1 = 1 règle mécanique de promotion positive. Architecture lisible, facile à étendre si dérive.
+- **Suivi (S8.1-monitor)** :
+  - Observer les a_tester promus par override entre 8 mai et 8+7 mai (semaine post-deploy)
+  - Si **0 a_tester** → drift LLM continue, abaisser seuil composite à 0.42 ou retravailler le prompt reviewer
+  - Si **> 3 a_tester/semaine** soutenu sur 2 semaines → seuils trop laxes, remonter composite à 0.50
+  - Si **1-2 a_tester/semaine** → calibration OK, garder
+- **Commits** : `244250d` (override + call site) + `864a4f2` (tests)
+
 ### ✅ Hotfix S6.1-bis — Outreach workflow fixes (1er mai 2026)
 - **Tracking CSV** : création automatique au premier run garantie via `ensure_tracking_csv()` appelée en début de `main()`. Bug d'origine : le script ne créait le fichier que via la branche append, donc une exécution sans nouveau draft (stub sans evidence_base, ou run idempotent où tout est skip) laissait le fichier inexistant.
 - **Template par défaut basculé en EN** : l'écrasante majorité des chercheurs cités sont non-francophones (Max Planck, USA, Italie, Japon, Chine). EN désormais default ; FR via `--lang fr` pour les équipes francophones identifiées (CNRS, INRAE, INSERM, UCLouvain, UQ, etc.).
