@@ -70,6 +70,12 @@ class BriefFullResponse(BaseModel):
     protocol_data: Optional[dict[str, Any]] = None
     panel_data: Optional[dict[str, Any]] = None
     vulgarization_data: Optional[dict[str, Any]] = None
+    # S7.4 Phase 4 — EN translations populated by the post-fire
+    # translation_hook node (or by the backfill scripts for existing
+    # briefs). NULL on rows whose translation has not yet landed; the
+    # frontend already falls back to the FR payload (Phase 3 wiring).
+    panel_data_en: Optional[dict[str, Any]] = None
+    vulgarization_data_en: Optional[dict[str, Any]] = None
 
     delivery_reason: str = Field(
         ...,
@@ -197,6 +203,8 @@ def _build_response(
         sharpened_data=_parse_json_field(brief.get("sharpened_data")),
         protocol_data=_parse_json_field(brief.get("protocol_data")),
         panel_data=_parse_json_field(brief.get("panel_data")),
+        panel_data_en=_parse_json_field(brief.get("panel_data_en")),
         vulgarization_data=_parse_json_field(brief.get("vulgarization_data")),
+        vulgarization_data_en=_parse_json_field(brief.get("vulgarization_data_en")),
         delivery_reason=delivery_reason,
     )
