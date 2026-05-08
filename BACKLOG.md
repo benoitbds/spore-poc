@@ -614,23 +614,43 @@ Chaque sprint majeur crée un tag `pre-Sx` sur master avant merge, pour rollback
   - **Reste FR (non bloquant)** : `verdict_override_reason`, `funding_strategist.funding_programs[].rationale`, `llm_*` meta-fields — pas rendus en UI actuelle
   - Branche `feat/s7-4-phase3-fix-v2-c-panel-data` sur spore-web (non poussée)
   - Commits spore-poc : `ab0893b` (DB), `38b4daf` (script). Commits spore-web : `2ace073` (types/db), `2f6b8de` (BriefDetailClient panel wiring), `48c05c9` (haystack), `f515a3f` (docs)
-- [ ] **Phase 4 📋 — Pipeline post-fire pour briefs futurs + PDF anthologie EN**
-  - Modifier `agents/vulgarization.py` (ou ajouter `agents/translation.py` post-fire) pour produire EN nativement à la création
-  - Adapter le pipeline LangGraph post-fire pour appeler la traduction après vulgarization FR + panel review FR (réutiliser les helpers `translate_brief()` + `translate_panel()` existants)
-  - Variante EN du PDF anthologie (template `templates/pdf/anthology_en.tex` ou équivalent)
+- [x] **Phase 4 ✅ — Pipeline post-fire EN-native pour briefs futurs (8 mai 2026)**
+  - **Stratégie γ** validée par diagnostic : un seul nouveau node `translation_hook` après `node_vulgarization`, scope minimal, 0 modif des nodes existants
+  - **`scripts/__init__.py`** ajouté pour rendre `scripts/` un package Python — permet `from scripts.translate_brief_vulgarization import translate_brief` sans sys.path tricks ; les CLI continuent à tourner standalone
+  - **`agents/translation.py`** : helpers thin re-export — `translate_vulgarization_data(brief_id, fr_payload)` + `translate_panel_data(brief_id, fr_payload)` + `FrenchInOutputError` re-exporté pour les sites de catch
+  - **`graph/post_fire_pipeline.py.node_translation_hook`** : idempotent (UPDATE replace, pas merge), résilient (try/except autour des 2 translators, brief reste FR-only si fail), conditionnel (skip si `state["is_stub"]` ou `brief_id` absent)
+  - **2 helpers ajoutés** dans le même fichier : `_persist_translation_updates(brief_id, updates)` (UPDATE inline, mirror de `node_vulgarization`) et `_patch_json_sidecar(json_path, updates)` (best-effort patch de `outputs/briefs/{id}.json` avec blocs `vulgarization_en` / `panel_en`)
+  - **Subgraph wired** : `vulgarization` → `translation_hook` → END (ancienne edge `vulgarization → END` remplacée). Confirmed via `create_post_fire_pipeline().nodes` qui inclut `translation_hook`.
+  - **API `/api/briefs/[id]/full` étendu** : `BriefFullResponse` Pydantic gagne `panel_data_en` + `vulgarization_data_en` (Optional[dict]). Endpoint forward les colonnes parsées.
+  - **Tests** : `tests/test_agents_translation.py` avec 3 cases (2 integration markés `pytest -m integration` qui appellent vraiment le LLM ~$0.005/test ; 1 unit test import-only). Test smoke OK (helpers + node + graph + API model passent tous l'import + instanciation).
+  - **Coût ajouté par futur brief** : ~$0.0025 (\$0.0005 vulg + \$0.0020 panel)
+  - **Wall-clock ajouté** : ~30s par brief
+  - **Stub flow** : non affecté (skip via `is_stub`). Custom collisions héritent automatiquement (passent par `run_post_fire_pipeline`).
+  - Branche `feat/s7-4-phase4-pipeline-en-native` sur spore-poc (non poussée)
+  - Commits : `d1b0930` (helpers), `d8320af` (node + wiring), `5c11702` (API endpoint), `780267c` (tests)
+- [ ] **Phase 5 OPT 📋 — PDF anthologie EN** (à scoper si demandé)
+  - Réutiliser `agents/translation.py` ou directement `vulgarization_data_en` / `panel_data_en` déjà en DB
+  - Variante EN du PDF anthologie (template `templates/pdf/anthology_en.tex` ou équivalent ; `scripts/generate_anthology.py` à étendre)
+  - Indépendant des autres phases ; coût trivial (lecture DB existante, pas de nouveau LLM)
 
-### S7.4 BILAN COMPLET (7 mai 2026)
-- **Phase 1** ✅ (Infrastructure DB + script vulgarization + prototype 816D, 3 mai)
-- **Phase 1-bis** ✅ (Recalibration prompt UK + mix voix, 3 mai)
-- **Phase 2** ✅ (Batch 39 briefs vulgarization, $0.0158, 9 min, 3 mai)
-- **Phase 3** ✅ (Frontend wiring brief detail + cards + sitemap, 3 mai)
-- **Phase 3-fix** ✅ (Bold leak FBF3 + neighbour titles localisés, 3 mai)
-- **Phase 3-fix-v2.A** ✅ (Stopgap logic fixes FeaturedHero + neighbours, 7 mai)
-- **Phase 3-fix-v2.B** ✅ (Research tab UI strings — 11 namespaces, 60+ keys, 7 mai)
-- **Phase 3-fix-v2.C** ✅ (Panel data DB translation — 26 briefs, $0.06, 7 mai)
-- **TOTAL coût LLM** : **~$0.08** sur l'ensemble du chantier i18n (Phase 1-bis prototype + Phase 2 batch + Phase 3-fix bold strip + Phase 3-fix-v2.C panel batch + retries)
-- **TOTAL temps** : 1 journée (3 mai) + 1 journée (7 mai)
-- **Résultat** : Site EN intégralement cohérent et défendable pour outreach scientifique senior. Toggle FR/EN intra-brief fonctionnel sur les 26 briefs avec panel_data. Pas de FR-leak chrome. Pas de FR-leak content (modulo les exceptions documentées : verdict_override_reason, funding_programs.rationale, llm_* meta-fields — non rendus en UI).
+### S7.4 — STATUT FINAL ✅ (8 mai 2026)
+Chantier i18n SPORE complet. Tous les sprints clos :
+
+| Phase | Statut | Date | Coût LLM | Périmètre |
+|---|---|---|---|---|
+| 1 | ✅ | 3 mai | $0.0004 | Infra DB + script vulgarization + prototype 816D |
+| 1-bis | ✅ | 3 mai | $0.0008 | Recalibration prompt UK + mix voix |
+| 2 | ✅ | 3 mai | $0.0158 | Batch 39 briefs vulgarization |
+| 3 | ✅ | 3 mai | — | Frontend wiring brief detail + cards + sitemap |
+| 3-fix | ✅ | 3 mai | $0.0004 | Bold leak FBF3 + neighbour titles localisés |
+| 3-fix-v2.A | ✅ | 7 mai | — | Stopgap logic fixes FeaturedHero + neighbours |
+| 3-fix-v2.B | ✅ | 7 mai | — | Research tab UI strings (60+ keys, 11 namespaces) |
+| 3-fix-v2.C | ✅ | 7 mai | $0.06 | Panel data DB translation (26 briefs) |
+| 4 | ✅ | 8 mai | — | Pipeline post-fire EN-native (futurs briefs) |
+| **TOTAL** | — | 3 jours | **~$0.08** | Site EN bilingue + briefs futurs natifs EN |
+
+- **Résultat** : Site EN intégralement cohérent et défendable pour outreach scientifique senior. Toggle FR/EN intra-brief fonctionnel sur les 26 briefs avec panel_data. Pas de FR-leak chrome. Pas de FR-leak content (modulo exceptions documentées : verdict_override_reason, funding_programs.rationale, llm_* meta-fields — non rendus en UI). **Briefs futurs sont nativement bilingues** sans backfill manuel grâce à Phase 4.
+- **Phase 5 OPT (PDF anthologie EN)** reste à scoper — indépendant, peut être priorisé séparément.
 
 ---
 
