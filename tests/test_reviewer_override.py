@@ -1,13 +1,22 @@
 """Unit tests for the ReviewerAgent post-LLM mechanical override.
 
-Covers the four primary cases of the recalibrated S6.4 rule:
+S6.4 (kill paths) — three rules that demote LLM verdicts to poubelle:
 
   1. Very low composite             → poubelle
   2. Low composite + high halluc    → poubelle
   3. Extreme hallucination_risk     → poubelle
   4. Acceptable signals             → no override (None)
 
-Plus a few boundary cases at the threshold values.
+S8.1 (promotion path) — symmetric rule that promotes intéressant to
+a_tester when L0 critics scored the hypothesis in the historical
+a_tester range with low hallucination flag. Calibrated on 16
+a_tester historical cases (7-23 April 2026).
+
+  5. composite >= 0.45 AND halluc <= 0.40 AND verdict == intéressant
+                                    → a_tester
+  6. Verdict not "intéressant"      → no promotion (idempotent)
+  7. Out-of-range scores            → no promotion
+  8. Historical backtest            → 6 known a_tester rescues
 
 Usage:
     cd /home/baq/Projects/spore-poc
@@ -102,6 +111,122 @@ class TestEvaluateOverride(unittest.TestCase):
         self.assertIsNone(
             evaluate_override(composite=0.375, hallucination_risk=0.525)
         )
+
+    # ── 5. S8.1 promotion rule ─────────────────────────────────────
+
+    def test_promote_when_interessant_and_scores_in_range(self) -> None:
+        result = evaluate_override(
+            composite=0.50,
+            hallucination_risk=0.30,
+            current_verdict="intéressant",
+        )
+        self.assertIsNotNone(result)
+        verdict, reason = result
+        self.assertEqual(verdict, "a_tester")
+        self.assertIn("intéressant", reason)
+        self.assertIn("a_tester", reason)
+        self.assertIn("0.50", reason)
+
+    def test_promote_at_thresholds_exact(self) -> None:
+        # Strict-or-equal: composite == 0.45 and halluc == 0.40 promote.
+        result = evaluate_override(
+            composite=0.45,
+            hallucination_risk=0.40,
+            current_verdict="intéressant",
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], "a_tester")
+
+    def test_no_promote_when_composite_below_threshold(self) -> None:
+        result = evaluate_override(
+            composite=0.44,
+            hallucination_risk=0.30,
+            current_verdict="intéressant",
+        )
+        self.assertIsNone(result)
+
+    def test_no_promote_when_hallucination_above_threshold(self) -> None:
+        # composite is high enough but halluc is just over 0.40.
+        result = evaluate_override(
+            composite=0.55,
+            hallucination_risk=0.41,
+            current_verdict="intéressant",
+        )
+        self.assertIsNone(result)
+
+    def test_no_promote_when_verdict_not_interessant(self) -> None:
+        # Promotion is gated on the LLM having said "intéressant".
+        # A poubelle hypothesis with passable scores does NOT get
+        # promoted — the LLM's qualitative kill stands.
+        result = evaluate_override(
+            composite=0.50,
+            hallucination_risk=0.30,
+            current_verdict="poubelle",
+        )
+        # No kill rule fires (composite >= 0.35, halluc < 0.55, halluc < 0.65)
+        # and the promotion gate excludes non-intéressant verdicts.
+        self.assertIsNone(result)
+
+    def test_no_promote_when_already_a_tester(self) -> None:
+        # Idempotent: do not double-promote.
+        result = evaluate_override(
+            composite=0.50,
+            hallucination_risk=0.30,
+            current_verdict="a_tester",
+        )
+        self.assertIsNone(result)
+
+    def test_no_promote_when_current_verdict_omitted(self) -> None:
+        # Backwards-compat: callers that do not pass current_verdict get
+        # only the kill paths. None of the kill rules fire here, so the
+        # result is None.
+        self.assertIsNone(
+            evaluate_override(composite=0.50, hallucination_risk=0.30)
+        )
+
+    # ── 6. S8.1 historical backtest (data-driven) ──────────────────
+
+    def test_backtest_promotes_known_undervalued_interessants(self) -> None:
+        """Reference 13-24 April intéressants whose L0 scores match the
+        historical a_tester profile — these are the cases the rule is
+        designed to rescue.
+        """
+        cases = [
+            # (composite, halluc, label) — all real points from
+            # SPORE-2026-04-13 to SPORE-2026-04-23 + post-3 May
+            (0.531, 0.30, "ref-21-37423fce"),
+            (0.519, 0.20, "ref-23-7fa75d9d"),
+            (0.517, 0.10, "ref-16-671129f4"),
+            (0.505, 0.15, "ref-16-bee1b9b6"),
+            (0.492, 0.20, "ref-19-a0b4f2ba"),
+            (0.526, 0.25, "post-04-e1c3b07c"),
+        ]
+        for composite, halluc, label in cases:
+            with self.subTest(label=label):
+                result = evaluate_override(
+                    composite=composite,
+                    hallucination_risk=halluc,
+                    current_verdict="intéressant",
+                )
+                self.assertIsNotNone(result, f"{label} should promote")
+                self.assertEqual(result[0], "a_tester", f"{label} expected a_tester")
+
+    def test_backtest_does_not_promote_borderline_halluc(self) -> None:
+        """Real recent samples that should NOT promote because halluc
+        is over the 0.40 conservative ceiling.
+        """
+        cases = [
+            (0.463, 0.425, "post-08-991ed571"),
+            (0.412, 0.45, "post-03-9089d50d"),
+        ]
+        for composite, halluc, label in cases:
+            with self.subTest(label=label):
+                result = evaluate_override(
+                    composite=composite,
+                    hallucination_risk=halluc,
+                    current_verdict="intéressant",
+                )
+                self.assertIsNone(result, f"{label} must not promote (halluc too high)")
 
 
 if __name__ == "__main__":
