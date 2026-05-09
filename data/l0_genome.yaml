@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-04-22T07:01:03.791391'
-mutated_by: L1-MUT-20260422-8bced6
+last_mutated: '2026-05-09T08:30:00.000000'
+mutated_by: HUMAN-S8.2-revert-to-aa9aea0
 mutation_locks:
 - locked_until: '2026-04-22'
   path: agents.synthesis.parameters.temperature
@@ -90,6 +90,24 @@ mutation_locks:
 - locked_until: '2026-04-22'
   path: score_weights.hallucination_risk
   reason: 'HUMAN-OVERRIDE 78b172b: reverted from -0.2 after score collapse'
+- locked_until: '2026-06-01'
+  path: randomness.temperature
+  reason: 'HUMAN-OVERRIDE S8.2: locked after L1 drift (0.7 -> 0.95 over 17 days)'
+- locked_until: '2026-06-01'
+  path: randomness.distance_min
+  reason: 'HUMAN-OVERRIDE S8.2: locked after L1 drift (0.30 -> 0.15 over 17 days)'
+- locked_until: '2026-06-01'
+  path: randomness.distance_max
+  reason: 'HUMAN-OVERRIDE S8.2: locked after L1 drift (0.85 -> 0.90)'
+- locked_until: '2026-06-01'
+  path: agents.curator.parameters.top_percent
+  reason: 'HUMAN-OVERRIDE S8.2: locked after L1 oscillations (0.10 / 0.12 / 0.08 / 0.15)'
+- locked_until: '2026-06-01'
+  path: score_weights
+  reason: 'HUMAN-OVERRIDE S8.2: locked all score weights pending L1 fitness redesign'
+- locked_until: '2026-06-01'
+  path: randomness.strategy_weights
+  reason: 'HUMAN-OVERRIDE S8.2: locked all strategy weights pending L1 fitness redesign'
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
