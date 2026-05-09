@@ -690,6 +690,37 @@ Chantier i18n SPORE complet. Tous les sprints clos :
   - Si **1-2 a_tester/semaine** → calibration OK, garder
 - **Commits** : `244250d` (override + call site) + `864a4f2` (tests)
 
+### ✅ S8.2 — Stabilisation : revert génome + désactivation L1 (9 mai 2026)
+- **Contexte** : 17 jours de drift L1 ont dégradé le génome L0 (temperature 0.7→0.95, distance_min 0.30→0.15, distance_max 0.85→0.90, top_percent oscillé 0.10/0.12/0.08/0.15, score_weights.novelty 0.25→0.40, strategy_weights.semantic_distance 0.35→0.45). Conséquence : 0 a_tester depuis 24 avril, 0 brief publié.
+- **Fix** :
+  - Génome reverté via `git checkout aa9aea0 -- data/l0_genome.yaml` (commit du 22 avril 07:01:03, état productif post-MUT-20260422-8bced6 et pré-23 avril drifts). 38 briefs publiés sur les 11 jours précédant cet état.
+  - **6 mutation_locks** ajoutés jusqu'au 1er juin sur les paramètres dérivés (temperature, distance_min, distance_max, top_percent, score_weights complet, strategy_weights complet). Empêchent re-drift quand L1 sera réactivé.
+  - **Cron L1 désactivé** dans crontab user `baq` (commenté avec préfixe `# DISABLED S8.2`). Backup à `/tmp/crontab_backup_pre_s8_2.txt`. Procédure roll-back documentée dans `docs/s8-2-cron-changes.md`.
+  - **Cron L0 (3h) intact** — production quotidienne continue sur le génome reverté.
+- **Smoke test L0 manuel** (`autopilot -n 30 --domain all_science`, coût $0.0138, 6 min wall) :
+  - Avant revert (cron L0 03h sur génome drifted) : 1 hypothèse ee46e588 / composite **0.372** / coh 0.50 / halluc 0.55 / impact 0.45
+  - Après revert (smoke 08h37) : 1 hypothèse ee46e588 / composite **0.403** / coh **0.575** / halluc **0.45** / impact **0.50**
+  - Composite : +8% / coherence : +15% / hallucination : -18% / impact : +11% / novelty : -5% (marginal)
+- **Validation hard rule** : composite 0.403 NOT < 0.40 → la règle STOP n'est pas déclenchée. Mais le gain reste **modéré** (+8%) plutôt que **dramatique** (objectif 0.45+ pour atteindre seuil S8.1 promotion). N=1 hypothèse curée seulement, signal statistique faible.
+- **Interprétation** : le drift est partiellement dans le génome (clear improvement sur coherence + halluc + impact), mais une partie résiduelle reste ailleurs (LLM critic prompts, calibration DeepSeek, ou expansion corpus 200→500). Le S8.1 promotion override (composite ≥ 0.45 + halluc ≤ 0.40) ne fire toujours PAS sur 0.403.
+- **Phase d'observation** : laisser tourner cron L0 quotidien (3h) pendant 7 jours sur génome reverté. Monitorer `briefs_published`, `a_tester` count, scores moyens. Décision GO/NO-GO sur S8.3 dans 7 jours.
+- **Backup** : `/tmp/l0_genome_pre_revert.yaml` (rollback : `cp /tmp/l0_genome_pre_revert.yaml data/l0_genome.yaml`)
+- **Commits** : `2a1fc43` (revert), `2a7e8c6` (mutation_locks), `08eb540` (cron doc)
+- **Branche** : `feat/s8-2-genome-revert-and-l1-pause` (non poussée, à merger après validation visuelle)
+
+### 📋 S8.3 — Redesign fitness function L1 (à venir, ~4-6h, 3-5 jours après S8.2)
+- Audit des métriques actuelles du L1 Observer (bridge_rate vs brief_publication_rate)
+- Conception fitness function alignée sur production de briefs (pas sur bridge rate)
+- Renforcement garde-fous (cooldowns 7j sur paramètres fragiles, max 1 mutation/cycle si dégradation détectée, signal négatif si fire_rate stagne)
+- Tests + remise en production progressive (cron L1 réactivé après validation 7j)
+- Pré-requis : observation S8.2 stabilisée (1-2 briefs/jour publié sur cron L0)
+
+### 📋 S8.2-monitor — Observabilité 7 jours après S8.2 (16 mai 2026)
+- Compter briefs publiés via cron L0 entre 9-16 mai
+- Si **0 brief** → drift résiduel hors-génome confirmé. Investigation : prompts critic, modèle DeepSeek, corpus expansion. Possiblement abaisser le seuil S8.1 (composite ≥ 0.42 au lieu de 0.45).
+- Si **1-3 briefs** → revert effectif, S8.3 peut démarrer normalement
+- Si **> 5 briefs** → revert + S8.1 ont sur-corrigé, monitorer qualité avant tout
+
 ### ✅ Hotfix S6.1-bis — Outreach workflow fixes (1er mai 2026)
 - **Tracking CSV** : création automatique au premier run garantie via `ensure_tracking_csv()` appelée en début de `main()`. Bug d'origine : le script ne créait le fichier que via la branche append, donc une exécution sans nouveau draft (stub sans evidence_base, ou run idempotent où tout est skip) laissait le fichier inexistant.
 - **Template par défaut basculé en EN** : l'écrasante majorité des chercheurs cités sont non-francophones (Max Planck, USA, Italie, Japon, Chine). EN désormais default ; FR via `--lang fr` pour les équipes francophones identifiées (CNRS, INRAE, INSERM, UCLouvain, UQ, etc.).
