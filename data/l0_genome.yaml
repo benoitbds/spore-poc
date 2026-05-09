@@ -10,7 +10,7 @@ agents:
   curator:
     model: deepseek-chat
     parameters:
-      top_percent: 0.15
+      top_percent: 0.1
     prompt_version: curator_v1
     provider: deepseek
   experimental_protocol:
@@ -44,7 +44,7 @@ agents:
   literature_grounding:
     model: deepseek-chat
     parameters:
-      max_tokens: 6000
+      max_tokens: 4000
     prompt_version: literature_grounding_v7
     provider: deepseek
   multi_reviewer_panel:
@@ -81,8 +81,8 @@ agents:
     prompt_version: vulgarization_fr_v1
     provider: deepseek
 genome_version: l0_v1
-last_mutated: '2026-05-08T04:00:39.683765'
-mutated_by: L1-MUT-20260508-19b0e5
+last_mutated: '2026-04-22T07:01:03.791391'
+mutated_by: L1-MUT-20260422-8bced6
 mutation_locks:
 - locked_until: '2026-04-22'
   path: agents.synthesis.parameters.temperature
@@ -93,22 +93,22 @@ mutation_locks:
 randomness:
   chaos_floor: 0.15
   cross_discipline_ratio: 0.7
-  distance_max: 0.9
-  distance_min: 0.2
+  distance_max: 0.85
+  distance_min: 0.3
   strategy_weights:
-    anomaly_guided: 0.35
+    anomaly_guided: 0.2
     historical_template: 0.25
-    semantic_distance: 0.45
+    semantic_distance: 0.35
     structural_analogy: 0.2
-  temperature: 0.9
+  temperature: 0.7
 schedule:
   active_hours: 00:00-23:59
   frequency: manual
 score_weights:
-  coherence: 0.4
+  coherence: 0.35
   hallucination_risk: -0.15
   impact_potential: 0.2
-  novelty: 0.35
+  novelty: 0.25
   testability: 0.45
 sources:
 - semantic_scholar
