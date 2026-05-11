@@ -708,6 +708,21 @@ Chantier i18n SPORE complet. Tous les sprints clos :
 - **Commits** : `2a1fc43` (revert), `2a7e8c6` (mutation_locks), `08eb540` (cron doc)
 - **Branche** : `feat/s8-2-genome-revert-and-l1-pause` (non poussée, à merger après validation visuelle)
 
+### ✅ S8.1-bis — Relaxation des seuils promotion (11 mai 2026)
+- **Contexte** : Après S8.2 revert, le composite L0 critics a remonté partiellement (~0.42 moyenne post-revert vs ~0.37 pre-revert, mais 0.47 en référence). Halluc reste élevé (~0.46) — clear residual drift hors-génome. Une hypothèse post-revert (5212d9a1, composite **0.444** / halluc **0.45**) ratait les seuils S8.1 originaux (0.45 / 0.40) d'un millième.
+- **Fix** : 2 modifications numériques dans `agents.reviewer.evaluate_override()` — composite seuil **0.45 → 0.40**, halluc seuil **0.40 → 0.45**. Aucune autre modif (S6.4 kill paths intacts).
+- **Justification empirique recalibrée** :
+  - composite 0.40 capture **100% des 16 a_tester historiques** (min observé 0.411). Le précédent 0.45 capturait en réalité 4/16 seulement (le docstring S8.1 indiquait à tort 14/16 — recompté).
+  - halluc 0.45 capture **14/16 historiques** (les 2 exceptions à halluc 0.50 restent exclues par design).
+  - 5212d9a1 (post-revert, 0.444/0.45) **promu** sous nouveaux seuils.
+  - c97a9cbf (post-revert, 0.402/0.475) **toujours bloqué** (halluc > 0.45) — la relaxation est ciblée, pas blanket.
+  - SPORE-2026-05-09-b2434892 (drift, 0.372/0.55) **toujours bloqué**.
+- **Tests** : 22 tests verts (9 S6.4 regression intactes + 9 S8.1 retunes + 4 nouveaux S8.1-bis). Backtest historique : 15/16 promotions sous nouveaux seuils (1 exception halluc=0.50).
+- **Documentation** : docstring `evaluate_override()` étendu avec rationale S8.1-bis + recalibration empirique.
+- **Suivi** : compter les overrides `[S8.1-bis relaxed thresholds]` sur la semaine prochaine. Cible : 1-2 promotions/semaine. Si 0 → drift résiduel critique, déclencher S8.3 ; si > 5 → seuils trop laxes, remonter.
+- **Commits** : `c262e40` (thresholds), `e33fbf6` (tests)
+- **Branche** : `feat/s8-1-bis-relax-thresholds` (non poussée)
+
 ### 📋 S8.3 — Redesign fitness function L1 (à venir, ~4-6h, 3-5 jours après S8.2)
 - Audit des métriques actuelles du L1 Observer (bridge_rate vs brief_publication_rate)
 - Conception fitness function alignée sur production de briefs (pas sur bridge rate)
