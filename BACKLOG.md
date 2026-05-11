@@ -723,6 +723,34 @@ Chantier i18n SPORE complet. Tous les sprints clos :
 - **Commits** : `c262e40` (thresholds), `e33fbf6` (tests)
 - **Branche** : `feat/s8-1-bis-relax-thresholds` (non poussée)
 
+### ✅ S8.4 — Recalibration empirique des seuils meta-reviewer (11 mai 2026)
+- **Contexte** : Backfill manuel du 11 mai sur `SPORE-2026-05-10-5212d9a1` a tourné end-to-end correctement (Phase 4 stable, ~6 min wall, $0.0318) MAIS le brief a été rejeté à iter 2 avec consensus 5.84 — alors qu'il sit dans le range historique des briefs publiés (panel review iter 2 : 4 accept / 1 weak_reject, profile clairement productif).
+- **Diagnostic empirique** sur les 22 briefs publiés historiques (avril 2026) :
+  - Consensus iter 1 : min **6.55**, max **7.00**, médiane **~6.8**
+  - Au seuil S6.4 PUBLISH_THRESHOLD=7.0 : seulement **1/10** des top historiques publié à iter 1 (les 9 autres bouclaient sur iter 2)
+  - 5212d9a1 (consensus iter 2 5.84) sit clairement dans le profile mais sous ITER2_PUBLISH_THRESHOLD=6.0 → rejeté à tort
+- **Fix** : 2 modifications numériques dans `agents/multi_reviewer_panel.py` :
+  - `PUBLISH_THRESHOLD` : **7.0 → 6.5** (capture 10/10 top historiques iter 1)
+  - `ITER2_PUBLISH_THRESHOLD` : **6.0 → 5.5** (capture 5212d9a1 et profile similaire)
+  - `REJECT_THRESHOLD` : **4.5** (inchangé — rien dans les data n'argue pour bouger)
+  - Marge de 1.0 point entre iter1 et iter2 préservée
+  - Marge de 1.0 point entre iter2 et reject préservée
+- **Aucune autre modif** : `compute_consensus_score` intacte, mécanisme `revise_and_resubmit` intact, contrarian prompt intact, structure iter 2+ collapse-to-binary intacte
+- **Tests** : nouveau fichier `tests/test_multi_reviewer_panel.py`, **18 tests verts** (3 constants + 6 iter1 + 6 iter2 + 3 backtest). Regression croisée avec `test_reviewer_override.py` : 40 tests verts au total.
+- **Backtest** : les 10 top briefs historiques (816D 7.00, 5301 6.97, FBF3 6.93, 9A56 6.91, 6FEB 6.84, 7626 6.82, B151 6.72, 7516 6.66, 1BA4 6.60, 4328 6.55) publient tous à iter 1 sous S8.4 ; 5212d9a1 publie à iter 2 ; cas pathologiques (3.5 iter1, 5.0 iter2, 5.4 iter2) restent rejetés.
+- **Documentation** : docstring `threshold_verdict()` étendu avec rationale S8.4 + références au backfill 5212d9a1.
+- **Suivi (S8.4-monitor)** :
+  - Au prochain cron L0, observer si une hypothèse passe les seuils recalibrés (composite ≥ 0.40 S8.1-bis → a_tester → post-fire → consensus ≥ 6.5 iter 1 ou ≥ 5.5 iter 2 → publish)
+  - Si > 50% des briefs publiés dans 14 jours ont consensus < 5.5 → seuils trop laxes, remonter à 6.0
+  - Si 0 brief publié dans 7 jours → drift résiduel à creuser dans `agents/critic.py` ou prompts reviewer panel
+- **Commits** : `5b413c2` (thresholds + docstring), `b11e075` (tests)
+- **Branche** : `feat/s8-4-meta-reviewer-thresholds` (non poussée)
+
+### 📋 S8.5 — Re-backfill 5212d9a1 post-S8.4 (à venir, ~5 min)
+- Relancer `cli.py post-fire --hypothesis-id SPORE-2026-05-10-5212d9a1`
+- Avec S8.4 actif, doit publier le brief en iter 2 (5.84 >= 5.5)
+- Valider rendu /fr et /en sur le site (brief detail + Recherche tab post-S7.4)
+
 ### 📋 S8.3 — Redesign fitness function L1 (à venir, ~4-6h, 3-5 jours après S8.2)
 - Audit des métriques actuelles du L1 Observer (bridge_rate vs brief_publication_rate)
 - Conception fitness function alignée sur production de briefs (pas sur bridge rate)
