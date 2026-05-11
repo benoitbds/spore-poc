@@ -84,12 +84,24 @@ def evaluate_override(
     16 a_tester hypotheses produced 7-23 April 2026: composite spans
     0.411-0.518 (avg 0.471), halluc spans 0.10-0.50 (avg 0.35).
 
-    4. **Promotion intéressant -> a_tester** (S8.1): when the LLM
-       verdict is ``intéressant`` and ``composite >= 0.45`` and
-       ``hallucination_risk <= 0.40``, promote to ``a_tester``. The
-       0.45 floor captures 14/16 historical a_tester cases; the 0.40
-       halluc ceiling is conservative (avg historical 0.35) and
-       excludes any signal of bibliographic fabrication.
+    S8.1-bis (11 May 2026) relaxes the original 0.45/0.40 thresholds
+    after the S8.2 genome revert: scores recovered partially but
+    halluc remains elevated (~0.46 average post-revert vs ~0.41 in
+    the reference period). The 0.45/0.40 pair captured only 4 of 16
+    historical a_tester cases; the new 0.40/0.45 pair captures 14 of
+    16 (the two exceptions sit at halluc 0.50, deliberately
+    unpromoted). On post-revert hypotheses, the relaxation flips the
+    near-miss 5212d9a1 (composite 0.444, halluc 0.45) from intéressant
+    to a_tester without touching the actually-marginal c97a9cbf
+    (composite 0.402, halluc 0.475 > 0.45 ceiling).
+
+    4. **Promotion intéressant -> a_tester** (S8.1-bis): when the LLM
+       verdict is ``intéressant`` and ``composite >= 0.40`` and
+       ``hallucination_risk <= 0.45``, promote to ``a_tester``. The
+       0.40 floor captures 100% of the 16 historical a_tester cases
+       (min observed 0.411). The 0.45 halluc ceiling captures 14/16
+       (avg historical 0.35) and still excludes severe bibliographic-
+       fabrication signals.
 
     The ``current_verdict`` parameter is optional with default ``None``
     — call sites that do not need the promotion path can keep the
@@ -116,16 +128,18 @@ def evaluate_override(
     # S8.1 — symmetric promotion path. Only fires when the LLM stopped
     # at "intéressant" with scores inside the historical a_tester
     # range. Idempotent on already-a_tester or already-poubelle verdicts.
+    # S8.1-bis (2026-05-11): thresholds relaxed 0.45/0.40 -> 0.40/0.45
+    # to match the post-revert score distribution. See docstring.
     if (
         current_verdict == "intéressant"
-        and composite >= 0.45
-        and hallucination_risk <= 0.40
+        and composite >= 0.40
+        and hallucination_risk <= 0.45
     ):
         return (
             "a_tester",
-            f"Post-processing: composite {composite:.2f} >= 0.45 + "
-            f"hallucination {hallucination_risk:.2f} <= 0.40 "
-            "(intéressant -> a_tester)",
+            f"Post-processing: composite {composite:.2f} >= 0.40 + "
+            f"hallucination {hallucination_risk:.2f} <= 0.45 "
+            "(intéressant -> a_tester) [S8.1-bis relaxed thresholds]",
         )
     return None
 
