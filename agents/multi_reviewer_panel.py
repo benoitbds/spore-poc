@@ -69,9 +69,9 @@ class PanelOutput(TypedDict):
 # synthesis (final_recommendation, critical_path, consensus/disagreements)
 # but removes its ability to loop indefinitely on revise_and_resubmit.
 
-PUBLISH_THRESHOLD = 7.0         # consensus >= 7.0 at iter 1 → publish_brief
-REJECT_THRESHOLD = 4.5          # consensus <  4.5          → reject
-ITER2_PUBLISH_THRESHOLD = 6.0   # at iter 2: >= 6.0 publish, else reject
+PUBLISH_THRESHOLD = 6.5         # consensus >= 6.5 at iter 1 → publish_brief (S8.4, was 7.0)
+REJECT_THRESHOLD = 4.5          # consensus <  4.5          → reject (unchanged)
+ITER2_PUBLISH_THRESHOLD = 5.5   # at iter 2: >= 5.5 publish, else reject (S8.4, was 6.0)
 
 
 def compute_consensus_score(reviews: list[ReviewerOutput]) -> float:
@@ -94,8 +94,19 @@ def compute_consensus_score(reviews: list[ReviewerOutput]) -> float:
 def threshold_verdict(consensus_score: float, iteration: int) -> str:
     """Python-side verdict from the consensus score and revision iteration.
 
-    iter 1: publish if >= 7.0, reject if < 4.5, else revise_and_resubmit.
-    iter 2+: binary — publish if >= 6.0, else reject. No revise at iter 2+.
+    iter 1: publish if >= 6.5, reject if < 4.5, else revise_and_resubmit.
+    iter 2+: binary — publish if >= 5.5, else reject. No revise at iter 2+.
+
+    S8.4 (11 May 2026) recalibrated PUBLISH_THRESHOLD 7.0 -> 6.5 and
+    ITER2_PUBLISH_THRESHOLD 6.0 -> 5.5 on the empirical distribution
+    of 22 published briefs (April 2026). The previous 7.0 threshold
+    captured only 1 of the 10 top historical briefs at iter 1
+    (consensus range 6.55-7.00, median ~6.8); the new 6.5 threshold
+    captures all 10. The previous 6.0 iter-2 threshold rejected
+    SPORE-2026-05-10-5212d9a1 at consensus 5.84, which sits inside
+    the historical published range; the new 5.5 threshold lets it
+    through while still excluding consensus < 5.5 as legitimately
+    weak. REJECT_THRESHOLD is unchanged.
     """
     if iteration >= 2:
         return "publish_brief" if consensus_score >= ITER2_PUBLISH_THRESHOLD else "reject"
