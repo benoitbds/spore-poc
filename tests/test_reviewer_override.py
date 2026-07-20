@@ -155,10 +155,11 @@ class TestEvaluateOverride(unittest.TestCase):
 
     def test_no_promote_when_hallucination_above_threshold(self) -> None:
         # composite is high enough but halluc is just over the
-        # S8.1-bis ceiling (0.45).
+        # S9.1 ceiling (0.55). composite >= 0.42 so the stacked kill
+        # does not fire — only the promotion ceiling blocks it.
         result = evaluate_override(
             composite=0.55,
-            hallucination_risk=0.46,
+            hallucination_risk=0.56,
             current_verdict="intéressant",
         )
         self.assertIsNone(result)
@@ -221,19 +222,20 @@ class TestEvaluateOverride(unittest.TestCase):
                 self.assertEqual(result[0], "a_tester", f"{label} expected a_tester")
 
     def test_backtest_does_not_promote_when_halluc_above_ceiling(self) -> None:
-        """Cases above the S8.1-bis halluc ceiling (0.45) must NOT promote.
+        """Cases above the S9.1 halluc ceiling (0.55) must NOT promote.
 
-        The two historical a_tester at halluc 0.50 are intentionally
-        excluded by the conservative ceiling — accepting them would
-        promote any "intéressant" with halluc 0.50, which we judge
-        too lax.
+        S9.1 relaxed the ceiling 0.45 -> 0.55 (halluc is a noisy,
+        non-discriminating axis, already penalised inside composite).
+        Only genuinely extreme halluc (> 0.55) is excluded from
+        promotion; halluc > 0.65 is killed outright. These cases keep
+        composite >= 0.42 so the stacked kill does not fire — isolating
+        the promotion ceiling as the sole reason for no promotion.
         """
         cases = [
-            # Two historical a_tester sitting at halluc 0.50 — the
-            # rule cuts them off by design.
-            (0.433, 0.50, "ref-09-6cbf5d6c-halluc-0.50"),
-            # Synthetic case above ceiling on both dimensions.
-            (0.55, 0.46, "synthetic-halluc-0.46"),
+            # Just above the 0.55 ceiling — blocked by the ceiling alone.
+            (0.50, 0.56, "synthetic-halluc-0.56"),
+            # Comfortably above the ceiling but below the 0.65 hard kill.
+            (0.48, 0.60, "synthetic-halluc-0.60"),
         ]
         for composite, halluc, label in cases:
             with self.subTest(label=label):
@@ -242,7 +244,7 @@ class TestEvaluateOverride(unittest.TestCase):
                     hallucination_risk=halluc,
                     current_verdict="intéressant",
                 )
-                self.assertIsNone(result, f"{label} must not promote (halluc above 0.45)")
+                self.assertIsNone(result, f"{label} must not promote (halluc above 0.55)")
 
     # ── 7. S8.1-bis new tests (relaxed thresholds) ─────────────────
 
@@ -259,15 +261,30 @@ class TestEvaluateOverride(unittest.TestCase):
         self.assertIsNotNone(result)
         self.assertEqual(result[0], "a_tester")
 
-    def test_s8_1_bis_still_blocks_marginal_composite(self) -> None:
+    def test_s9_1_promotes_former_c97a9cbf_near_miss(self) -> None:
         """Real post-revert hypothesis c97a9cbf (composite 0.402, halluc
-        0.475). composite passes the new floor (0.40) but halluc is
-        above the new ceiling (0.45), so the rule still blocks it —
-        the relaxation is targeted, not blanket.
+        0.475). Under S8.1-bis it was blocked by the 0.45 halluc ceiling;
+        under S9.1 (ceiling 0.55) it now promotes. composite clears the
+        0.40 floor and halluc 0.475 is below the noisy-axis ceiling — the
+        exact May-population case the relaxation is designed to rescue.
         """
         result = evaluate_override(
             composite=0.402,
             hallucination_risk=0.475,
+            current_verdict="intéressant",
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], "a_tester")
+
+    def test_s9_1_composite_floor_still_blocks(self) -> None:
+        """The composite floor (0.40) is the real discriminant and is
+        unchanged by S9.1. A hypothesis just below it does NOT promote,
+        even with pristine halluc — composite separates human-trash
+        (<=0.31) from human-want_to_test (>=0.40).
+        """
+        result = evaluate_override(
+            composite=0.39,
+            hallucination_risk=0.20,
             current_verdict="intéressant",
         )
         self.assertIsNone(result)
@@ -291,10 +308,10 @@ class TestEvaluateOverride(unittest.TestCase):
             self.assertNotEqual(result[0], "a_tester")
 
     def test_s8_1_bis_backtest_promotes_majority_of_historical(self) -> None:
-        """Backtest: 14/16 historical a_testers should promote under
-        the relaxed thresholds (vs 4/16 under the original 0.45/0.40).
-        The two exceptions sit at halluc 0.50, which the new ceiling
-        of 0.45 still excludes.
+        """Backtest: >= 14/16 historical a_testers should promote. Under
+        S8.1-bis (ceiling 0.45) the two halluc-0.50 cases were excluded
+        (14/16); under S9.1 (ceiling 0.55) they also promote (16/16).
+        The assertion floors at 14 so it holds across both calibrations.
         """
         historical_a_testers = [
             # (composite, halluc) — 16 historical a_tester scores from
@@ -322,6 +339,50 @@ class TestEvaluateOverride(unittest.TestCase):
         self.assertGreaterEqual(
             promoted, 14, f"Only {promoted}/16 historical a_testers promoted"
         )
+
+    # ── 8. S9.1 halluc-noise ceiling (0.45 -> 0.55) ────────────────
+
+    def test_s9_1_promotes_at_ceiling_0_55_exact(self) -> None:
+        """Boundary: composite >= 0.40 and halluc == 0.55 (inclusive)
+        promote. composite 0.45 clears the stacked kill.
+        """
+        result = evaluate_override(
+            composite=0.45,
+            hallucination_risk=0.55,
+            current_verdict="intéressant",
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], "a_tester")
+        self.assertIn("0.55", result[1])
+        self.assertIn("S9.1", result[1])
+
+    def test_s9_1_rescues_may_population_at_halluc_0_50(self) -> None:
+        """The May population clustered at halluc 0.48-0.53 with
+        composite ~0.40-0.42 — blocked wholesale by the old 0.45
+        ceiling (a_tester collapsed 16 -> 1). Under S9.1 a typical May
+        point promotes. composite 0.42 == stacked-kill floor (strict
+        <), so the kill does not fire.
+        """
+        result = evaluate_override(
+            composite=0.42,
+            hallucination_risk=0.50,
+            current_verdict="intéressant",
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], "a_tester")
+
+    def test_s9_1_stacked_kill_still_guards_marginal_plus_high_halluc(self) -> None:
+        """S9.1 does not weaken the fabrication guards: a marginal
+        composite (< 0.42) stacked with halluc > 0.55 is still killed to
+        poubelle, never promoted.
+        """
+        result = evaluate_override(
+            composite=0.41,
+            hallucination_risk=0.56,
+            current_verdict="intéressant",
+        )
+        self.assertIsNotNone(result)
+        self.assertEqual(result[0], "poubelle")
 
 
 if __name__ == "__main__":

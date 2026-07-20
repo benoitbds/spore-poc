@@ -95,13 +95,31 @@ def evaluate_override(
     to a_tester without touching the actually-marginal c97a9cbf
     (composite 0.402, halluc 0.475 > 0.45 ceiling).
 
-    4. **Promotion intéressant -> a_tester** (S8.1-bis): when the LLM
-       verdict is ``intéressant`` and ``composite >= 0.40`` and
-       ``hallucination_risk <= 0.45``, promote to ``a_tester``. The
+    4. **Promotion intéressant -> a_tester** (S8.1-bis / S9.1): when the
+       LLM verdict is ``intéressant`` and ``composite >= 0.40`` and
+       ``hallucination_risk <= 0.55``, promote to ``a_tester``. The
        0.40 floor captures 100% of the 16 historical a_tester cases
-       (min observed 0.411). The 0.45 halluc ceiling captures 14/16
-       (avg historical 0.35) and still excludes severe bibliographic-
-       fabrication signals.
+       (min observed 0.411).
+
+    S9.1 (20 July 2026) relaxes the promotion halluc ceiling 0.45 ->
+    0.55. Motivation: the daily cron produced ~0 organic briefs since
+    late April because the 0.45 ceiling blocked the entire May
+    population (avg halluc 0.483 > 0.45), collapsing a_tester from 16
+    (April) to 1 (May). Ground-truth analysis on 17 human-labelled
+    hypotheses (analysis/content-quality-diagnosis.md) shows that
+    ``composite`` cleanly separates human-``trash`` (<=0.31) from
+    human-``want_to_test`` (0.40-0.53), whereas ``hallucination_risk``
+    does NOT discriminate at all (trash 0.53-0.60 fully overlaps good
+    0.20-0.58). Halluc is a noisy axis that historically killed
+    hypotheses humans wanted to test (three ``want_to_test`` cases were
+    demoted to poubelle by the old ``halluc > 0.40`` kill). The new
+    0.55 ceiling aligns the promotion boundary with the existing
+    stacked-kill boundary (composite < 0.42 AND halluc > 0.55), removing
+    the redundant tighter gate while keeping the extreme-halluc kill
+    (> 0.65) and the stacked kill as fabrication guards. On the May
+    curated population this doubles a_tester (4 -> 8) with no hypothesis
+    lost to the 0.55-0.65 gray zone. Halluc is already penalised inside
+    ``composite`` (weight -0.15); the hard ceiling double-counted it.
 
     The ``current_verdict`` parameter is optional with default ``None``
     — call sites that do not need the promotion path can keep the
@@ -128,18 +146,19 @@ def evaluate_override(
     # S8.1 — symmetric promotion path. Only fires when the LLM stopped
     # at "intéressant" with scores inside the historical a_tester
     # range. Idempotent on already-a_tester or already-poubelle verdicts.
-    # S8.1-bis (2026-05-11): thresholds relaxed 0.45/0.40 -> 0.40/0.45
-    # to match the post-revert score distribution. See docstring.
+    # S8.1-bis (2026-05-11): thresholds relaxed 0.45/0.40 -> 0.40/0.45.
+    # S9.1 (2026-07-20): halluc ceiling 0.45 -> 0.55 (noisy axis, already
+    # in composite; blocked the whole May population). See docstring.
     if (
         current_verdict == "intéressant"
         and composite >= 0.40
-        and hallucination_risk <= 0.45
+        and hallucination_risk <= 0.55
     ):
         return (
             "a_tester",
             f"Post-processing: composite {composite:.2f} >= 0.40 + "
-            f"hallucination {hallucination_risk:.2f} <= 0.45 "
-            "(intéressant -> a_tester) [S8.1-bis relaxed thresholds]",
+            f"hallucination {hallucination_risk:.2f} <= 0.55 "
+            "(intéressant -> a_tester) [S9.1 halluc-noise ceiling]",
         )
     return None
 
