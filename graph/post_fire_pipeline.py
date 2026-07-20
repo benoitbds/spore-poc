@@ -641,7 +641,23 @@ def should_continue_after_grounding(state: PostFireState) -> str:
 
 
 def should_revise_or_publish(state: PostFireState) -> str:
-    """Decide whether to revise, publish, or reject after meta-review."""
+    """Decide whether to revise, publish, or reject after meta-review.
+
+    S9.2 grounding gate (2026-07-20): a brief with an empty evidence base
+    has no literature grounding to stand on and is not publishable, even
+    when the panel voted publish. The gate is skipped on the degraded
+    path (``grounding_degraded`` — a transient Semantic Scholar outage),
+    where the brief publishes with a low_evidence flag and is enriched
+    later by ``scripts/enrich_degraded_briefs.py``. It fires on the
+    silent grounding-analysis failure mode: SS returned papers but the
+    grounding LLM crashed, leaving ``evidence_base`` empty (observed on
+    the historical brief SPR-2026-52AA, whose grounding recorded
+    "LLM analysis failed — manual review needed" and 0 evidence yet was
+    published). On the 27 historical real briefs this gate rejects
+    exactly SPR-2026-52AA (its twin SPR-2026-B172, same 0-evidence
+    profile, was already panel-rejected). It is an objective grounding
+    check, not a calibrated panel threshold.
+    """
     verdict = state.get("meta_verdict", "publish_brief")
     revision_count = state.get("revision_count", 0)
 
@@ -653,7 +669,17 @@ def should_revise_or_publish(state: PostFireState) -> str:
         logger.info("revision_requested", iteration=revision_count)
         return "revise"
 
-    # publish_brief OR revise_and_resubmit at max iterations
+    # publish_brief OR revise_and_resubmit at max iterations.
+    evidence_base = state.get("grounding", {}).get("evidence_base", [])
+    if not evidence_base and not state.get("grounding_degraded"):
+        logger.warning(
+            "brief_rejected_grounding_gate",
+            reason="empty evidence base with grounding available "
+            "(analysis likely failed)",
+            revision_count=revision_count,
+        )
+        return "rejected"
+
     return "publish"
 
 
