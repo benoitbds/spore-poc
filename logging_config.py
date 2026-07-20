@@ -67,6 +67,10 @@ class TokenTracker:
     # Anthropic pricing
     PRICING = {
         "claude-haiku-4-5-20251001": {"input": 0.80, "output": 4.00, "provider": "anthropic"},
+        # Current Anthropic fallback target (see llm/client._map_to_anthropic_model).
+        # List price $3/$15 per 1M tok (intro $2/$10 through 2026-08-31).
+        "claude-sonnet-5": {"input": 3.00, "output": 15.00, "provider": "anthropic"},
+        # Retired 2026-06-15 — kept so historical run costs still resolve.
         "claude-sonnet-4-20250514": {"input": 3.00, "output": 15.00, "provider": "anthropic"},
         "claude-opus-4-5-20251101": {"input": 15.00, "output": 75.00, "provider": "anthropic"},
         # DeepSeek pricing (V3.2 - significantly cheaper)

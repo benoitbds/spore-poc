@@ -80,18 +80,34 @@ class AnthropicClient(LLMClient):
             "model": self.model,
             "max_tokens": max_tokens,
             "messages": messages,
+            # Sonnet 5 runs adaptive thinking by default when ``thinking`` is
+            # omitted, which emits thinking blocks (billed, and pushed ahead of
+            # the text block).
+            # This client is a fallback for the non-thinking DeepSeek primary,
+            # so disable thinking to keep behaviour and cost equivalent.
+            "thinking": {"type": "disabled"},
         }
 
         if system:
             kwargs["system"] = system
 
-        if temperature != 1.0:
-            kwargs["temperature"] = temperature
+        # ``temperature`` is intentionally NOT forwarded: Sonnet 5 rejects any
+        # non-default sampling parameter with a 400. The signature
+        # keeps the arg for interface parity with the DeepSeek client, but
+        # steering the fallback happens through the prompt, not temperature.
 
         response = await self.client.messages.create(**kwargs)
 
+        # Extract the first text block. With thinking disabled the response is
+        # text-first, but iterate defensively so a leading non-text block
+        # (e.g. if thinking is ever re-enabled) does not break extraction.
+        content = next(
+            (b.text for b in response.content if getattr(b, "type", None) == "text"),
+            "",
+        )
+
         return LLMResponse(
-            content=response.content[0].text,
+            content=content,
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
             model=self.model,
@@ -296,10 +312,15 @@ def get_llm_client(
 
 
 def _map_to_anthropic_model(model: str) -> str:
-    """Map a non-Anthropic model to equivalent Anthropic model for fallback."""
-    # DeepSeek models map to Sonnet for equivalent capability
-    if "deepseek" in model.lower():
-        return "claude-sonnet-4-20250514"
+    """Map a non-Anthropic model to equivalent Anthropic model for fallback.
 
-    # Default fallback
-    return "claude-sonnet-4-20250514"
+    Targets the current Sonnet tier (``claude-sonnet-5``): near-Opus quality
+    for the scoring/generation workloads SPORE runs, at Sonnet pricing. The
+    previous target ``claude-sonnet-4-20250514`` (Sonnet 4) retired on
+    2026-06-15 and now 404s — the fallback would have failed exactly when
+    DeepSeek was down. ``AnthropicClient.complete`` handles Sonnet 5's API
+    differences (no non-default sampling params, thinking disabled) so the
+    fallback behaves like the DeepSeek primary it backs up.
+    """
+    # All non-Anthropic providers map to the current Sonnet tier.
+    return "claude-sonnet-5"
