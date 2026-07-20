@@ -106,12 +106,12 @@ class Genome:
             "agents": {
                 "explorer": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                     "parameters": {"collisions_per_cycle": 50},
                 },
                 "synthesis": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                     "parameters": {
                         "no_bridge_allowed": True,
                         "max_tokens": 4000,
@@ -119,25 +119,25 @@ class Genome:
                 },
                 "critic_devil": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                 },
                 "critic_angel": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                 },
                 "curator": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                     "parameters": {"top_percent": 0.10},  # Top 10% for PoC
                 },
                 "impact": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                     "parameters": {"max_tokens": 2000},
                 },
                 "reviewer": {
                     "provider": "deepseek",
-                    "model": "deepseek-chat",
+                    "model": "deepseek-v4-flash",
                     "parameters": {"max_tokens": 1000},
                 },
             },
@@ -189,7 +189,7 @@ class Genome:
     def get_agent_model(self, agent_name: str) -> str:
         """Get the model for a specific agent."""
         agent = self.agents.get(agent_name, {})
-        return agent.get("model", "deepseek-chat")
+        return agent.get("model", "deepseek-v4-flash")
 
     def get_agent_provider(self, agent_name: str) -> str:
         """Get the provider for a specific agent."""

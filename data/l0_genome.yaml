@@ -1,72 +1,72 @@
 agents:
   critic_angel:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     prompt_version: angel_v1
     provider: deepseek
   critic_devil:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     prompt_version: devil_v1
     provider: deepseek
   curator:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       top_percent: 0.1
     prompt_version: curator_v1
     provider: deepseek
   experimental_protocol:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 8000
     prompt_version: experimental_protocol_v1
     provider: deepseek
   explorer:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       collisions_per_cycle: 50
     prompt_version: explorer_v1
     provider: deepseek
   gate:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     prompt_version: gate_v1
     provider: deepseek
   hypothesis_sharpening:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 8000
     prompt_version: hypothesis_sharpening_v1
     provider: deepseek
   impact:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 2000
     prompt_version: impact_v1
     provider: deepseek
   literature_grounding:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 8000
     prompt_version: literature_grounding_v7
     provider: deepseek
   multi_reviewer_panel:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 2000
     prompt_version: reviewer_panel_v1
     provider: deepseek
   research_brief:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 5000
     prompt_version: research_brief_v1
     provider: deepseek
   reviewer:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 1000
     prompt_version: reviewer_v1
     provider: deepseek
   synthesis:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 3000
       no_bridge_allowed: true
@@ -74,7 +74,7 @@ agents:
     prompt_version: synthesis_v1
     provider: deepseek
   vulgarization:
-    model: deepseek-chat
+    model: deepseek-v4-flash
     parameters:
       max_tokens: 3000
       temperature: 0.5

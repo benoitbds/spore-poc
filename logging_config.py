@@ -73,7 +73,11 @@ class TokenTracker:
         # Retired 2026-06-15 — kept so historical run costs still resolve.
         "claude-sonnet-4-20250514": {"input": 3.00, "output": 15.00, "provider": "anthropic"},
         "claude-opus-4-5-20251101": {"input": 15.00, "output": 75.00, "provider": "anthropic"},
-        # DeepSeek pricing (V3.2 - significantly cheaper)
+        # DeepSeek pricing (V4 - moins cher que V3.2 sur les deux sens)
+        "deepseek-v4-flash": {"input": 0.14, "output": 0.28, "input_cache": 0.0028, "provider": "deepseek"},
+        "deepseek-v4-pro": {"input": 0.435, "output": 0.87, "input_cache": 0.003625, "provider": "deepseek"},
+        # Alias V3.2 dépréciés le 2026-07-24 (routaient vers v4-flash non-thinking
+        # / thinking). Conservés pour que les coûts des runs historiques résolvent.
         "deepseek-chat": {"input": 0.28, "output": 0.42, "input_cache": 0.028, "provider": "deepseek"},
         "deepseek-reasoner": {"input": 0.55, "output": 2.19, "input_cache": 0.055, "provider": "deepseek"},
     }
@@ -81,7 +85,7 @@ class TokenTracker:
     # Default pricing by provider for unknown models
     DEFAULT_PRICING = {
         "anthropic": {"input": 3.00, "output": 15.00},
-        "deepseek": {"input": 0.28, "output": 0.42, "input_cache": 0.028},
+        "deepseek": {"input": 0.14, "output": 0.28, "input_cache": 0.0028},
     }
 
     def __init__(self) -> None:

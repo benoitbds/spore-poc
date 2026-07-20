@@ -121,7 +121,7 @@ class DeepSeekClient(LLMClient):
 
     provider = "deepseek"
 
-    def __init__(self, api_key: str, model: str = "deepseek-chat"):
+    def __init__(self, api_key: str, model: str = "deepseek-v4-flash"):
         from openai import AsyncOpenAI
 
         self.client = AsyncOpenAI(
@@ -148,6 +148,15 @@ class DeepSeekClient(LLMClient):
             messages=all_messages,
             max_tokens=max_tokens,
             temperature=temperature,
+            # Les modèles V4 raisonnent PAR DÉFAUT quand ``thinking`` est omis :
+            # la réponse arrive alors avec ``reasoning_content`` rempli et
+            # ``content`` potentiellement vide si max_tokens est atteint pendant
+            # le raisonnement — ce qui casserait le parsing JSON de tous les
+            # agents. L'alias historique ``deepseek-chat`` routait vers
+            # v4-flash NON-thinking : on désactive explicitement pour garder ce
+            # comportement. ``thinking`` n'est pas un paramètre OpenAI, il doit
+            # passer par ``extra_body``.
+            extra_body={"thinking": {"type": "disabled"}},
         )
 
         # Check for cache hit (DeepSeek reports this in usage)
@@ -244,7 +253,7 @@ def get_provider_for_agent(agent_name: str) -> tuple[str, str]:
     agent_config = genome.agents.get(agent_name, {})
 
     provider = agent_config.get("provider", "deepseek")
-    model = agent_config.get("model", "deepseek-chat")
+    model = agent_config.get("model", "deepseek-v4-flash")
 
     return provider, model
 
