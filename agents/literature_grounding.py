@@ -208,8 +208,23 @@ async def _step3_analyze(
     client = get_llm_client("literature_grounding")
     tracker = get_token_tracker()
 
+    # Cap the analysed set to the top papers by citation count. The
+    # analysis JSON grows with the paper count (one novelty/evidence entry
+    # per paper); with too many papers it overruns max_tokens and truncates
+    # into invalid JSON, which the parser drops to an empty evidence_base
+    # (observed: a 35-paper set truncated at ~4200 output tokens, yielding
+    # 0 evidence and a panel reject of an otherwise strong hypothesis). 20
+    # most-cited papers bound the output and focus on the most credible
+    # sources (historical evidence_count never exceeded 11).
+    MAX_ANALYSIS_PAPERS = 20
+    ranked_papers = sorted(
+        all_papers,
+        key=lambda p: p.get("citationCount", 0) or 0,
+        reverse=True,
+    )[:MAX_ANALYSIS_PAPERS]
+
     # Format papers for prompt
-    formatted_papers = [_format_paper_for_llm(p) for p in all_papers]
+    formatted_papers = [_format_paper_for_llm(p) for p in ranked_papers]
 
     prompt_template = load_prompt("literature_grounding_analysis")
     prompt = prompt_template.format(
@@ -221,10 +236,16 @@ async def _step3_analyze(
         gap_manifest=json.dumps(gap_manifest, indent=2, ensure_ascii=False),
     )
 
-    logger.info("analyzing_papers", paper_count=len(formatted_papers))
+    logger.info(
+        "analyzing_papers",
+        paper_count=len(formatted_papers),
+        total_found=len(all_papers),
+    )
+    # max_tokens 8000 (matches sharpening/protocol): the 4000 ceiling
+    # truncated the analysis JSON for large paper sets.
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=4000,
+        max_tokens=8000,
         temperature=0.3,
     )
 
@@ -246,7 +267,17 @@ async def _step3_analyze(
 
         return analysis
     except (json.JSONDecodeError, KeyError) as exc:
-        logger.error("analysis_parse_failed", error=str(exc), raw=response.content[:500])
+        # A truncated response (output_tokens at the max_tokens ceiling)
+        # produces invalid JSON here; the empty fallback below yields
+        # 0 evidence, which the post-fire grounding gate then rejects.
+        # Log enough to tell truncation apart from a genuine format error.
+        logger.error(
+            "analysis_parse_failed",
+            error=str(exc),
+            output_tokens=response.output_tokens,
+            content_len=len(response.content),
+            tail=response.content[-200:],
+        )
         return {
             "novelty_assessment": {
                 "score": 0.5,
