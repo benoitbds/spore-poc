@@ -31,7 +31,10 @@ from agents.experimental_protocol import (
 )
 from agents.multi_reviewer_panel import (
     full_panel_review,
+    selection_threshold,
     PanelOutput,
+    SELECTION_FLOOR,
+    SELECTION_WINDOW,
 )
 from agents.research_brief_generator import save_brief
 from agents.translation import (
@@ -40,7 +43,11 @@ from agents.translation import (
 )
 from agents.vulgarization import vulgarization_agent
 from knowledge import is_ss_circuit_open
-from storage import save_brief as save_brief_db, init_database
+from storage import (
+    save_brief as save_brief_db,
+    get_recent_consensus_scores,
+    init_database,
+)
 from logging_config import get_logger
 
 logger = get_logger("post_fire_pipeline")
@@ -73,6 +80,11 @@ class PostFireState(TypedDict, total=False):
     # Meta-review
     meta_verdict: str
     revision_count: int
+
+    # Relative selection gate (S9.3)
+    selection_threshold: float
+    selection_reason: str
+    selection_window_size: int
 
     # Brief
     brief_id: str
@@ -136,6 +148,59 @@ async def node_persist_grounding_kill(state: PostFireState) -> PostFireState:
     except Exception as exc:  # noqa: BLE001
         logger.error(
             "grounding_kill_persist_failed",
+            hypothesis_id=hypothesis_id,
+            error=str(exc),
+        )
+
+    return {**state, "brief_id": brief_id}
+
+
+async def node_persist_panel_reject(state: PostFireState) -> PostFireState:
+    """Persist a panel-rejected brief row so the score survives the reject.
+
+    This is what keeps the S9.3 relative selection gate honest. The gate
+    places its threshold at a percentile of recent consensus scores; if
+    only published briefs were stored, that window would be a censored,
+    survivors-only sample and the percentile would ratchet upward every
+    cycle — the bottom slice is removed from the population that sets
+    the next threshold — until nothing publishes at all. That is the
+    S8.4 trap (calibrating on survivors) running in the other direction.
+
+    Persisting rejects keeps the window representative of everything the
+    panel actually scored. Evidence that the censoring was real: before
+    this node, the minimum consensus in the whole briefs table was 5.50,
+    exactly the old ITER2_PUBLISH_THRESHOLD.
+
+    Writes a row with status='rejected' carrying the panel payload and
+    consensus score. brief_id format: SPR-<YYYY>-R<4hex>.
+    """
+    brief_id = f"SPR-{date.today().strftime('%Y')}-R{uuid4().hex[:4].upper()}"
+    hypothesis_id = state.get("hypothesis_id", brief_id)
+    panel = state.get("panel")
+    consensus = (panel or {}).get("meta_review", {}).get("consensus_score")
+
+    try:
+        await init_database()
+        await save_brief_db(
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            grounding_data=state.get("grounding"),
+            sharpened_data=state.get("sharpened"),
+            protocol_data=state.get("protocol"),
+            panel_data=panel,
+            status="rejected",
+        )
+        logger.info(
+            "panel_reject_persisted",
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            consensus=consensus,
+            selection_threshold=state.get("selection_threshold"),
+        )
+    except Exception as exc:  # noqa: BLE001 — a failed audit write must
+        # not turn a reject into a crash; the run is over either way.
+        logger.error(
+            "panel_reject_persist_failed",
             hypothesis_id=hypothesis_id,
             error=str(exc),
         )
@@ -260,6 +325,28 @@ async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
 
     meta = output["meta_review"]
 
+    # S9.3 relative selection: the threshold depends on recent panel
+    # output, so it is resolved here (async, DB read) and carried in
+    # state for the sync router to apply.
+    try:
+        recent = await get_recent_consensus_scores(window=SELECTION_WINDOW)
+        threshold, reason = selection_threshold(recent)
+    except Exception as exc:  # noqa: BLE001 — never let the gate break the run
+        logger.warning(
+            "selection_threshold_unavailable",
+            error=str(exc),
+            fallback=SELECTION_FLOOR,
+        )
+        recent, threshold, reason = [], SELECTION_FLOOR, "floor_read_failed"
+
+    logger.info(
+        "selection_threshold_resolved",
+        threshold=round(threshold, 2),
+        reason=reason,
+        window_size=len(recent),
+        consensus=meta.get("consensus_score"),
+    )
+
     return {
         **state,
         "panel": {
@@ -268,6 +355,9 @@ async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
         },
         "meta_verdict": meta["verdict"],
         "revision_count": iteration,
+        "selection_threshold": threshold,
+        "selection_reason": reason,
+        "selection_window_size": len(recent),
     }
 
 
@@ -680,6 +770,24 @@ def should_revise_or_publish(state: PostFireState) -> str:
         )
         return "rejected"
 
+    # S9.3 relative selection gate. The panel's absolute thresholds pass
+    # essentially everything (26/26 on 2026-07-20); this gate keeps only
+    # the top slice of recent panel output, with an absolute floor. The
+    # threshold was resolved in node_multi_reviewer_panel.
+    consensus = state.get("panel", {}).get("meta_review", {}).get(
+        "consensus_score", 0.0
+    )
+    threshold = state.get("selection_threshold", SELECTION_FLOOR)
+    if consensus < threshold:
+        logger.info(
+            "brief_rejected_selection_gate",
+            consensus=consensus,
+            threshold=round(threshold, 2),
+            reason=state.get("selection_reason"),
+            window_size=state.get("selection_window_size"),
+        )
+        return "rejected"
+
     return "publish"
 
 
@@ -698,6 +806,7 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("literature_grounding", node_literature_grounding)
     workflow.add_node("skip_grounding", node_skip_grounding)
     workflow.add_node("persist_grounding_kill", node_persist_grounding_kill)
+    workflow.add_node("persist_panel_reject", node_persist_panel_reject)
     workflow.add_node("hypothesis_sharpening", node_hypothesis_sharpening)
     workflow.add_node("experimental_protocol", node_experimental_protocol)
     workflow.add_node("multi_reviewer_panel", node_multi_reviewer_panel)
@@ -741,9 +850,11 @@ def create_post_fire_pipeline() -> StateGraph:
         {
             "revise": "hypothesis_sharpening",
             "publish": "research_brief_generator",
-            "rejected": END,
+            "rejected": "persist_panel_reject",
         },
     )
+
+    workflow.add_edge("persist_panel_reject", END)
 
     workflow.add_edge("research_brief_generator", "vulgarization")
     workflow.add_edge("vulgarization", "translation_hook")

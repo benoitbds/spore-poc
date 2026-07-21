@@ -28,12 +28,20 @@ from graph.post_fire_pipeline import should_revise_or_publish  # noqa: E402
 
 
 def _state(**kwargs):
-    """Minimal PostFireState-ish dict for the router."""
+    """Minimal PostFireState-ish dict for the router.
+
+    The consensus / selection_threshold pair clears the S9.3 relative
+    selection gate by default, so these tests keep isolating the
+    grounding gate. Selection-gate behaviour is covered separately in
+    ``tests.test_selection_gate``.
+    """
     base = {
         "meta_verdict": "publish_brief",
         "revision_count": 1,
         "grounding": {"evidence_base": [{"title": "a paper"}]},
         "grounding_degraded": False,
+        "panel": {"meta_review": {"consensus_score": 7.0}},
+        "selection_threshold": 6.0,
     }
     base.update(kwargs)
     return base

@@ -74,6 +74,85 @@ REJECT_THRESHOLD = 4.5          # consensus <  4.5          → reject (unchange
 ITER2_PUBLISH_THRESHOLD = 5.5   # at iter 2: >= 5.5 publish, else reject (S8.4, was 6.0)
 
 
+# ── Relative selection gate (S9.3, 2026-07-21) ────────────────────
+#
+# The absolute thresholds above let 100% of briefs publish (26/26 on the
+# 2026-07-20 batch). A mixed-batch test on 5 poubelle + 3 a_tester
+# hypotheses measured what the panel can actually do:
+#
+#   poubelle  n=5  mean 5.95  range 5.46-6.36
+#   a_tester  n=3  mean 6.42  range 6.18-6.62
+#   AUC 0.933 — the panel RANKS correctly, one inversion.
+#
+# So the panel is not broken; ITER2_PUBLISH_THRESHOLD (5.5) is simply
+# parked below the entire poubelle band. Rather than re-tuning that
+# constant — the S8.4 trap of calibrating on survivors, which only ever
+# ratchets the gate down — publication is decided relative to recent
+# panel output: publish the top (1 - SELECTION_PERCENTILE) of a trailing
+# window. Relative selection is what an AUC of 0.933 licenses; it needs
+# no absolute calibration and self-corrects if the panel's scale drifts.
+#
+# The absolute floor is the safety net for the case the mixed-batch test
+# does NOT cover: it is bimodal, so it proves separation between
+# poubelle-tier and a_tester-tier but not ranking *within* the all-🔥
+# stream, which is the only regime this gate runs in. On an all-mediocre
+# batch, a purely relative rule would still publish its top slice. The
+# floor is set at the poubelle band's upper edge measured in the test.
+
+SELECTION_PERCENTILE = 0.70   # publish the top 30% of the trailing window
+SELECTION_WINDOW = 20         # number of recent scored briefs considered
+SELECTION_FLOOR = 6.0         # never publish below this, whatever the window
+SELECTION_MIN_SAMPLES = 8     # below this, fall back to the floor alone
+
+
+def percentile(values: list[float], q: float) -> float:
+    """Linear-interpolated percentile of ``values`` at quantile ``q``.
+
+    Args:
+        values: Sample values; order is irrelevant. Must not be empty.
+        q: Quantile in [0, 1].
+
+    Returns:
+        The interpolated percentile.
+
+    Raises:
+        ValueError: If ``values`` is empty.
+    """
+    if not values:
+        raise ValueError("percentile() requires at least one value")
+    ordered = sorted(values)
+    if len(ordered) == 1:
+        return ordered[0]
+    pos = q * (len(ordered) - 1)
+    low = int(pos)
+    high = min(low + 1, len(ordered) - 1)
+    frac = pos - low
+    return ordered[low] + (ordered[high] - ordered[low]) * frac
+
+
+def selection_threshold(recent_scores: list[float]) -> tuple[float, str]:
+    """Effective publication threshold from recent panel output.
+
+    Combines the relative rule (percentile of the trailing window) with
+    the absolute floor, taking whichever is stricter. Early in the
+    corpus' life — fewer than ``SELECTION_MIN_SAMPLES`` scored briefs —
+    the percentile is too noisy to trust and the floor applies alone.
+
+    Args:
+        recent_scores: Consensus scores of recent scored briefs.
+
+    Returns:
+        Tuple of (threshold, reason) where reason identifies which rule
+        bound, for logging and audit.
+    """
+    if len(recent_scores) < SELECTION_MIN_SAMPLES:
+        return SELECTION_FLOOR, "floor_insufficient_history"
+    relative = percentile(recent_scores, SELECTION_PERCENTILE)
+    if relative >= SELECTION_FLOOR:
+        return relative, "relative_percentile"
+    return SELECTION_FLOOR, "floor_binding"
+
+
 def compute_consensus_score(reviews: list[ReviewerOutput]) -> float:
     """Confidence-weighted mean of reviewer scores.
 
