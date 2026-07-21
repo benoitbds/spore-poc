@@ -189,6 +189,7 @@ async def node_persist_panel_reject(state: PostFireState) -> PostFireState:
             protocol_data=state.get("protocol"),
             panel_data=panel,
             status="rejected",
+            revision_count=state.get("revision_count", 0),
         )
         logger.info(
             "panel_reject_persisted",
