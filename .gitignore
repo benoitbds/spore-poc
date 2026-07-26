@@ -55,3 +55,5 @@ start_streamlit.sh
 # OS
 .DS_Store
 Thumbs.db
+outputs/notify_state/
+outputs/run_logs/
