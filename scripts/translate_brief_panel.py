@@ -643,35 +643,69 @@ async def fetch_target_briefs(
     brief_id: str | None,
     missing_only: bool,
     process_all: bool,
+    include_stubs: bool = False,
 ) -> list[tuple[str, str | None, str | None]]:
+    """Return the rows we should process: list of (id, fr_json, en_json).
+
+    S2c/C15 — stub briefs are excluded by default, matching
+    ``node_translation_hook``, which has always skipped them. Today no
+    stub carries a ``panel_data`` payload (``SELECT COUNT(*) FROM briefs
+    WHERE is_stub=1 AND panel_data IS NOT NULL`` is 0), so this filter is
+    defensive: it closes the same blind spot that let
+    ``translate_brief_vulgarization.py`` publish a fabricated EN payload
+    on the 16 stubs, before a stray panel backfill can repeat it here.
+    """
     async with get_connection() as conn:
         if brief_id:
             cursor = await conn.execute(
-                "SELECT id, panel_data, panel_data_en "
+                "SELECT id, is_stub, panel_data, panel_data_en "
                 "FROM briefs WHERE id = ?",
                 (brief_id,),
             )
             rows = await cursor.fetchall()
             if not rows:
                 raise SystemExit(f"brief not found: {brief_id}")
-            return [
-                (r["id"], r["panel_data"], r["panel_data_en"]) for r in rows
-            ]
-
-        base = (
-            "SELECT id, panel_data, panel_data_en "
-            "FROM briefs WHERE panel_data IS NOT NULL"
-        )
-        if missing_only:
-            base += " AND panel_data_en IS NULL"
-        elif not process_all:
-            raise SystemExit(
-                "no target specified — pass --brief-id, --missing-only, or --all"
+        else:
+            base = (
+                "SELECT id, is_stub, panel_data, panel_data_en "
+                "FROM briefs WHERE panel_data IS NOT NULL"
             )
-        base += " ORDER BY id"
-        cursor = await conn.execute(base)
-        rows = await cursor.fetchall()
-        return [(r["id"], r["panel_data"], r["panel_data_en"]) for r in rows]
+            if missing_only:
+                base += " AND panel_data_en IS NULL"
+            elif not process_all:
+                raise SystemExit(
+                    "no target specified — pass --brief-id, --missing-only, or --all"
+                )
+            base += " ORDER BY id"
+            cursor = await conn.execute(base)
+            rows = await cursor.fetchall()
+
+        return _drop_stubs(rows, include_stubs=include_stubs)
+
+
+def _drop_stubs(rows, *, include_stubs: bool) -> list[tuple[str, str | None, str | None]]:
+    """Filter out is_stub=1 rows and log what was dropped."""
+    kept: list[tuple[str, str | None, str | None]] = []
+    skipped: list[str] = []
+    for r in rows:
+        if not include_stubs and r["is_stub"]:
+            skipped.append(r["id"])
+            continue
+        kept.append((r["id"], r["panel_data"], r["panel_data_en"]))
+    if skipped:
+        print(
+            f"skipping {len(skipped)} stub brief(s) — a stub never went "
+            f"through the panel: {', '.join(skipped)}",
+            file=sys.stderr,
+        )
+        logger.info(
+            "translate_panel_stubs_skipped",
+            count=len(skipped),
+            brief_ids=skipped,
+        )
+    elif include_stubs:
+        print("--include-stubs: stub briefs are NOT being filtered out", file=sys.stderr)
+    return kept
 
 
 async def write_translation(brief_id: str, en_payload: dict[str, Any]) -> None:
@@ -713,6 +747,15 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
 
     parser.add_argument(
+        "--include-stubs",
+        action="store_true",
+        help=(
+            "Process is_stub=1 briefs too. Default: skip them, matching "
+            "node_translation_hook. A stub never went through the panel, "
+            "so any panel payload on it is fabricated."
+        ),
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Print the EN translation but do NOT write to the DB.",
@@ -745,6 +788,7 @@ async def main() -> None:
     reset_token_tracker()
 
     rows = await fetch_target_briefs(
+        include_stubs=args.include_stubs,
         brief_id=args.brief_id,
         missing_only=args.missing_only,
         process_all=args.all,

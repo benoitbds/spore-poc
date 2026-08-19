@@ -11,6 +11,9 @@ Idempotent by default: a brief that already has a non-NULL
 ``--dry-run`` to inspect output before writing. Use ``--missing-only``
 to translate every brief that does not yet have an EN payload.
 
+Stub briefs (``is_stub=1``) are skipped by default — see
+``fetch_target_briefs``. Pass ``--include-stubs`` to override.
+
 The script tracks LLM cost via the global ``TokenTracker`` and prints a
 summary at the end. Per-field validation flags suspect output (forbidden
 "discover/discovery", contractions, length ratio drift, residual FR
@@ -448,41 +451,74 @@ async def fetch_target_briefs(
     brief_id: str | None,
     missing_only: bool,
     process_all: bool,
+    include_stubs: bool = False,
 ) -> list[tuple[str, str | None, str | None]]:
-    """Return the rows we should process: list of (id, fr_json, en_json)."""
+    """Return the rows we should process: list of (id, fr_json, en_json).
+
+    S2c/C15 — stub briefs are excluded by default. ``node_translation_hook``
+    in ``graph/post_fire_pipeline.py`` has always skipped stubs (they carry
+    no panel/vulgarization payload to translate), but this script only
+    selected on ``vulgarization_data IS NOT NULL``. When a run of
+    ``backfill_vulgarization.py`` gave the 16 stubs a fabricated FR
+    payload, a ``--all`` / ``--missing-only`` run here dutifully translated
+    it into EN and published it. The filter is applied in Python rather
+    than in the WHERE clause so the skipped ids can be logged — silently
+    narrowing the query is how this went unnoticed for months.
+    """
     async with get_connection() as conn:
         if brief_id:
             cursor = await conn.execute(
-                "SELECT id, vulgarization_data, vulgarization_data_en "
+                "SELECT id, is_stub, vulgarization_data, vulgarization_data_en "
                 "FROM briefs WHERE id = ?",
                 (brief_id,),
             )
             rows = await cursor.fetchall()
             if not rows:
                 raise SystemExit(f"brief not found: {brief_id}")
-            return [
-                (r["id"], r["vulgarization_data"], r["vulgarization_data_en"])
-                for r in rows
-            ]
-
-        # All / missing-only — only briefs that actually have a FR payload.
-        base = (
-            "SELECT id, vulgarization_data, vulgarization_data_en "
-            "FROM briefs WHERE vulgarization_data IS NOT NULL"
-        )
-        if missing_only:
-            base += " AND vulgarization_data_en IS NULL"
-        elif not process_all:
-            raise SystemExit(
-                "no target specified — pass --brief-id, --missing-only, or --all"
+        else:
+            # All / missing-only — only briefs that actually have a FR payload.
+            base = (
+                "SELECT id, is_stub, vulgarization_data, vulgarization_data_en "
+                "FROM briefs WHERE vulgarization_data IS NOT NULL"
             )
-        base += " ORDER BY id"
-        cursor = await conn.execute(base)
-        rows = await cursor.fetchall()
-        return [
+            if missing_only:
+                base += " AND vulgarization_data_en IS NULL"
+            elif not process_all:
+                raise SystemExit(
+                    "no target specified — pass --brief-id, --missing-only, or --all"
+                )
+            base += " ORDER BY id"
+            cursor = await conn.execute(base)
+            rows = await cursor.fetchall()
+
+        return _drop_stubs(rows, include_stubs=include_stubs)
+
+
+def _drop_stubs(rows, *, include_stubs: bool) -> list[tuple[str, str | None, str | None]]:
+    """Filter out is_stub=1 rows and log what was dropped."""
+    kept: list[tuple[str, str | None, str | None]] = []
+    skipped: list[str] = []
+    for r in rows:
+        if not include_stubs and r["is_stub"]:
+            skipped.append(r["id"])
+            continue
+        kept.append(
             (r["id"], r["vulgarization_data"], r["vulgarization_data_en"])
-            for r in rows
-        ]
+        )
+    if skipped:
+        print(
+            f"skipping {len(skipped)} stub brief(s) — a stub has no hypothesis, "
+            f"so it has no vulgarisation to translate: {', '.join(skipped)}",
+            file=sys.stderr,
+        )
+        logger.info(
+            "translate_vulgarization_stubs_skipped",
+            count=len(skipped),
+            brief_ids=skipped,
+        )
+    elif include_stubs:
+        print("--include-stubs: stub briefs are NOT being filtered out", file=sys.stderr)
+    return kept
 
 
 async def write_translation(brief_id: str, en_payload: dict[str, Any]) -> None:
@@ -529,6 +565,16 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help="Print the EN translation but do NOT write to the DB.",
     )
     parser.add_argument(
+        "--include-stubs",
+        action="store_true",
+        help=(
+            "Process is_stub=1 briefs too. Default: skip them, matching "
+            "node_translation_hook. A stub has no hypothesis, so any "
+            "vulgarisation payload on it is fabricated and must not be "
+            "propagated to EN — only pass this if you know why."
+        ),
+    )
+    parser.add_argument(
         "--force",
         action="store_true",
         help=(
@@ -557,6 +603,7 @@ async def main() -> None:
     reset_token_tracker()
 
     rows = await fetch_target_briefs(
+        include_stubs=args.include_stubs,
         brief_id=args.brief_id,
         missing_only=args.missing_only,
         process_all=args.all,

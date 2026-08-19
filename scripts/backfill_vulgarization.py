@@ -47,6 +47,20 @@ async def backfill_one(
 
     brief_id = data.get("brief_id", json_path.stem)
 
+    # S2c/C15 — never vulgarise a stub. A stub brief is the honest "this
+    # collision produced no bridge" analysis: there is no hypothesis to
+    # popularise, and the vulgarisation agent's prompt presupposes one, so
+    # it invents a plausible-sounding hypothesis (and a reviewer panel to
+    # go with it) that contradicts the very body of the page. This script
+    # globs every SPR-*.json in outputs/briefs and is the path that put a
+    # fabricated payload on the 16 stubs in the first place; the ``--force``
+    # / already-populated check below cannot catch it because after the
+    # C16 cleanup those rows are NULL again and would be regenerated.
+    # The guard is deliberately NOT overridable.
+    if data.get("is_stub"):
+        print(f"  skip {brief_id}: stub brief — no hypothesis to vulgarise")
+        return False
+
     if not force and data.get("vulgarization_fr"):
         print(f"  skip {brief_id}: already has vulgarization_fr (use --force to redo)")
         return False
