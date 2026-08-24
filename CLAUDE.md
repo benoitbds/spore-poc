@@ -113,3 +113,10 @@ Implement the Post-Fire Pipeline as described in SPORE_Post_Fire_Pipeline_v1.md:
 7. `graph/post_fire_pipeline.py` — LangGraph subgraph integrating all the above
 8. SQLite `briefs` table
 9. Streamlit pages: "Research Briefs" + "Brief Detail"
+
+## Remote git
+
+- Remote : `git@github.com:benoitbds/spore-poc.git` (privé)
+- Auth : clé SSH `~/.ssh/id_ed25519_github` via `~/.ssh/config`
+- Convention : push après chaque sprint mergé sur master, ou immédiatement pour les commits sensibles
+- Backup : GitHub privé est le backup distant officiel de SPORE

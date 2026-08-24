@@ -53,6 +53,116 @@ def _get_reviewer_prompt() -> str:
     return load_prompt("reviewer")
 
 
+def evaluate_override(
+    composite: float,
+    hallucination_risk: float,
+    current_verdict: Optional[str] = None,
+) -> Optional[tuple[str, str]]:
+    """Mechanical post-LLM override. Returns ``(verdict, reason)`` or ``None``.
+
+    Recalibrated S6.4 (2 May 2026) — see BACKLOG hotfix note. The old
+    rule ``composite < 0.35 OR halluc > 0.40`` was killing 12 / 13 curated
+    hypotheses over the past 8 days, against the historical 20 %
+    poubelle target. Diagnosis: DeepSeek drift on hallucination_risk
+    attribution after the 200 → 500 domain corpus expansion shifted the
+    distribution upwards.
+
+    The rule keeps three orthogonal kill paths, each requiring a
+    genuinely strong signal rather than a single barely-above-threshold
+    metric:
+
+    1. **Very low composite** (< 0.35): the hypothesis as a whole is weak.
+    2. **Stacked low composite + high halluc** (composite < 0.42 AND
+       halluc > 0.55): mediocre on its own + bibliographic risk.
+    3. **Extreme hallucination_risk** (> 0.65): even a strong composite
+       doesn't rescue a hypothesis the critic flagged as fabrication-prone.
+
+    S8.1 (8 May 2026) adds a symmetric promotion path. Diagnosis: zero
+    a_tester verdicts produced since 24 April. The LLM reviewer scores
+    "intéressant" with composite/halluc inside the historical a_tester
+    range but does not promote the verdict on its own. Calibrated on
+    16 a_tester hypotheses produced 7-23 April 2026: composite spans
+    0.411-0.518 (avg 0.471), halluc spans 0.10-0.50 (avg 0.35).
+
+    S8.1-bis (11 May 2026) relaxes the original 0.45/0.40 thresholds
+    after the S8.2 genome revert: scores recovered partially but
+    halluc remains elevated (~0.46 average post-revert vs ~0.41 in
+    the reference period). The 0.45/0.40 pair captured only 4 of 16
+    historical a_tester cases; the new 0.40/0.45 pair captures 14 of
+    16 (the two exceptions sit at halluc 0.50, deliberately
+    unpromoted). On post-revert hypotheses, the relaxation flips the
+    near-miss 5212d9a1 (composite 0.444, halluc 0.45) from intéressant
+    to a_tester without touching the actually-marginal c97a9cbf
+    (composite 0.402, halluc 0.475 > 0.45 ceiling).
+
+    4. **Promotion intéressant -> a_tester** (S8.1-bis / S9.1): when the
+       LLM verdict is ``intéressant`` and ``composite >= 0.40`` and
+       ``hallucination_risk <= 0.55``, promote to ``a_tester``. The
+       0.40 floor captures 100% of the 16 historical a_tester cases
+       (min observed 0.411).
+
+    S9.1 (20 July 2026) relaxes the promotion halluc ceiling 0.45 ->
+    0.55. Motivation: the daily cron produced ~0 organic briefs since
+    late April because the 0.45 ceiling blocked the entire May
+    population (avg halluc 0.483 > 0.45), collapsing a_tester from 16
+    (April) to 1 (May). Ground-truth analysis on 17 human-labelled
+    hypotheses (analysis/content-quality-diagnosis.md) shows that
+    ``composite`` cleanly separates human-``trash`` (<=0.31) from
+    human-``want_to_test`` (0.40-0.53), whereas ``hallucination_risk``
+    does NOT discriminate at all (trash 0.53-0.60 fully overlaps good
+    0.20-0.58). Halluc is a noisy axis that historically killed
+    hypotheses humans wanted to test (three ``want_to_test`` cases were
+    demoted to poubelle by the old ``halluc > 0.40`` kill). The new
+    0.55 ceiling aligns the promotion boundary with the existing
+    stacked-kill boundary (composite < 0.42 AND halluc > 0.55), removing
+    the redundant tighter gate while keeping the extreme-halluc kill
+    (> 0.65) and the stacked kill as fabrication guards. On the May
+    curated population this doubles a_tester (4 -> 8) with no hypothesis
+    lost to the 0.55-0.65 gray zone. Halluc is already penalised inside
+    ``composite`` (weight -0.15); the hard ceiling double-counted it.
+
+    The ``current_verdict`` parameter is optional with default ``None``
+    — call sites that do not need the promotion path can keep the
+    two-arg signature, in which case only the kill paths apply.
+
+    Returns ``None`` when the LLM verdict should stand.
+    """
+    if composite < 0.35:
+        return (
+            "poubelle",
+            f"Post-processing: composite {composite:.2f} < 0.35",
+        )
+    if composite < 0.42 and hallucination_risk > 0.55:
+        return (
+            "poubelle",
+            f"Post-processing: low composite ({composite:.2f}) + "
+            f"high hallucination ({hallucination_risk:.2f})",
+        )
+    if hallucination_risk > 0.65:
+        return (
+            "poubelle",
+            f"Post-processing: hallucination {hallucination_risk:.2f} > 0.65",
+        )
+    # S8.1 — symmetric promotion path. Only fires when the LLM stopped
+    # at "intéressant" with scores inside the historical a_tester
+    # range. Idempotent on already-a_tester or already-poubelle verdicts.
+    # S8.1-bis (2026-05-11): thresholds relaxed 0.45/0.40 -> 0.40/0.45.
+    # S9.1 (2026-07-20): halluc ceiling 0.45 -> 0.55 (noisy axis, already
+    # in composite; blocked the whole May population). See docstring.
+    if (
+        current_verdict == "intéressant"
+        and composite >= 0.40
+        and hallucination_risk <= 0.55
+    ):
+        return (
+            "a_tester",
+            f"Post-processing: composite {composite:.2f} >= 0.40 + "
+            f"hallucination {hallucination_risk:.2f} <= 0.55 "
+            "(intéressant -> a_tester) [S9.1 halluc-noise ceiling]",
+        )
+    return None
+
+
 def format_hypothesis_for_review(hypothesis: Hypothesis) -> str:
     """Format hypothesis data for the reviewer prompt."""
     lines = []
@@ -223,14 +333,15 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
     hallucination_risk = hypothesis.scores.hallucination_risk if hypothesis.scores else 0.0
 
     original_verdict = feedback.verdict
-    if composite < 0.35:
-        feedback.verdict = "poubelle"
-        feedback.override_reason = f"Post-processing: composite {composite:.3f} < 0.35"
-    elif hallucination_risk > 0.40:
-        feedback.verdict = "poubelle"
-        feedback.override_reason = (
-            f"Post-processing: hallucination_risk {hallucination_risk:.2f} > 0.40"
-        )
+    override = evaluate_override(
+        composite,
+        hallucination_risk,
+        current_verdict=original_verdict,
+    )
+    if override is not None:
+        new_verdict, new_reason = override
+        feedback.verdict = new_verdict
+        feedback.override_reason = new_reason
 
     if feedback.verdict != original_verdict:
         logger.warning(

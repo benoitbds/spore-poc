@@ -10,6 +10,7 @@ from typing import Any, TypedDict
 from agents.base import load_prompt
 from agents.hypothesis_sharpening import SharpeningOutput
 from llm import get_llm_client
+from llm.json_parse import complete_json
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("experimental_protocol")
@@ -23,15 +24,6 @@ class ProtocolOutput(TypedDict):
     overall_budget_estimate: str
     phases: list[dict[str, Any]]
     phase_1_quick_start: dict[str, Any]
-
-
-def _extract_json(content: str) -> dict[str, Any]:
-    """Extract JSON from LLM response, handling markdown code blocks."""
-    if "```json" in content:
-        content = content.split("```json")[1].split("```")[0]
-    elif "```" in content:
-        content = content.split("```")[1].split("```")[0]
-    return json.loads(content.strip())
 
 
 def _format_variables(variables: list[dict[str, str]]) -> str:
@@ -130,25 +122,17 @@ async def experimental_protocol_agent(
     # exact failure. 5000 was too tight (18 KB truncations on iter 2);
     # 8000 gives headroom up to ~32 KB for typical prose-heavy JSON while
     # staying under the provider cap.
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=8000,
-        temperature=0.4,
-    )
-
-    tracker.log_call(
-        agent="experimental_protocol",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="experimental_protocol",
+            max_tokens=8000,
+            temperature=0.4,
+            tracker=tracker,
+        )
     except (json.JSONDecodeError, KeyError) as exc:
-        logger.error("protocol_parse_failed", error=str(exc), raw=response.content[:500])
+        logger.error("protocol_parse_failed", error=str(exc))
         raise ValueError(f"Failed to parse protocol output: {exc}") from exc
 
     output = ProtocolOutput(

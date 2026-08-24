@@ -15,6 +15,7 @@ from typing import Any, Optional, TypedDict
 from agents.base import load_prompt
 from knowledge.semantic_scholar import SemanticScholarClient, get_semantic_scholar_client
 from llm import get_llm_client
+from llm.json_parse import complete_json
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("literature_grounding")
@@ -40,15 +41,6 @@ class GroundingOutput(TypedDict):
     all_papers: list[dict[str, Any]]
     search_queries: list[dict[str, str]]
     kill_reason: Optional[str]
-
-
-def _extract_json(content: str) -> dict[str, Any]:
-    """Extract JSON from LLM response, handling markdown code blocks."""
-    if "```json" in content:
-        content = content.split("```json")[1].split("```")[0]
-    elif "```" in content:
-        content = content.split("```")[1].split("```")[0]
-    return json.loads(content.strip())
 
 
 def _extract_doi(paper: dict[str, Any]) -> Optional[str]:
@@ -101,23 +93,15 @@ async def _step1_extract_queries(
     )
 
     logger.info("extracting_search_queries", domains=domains)
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=2000,
-        temperature=0.4,
-    )
-
-    tracker.log_call(
-        agent="literature_grounding",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="literature_grounding",
+            max_tokens=2000,
+            temperature=0.4,
+            tracker=tracker,
+        )
         queries = data.get("queries", [])
         logger.info("queries_extracted", count=len(queries))
         return queries
@@ -208,8 +192,23 @@ async def _step3_analyze(
     client = get_llm_client("literature_grounding")
     tracker = get_token_tracker()
 
+    # Cap the analysed set to the top papers by citation count. The
+    # analysis JSON grows with the paper count (one novelty/evidence entry
+    # per paper); with too many papers it overruns max_tokens and truncates
+    # into invalid JSON, which the parser drops to an empty evidence_base
+    # (observed: a 35-paper set truncated at ~4200 output tokens, yielding
+    # 0 evidence and a panel reject of an otherwise strong hypothesis). 20
+    # most-cited papers bound the output and focus on the most credible
+    # sources (historical evidence_count never exceeded 11).
+    MAX_ANALYSIS_PAPERS = 20
+    ranked_papers = sorted(
+        all_papers,
+        key=lambda p: p.get("citationCount", 0) or 0,
+        reverse=True,
+    )[:MAX_ANALYSIS_PAPERS]
+
     # Format papers for prompt
-    formatted_papers = [_format_paper_for_llm(p) for p in all_papers]
+    formatted_papers = [_format_paper_for_llm(p) for p in ranked_papers]
 
     prompt_template = load_prompt("literature_grounding_analysis")
     prompt = prompt_template.format(
@@ -221,24 +220,22 @@ async def _step3_analyze(
         gap_manifest=json.dumps(gap_manifest, indent=2, ensure_ascii=False),
     )
 
-    logger.info("analyzing_papers", paper_count=len(formatted_papers))
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=4000,
-        temperature=0.3,
+    logger.info(
+        "analyzing_papers",
+        paper_count=len(formatted_papers),
+        total_found=len(all_papers),
     )
-
-    tracker.log_call(
-        agent="literature_grounding",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
+    # max_tokens 8000 (matches sharpening/protocol): the 4000 ceiling
+    # truncated the analysis JSON for large paper sets.
     try:
-        analysis = _extract_json(response.content)
+        analysis, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="literature_grounding",
+            max_tokens=8000,
+            temperature=0.3,
+            tracker=tracker,
+        )
 
         # Validate that cited paper_ids exist in our search results
         valid_ids = {p.get("paperId") for p in all_papers}
@@ -246,21 +243,33 @@ async def _step3_analyze(
 
         return analysis
     except (json.JSONDecodeError, KeyError) as exc:
-        logger.error("analysis_parse_failed", error=str(exc), raw=response.content[:500])
-        return {
-            "novelty_assessment": {
-                "score": 0.5,
-                "closest_existing_work": [],
-                "verdict": "novel",
-            },
-            "evidence_base": [],
-            "counter_evidence": [],
-            "gap_manifest_update": {
-                "closed_gaps": [],
-                "new_gaps": ["LLM analysis failed — manual review needed"],
-                "data_available": [],
-            },
-        }
+        # S3/D2 — fail-closed, like hypothesis_sharpening and
+        # experimental_protocol.
+        #
+        # This used to return a fabricated default: novelty score 0.5,
+        # verdict "novel", empty evidence_base. That is what produced
+        # SPR-2026-52AA. Semantic Scholar had returned 50 real papers,
+        # this parse failed, the 50 were discarded, and a manufactured
+        # novelty verdict went through to publication — on a site whose
+        # whole argument is verifiability.
+        #
+        # A caller cannot tell a fabricated verdict from a real one, so
+        # there is no safe value to return here. The run aborts instead.
+        # Some runs that used to produce a brief will now produce
+        # nothing; that is the intended trade.
+        #
+        # A truncated response (output_tokens at the max_tokens ceiling)
+        # also lands here, so log enough to tell truncation apart from a
+        # genuine format error.
+        logger.error(
+            "analysis_parse_failed",
+            error=str(exc),
+            output_tokens=response.output_tokens,
+            content_len=len(response.content),
+            paper_count=len(all_papers),
+            tail=response.content[-200:],
+        )
+        raise ValueError(f"Failed to parse grounding analysis: {exc}") from exc
 
 
 def _extract_authors(paper: dict[str, Any]) -> list[str]:
@@ -395,12 +404,27 @@ async def literature_grounding_agent(input_data: GroundingInput) -> GroundingOut
     all_papers, papers_by_type = await _step2_search_papers(queries, ss_client)
 
     if not all_papers:
+        # S3/D2 — no papers is DATA, not a failure: a genuinely niche
+        # collision legitimately lands here, so the run continues. What
+        # does not continue is the novelty claim. This branch used to
+        # emit score 0.5 / verdict "novel" — a novelty verdict inferred
+        # from zero papers, i.e. the same fabrication removed from
+        # _step3_analyze above.
+        #
+        # The honest shape is the one node_skip_grounding already emits
+        # (score None, verdict "unavailable"), reused verbatim rather
+        # than adding a fourth verdict value: the frontend already
+        # receives it, verdictLabel() renders it, and it means exactly
+        # what it says — no novelty judgment could be made.
+        #
+        # Downstream, the S9.2 grounding gate rejects an empty
+        # evidence_base whenever grounding was actually available.
         logger.warning("no_papers_found", hypothesis=hypothesis[:100])
         return GroundingOutput(
             novelty_assessment={
-                "score": 0.5,
+                "score": None,
                 "closest_existing_work": [],
-                "verdict": "novel",
+                "verdict": "unavailable",
             },
             evidence_base=[],
             counter_evidence=[],

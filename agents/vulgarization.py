@@ -12,6 +12,7 @@ from agents.hypothesis_sharpening import SharpeningOutput
 from agents.experimental_protocol import ProtocolOutput
 from agents.multi_reviewer_panel import PanelOutput
 from llm import get_llm_client
+from llm.json_parse import complete_json
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("vulgarization")
@@ -26,15 +27,6 @@ class VulgarizationOutput(TypedDict):
     imagine_that: str
     concretely: dict[str, str]
     reviewers_say: str
-
-
-def _extract_json(content: str) -> dict[str, Any]:
-    """Extract JSON from LLM response, handling markdown code blocks."""
-    if "```json" in content:
-        content = content.split("```json")[1].split("```")[0]
-    elif "```" in content:
-        content = content.split("```")[1].split("```")[0]
-    return json.loads(content.strip())
 
 
 def _format_predictions(predictions: list[dict[str, Any]]) -> str:
@@ -135,25 +127,17 @@ async def vulgarization_agent(
     )
 
     logger.info("vulgarizing_brief", title=sharpened.get("title", "?"))
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=3000,
-        temperature=0.5,
-    )
-
-    tracker.log_call(
-        agent="vulgarization",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="vulgarization",
+            max_tokens=3000,
+            temperature=0.5,
+            tracker=tracker,
+        )
     except (json.JSONDecodeError, KeyError) as exc:
-        logger.error("vulgarization_parse_failed", error=str(exc), raw=response.content[:500])
+        logger.error("vulgarization_parse_failed", error=str(exc))
         raise ValueError(f"Failed to parse vulgarization output: {exc}") from exc
 
     concretely_raw = data.get("concretely", {}) or {}

@@ -4,6 +4,7 @@ Reads each brief JSON from outputs/briefs/, runs the vulgarization agent,
 patches the JSON on disk, and updates the SQLite briefs table.
 """
 
+import argparse
 import asyncio
 import json
 import sys
@@ -23,8 +24,21 @@ from logging_config import get_logger
 logger = get_logger("backfill_vulgarization")
 
 
-async def backfill_one(json_path: Path, force: bool = False) -> bool:
-    """Backfill a single brief JSON. Returns True on success."""
+async def backfill_one(
+    json_path: Path,
+    *,
+    force: bool = False,
+    dry_run: bool = False,
+    diff_against_current: bool = False,
+) -> bool:
+    """Backfill a single brief JSON. Returns True on success.
+
+    With ``dry_run=True`` the freshly generated vulgarization is printed to
+    stdout but neither the JSON file nor the SQLite ``briefs`` row is
+    touched. With ``diff_against_current=True`` the existing
+    ``vulgarization_fr`` (if any) is printed alongside the new one for
+    side-by-side review.
+    """
     try:
         data = json.loads(json_path.read_text(encoding="utf-8"))
     except Exception as exc:
@@ -32,6 +46,20 @@ async def backfill_one(json_path: Path, force: bool = False) -> bool:
         return False
 
     brief_id = data.get("brief_id", json_path.stem)
+
+    # S2c/C15 — never vulgarise a stub. A stub brief is the honest "this
+    # collision produced no bridge" analysis: there is no hypothesis to
+    # popularise, and the vulgarisation agent's prompt presupposes one, so
+    # it invents a plausible-sounding hypothesis (and a reviewer panel to
+    # go with it) that contradicts the very body of the page. This script
+    # globs every SPR-*.json in outputs/briefs and is the path that put a
+    # fabricated payload on the 16 stubs in the first place; the ``--force``
+    # / already-populated check below cannot catch it because after the
+    # C16 cleanup those rows are NULL again and would be regenerated.
+    # The guard is deliberately NOT overridable.
+    if data.get("is_stub"):
+        print(f"  skip {brief_id}: stub brief — no hypothesis to vulgarise")
+        return False
 
     if not force and data.get("vulgarization_fr"):
         print(f"  skip {brief_id}: already has vulgarization_fr (use --force to redo)")
@@ -83,6 +111,24 @@ async def backfill_one(json_path: Path, force: bool = False) -> bool:
         return False
 
     vulg_dict = dict(vulg)
+    sep = "─" * 78
+
+    if diff_against_current:
+        old_vulg = data.get("vulgarization_fr") or {}
+        print(f"\n{sep}\nANCIENNE VULGARISATION ({brief_id}) :\n{sep}")
+        print(json.dumps(old_vulg, indent=2, ensure_ascii=False))
+        print(f"\n{sep}\nNOUVELLE VULGARISATION ({brief_id}) :\n{sep}")
+        print(json.dumps(vulg_dict, indent=2, ensure_ascii=False))
+        print(sep)
+
+    if dry_run:
+        if not diff_against_current:
+            print(f"\n{sep}\n[DRY-RUN] {brief_id} — generated vulgarization:\n{sep}")
+            print(json.dumps(vulg_dict, indent=2, ensure_ascii=False))
+            print(sep)
+        print(f"  [DRY-RUN] {brief_id}: not writing JSON file nor DB")
+        return True
+
     data["vulgarization_fr"] = vulg_dict
     json_path.write_text(
         json.dumps(data, indent=2, ensure_ascii=False),
@@ -103,8 +149,49 @@ async def backfill_one(json_path: Path, force: bool = False) -> bool:
     return True
 
 
+def _build_arg_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Backfill French vulgarization for existing research briefs.",
+    )
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Regenerate even if vulgarization_fr already exists.",
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Generate the vulgarization but do NOT write the JSON file nor the DB.",
+    )
+    parser.add_argument(
+        "--brief-id",
+        type=str,
+        default=None,
+        metavar="SPR-XXXX-YYYY",
+        help="Process only this brief (instead of every SPR-*.json).",
+    )
+    parser.add_argument(
+        "--diff-against-current",
+        action="store_true",
+        help=(
+            "Print the existing vulgarization side by side with the freshly "
+            "generated one. Most useful with --dry-run; without --dry-run the "
+            "new version is still written after the diff is printed."
+        ),
+    )
+    return parser
+
+
 async def main() -> None:
-    force = "--force" in sys.argv
+    args = _build_arg_parser().parse_args()
+
+    if args.diff_against_current and not args.dry_run:
+        print(
+            "WARNING: --diff-against-current without --dry-run will print the "
+            "diff and STILL overwrite the existing vulgarization. Continuing.",
+            file=sys.stderr,
+        )
+
     settings = get_settings()
     briefs_dir = settings.output_dir / "briefs"
     if not briefs_dir.exists():
@@ -113,19 +200,33 @@ async def main() -> None:
 
     await init_database()
 
-    files = sorted(briefs_dir.glob("SPR-*.json"))
-    print(f"found {len(files)} brief JSONs in {briefs_dir}")
+    if args.brief_id:
+        target = briefs_dir / f"{args.brief_id}.json"
+        if not target.exists():
+            print(f"ERROR: brief not found: {target}", file=sys.stderr)
+            sys.exit(1)
+        files = [target]
+    else:
+        files = sorted(briefs_dir.glob("SPR-*.json"))
+
+    print(f"found {len(files)} brief JSON{'s' if len(files) != 1 else ''} to process")
 
     ok = 0
     fail = 0
     for i, p in enumerate(files, 1):
         print(f"[{i}/{len(files)}] {p.name}")
-        if await backfill_one(p, force=force):
+        if await backfill_one(
+            p,
+            force=args.force,
+            dry_run=args.dry_run,
+            diff_against_current=args.diff_against_current,
+        ):
             ok += 1
         else:
             fail += 1
 
-    print(f"\ndone: {ok} updated, {fail} skipped/failed")
+    label = "dry-run-OK" if args.dry_run else "updated"
+    print(f"\ndone: {ok} {label}, {fail} skipped/failed")
 
 
 if __name__ == "__main__":

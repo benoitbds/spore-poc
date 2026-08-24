@@ -182,6 +182,26 @@ CREATE TABLE IF NOT EXISTS magic_links (
 );
 CREATE INDEX IF NOT EXISTS idx_magic_links_user ON magic_links(user_id);
 
+-- Newsletter opt-in (N4.1). Double opt-in: confirmation_token verifies the
+-- email, unsubscribe_token enables one-click unsub from any newsletter
+-- email (RGPD + CAN-SPAM friendly). One row per email (UNIQUE).
+CREATE TABLE IF NOT EXISTS newsletter_subscribers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    source TEXT NOT NULL,                 -- 'brief:SPR-XXXX' | 'about' | 'home' | …
+    brief_id TEXT,                        -- nullable; the brief id when source = brief
+    subscribed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    confirmed BOOLEAN DEFAULT 0,          -- flips to 1 after the user clicks the confirm link
+    confirmation_token TEXT,              -- nullable once confirmed (or rotated on resend)
+    confirmed_at TIMESTAMP,
+    unsubscribed BOOLEAN DEFAULT 0,
+    unsubscribed_at TIMESTAMP,
+    unsubscribe_token TEXT NOT NULL       -- stable per row, embedded in every newsletter email
+);
+CREATE INDEX IF NOT EXISTS idx_newsletter_email ON newsletter_subscribers(email);
+CREATE INDEX IF NOT EXISTS idx_newsletter_confirmation_token ON newsletter_subscribers(confirmation_token);
+CREATE INDEX IF NOT EXISTS idx_newsletter_unsubscribe_token ON newsletter_subscribers(unsubscribe_token);
+
 -- L1 mutation history. Populated by agents/l1_executor.py per cycle
 -- (both APPLIED and REJECTED mutations are logged for full audit).
 CREATE TABLE IF NOT EXISTS mutations (
@@ -324,6 +344,40 @@ async def init_database() -> None:
             await conn.commit()
         except Exception:
             pass  # Column already exists
+
+        # Migration (S7.4 Phase 1): English vulgarisation column. Holds the
+        # JSON translated from vulgarization_data with the same nested
+        # shape (title, hypothesis_in_brief, why_it_matters, imagine_that,
+        # concretely.{intro,phase1,phase2,phase3}, reviewers_say). Written
+        # by scripts/translate_brief_vulgarization.py; consumed by spore-
+        # web's BriefDetailClient when locale=en (Phase 3 wiring).
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN vulgarization_data_en JSON"
+            )
+            await conn.commit()
+            logger.info("db_migration_vulgarization_data_en_added")
+        except Exception:
+            logger.debug("db_migration_vulgarization_data_en_already_present")
+
+        # Migration (S7.4 Phase 3-fix-v2.C): English panel-review column.
+        # Holds the JSON translated from panel_data with the same shape:
+        # reviews[].{strengths, weaknesses, critical_questions,
+        # recommendation} (per reviewer prose) +
+        # meta_review.{key_consensus, key_disagreements, critical_path,
+        # final_recommendation, revision_guidance}. Backend tokens
+        # (reviewer_persona, verdict, scores) are copied verbatim — only
+        # the prose is translated. Written by
+        # scripts/translate_brief_panel.py; consumed by spore-web's
+        # ReviewerPanel + RechercheSections when locale=en.
+        try:
+            await conn.execute(
+                "ALTER TABLE briefs ADD COLUMN panel_data_en JSON"
+            )
+            await conn.commit()
+            logger.info("db_migration_panel_data_en_added")
+        except Exception:
+            logger.debug("db_migration_panel_data_en_already_present")
 
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
@@ -826,6 +880,34 @@ async def list_briefs(
             )
         rows = await cursor.fetchall()
         return [dict(row) for row in rows]
+
+
+async def get_recent_consensus_scores(window: int = 20) -> list[float]:
+    """Return the consensus scores of the most recent scored briefs.
+
+    Used by the relative selection gate (S9.3) to place a publication
+    threshold at a percentile of recent panel output rather than at a
+    fixed absolute value. Only briefs that actually reached the panel
+    are considered: rows killed at grounding carry no consensus score
+    and would otherwise drag the percentile down.
+
+    Args:
+        window: Maximum number of recent scores to return.
+
+    Returns:
+        Consensus scores, most recent first. May be shorter than
+        ``window`` (or empty) early in the corpus' life.
+    """
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            """SELECT panel_consensus_score FROM briefs
+               WHERE panel_consensus_score IS NOT NULL
+                 AND panel_consensus_score > 0
+               ORDER BY created_at DESC LIMIT ?""",
+            (window,),
+        )
+        rows = await cursor.fetchall()
+        return [float(row[0]) for row in rows]
 
 
 async def get_brief(brief_id: str) -> dict[str, Any] | None:

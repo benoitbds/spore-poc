@@ -37,6 +37,15 @@ outputs/digests/
 outputs/observation_L1-*.json
 outputs/strategy_L1-*.json
 
+# Outreach workflow (N4.4) — generated email drafts and tracking CSV
+# contain author personal emails after manual annotation. Local only.
+outputs/outreach/
+
+# uv lockfile — not tracked yet by the project. To start tracking it
+# (recommended for reproducible builds), remove this line and run
+# `git add uv.lock` once.
+uv.lock
+
 # Local convenience scripts (not part of the project)
 start_streamlit.sh
 
@@ -46,3 +55,5 @@ start_streamlit.sh
 # OS
 .DS_Store
 Thumbs.db
+outputs/notify_state/
+outputs/run_logs/
