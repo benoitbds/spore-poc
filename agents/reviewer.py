@@ -329,7 +329,41 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
         )
 
     # ── Post-processing: mechanical overrides independent of the LLM ───
-    composite = hypothesis.scores.composite if hypothesis.scores and hypothesis.scores.composite is not None else 0.5
+    # S4A-3 — troisième site de la même fabrication.
+    #
+    # Ce ``else 0.5`` faisait échapper une hypothèse SANS scores à l'override
+    # mécanique ``composite < 0.35 → poubelle`` : elle héritait d'un composite
+    # confortablement au-dessus du seuil. Depuis que le critique fail-close et
+    # que la boucle abandonne l'hypothèse, ce chemin ne devrait plus être
+    # atteint — mais le laisser en place aurait suffi à rendre les deux autres
+    # corrections inopérantes si un jour une hypothèse sans scores revenait.
+    #
+    # Une hypothèse sans composite n'est pas évaluable : elle est rejetée, ce
+    # qui est la même règle que le fail-closed de parsing quelques lignes plus
+    # haut.
+    if hypothesis.scores is None or hypothesis.scores.composite is None:
+        logger.error(
+            "reviewer_no_composite",
+            hypothesis_id=hypothesis.id,
+            outcome="fail_closed_poubelle",
+            reason="hypothesis reached the reviewer without a composite score",
+        )
+        return AutoFeedback(
+            verdict="poubelle",
+            comment=(
+                "Aucun score composite — l'hypothèse n'a pas été évaluée par "
+                "le débat contradictoire. Fail-closed."
+            ),
+            scores=AutoFeedbackScores(
+                originalite=0.0,
+                faisabilite=0.0,
+                coherence=0.0,
+                impact_realisme=0.0,
+            ),
+            override_reason="No composite score — fail closed",
+        )
+
+    composite = hypothesis.scores.composite
     hallucination_risk = hypothesis.scores.hallucination_risk if hypothesis.scores else 0.0
 
     original_verdict = feedback.verdict

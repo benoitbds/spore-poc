@@ -69,6 +69,15 @@ ALERT_EVENTS: dict[str, str] = {
     "brief_db_save_failed": "brief généré mais non persisté",
     "custom_brief_not_promoted": "RUN PAYANT : brief non promu (C18)",
     "custom_post_fire_failed": "RUN PAYANT : post-fire en échec",
+    # S4A-4 — les critiques L0. Un critique qui n'a pas pu statuer fait
+    # abandonner l'hypothèse (S4A-3) : l'issue du run change, donc alerte.
+    # Ces événements étaient en warning, sans hypothesis_id ni payload —
+    # c'est pourquoi le diagnostic S4-A a dû les relier par proximité
+    # temporelle. Ils portent maintenant les deux.
+    "devil_json_parse_failed": "critique adverse illisible, hypothèse abandonnée",
+    "angel_json_parse_failed": "avocat illisible, hypothèse abandonnée",
+    "critique_failed": "débat contradictoire en échec, hypothèse abandonnée",
+    "reviewer_no_composite": "hypothèse arrivée au reviewer sans composite",
 }
 
 # COMPTEUR : absorbé par un repli de conception. On mesure, on n'alerte pas —
@@ -81,6 +90,7 @@ COUNTER_EVENTS: dict[str, str] = {
     "post_fire_failed": "post-fire abandonné (la cause a déjà alerté)",
     "query_extraction_failed": "requêtes de recherche en repli",
     "no_papers_found": "aucun article trouvé (donnée, pas échec)",
+    "debate_log_truncated": "debate log élagué au plafond (S4A-5)",
 }
 
 # Au-delà de cette fraction de la population du jour, un compteur redevient
