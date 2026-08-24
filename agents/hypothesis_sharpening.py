@@ -9,6 +9,7 @@ from typing import Any, TypedDict
 
 from agents.base import load_prompt
 from llm import get_llm_client
+from llm.json_parse import complete_json
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("hypothesis_sharpening")
@@ -36,15 +37,6 @@ class SharpeningOutput(TypedDict):
     falsifiable_predictions: list[dict[str, str]]
     boundary_conditions: list[dict[str, str]]
     theoretical_framework: str
-
-
-def _extract_json(content: str) -> dict[str, Any]:
-    """Extract JSON from LLM response, handling markdown code blocks."""
-    if "```json" in content:
-        content = content.split("```json")[1].split("```")[0]
-    elif "```" in content:
-        content = content.split("```")[1].split("```")[0]
-    return json.loads(content.strip())
 
 
 def _format_evidence_for_prompt(papers: list[dict[str, Any]]) -> str:
@@ -93,25 +85,17 @@ async def hypothesis_sharpening_agent(input_data: SharpeningInput) -> Sharpening
     # mid-JSON, producing unparseable output and killing the post-fire
     # pipeline silently. See hypothesis_sharpening_parse_failed forensics
     # for SPORE-2026-04-14-156f6c3a and SPORE-2026-04-14-98842ca5.
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=8000,
-        temperature=0.4,
-    )
-
-    tracker.log_call(
-        agent="hypothesis_sharpening",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="hypothesis_sharpening",
+            max_tokens=8000,
+            temperature=0.4,
+            tracker=tracker,
+        )
     except (json.JSONDecodeError, KeyError) as exc:
-        logger.error("sharpening_parse_failed", error=str(exc), raw=response.content[:500])
+        logger.error("sharpening_parse_failed", error=str(exc))
         raise ValueError(f"Failed to parse sharpening output: {exc}") from exc
 
     output = SharpeningOutput(

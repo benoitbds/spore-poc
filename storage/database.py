@@ -882,6 +882,34 @@ async def list_briefs(
         return [dict(row) for row in rows]
 
 
+async def get_recent_consensus_scores(window: int = 20) -> list[float]:
+    """Return the consensus scores of the most recent scored briefs.
+
+    Used by the relative selection gate (S9.3) to place a publication
+    threshold at a percentile of recent panel output rather than at a
+    fixed absolute value. Only briefs that actually reached the panel
+    are considered: rows killed at grounding carry no consensus score
+    and would otherwise drag the percentile down.
+
+    Args:
+        window: Maximum number of recent scores to return.
+
+    Returns:
+        Consensus scores, most recent first. May be shorter than
+        ``window`` (or empty) early in the corpus' life.
+    """
+    async with get_connection() as conn:
+        cursor = await conn.execute(
+            """SELECT panel_consensus_score FROM briefs
+               WHERE panel_consensus_score IS NOT NULL
+                 AND panel_consensus_score > 0
+               ORDER BY created_at DESC LIMIT ?""",
+            (window,),
+        )
+        rows = await cursor.fetchall()
+        return [float(row[0]) for row in rows]
+
+
 async def get_brief(brief_id: str) -> dict[str, Any] | None:
     """Get a single brief by ID."""
     async with get_connection() as conn:

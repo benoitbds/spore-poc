@@ -35,6 +35,7 @@ from logging_config import get_logger
 from models.collision import Collision, CollisionPair, CollisionStrategy
 from models.domain import Domain
 from storage.database import (
+    get_brief,
     init_database,
     save_hypothesis,
     save_stub_brief,
@@ -461,6 +462,43 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
         await update_brief(brief_id, low_confidence=1)
     if grounding_degraded:
         await update_brief(brief_id, low_evidence=1)
+
+    # S3/C18 — un run payant n'est 'complete' que si son brief l'est aussi.
+    #
+    # Avant : dès que le pipeline rendait un brief_id, custom_requests passait
+    # à 'complete' avec ce brief_id, et /custom/{id}/status affichait « Votre
+    # brief est prêt » avec un lien vers /briefs/{brief_id}. Depuis que le
+    # front ne sert plus que les briefs publiables (S3/D1b-1), et depuis que
+    # node_research_brief écrit 'pending' (C18), ce lien pouvait mener à un
+    # 404 — sur un brief que le client a payé.
+    #
+    # ``pf_state`` ne suffit pas à trancher : la promotion est écrite en base
+    # par node_validate_brief, pas portée dans l'état. On relit donc la ligne.
+    brief_row = await get_brief(brief_id)
+    brief_status = (brief_row or {}).get("status")
+
+    if brief_status != "complete":
+        # Le brief existe, il n'est pas publiable. Le run est en échec du
+        # point de vue de la livraison — c'est un lien mort qu'on évite
+        # d'envoyer, pas un brief qu'on cache.
+        missing = pf_state.get("missing_fields") or []
+        err = (
+            f"brief {brief_id} non promu (statut={brief_status!r}"
+            + (f", champs manquants: {', '.join(missing)}" if missing else "")
+            + ")"
+        )
+        logger.error(
+            "custom_brief_not_promoted",
+            request_id=request_id,
+            brief_id=brief_id,
+            brief_status=brief_status,
+            missing_fields=missing,
+        )
+        await update_custom_request(
+            request_id, status="failed", error_message=err, completed=True,
+            hypothesis_id=hypothesis.id, brief_id=brief_id,
+        )
+        raise RuntimeError(err)
 
     await update_custom_request(
         request_id,

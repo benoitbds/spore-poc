@@ -43,6 +43,7 @@ class LLMClient(ABC):
         max_tokens: int = 4000,
         temperature: float = 0.7,
         system: str | None = None,
+        json_mode: bool = False,
     ) -> LLMResponse:
         """Send a completion request to the LLM.
 
@@ -51,6 +52,11 @@ class LLMClient(ABC):
             max_tokens: Maximum tokens to generate
             temperature: Sampling temperature
             system: Optional system prompt
+            json_mode: Ask the provider to constrain the output to valid JSON.
+                Opt-in per call, never global: DeepSeek's JSON mode requires
+                the word "json" in the prompt and errors otherwise, and not
+                every SPORE prompt is a JSON prompt (L0/L1 agents included).
+                Only callers whose prompt already asks for JSON may set it.
 
         Returns:
             LLMResponse with content and usage info
@@ -75,7 +81,22 @@ class AnthropicClient(LLMClient):
         max_tokens: int = 4000,
         temperature: float = 0.7,
         system: str | None = None,
+        json_mode: bool = False,
     ) -> LLMResponse:
+        # ``json_mode`` is accepted and deliberately NOT forwarded here.
+        #
+        # Anthropic has no free-form "any valid JSON" mode: structured output
+        # goes through ``output_config={"format": {"type": "json_schema",
+        # "schema": ...}}``, which needs a per-agent JSON Schema. SPORE has
+        # none — the agents describe their shape in prose inside the prompt.
+        # Writing five schemas to serve a fallback path that fires only when
+        # DeepSeek is down is not the trade to make today; the shared parser
+        # (llm/json_parse.py) is the net for this path, which is exactly why
+        # it stays necessary even with DeepSeek's JSON mode on.
+        #
+        # The parameter is available on the installed SDK (anthropic 0.97.0
+        # exposes ``output_config`` and ``messages.parse``), so the day those
+        # schemas exist this is a small change, not a migration.
         kwargs: dict[str, Any] = {
             "model": self.model,
             "max_tokens": max_tokens,
@@ -136,6 +157,7 @@ class DeepSeekClient(LLMClient):
         max_tokens: int = 4000,
         temperature: float = 0.7,
         system: str | None = None,
+        json_mode: bool = False,
     ) -> LLMResponse:
         # DeepSeek uses OpenAI format - system is a message
         all_messages = []
@@ -143,11 +165,30 @@ class DeepSeekClient(LLMClient):
             all_messages.append({"role": "system", "content": system})
         all_messages.extend(messages)
 
+        # S3/C17b — JSON mode natif. Vérifié en direct sur deepseek-v4-flash :
+        # ``response_format={"type": "json_object"}`` est compatible avec le
+        # ``thinking: disabled`` ci-dessous (6/6 sorties parsables), alors que
+        # le mode JSON SEUL, thinking actif, a rendu un ``content`` vide — le
+        # cas que la doc DeepSeek signale. Les deux vont donc ensemble.
+        #
+        # Pas de mode par schéma : ``{"type": "json_schema"}`` renvoie
+        # 400 « This response_format type is unavailable now ». Le mode
+        # contraint la SYNTAXE, pas la forme — d'où le parseur partagé qui
+        # reste derrière pour le résidu, et la validation de forme qui reste
+        # chez chaque agent.
+        #
+        # Le mode exige le mot « json » dans le prompt ; c'est pourquoi il est
+        # opt-in par appel et non activé globalement.
+        extra: dict[str, Any] = {}
+        if json_mode:
+            extra["response_format"] = {"type": "json_object"}
+
         response = await self.client.chat.completions.create(
             model=self.model,
             messages=all_messages,
             max_tokens=max_tokens,
             temperature=temperature,
+            **extra,
             # Les modèles V4 raisonnent PAR DÉFAUT quand ``thinking`` est omis :
             # la réponse arrive alors avec ``reasoning_content`` rempli et
             # ``content`` potentiellement vide si max_tokens est atteint pendant
@@ -198,13 +239,14 @@ class FallbackClient(LLMClient):
         max_tokens: int = 4000,
         temperature: float = 0.7,
         system: str | None = None,
+        json_mode: bool = False,
     ) -> LLMResponse:
         # Try primary with exponential backoff
         last_error = None
         for attempt in range(self.max_retries):
             try:
                 response = await self.primary.complete(
-                    messages, max_tokens, temperature, system
+                    messages, max_tokens, temperature, system, json_mode
                 )
                 return response
             except Exception as e:
@@ -230,7 +272,7 @@ class FallbackClient(LLMClient):
         )
 
         response = await self.fallback.complete(
-            messages, max_tokens, temperature, system
+            messages, max_tokens, temperature, system, json_mode
         )
 
         # Mark that we used fallback

@@ -31,7 +31,10 @@ from agents.experimental_protocol import (
 )
 from agents.multi_reviewer_panel import (
     full_panel_review,
+    selection_threshold,
     PanelOutput,
+    SELECTION_FLOOR,
+    SELECTION_WINDOW,
 )
 from agents.research_brief_generator import save_brief
 from agents.translation import (
@@ -40,7 +43,12 @@ from agents.translation import (
 )
 from agents.vulgarization import vulgarization_agent
 from knowledge import is_ss_circuit_open
-from storage import save_brief as save_brief_db, init_database
+from storage import (
+    save_brief as save_brief_db,
+    get_recent_consensus_scores,
+    init_database,
+    update_brief,
+)
 from logging_config import get_logger
 
 logger = get_logger("post_fire_pipeline")
@@ -74,6 +82,11 @@ class PostFireState(TypedDict, total=False):
     meta_verdict: str
     revision_count: int
 
+    # Relative selection gate (S9.3)
+    selection_threshold: float
+    selection_reason: str
+    selection_window_size: int
+
     # Brief
     brief_id: str
     brief_md_path: str
@@ -87,6 +100,12 @@ class PostFireState(TypedDict, total=False):
     # brief stays FR-only with frontend fallback.
     vulgarization_en: dict[str, Any]
     panel_en: dict[str, Any]
+
+    # S3/C18 — verdict du nœud de validation final. brief_validated=False
+    # signifie que la ligne est restée en 'pending' : elle existe en base,
+    # elle n'est servie nulle part.
+    brief_validated: bool
+    missing_fields: list[str]
 
     # Stub flag — set when the brief is a stub (Synthesis refused to
     # bridge the pair). Stubs skip the translation_hook because they
@@ -136,6 +155,60 @@ async def node_persist_grounding_kill(state: PostFireState) -> PostFireState:
     except Exception as exc:  # noqa: BLE001
         logger.error(
             "grounding_kill_persist_failed",
+            hypothesis_id=hypothesis_id,
+            error=str(exc),
+        )
+
+    return {**state, "brief_id": brief_id}
+
+
+async def node_persist_panel_reject(state: PostFireState) -> PostFireState:
+    """Persist a panel-rejected brief row so the score survives the reject.
+
+    This is what keeps the S9.3 relative selection gate honest. The gate
+    places its threshold at a percentile of recent consensus scores; if
+    only published briefs were stored, that window would be a censored,
+    survivors-only sample and the percentile would ratchet upward every
+    cycle — the bottom slice is removed from the population that sets
+    the next threshold — until nothing publishes at all. That is the
+    S8.4 trap (calibrating on survivors) running in the other direction.
+
+    Persisting rejects keeps the window representative of everything the
+    panel actually scored. Evidence that the censoring was real: before
+    this node, the minimum consensus in the whole briefs table was 5.50,
+    exactly the old ITER2_PUBLISH_THRESHOLD.
+
+    Writes a row with status='rejected' carrying the panel payload and
+    consensus score. brief_id format: SPR-<YYYY>-R<4hex>.
+    """
+    brief_id = f"SPR-{date.today().strftime('%Y')}-R{uuid4().hex[:4].upper()}"
+    hypothesis_id = state.get("hypothesis_id", brief_id)
+    panel = state.get("panel")
+    consensus = (panel or {}).get("meta_review", {}).get("consensus_score")
+
+    try:
+        await init_database()
+        await save_brief_db(
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            grounding_data=state.get("grounding"),
+            sharpened_data=state.get("sharpened"),
+            protocol_data=state.get("protocol"),
+            panel_data=panel,
+            status="rejected",
+            revision_count=state.get("revision_count", 0),
+        )
+        logger.info(
+            "panel_reject_persisted",
+            brief_id=brief_id,
+            hypothesis_id=hypothesis_id,
+            consensus=consensus,
+            selection_threshold=state.get("selection_threshold"),
+        )
+    except Exception as exc:  # noqa: BLE001 — a failed audit write must
+        # not turn a reject into a crash; the run is over either way.
+        logger.error(
+            "panel_reject_persist_failed",
             hypothesis_id=hypothesis_id,
             error=str(exc),
         )
@@ -260,6 +333,28 @@ async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
 
     meta = output["meta_review"]
 
+    # S9.3 relative selection: the threshold depends on recent panel
+    # output, so it is resolved here (async, DB read) and carried in
+    # state for the sync router to apply.
+    try:
+        recent = await get_recent_consensus_scores(window=SELECTION_WINDOW)
+        threshold, reason = selection_threshold(recent)
+    except Exception as exc:  # noqa: BLE001 — never let the gate break the run
+        logger.warning(
+            "selection_threshold_unavailable",
+            error=str(exc),
+            fallback=SELECTION_FLOOR,
+        )
+        recent, threshold, reason = [], SELECTION_FLOOR, "floor_read_failed"
+
+    logger.info(
+        "selection_threshold_resolved",
+        threshold=round(threshold, 2),
+        reason=reason,
+        window_size=len(recent),
+        consensus=meta.get("consensus_score"),
+    )
+
     return {
         **state,
         "panel": {
@@ -268,6 +363,9 @@ async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
         },
         "meta_verdict": meta["verdict"],
         "revision_count": iteration,
+        "selection_threshold": threshold,
+        "selection_reason": reason,
+        "selection_window_size": len(recent),
     }
 
 
@@ -604,7 +702,23 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
                 "reviews": [dict(r) for r in panel["reviews"]],
                 "meta_review": dict(panel["meta_review"]),
             },
-            status="complete",
+            # S3/C18 — 'pending', pas 'complete'. Le générateur a écrit sa
+            # ligne ; le pipeline n'est pas allé au bout. La promotion en
+            # 'complete' appartient à node_validate_brief, en fin de graphe,
+            # après la vulgarisation et le hook de traduction.
+            #
+            # Sans ça, la ligne était publiable dès cet instant : quand la
+            # vulgarisation échouait ensuite (node_vulgarization attrape et
+            # rend l'état inchangé), le brief restait publié, incomplet, sans
+            # que rien ne le signale. Trace : SPR-2026-4469, -FBCA, -A2C5.
+            #
+            # 'pending' est la valeur par défaut de la colonne au schéma, donc
+            # aucune migration : les lignes non promues portent simplement ce
+            # que le schéma prévoyait déjà. Le prédicat du front
+            # (spore-web/src/lib/brief-visibility.ts) teste status='complete'
+            # OR is_stub, donc une ligne 'pending' est déjà exclue de toutes
+            # les surfaces publiques sans y toucher.
+            status="pending",
             brief_md_path=md_path_str or None,
             brief_json_path=json_path_str or None,
             revision_count=revision_count,
@@ -621,6 +735,86 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
         "brief_md_path": md_path_str,
         "brief_json_path": json_path_str,
     }
+
+
+# S3/C18 — champs exigés pour promouvoir un brief en 'complete'.
+#
+# La vulgarisation FR est requise : c'est le trou que C18 ferme, et un brief
+# publié sans elle est celui que le site rend mal aujourd'hui.
+#
+# L'anglais (vulgarization_data_en, panel_data_en) est délibérément ABSENT de
+# cette liste. SPR-2026-F2F4 est publié aujourd'hui avec sa vulgarisation FR
+# et sans l'EN, légitimement : le hook de traduction est un enrichissement,
+# pas une condition de publication. L'exiger bloquerait des briefs corrects.
+REQUIRED_FOR_COMPLETE: tuple[str, ...] = (
+    "sharpened",
+    "protocol",
+    "panel",
+    "vulgarization_fr",
+)
+
+
+def _missing_required_fields(state: PostFireState) -> list[str]:
+    """Champs requis absents ou vides dans l'état final du graphe.
+
+    Contrôle mécanique de présence et de complétude — pas de jugement LLM,
+    conformément au pattern du projet (seuils du méta-reviewer, gates S9.2 et
+    S9.3, override Python du consensus).
+    """
+    missing: list[str] = []
+    for field in REQUIRED_FOR_COMPLETE:
+        value = state.get(field)
+        if not value:
+            missing.append(field)
+    return missing
+
+
+async def node_validate_brief(state: PostFireState) -> PostFireState:
+    """Dernier nœud du graphe : promeut le brief en 'complete', ou le laisse.
+
+    ``complete`` doit signifier « le pipeline a réussi », pas « le générateur
+    a écrit sa ligne ». Ce nœud est le seul endroit qui écrit ce statut sur le
+    chemin de publication.
+
+    Une ligne non promue reste en 'pending' : invisible du site (le prédicat
+    du front exige 'complete' ou is_stub), conservée en base pour diagnostic,
+    et détectée par ``scripts/daily_pipeline_digest.py`` au-delà de 2 h.
+
+    Les nœuds ``persist_panel_reject`` et ``persist_grounding_kill`` ne
+    passent PAS par ici : ils écrivent 'rejected' et 'killed', terminaux par
+    conception, et n'ont jamais été publiables.
+    """
+    brief_id = state.get("brief_id")
+    if not brief_id:
+        # Aucun brief à valider — chemin non atteint en pratique, le nœud
+        # n'est câblé qu'après research_brief_generator.
+        return {**state}
+
+    missing = _missing_required_fields(state)
+    if missing:
+        logger.error(
+            "brief_validation_failed",
+            brief_id=brief_id,
+            missing_fields=missing,
+            # Le payload brut de ce qui a échoué en amont, tronqué. Les 26
+            # reviewer_parse_failed d'août ne l'enregistrent pas, ce qui les
+            # rend indiagnosticables ; on ne reproduit pas ce trou.
+            last_error=str(state.get("errors", [])[-1])[:500]
+            if state.get("errors")
+            else None,
+            revision_count=state.get("revision_count", 0),
+        )
+        return {**state, "brief_validated": False, "missing_fields": missing}
+
+    try:
+        await init_database()
+        await update_brief(brief_id, status="complete")
+    except Exception as exc:
+        logger.error("brief_promotion_failed", brief_id=brief_id, error=str(exc))
+        return {**state, "brief_validated": False, "missing_fields": ["db_write"]}
+
+    logger.info("brief_validated", brief_id=brief_id)
+    return {**state, "brief_validated": True, "missing_fields": []}
 
 
 # ── Conditional edge functions ───────────────────────────────
@@ -680,6 +874,24 @@ def should_revise_or_publish(state: PostFireState) -> str:
         )
         return "rejected"
 
+    # S9.3 relative selection gate. The panel's absolute thresholds pass
+    # essentially everything (26/26 on 2026-07-20); this gate keeps only
+    # the top slice of recent panel output, with an absolute floor. The
+    # threshold was resolved in node_multi_reviewer_panel.
+    consensus = state.get("panel", {}).get("meta_review", {}).get(
+        "consensus_score", 0.0
+    )
+    threshold = state.get("selection_threshold", SELECTION_FLOOR)
+    if consensus < threshold:
+        logger.info(
+            "brief_rejected_selection_gate",
+            consensus=consensus,
+            threshold=round(threshold, 2),
+            reason=state.get("selection_reason"),
+            window_size=state.get("selection_window_size"),
+        )
+        return "rejected"
+
     return "publish"
 
 
@@ -698,12 +910,14 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("literature_grounding", node_literature_grounding)
     workflow.add_node("skip_grounding", node_skip_grounding)
     workflow.add_node("persist_grounding_kill", node_persist_grounding_kill)
+    workflow.add_node("persist_panel_reject", node_persist_panel_reject)
     workflow.add_node("hypothesis_sharpening", node_hypothesis_sharpening)
     workflow.add_node("experimental_protocol", node_experimental_protocol)
     workflow.add_node("multi_reviewer_panel", node_multi_reviewer_panel)
     workflow.add_node("research_brief_generator", node_research_brief)
     workflow.add_node("vulgarization", node_vulgarization)
     workflow.add_node("translation_hook", node_translation_hook)
+    workflow.add_node("validate_brief", node_validate_brief)
 
     # Entry point — routes to full grounding or degraded skip
     workflow.set_entry_point("grounding_router")
@@ -741,13 +955,17 @@ def create_post_fire_pipeline() -> StateGraph:
         {
             "revise": "hypothesis_sharpening",
             "publish": "research_brief_generator",
-            "rejected": END,
+            "rejected": "persist_panel_reject",
         },
     )
 
+    workflow.add_edge("persist_panel_reject", END)
+
     workflow.add_edge("research_brief_generator", "vulgarization")
     workflow.add_edge("vulgarization", "translation_hook")
-    workflow.add_edge("translation_hook", END)
+    # S3/C18 — la validation est le dernier nœud du chemin de publication.
+    workflow.add_edge("translation_hook", "validate_brief")
+    workflow.add_edge("validate_brief", END)
 
     return workflow
 
