@@ -170,3 +170,98 @@ là où 404 en est un. Conséquence directe pour la pièce 3 de
 `docs/S3_D1b2_sidecars.md` : une commande `reconcile` qui déplace des fichiers
 doit être suivie d'un redémarrage du serveur, ou tourner avant son démarrage.
 Un déplacement à chaud laisse des 400 jusqu'au prochain `next start`.
+
+---
+
+## Un `novelty_score` NULL fait tomber `/fr/briefs` en 500
+
+*Relevé au sprint S3 (D2), 2026-08-24. Défaut spore-web, préexistant à D2. Aucune correction appliquée — hors périmètre du sprint.*
+
+`EditorialBriefCard.tsx:103` fait `novelty.toFixed(2)` sur
+`grounding.novelty_assessment.score`. Le type TypeScript déclare
+`score: number` (`types.ts:30`), donc le compilateur ne voit rien ; à
+l'exécution un `null` lève `TypeError: Cannot read properties of null
+(reading 'toFixed')` **dans un composant serveur**. La carte est rendue dans
+la boucle de la liste : **un seul brief concerné met toute la page
+`/fr/briefs` en 500**, pas seulement sa carte.
+
+Reproduction (base copiée, aucune écriture réelle) :
+
+```sh
+sqlite3 -readonly data/spore.db "VACUUM INTO '/tmp/sim.db'"
+sqlite3 /tmp/sim.db "PRAGMA journal_mode=WAL;
+UPDATE briefs SET novelty_score=NULL,
+  grounding_data=json_set(grounding_data,'\$.novelty_assessment.score',json('null'))
+WHERE id='SPR-2026-F2F4';"
+SPORE_DB_PATH=/tmp/sim.db npx next dev -p 5097
+curl -s -o /dev/null -w '%{http_code}\n' localhost:5097/fr/briefs   # 500
+curl -s -o /dev/null -w '%{http_code}\n' localhost:5097/fr/briefs/SPR-2026-F2F4  # 200
+```
+
+La page de détail survit : `db.ts:308` coalesce (`nov.score ?? 0`) sur le
+chemin du teaser. Ce n'est pas non plus le défaut C14 des cartes stub (des
+NULL affichés « 0.00 » via `defaultGrounding()`) : `defaultGrounding()` ne
+s'applique que si `grounding_data` est absent, et `EditorialBriefCard:103` est
+gardé par `!is_stub`. Ici `grounding_data` est présent et le brief n'est pas un
+stub — donc ni le défaut, ni le garde.
+
+### Ce défaut précède D2
+
+`node_skip_grounding` (`graph/post_fire_pipeline.py:224`) émet déjà
+`score: None` / `verdict: "unavailable"` quand Semantic Scholar est coupé. La
+route existe donc depuis le mode dégradé ; elle n'a simplement jamais publié
+de brief :
+
+```sh
+sqlite3 -readonly data/spore.db \
+  "SELECT COUNT(*) FROM briefs WHERE status='complete' AND low_evidence=1;"   -- 0
+sqlite3 -readonly data/spore.db \
+  "SELECT COUNT(*) FROM briefs WHERE status='complete'
+     AND COALESCE(is_stub,0)=0 AND novelty_score IS NULL;"                    -- 0
+```
+
+D2 ajoute une **seconde** route au même crash latent (`not all_papers`), il ne
+le crée pas.
+
+### Atteignabilité
+
+Les deux routes exigent que le gate S9.2 laisse passer. Or il rejette un
+`evidence_base` vide **sauf** si `grounding_degraded`. Il faut donc
+simultanément le circuit Semantic Scholar ouvert et un score de panel
+publiable. Rare, mais un run de 04:15 peut y arriver.
+
+### Correction, quand elle sera faite (spore-web)
+
+Passer `NoveltyAssessment.score` à `number | null` — le compilateur désignera
+alors les quatre sites concernés (`EditorialBriefCard.tsx:103`,
+`[locale]/page.tsx:317`, `BriefDetailClient.tsx:1108`,
+`BriefsClient.tsx:221-222`, ce dernier faisant de l'arithmétique de tri). Ne
+PAS coalescer vers 0 : c'est exactement la fabrication que C14 a retirée des
+cartes stub. Masquer la métrique, comme le fait déjà le garde `!is_stub`.
+
+---
+
+## Le cron exécute la branche laissée en checkout
+
+*Relevé au sprint S3, 2026-08-24. Constat, aucune correction.*
+
+Le cron L0 de 04:15 UTC lance le pipeline depuis
+`/home/baq/Projects/spore-poc` sans se positionner sur une référence git. Il
+exécute donc **le code de la branche en checkout au moment où il se
+déclenche**, quelle qu'elle soit.
+
+Conséquences observées :
+
+* la production tourne depuis `feat/s9-3-relative-selection-gate` depuis le
+  2026-07-21, pas depuis `master` ;
+* toute manipulation git laissant une autre branche en checkout change
+  silencieusement le code qui tournera à 04:15 ;
+* c'est le mécanisme de l'incident du cherry-pick C15 : le correctif a dû être
+  reporté sur `master` alors que la branche en checkout le portait déjà. Les
+  deux commits (`447a9b2` sur master, `2d71131` sur la branche) ont un diff
+  identique, mais l'historique porte deux fois le même travail.
+
+Aucune correction ici. Ce qu'une correction supposerait : que le cron
+s'exécute depuis une référence explicite (`git -C … rev-parse`, un worktree
+dédié, ou un déploiement figé), ce qui est un changement de modèle de
+déploiement, pas un correctif.
