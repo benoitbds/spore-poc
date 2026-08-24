@@ -108,4 +108,5 @@ servis publiquement.
 
 Décision produit prise au S3 : ces sidecars deviennent un **format documenté
 et citable**, ce qui rend leur cohérence avec le statut nécessaire et non plus
-optionnelle. Le mécanisme reste à arbitrer — voir le rapport S3/D1b-2.
+optionnelle. Le mécanisme reste à arbitrer — inventaire, cause racine et
+proposition dans `docs/S3_D1b2_sidecars.md`.
