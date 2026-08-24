@@ -15,6 +15,7 @@ from typing import Any, Optional, TypedDict
 from agents.base import load_prompt
 from knowledge.semantic_scholar import SemanticScholarClient, get_semantic_scholar_client
 from llm import get_llm_client
+from llm.json_parse import complete_json
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("literature_grounding")
@@ -40,15 +41,6 @@ class GroundingOutput(TypedDict):
     all_papers: list[dict[str, Any]]
     search_queries: list[dict[str, str]]
     kill_reason: Optional[str]
-
-
-def _extract_json(content: str) -> dict[str, Any]:
-    """Extract JSON from LLM response, handling markdown code blocks."""
-    if "```json" in content:
-        content = content.split("```json")[1].split("```")[0]
-    elif "```" in content:
-        content = content.split("```")[1].split("```")[0]
-    return json.loads(content.strip())
 
 
 def _extract_doi(paper: dict[str, Any]) -> Optional[str]:
@@ -101,23 +93,15 @@ async def _step1_extract_queries(
     )
 
     logger.info("extracting_search_queries", domains=domains)
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=2000,
-        temperature=0.4,
-    )
-
-    tracker.log_call(
-        agent="literature_grounding",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="literature_grounding",
+            max_tokens=2000,
+            temperature=0.4,
+            tracker=tracker,
+        )
         queries = data.get("queries", [])
         logger.info("queries_extracted", count=len(queries))
         return queries
@@ -243,23 +227,15 @@ async def _step3_analyze(
     )
     # max_tokens 8000 (matches sharpening/protocol): the 4000 ceiling
     # truncated the analysis JSON for large paper sets.
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=8000,
-        temperature=0.3,
-    )
-
-    tracker.log_call(
-        agent="literature_grounding",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
-
     try:
-        analysis = _extract_json(response.content)
+        analysis, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="literature_grounding",
+            max_tokens=8000,
+            temperature=0.3,
+            tracker=tracker,
+        )
 
         # Validate that cited paper_ids exist in our search results
         valid_ids = {p.get("paperId") for p in all_papers}

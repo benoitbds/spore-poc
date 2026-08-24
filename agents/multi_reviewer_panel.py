@@ -19,6 +19,7 @@ from agents.base import load_prompt
 from agents.hypothesis_sharpening import SharpeningOutput
 from agents.experimental_protocol import ProtocolOutput
 from llm import get_llm_client
+from llm.json_parse import complete_json
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("multi_reviewer_panel")
@@ -196,15 +197,6 @@ def threshold_verdict(consensus_score: float, iteration: int) -> str:
     return "revise_and_resubmit"
 
 
-def _extract_json(content: str) -> dict[str, Any]:
-    """Extract JSON from LLM response."""
-    if "```json" in content:
-        content = content.split("```json")[1].split("```")[0]
-    elif "```" in content:
-        content = content.split("```")[1].split("```")[0]
-    return json.loads(content.strip())
-
-
 def _format_variables(sharpened: SharpeningOutput) -> str:
     """Format variables for reviewer prompts."""
     lines = ["Independent:"]
@@ -316,23 +308,16 @@ async def _run_single_reviewer(
     prompt = prompt_template.format(**format_kwargs)
 
     logger.info("running_reviewer", persona=persona)
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=2000,
-        temperature=0.5,
-    )
-
-    tracker.log_call(
-        agent=f"reviewer_{persona}",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
 
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent=f"reviewer_{persona}",
+            max_tokens=2000,
+            temperature=0.5,
+            tracker=tracker,
+        )
         review = ReviewerOutput(
             reviewer_persona=persona,
             overall_score=float(data.get("overall_score", 5.0)),
@@ -488,27 +473,20 @@ async def run_meta_reviewer(
     )
 
     logger.info("meta_reviewer_starting", iteration=iteration)
-    response = await client.complete(
-        messages=[{"role": "user", "content": prompt}],
-        max_tokens=2000,
-        temperature=0.3,
-    )
-
-    tracker.log_call(
-        agent="meta_reviewer",
-        model=response.model,
-        input_tokens=response.input_tokens,
-        output_tokens=response.output_tokens,
-        provider=response.provider,
-        cache_hit=response.cache_hit,
-    )
 
     # Python-computed consensus — the source of truth regardless of what the LLM writes.
     py_consensus = compute_consensus_score(reviews)
     py_verdict = threshold_verdict(py_consensus, iteration)
 
     try:
-        data = _extract_json(response.content)
+        data, _response = await complete_json(
+            client,
+            [{"role": "user", "content": prompt}],
+            agent="meta_reviewer",
+            max_tokens=2000,
+            temperature=0.3,
+            tracker=tracker,
+        )
         llm_consensus = float(data.get("consensus_score", py_consensus))
         llm_verdict = str(data.get("verdict", py_verdict))
 
