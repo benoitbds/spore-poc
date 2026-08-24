@@ -110,3 +110,63 @@ Décision produit prise au S3 : ces sidecars deviennent un **format documenté
 et citable**, ce qui rend leur cohérence avec le statut nécessaire et non plus
 optionnelle. Le mécanisme reste à arbitrer — inventaire, cause racine et
 proposition dans `docs/S3_D1b2_sidecars.md`.
+
+---
+
+## Un 404 de brief porte encore les en-têtes `Link` hreflang
+
+*Relevé au sprint S3 (D2), 2026-08-24. Sans conséquence connue. Aucune correction appliquée.*
+
+Une page de brief non publiable répond bien 404, mais la réponse porte quand
+même les alternates de la page qui n'existe pas :
+
+```sh
+curl -s -D - -o /dev/null https://<site>/fr/briefs/SPR-2026-52AA | grep -i '^link'
+# link: <.../fr/briefs/SPR-2026-52AA>; rel="alternate"; hreflang="fr",
+#       <.../en/briefs/SPR-2026-52AA>; rel="alternate"; hreflang="en",
+#       <.../briefs/SPR-2026-52AA>;    rel="alternate"; hreflang="x-default"
+```
+
+Origine : l'en-tête est émis par `createMiddleware` de `next-intl` (v4.11)
+dans `src/middleware.ts`. Le middleware s'exécute **avant** le rendu de la
+route ; il ne peut pas savoir que la page va appeler `notFound()`. Ce n'est
+donc pas un oubli dans `generateMetadata`, qui fait bien sa part : la branche
+non publiable y retourne déjà `robots: { index: false, follow: false }`.
+
+Pourquoi c'est sans conséquence : un `Link: rel="alternate"` sur une réponse
+404 désigne des URL qui répondent elles aussi 404. Google ignore les alternates
+d'une page non indexable, et le 404 reste le signal dominant. Aucune des trois
+URL annoncées n'est indexable.
+
+Pourquoi on ne corrige pas : il faudrait que le middleware connaisse la
+publiabilité, donc lise SQLite dans le middleware — un accès base sur le
+chemin de toutes les requêtes, pour supprimer un en-tête inerte. Le coût est
+sans rapport avec l'enjeu. À revoir si `next-intl` expose un jour un moyen de
+conditionner l'émission depuis la route.
+
+---
+
+## Sortir un fichier de `public/` sans redémarrer renvoie 400, pas 404
+
+*Relevé au sprint S3 (quarantaine 7C1B/B172), 2026-08-24. Contourné par un redémarrage. À intégrer au mécanisme de réconciliation.*
+
+Next 14 (`next start`) indexe l'arborescence de `public/` **au démarrage du
+serveur**, pas à chaque requête. Un fichier retiré après le démarrage reste
+donc dans l'index : la requête matche, l'envoi échoue sur `ENOENT`, et Next
+répond **400 Bad Request** — pas 404.
+
+Observé sur le serveur de prod (démarré 08:40) après le déplacement de
+7C1B/B172 en quarantaine à 09:07 :
+
+| URL | Fichier déplacé | Code |
+|---|---|---|
+| `/briefs/SPR-2026-52AA.json` | avant le démarrage 08:40 | 404 |
+| `/briefs/SPR-2026-7C1B.json` | après le démarrage | **400** |
+| `/briefs/SPR-2026-NOPE.json` | n'a jamais existé | 404 |
+
+Le contenu n'est plus servi dans les deux cas — la quarantaine fait son
+travail. Mais 400 n'est pas un signal de retrait pour un moteur de recherche,
+là où 404 en est un. Conséquence directe pour la pièce 3 de
+`docs/S3_D1b2_sidecars.md` : une commande `reconcile` qui déplace des fichiers
+doit être suivie d'un redémarrage du serveur, ou tourner avant son démarrage.
+Un déplacement à chaud laisse des 400 jusqu'au prochain `next start`.

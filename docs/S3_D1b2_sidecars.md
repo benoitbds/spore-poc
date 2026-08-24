@@ -150,10 +150,22 @@ production. C'est le geste appliqué au D1b-1 côté front, transposé.
 
 ### Pièce 2 — quarantaine au lieu de suppression
 
-`outputs/briefs/_unpublished/` (déjà amorcé sous `outputs/unpublished/` par le
-déplacement de 52AA), **hors du symlink**, donc non servi. Une dépublication
-déplace, ne supprime pas : l'hypothèse d'origine est conservée, et git garde
-de toute façon l'historique. Le déplacement est l'opération, pas `rm`.
+`outputs/unpublished/`, **frère** de `outputs/briefs/` et non fils : c'est
+`outputs/briefs/` lui-même qui est la cible du symlink, donc un
+sous-répertoire y resterait servi (`/briefs/_unpublished/X.json`). Une
+dépublication déplace, ne supprime pas : l'hypothèse d'origine est conservée,
+et git garde de toute façon l'historique. Le déplacement est l'opération,
+pas `rm`.
+
+Le déplacement doit être **committé**, pas seulement appliqué sur le disque.
+Les sidecars sont suivis par git ; un `mv` non committé laisse une suppression
+non indexée qu'un `git checkout` ou un changement de branche restaure — soit
+exactement `9728913` rejoué par une manip git de routine, sur un dépôt dont le
+cron de 04:15 tourne depuis la branche laissée en checkout.
+
+Et le déplacement seul ne suffit pas à changer le code HTTP : voir l'entrée
+« quarantaine → 400 » de `TECH_DEBT.md`. La réconciliation doit être suivie
+d'un redémarrage du serveur, ou tourner avant son démarrage.
 
 ### Pièce 3 — un `spore briefs reconcile`, unidirectionnel, à blanc par défaut
 
