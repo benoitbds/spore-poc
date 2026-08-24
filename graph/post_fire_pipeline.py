@@ -47,6 +47,7 @@ from storage import (
     save_brief as save_brief_db,
     get_recent_consensus_scores,
     init_database,
+    update_brief,
 )
 from logging_config import get_logger
 
@@ -99,6 +100,12 @@ class PostFireState(TypedDict, total=False):
     # brief stays FR-only with frontend fallback.
     vulgarization_en: dict[str, Any]
     panel_en: dict[str, Any]
+
+    # S3/C18 — verdict du nœud de validation final. brief_validated=False
+    # signifie que la ligne est restée en 'pending' : elle existe en base,
+    # elle n'est servie nulle part.
+    brief_validated: bool
+    missing_fields: list[str]
 
     # Stub flag — set when the brief is a stub (Synthesis refused to
     # bridge the pair). Stubs skip the translation_hook because they
@@ -695,7 +702,23 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
                 "reviews": [dict(r) for r in panel["reviews"]],
                 "meta_review": dict(panel["meta_review"]),
             },
-            status="complete",
+            # S3/C18 — 'pending', pas 'complete'. Le générateur a écrit sa
+            # ligne ; le pipeline n'est pas allé au bout. La promotion en
+            # 'complete' appartient à node_validate_brief, en fin de graphe,
+            # après la vulgarisation et le hook de traduction.
+            #
+            # Sans ça, la ligne était publiable dès cet instant : quand la
+            # vulgarisation échouait ensuite (node_vulgarization attrape et
+            # rend l'état inchangé), le brief restait publié, incomplet, sans
+            # que rien ne le signale. Trace : SPR-2026-4469, -FBCA, -A2C5.
+            #
+            # 'pending' est la valeur par défaut de la colonne au schéma, donc
+            # aucune migration : les lignes non promues portent simplement ce
+            # que le schéma prévoyait déjà. Le prédicat du front
+            # (spore-web/src/lib/brief-visibility.ts) teste status='complete'
+            # OR is_stub, donc une ligne 'pending' est déjà exclue de toutes
+            # les surfaces publiques sans y toucher.
+            status="pending",
             brief_md_path=md_path_str or None,
             brief_json_path=json_path_str or None,
             revision_count=revision_count,
@@ -712,6 +735,86 @@ async def node_research_brief(state: PostFireState) -> PostFireState:
         "brief_md_path": md_path_str,
         "brief_json_path": json_path_str,
     }
+
+
+# S3/C18 — champs exigés pour promouvoir un brief en 'complete'.
+#
+# La vulgarisation FR est requise : c'est le trou que C18 ferme, et un brief
+# publié sans elle est celui que le site rend mal aujourd'hui.
+#
+# L'anglais (vulgarization_data_en, panel_data_en) est délibérément ABSENT de
+# cette liste. SPR-2026-F2F4 est publié aujourd'hui avec sa vulgarisation FR
+# et sans l'EN, légitimement : le hook de traduction est un enrichissement,
+# pas une condition de publication. L'exiger bloquerait des briefs corrects.
+REQUIRED_FOR_COMPLETE: tuple[str, ...] = (
+    "sharpened",
+    "protocol",
+    "panel",
+    "vulgarization_fr",
+)
+
+
+def _missing_required_fields(state: PostFireState) -> list[str]:
+    """Champs requis absents ou vides dans l'état final du graphe.
+
+    Contrôle mécanique de présence et de complétude — pas de jugement LLM,
+    conformément au pattern du projet (seuils du méta-reviewer, gates S9.2 et
+    S9.3, override Python du consensus).
+    """
+    missing: list[str] = []
+    for field in REQUIRED_FOR_COMPLETE:
+        value = state.get(field)
+        if not value:
+            missing.append(field)
+    return missing
+
+
+async def node_validate_brief(state: PostFireState) -> PostFireState:
+    """Dernier nœud du graphe : promeut le brief en 'complete', ou le laisse.
+
+    ``complete`` doit signifier « le pipeline a réussi », pas « le générateur
+    a écrit sa ligne ». Ce nœud est le seul endroit qui écrit ce statut sur le
+    chemin de publication.
+
+    Une ligne non promue reste en 'pending' : invisible du site (le prédicat
+    du front exige 'complete' ou is_stub), conservée en base pour diagnostic,
+    et détectée par ``scripts/daily_pipeline_digest.py`` au-delà de 2 h.
+
+    Les nœuds ``persist_panel_reject`` et ``persist_grounding_kill`` ne
+    passent PAS par ici : ils écrivent 'rejected' et 'killed', terminaux par
+    conception, et n'ont jamais été publiables.
+    """
+    brief_id = state.get("brief_id")
+    if not brief_id:
+        # Aucun brief à valider — chemin non atteint en pratique, le nœud
+        # n'est câblé qu'après research_brief_generator.
+        return {**state}
+
+    missing = _missing_required_fields(state)
+    if missing:
+        logger.error(
+            "brief_validation_failed",
+            brief_id=brief_id,
+            missing_fields=missing,
+            # Le payload brut de ce qui a échoué en amont, tronqué. Les 26
+            # reviewer_parse_failed d'août ne l'enregistrent pas, ce qui les
+            # rend indiagnosticables ; on ne reproduit pas ce trou.
+            last_error=str(state.get("errors", [])[-1])[:500]
+            if state.get("errors")
+            else None,
+            revision_count=state.get("revision_count", 0),
+        )
+        return {**state, "brief_validated": False, "missing_fields": missing}
+
+    try:
+        await init_database()
+        await update_brief(brief_id, status="complete")
+    except Exception as exc:
+        logger.error("brief_promotion_failed", brief_id=brief_id, error=str(exc))
+        return {**state, "brief_validated": False, "missing_fields": ["db_write"]}
+
+    logger.info("brief_validated", brief_id=brief_id)
+    return {**state, "brief_validated": True, "missing_fields": []}
 
 
 # ── Conditional edge functions ───────────────────────────────
@@ -814,6 +917,7 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("research_brief_generator", node_research_brief)
     workflow.add_node("vulgarization", node_vulgarization)
     workflow.add_node("translation_hook", node_translation_hook)
+    workflow.add_node("validate_brief", node_validate_brief)
 
     # Entry point — routes to full grounding or degraded skip
     workflow.set_entry_point("grounding_router")
@@ -859,7 +963,9 @@ def create_post_fire_pipeline() -> StateGraph:
 
     workflow.add_edge("research_brief_generator", "vulgarization")
     workflow.add_edge("vulgarization", "translation_hook")
-    workflow.add_edge("translation_hook", END)
+    # S3/C18 — la validation est le dernier nœud du chemin de publication.
+    workflow.add_edge("translation_hook", "validate_brief")
+    workflow.add_edge("validate_brief", END)
 
     return workflow
 
