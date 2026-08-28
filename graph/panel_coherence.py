@@ -45,8 +45,7 @@ _RESERVE_MARKERS = [
     # « quasi-inexistant », « barrière majeure ») passaient pour favorables.
     "limité", "limitée", "limités", "limitées", "barrière", "barrières",
     "obstacle", "obstacles", "frein", "freins", "inexistant", "inexistante",
-    "niche", "difficile", "difficiles", "difficulté", "difficultés", "trop",
-    "aucun", "aucune", "sans", "long", "longue", "coûteux", "coûteuse",
+    "niche", "difficile", "difficiles", "difficulté", "difficultés",
     # — EN —
     "however", "but", "although", "though", "yet", "despite", "nevertheless",
     "nonetheless", "whereas", "lack", "lacks", "lacking", "insufficient",
