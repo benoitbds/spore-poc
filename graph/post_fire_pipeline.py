@@ -42,6 +42,7 @@ from agents.translation import (
     translate_vulgarization_data,
 )
 from agents.vulgarization import vulgarization_agent
+from graph.panel_coherence import check_panel
 from knowledge import is_ss_circuit_open
 from storage import (
     save_brief as save_brief_db,
@@ -111,6 +112,7 @@ class PostFireState(TypedDict, total=False):
     # bridge the pair). Stubs skip the translation_hook because they
     # carry no panel/vulgarization payload to translate.
     is_stub: bool
+    panel_incoherences: list
 
     # Errors
     errors: list[dict[str, Any]]
@@ -789,6 +791,26 @@ async def node_validate_brief(state: PostFireState) -> PostFireState:
         # Aucun brief à valider — chemin non atteint en pratique, le nœud
         # n'est câblé qu'après research_brief_generator.
         return {**state}
+
+    # Cohérence score ↔ sentiment des cartes reviewer. Les stubs sont exemptés :
+    # ils n'ont pas de panel (panel_data NULL pour les 16 du corpus), leur
+    # imposer le contrôle les bloquerait tous alors qu'ils sont publiables par
+    # conception, avec leur badge « non productif ».
+    if not state.get("is_stub"):
+        incoherent = check_panel(state.get("panel"))
+        if incoherent:
+            logger.error(
+                "brief_panel_incoherent",
+                brief_id=brief_id,
+                problems=incoherent,
+                revision_count=state.get("revision_count", 0),
+            )
+            return {
+                **state,
+                "brief_validated": False,
+                "missing_fields": ["panel_coherence"],
+                "panel_incoherences": incoherent,
+            }
 
     missing = _missing_required_fields(state)
     if missing:
