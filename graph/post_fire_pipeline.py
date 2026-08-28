@@ -43,6 +43,7 @@ from agents.translation import (
 )
 from agents.vulgarization import vulgarization_agent
 from graph.panel_coherence import check_panel
+from graph.lang_guard import check_panel_language
 from knowledge import is_ss_circuit_open
 from storage import (
     save_brief as save_brief_db,
@@ -113,6 +114,7 @@ class PostFireState(TypedDict, total=False):
     # carry no panel/vulgarization payload to translate.
     is_stub: bool
     panel_incoherences: list
+    panel_language_mismatches: list
 
     # Errors
     errors: list[dict[str, Any]]
@@ -811,6 +813,21 @@ async def node_validate_brief(state: PostFireState) -> PostFireState:
                 "missing_fields": ["panel_coherence"],
                 "panel_incoherences": incoherent,
             }
+
+    # Langue des cartes : panel_data doit être français (panel_data_en porte
+    # la traduction). Signalé, pas bloquant — 48 des 78 briefs du corpus
+    # contiennent au moins une carte anglaise dans le champ FR, donc un gate
+    # fail-closed arrêterait la production au lieu de la corriger. La décision
+    # de durcir revient à l'exploitant, une fois le générateur repris.
+    if not state.get("is_stub"):
+        wrong_lang = check_panel_language(state.get("panel"), "fr")
+        if wrong_lang:
+            logger.warning(
+                "brief_panel_language_mismatch",
+                brief_id=brief_id,
+                cards=wrong_lang,
+            )
+            state = {**state, "panel_language_mismatches": wrong_lang}
 
     missing = _missing_required_fields(state)
     if missing:
