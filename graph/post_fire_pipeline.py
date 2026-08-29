@@ -815,19 +815,30 @@ async def node_validate_brief(state: PostFireState) -> PostFireState:
             }
 
     # Langue des cartes : panel_data doit être français (panel_data_en porte
-    # la traduction). Signalé, pas bloquant — 48 des 78 briefs du corpus
-    # contiennent au moins une carte anglaise dans le champ FR, donc un gate
-    # fail-closed arrêterait la production au lieu de la corriger. La décision
-    # de durcir revient à l'exploitant, une fois le générateur repris.
+    # la traduction). Échec explicite, pas publication silencieuse — le brief
+    # reste en 'pending' et n'est servi nulle part.
+    #
+    # Conséquence à connaître : sur le corpus existant, 48 des 79 briefs à
+    # panel (61 %) contiennent au moins une carte anglaise dans le champ FR.
+    # Ce gate ne les retire pas du site — il ne s'applique qu'aux briefs
+    # promus après son entrée en service — mais tant que le générateur rend
+    # de l'anglais malgré un prompt français, il bloquera la même proportion
+    # des nouveaux. C'est l'effet voulu d'un fail-closed : la production
+    # s'arrête au lieu de publier faux.
     if not state.get("is_stub"):
         wrong_lang = check_panel_language(state.get("panel"), "fr")
         if wrong_lang:
-            logger.warning(
+            logger.error(
                 "brief_panel_language_mismatch",
                 brief_id=brief_id,
                 cards=wrong_lang,
             )
-            state = {**state, "panel_language_mismatches": wrong_lang}
+            return {
+                **state,
+                "brief_validated": False,
+                "missing_fields": ["panel_language"],
+                "panel_language_mismatches": wrong_lang,
+            }
 
     missing = _missing_required_fields(state)
     if missing:

@@ -25,44 +25,49 @@ from typing import Any
 SCORE_FLOOR = 5.0
 NEGATIVE_VERDICTS = frozenset({"weak_reject", "reject"})
 
-# Marqueurs de réserve, FR et EN : plusieurs cartes sont rédigées en anglais
-# sur des pages françaises (cf. SPR-2026-D460 / SPR-2026-7626), donc un
-# lexique monolingue laisserait passer la moitié du corpus.
+# Le lexique est bilingue : plusieurs cartes sont rédigées en anglais sur des
+# pages françaises (cf. SPR-2026-D460 / SPR-2026-7626), donc un lexique
+# monolingue laisserait passer une bonne part du corpus.
+#
+# Marqueur STRUCTUREL. Dérivé du corpus, pas supposé : sur les 88 cartes
+# négatives en base, 79 (89,8 %) ouvrent par « FAIL REASON #n: », et aucune
+# des 307 cartes positives ne contient la formule. C'est le discriminant le
+# plus fort du corpus, et il porte le bon sens : le relecteur a énoncé un
+# motif explicite.
+_FAIL_REASON_RE = re.compile(r"FAIL\s*REASON", re.IGNORECASE)
+
+# Marqueurs LEXICAUX, relevés un par un sur les 9 cartes négatives qui
+# n'emploient pas « FAIL REASON » — presque toutes du persona industrialist,
+# qui suit un autre gabarit et ouvre par sa réserve :
+#   « Taille de marché adressable extrêmement limitée »   (61D6)
+#   « Barrière majeure au déploiement »                   (E212, 66E7)
+#   « Marche adressable trop niche et difficile a monetiser » (2D9D)
+#   « Le marché adressable immédiat est quasi inexistant »    (B7A1)
+#   « Marche aval quasi-inexistant a court terme »            (3A81)
+#   « Incohérence mécanistique fondamentale »                 (7ED4)
+#   « Barrière commerciale majeure : le marché est trop étroit » (072C)
+#   « Barrière d'entrée majeure »                             (94CA)
+# Chaque entrée ci-dessous est traçable à l'une de ces cartes ; rien n'est
+# ajouté « au cas où ».
 _RESERVE_MARKERS = [
-    # — FR —
-    "mais", "cependant", "toutefois", "néanmoins", "pourtant", "bien que",
-    "malgré", "limite", "limites", "limitation", "limitations", "réserve",
-    "réserves", "insuffisant", "insuffisante", "insuffisamment", "manque",
-    "manquent", "lacune", "lacunes", "faible", "faiblesse", "faiblesses",
-    "risque", "risques", "doute", "doutes", "douteux", "incertain",
-    "incertaine", "incertitude", "non démontré", "non démontrée", "non étayé",
-    "non étayée", "non justifié", "non justifiée", "à valider", "à démontrer",
-    "préoccupation", "préoccupations", "problème", "problèmes", "erreur",
-    "absence", "absent", "absente", "spéculatif", "spéculative", "fragile",
-    "contestable", "discutable", "peu probable", "invalide", "échec",
-    # Accords féminin/pluriel et vocabulaire de l'industriel : sans eux, quatre
-    # cartes portant des réserves explicites (« marché adressable trop niche »,
-    # « quasi-inexistant », « barrière majeure ») passaient pour favorables.
-    "limité", "limitée", "limités", "limitées", "barrière", "barrières",
-    "obstacle", "obstacles", "frein", "freins", "inexistant", "inexistante",
-    "niche", "difficile", "difficiles", "difficulté", "difficultés",
-    # — EN —
-    "however", "but", "although", "though", "yet", "despite", "nevertheless",
-    "nonetheless", "whereas", "lack", "lacks", "lacking", "insufficient",
-    "insufficiently", "weak", "weakness", "weaknesses", "risk", "risks",
-    "risky", "doubt", "doubts", "doubtful", "uncertain", "uncertainty",
-    "unsubstantiated", "unsupported", "unproven", "unclear", "unjustified",
-    "questionable", "concern", "concerns", "concerning", "limitation",
-    "limitations", "limited", "flaw", "flaws", "flawed", "gap", "gaps",
-    "fail", "fails", "failure", "problem", "problems", "issue", "issues",
-    "speculative", "fragile", "implausible", "unlikely", "overstated",
-    "missing", "absent", "invalid", "insufficient evidence", "not demonstrated",
-    "not established", "no evidence",
+    # relevés sur les 9 cartes ci-dessus
+    "barrière", "barrières", "limitée", "limité", "limités", "limitées",
+    "niche", "inexistant", "inexistante", "incohérence", "étroit", "étroite",
+    "difficile", "difficiles", "majeure", "majeur",
+    # termes à lift élevé et sémantiquement des réserves, mesurés sur le
+    # corpus (fréquence en carte négative / en carte positive) :
+    # assumption 27 %/0 %, likely 23 %/0 %, irréaliste 9 %/0 %, naïve 8 %/0 %,
+    # fatal 8 %/0 %, cannot 7 %/0 %, assumes 7 %/0 %, ignore 11 %/0,3 %,
+    # faux 8 %/0,7 %.
+    "assumption", "assumptions", "assumes", "likely", "unlikely",
+    "irréaliste", "naïve", "naive", "fatal", "fatale", "cannot", "ignore",
+    "faux", "fausse",
 ]
 
-# Frontières de mots pour éviter que « but » ne matche « contribute » ou
-# « attribute », et « gap » ne matche « gaping ». \b ne fonctionne pas sur les
-# lettres accentuées avec le module `re` en mode ASCII ; on force l'unicode.
+# Frontières de mots, pour éviter qu'un marqueur ne matche à l'intérieur d'un
+# autre terme (« ignore » dans « ignorent », « fatal » dans « fatalement »).
+# \b ne couvre pas les lettres accentuées avec `re` en mode ASCII : on borne
+# explicitement sur la plage latine étendue.
 _MARKER_RE = re.compile(
     r"(?<![\wÀ-ɏ])(?:%s)(?![\wÀ-ɏ])"
     % "|".join(sorted((re.escape(m) for m in _RESERVE_MARKERS), key=len, reverse=True)),
@@ -71,9 +76,17 @@ _MARKER_RE = re.compile(
 
 
 def has_reserve_marker(text: str) -> bool:
-    """True si le texte porte au moins un marqueur de réserve explicite."""
+    """True si le texte porte une réserve explicite.
+
+    Deux voies, dans l'ordre de leur pouvoir discriminant mesuré : le motif
+    structurel « FAIL REASON » (89,8 % des cartes négatives, 0 % des
+    positives), puis le lexique relevé sur les 9 cartes négatives qui ne
+    l'emploient pas.
+    """
     if not text:
         return False
+    if _FAIL_REASON_RE.search(text):
+        return True
     return bool(_MARKER_RE.search(text))
 
 
