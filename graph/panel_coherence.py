@@ -34,6 +34,13 @@ NEGATIVE_VERDICTS = frozenset({"weak_reject", "reject"})
 # des 307 cartes positives ne contient la formule. C'est le discriminant le
 # plus fort du corpus, et il porte le bon sens : le relecteur a énoncé un
 # motif explicite.
+#
+# COUPLAGE À CONNAÎTRE : la formule est prescrite par
+# ``prompts/reviewer_contrarian.txt`` (lignes 47-49), et par ce prompt
+# SEULEMENT — d'où le fait que les 9 cartes négatives sans « FAIL REASON »
+# soient presque toutes du persona industrialist, qui suit un autre gabarit.
+# Modifier ce prompt, ou changer de modèle, déplace directement le taux de
+# blocage de ce gate. Le lexique ci-dessous est le filet de sécurité.
 _FAIL_REASON_RE = re.compile(r"FAIL\s*REASON", re.IGNORECASE)
 
 # Marqueurs LEXICAUX, relevés un par un sur les 9 cartes négatives qui
