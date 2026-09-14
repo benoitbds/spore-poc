@@ -2,7 +2,8 @@
 
 Pipeline:
   Literature Grounding → Hypothesis Sharpening → Experimental Protocol
-  → Multi-Reviewer Panel → Meta-Reviewer → (revision loop or Brief Generator)
+  → Multi-Reviewer Panel → Meta-Reviewer → (revision loop or
+  Panel Language Normalization → Brief Generator)
 
 Conditional edges:
   - After grounding: kill if already_proven or fatal counter-evidence
@@ -39,11 +40,12 @@ from agents.multi_reviewer_panel import (
 from agents.research_brief_generator import save_brief
 from agents.translation import (
     translate_panel_data,
+    translate_panel_data_to_fr,
     translate_vulgarization_data,
 )
 from agents.vulgarization import vulgarization_agent
 from graph.panel_coherence import check_panel
-from graph.lang_guard import check_panel_language
+from graph.lang_guard import check_panel_language, detect
 from knowledge import is_ss_circuit_open
 from storage import (
     save_brief as save_brief_db,
@@ -371,6 +373,181 @@ async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
         "selection_reason": reason,
         "selection_window_size": len(recent),
     }
+
+
+# S10-A — champs de prose de la meta-review, ceux que le prompt
+# meta_reviewer.txt impose en français et que la traduction EN→FR traite.
+META_REVIEW_PROSE_FIELDS: tuple[str, ...] = (
+    "key_consensus",
+    "key_disagreements",
+    "critical_path",
+    "final_recommendation",
+    "revision_guidance",
+)
+
+
+def _meta_review_texts(meta_review: Any) -> str:
+    """Concatène la prose de la meta-review pour la détection de langue.
+
+    Pendant de ``lang_guard.card_texts`` pour la meta-review, que
+    ``check_panel_language`` ne couvre pas et ne doit pas couvrir ce sprint :
+    le gate reste inchangé, seule la normalisation regarde la meta-review.
+
+    Args:
+        meta_review: Le dict ``panel["meta_review"]``, ou n'importe quoi
+            d'autre (renvoie alors une chaîne vide).
+
+    Returns:
+        Les champs de prose joints par des espaces.
+    """
+    if not isinstance(meta_review, dict):
+        return ""
+    parts: list[str] = []
+    for key in META_REVIEW_PROSE_FIELDS:
+        value = meta_review.get(key)
+        if isinstance(value, list):
+            parts.extend(str(v) for v in value)
+        elif value:
+            parts.append(str(value))
+    return " ".join(parts)
+
+
+def _flagged_card_indices(panel: dict[str, Any]) -> list[int]:
+    """Positions des cartes que ``check_panel_language`` signale.
+
+    La carte est soumise seule au gate, ce qui garantit le même prédicat que
+    ``node_validate_brief`` tout en rendant un index plutôt qu'un nom de
+    persona : les chemins de repli du panel peuvent répéter un persona.
+
+    Args:
+        panel: Le dict ``panel`` de l'état.
+
+    Returns:
+        Les index, dans ``panel["reviews"]``, des cartes détectées anglaises.
+    """
+    indices: list[int] = []
+    for idx, review in enumerate(panel.get("reviews") or []):
+        if isinstance(review, dict) and check_panel_language(
+            {"reviews": [review]}, "fr"
+        ):
+            indices.append(idx)
+    return indices
+
+
+async def node_normalize_panel_language(state: PostFireState) -> PostFireState:
+    """Traduit en français les cartes et la meta-review restées en anglais.
+
+    Placé sur la branche ``publish``, entre ``multi_reviewer_panel`` et
+    ``research_brief_generator`` : tout ce qui dérive du panel en aval
+    (``body_markdown``, fichier ``.md``, sidecar JSON,
+    ``vulgarization_fr.reviewers_say``, ``panel_data_en``) est produit à
+    partir du panel déjà normalisé. Aucune écriture en base : la ligne
+    ``briefs`` n'existe pas encore, ``node_research_brief`` la crée ensuite.
+
+    Comportement :
+
+    * **Passthrough** sans appel LLM ni coût quand ``check_panel_language``
+      ne signale aucune carte ET que la prose de la meta-review n'est pas
+      détectée anglaise. La meta-review entre dans la condition (décision B
+      de S10-A) alors que le gate ne la regarde pas : ne pas « simplifier »
+      en testant la seule liste du gate, une meta-review anglaise passerait.
+    * **Sélectif** : seules les cartes signalées, et la meta-review si elle
+      est anglaise, passent par la traduction. Les cartes françaises sont
+      recopiées telles quelles.
+    * **Idempotent** : un second passage ne trouve plus rien à traduire.
+    * **Opportuniste, jamais bloquant** : si la traduction lève, si le
+      résultat est encore signalé anglais, ou s'il crée une incohérence
+      score ↔ sentiment absente de l'original, le nœud journalise en
+      ``error`` et rend l'état inchangé. ``node_validate_brief`` retiendra
+      alors le brief en 'pending' : le fail-closed reste le filet.
+
+    Args:
+        state: État du graphe, avec ``panel`` produit par le panel.
+
+    Returns:
+        L'état, avec ``panel`` normalisé quand une réparation a réussi.
+    """
+    panel = state.get("panel")
+    if not isinstance(panel, dict):
+        return {**state}
+
+    flagged = check_panel_language(panel, "fr")
+    meta_is_english = detect(_meta_review_texts(panel.get("meta_review"))) == "en"
+    if not flagged and not meta_is_english:
+        return {**state}
+
+    indices = _flagged_card_indices(panel)
+    reviews = panel.get("reviews") or []
+    personas = [reviews[i].get("reviewer_persona", "?") for i in indices]
+    trace = {
+        "hypothesis": str(state.get("hypothesis", ""))[:80],
+        "cards": personas,
+        "meta_review": meta_is_english,
+        "revision_count": state.get("revision_count", 0),
+    }
+
+    try:
+        normalized, warnings, usage = await translate_panel_data_to_fr(
+            "pre-brief",
+            panel,
+            review_indices=indices,
+            include_meta=meta_is_english,
+        )
+    except Exception as exc:  # noqa: BLE001 — la normalisation ne casse jamais le run
+        logger.error(
+            "panel_language_normalization_failed",
+            reason="translation_error",
+            error_type=type(exc).__name__,
+            error=str(exc)[:500],
+            **trace,
+        )
+        return {**state}
+
+    cost_usd = round(float(usage.get("cost_usd", 0.0)), 6)
+
+    remaining = check_panel_language(normalized, "fr")
+    meta_after = detect(_meta_review_texts(normalized.get("meta_review")))
+    if remaining or meta_after == "en":
+        logger.error(
+            "panel_language_normalization_failed",
+            reason="still_english",
+            remaining=remaining,
+            meta_detected=meta_after,
+            cost_usd=cost_usd,
+            **trace,
+        )
+        return {**state}
+
+    before = {p.get("reviewer") for p in check_panel(panel)}
+    regressions = [p for p in check_panel(normalized) if p.get("reviewer") not in before]
+    if regressions:
+        logger.error(
+            "panel_language_normalization_failed",
+            reason="coherence_regressed",
+            problems=regressions,
+            cost_usd=cost_usd,
+            **trace,
+        )
+        return {**state}
+
+    if warnings:
+        logger.warning(
+            "panel_language_normalization_warnings",
+            warnings_count=len(warnings),
+            warnings=warnings[:10],
+            **trace,
+        )
+
+    logger.info(
+        "panel_language_normalized",
+        cards_translated=len(indices),
+        cost_usd=cost_usd,
+        input_tokens=usage.get("input_tokens", 0),
+        output_tokens=usage.get("output_tokens", 0),
+        warnings_count=len(warnings),
+        **trace,
+    )
+    return {**state, "panel": normalized}
 
 
 async def node_vulgarization(state: PostFireState) -> PostFireState:
@@ -964,6 +1141,7 @@ def create_post_fire_pipeline() -> StateGraph:
     workflow.add_node("hypothesis_sharpening", node_hypothesis_sharpening)
     workflow.add_node("experimental_protocol", node_experimental_protocol)
     workflow.add_node("multi_reviewer_panel", node_multi_reviewer_panel)
+    workflow.add_node("normalize_panel_language", node_normalize_panel_language)
     workflow.add_node("research_brief_generator", node_research_brief)
     workflow.add_node("vulgarization", node_vulgarization)
     workflow.add_node("translation_hook", node_translation_hook)
@@ -1004,12 +1182,15 @@ def create_post_fire_pipeline() -> StateGraph:
         should_revise_or_publish,
         {
             "revise": "hypothesis_sharpening",
-            "publish": "research_brief_generator",
+            "publish": "normalize_panel_language",
             "rejected": "persist_panel_reject",
         },
     )
 
     workflow.add_edge("persist_panel_reject", END)
+
+    # S10-A — normalisation de langue avant toute dérivation du panel.
+    workflow.add_edge("normalize_panel_language", "research_brief_generator")
 
     workflow.add_edge("research_brief_generator", "vulgarization")
     workflow.add_edge("vulgarization", "translation_hook")
