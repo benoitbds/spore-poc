@@ -34,15 +34,15 @@ FORMAT DE SORTIE (JSON strict) :
     "consensus_score": 7.2,
     "verdict": "publish_brief",
     "key_consensus": [
-        "Point d'accord 1 entre reviewers",
-        "Point d'accord 2"
+        "[Rédigé en français : un point d'accord réel entre les reviewers.]",
+        "[Rédigé en français : un deuxième point d'accord.]"
     ],
     "key_disagreements": [
-        "Point de desaccord 1",
-        "Point de desaccord 2"
+        "[Rédigé en français : un point de désaccord réel entre les reviewers.]",
+        "[Rédigé en français : un deuxième point de désaccord.]"
     ],
-    "critical_path": "Le facteur le plus determinant pour le succes/echec de cette hypothese.",
-    "final_recommendation": "Synthese en 3-5 phrases de la recommandation finale du panel.",
+    "critical_path": "[Rédigé en français : le facteur le plus déterminant pour le succès ou l'échec de cette hypothèse.]",
+    "final_recommendation": "[Rédigée en français : synthèse en 3-5 phrases de la recommandation finale du panel.]",
     "brief_quality_gate": true
 }}
 ```
@@ -51,10 +51,20 @@ Si verdict = "revise_and_resubmit", ajoute un champ "revision_guidance" :
 ```json
 {{
     "revision_guidance": [
-        "Ce qui doit etre ameliore specifiquement",
-        "..."
+        "[Rédigé en français : ce qui doit être amélioré spécifiquement.]",
+        "[Rédigé en français : une deuxième amélioration attendue.]"
     ]
 }}
 ```
+
+LANGUE DE SORTIE — RÈGLE ABSOLUE, CHAMP PAR CHAMP :
+- "key_consensus" : chaque élément de la liste est rédigé en français.
+- "key_disagreements" : chaque élément de la liste est rédigé en français.
+- "critical_path" : rédigé en français.
+- "final_recommendation" : rédigée en français.
+- "revision_guidance" : chaque élément de la liste est rédigé en français.
+- Certaines reviews du panel ci-dessus, ainsi que le titre et la formulation de l'hypothèse, peuvent être en anglais. Cela ne change JAMAIS la langue de sortie : tu synthétises en français.
+- Restent tels quels, en anglais : les noms de champs JSON, les valeurs de "verdict", les noms de personas quand tu les cites (methodologist, domain_expert, contrarian, industrialist, funding_strategist), le marqueur « FAIL REASON #n: » si tu le cites, les nombres, et les termes techniques sans équivalent français établi.
+- Une phrase anglaise dans l'un de ces champs rend la synthèse inutilisable.
 
 Sois equilibre : ne surpondere ni l'enthousiasme ni le scepticisme.

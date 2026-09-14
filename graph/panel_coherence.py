@@ -69,6 +69,38 @@ _RESERVE_MARKERS = [
     "assumption", "assumptions", "assumes", "likely", "unlikely",
     "irréaliste", "naïve", "naive", "fatal", "fatale", "cannot", "ignore",
     "faux", "fausse",
+    # Pendant FRANÇAIS de la voie de repli (S10-A, 14 septembre 2026). Les
+    # prompts reviewer imposent désormais le français champ par champ, et
+    # node_normalize_panel_language traduit en français les cartes restées
+    # anglaises : les marqueurs anglais ci-dessus (assumption, likely,
+    # cannot…) disparaissent donc du texte affiché à mesure que le panel se
+    # francise. Sans pendant, le gate perdrait sa voie de repli et bloquerait
+    # des cartes négatives légitimes.
+    #
+    # Mesure sur le corpus (86 cartes négatives et 380 positives détectées
+    # françaises par lang_guard.detect, texte AFFICHÉ via displayed_comment) :
+    # chaque entrée apparaît dans au moins une carte négative et dans AUCUNE
+    # carte positive. Fréquence en carte négative : probable 16,3 %,
+    # irréaliste 14,0 % (déjà présent), probablement 11,6 %, aucun 10,5 %,
+    # aucune 9,3 %, suppose 8,1 %, invalide 5,8 %, incertain 4,7 %,
+    # fragile 4,7 %, négligeable 4,7 %, insuffisant 3,5 %, impossible 3,5 %,
+    # improbable 2,3 %, insuffisante / postulat / erroné / errone /
+    # restreint / spéculative / speculative / sous-estimée 1,2 % chacun.
+    # Couverture des négatives françaises : 78/86 avant, 85/86 après ; la
+    # seule restante (SPR-2026-RD5D0, « extrapolations non validées ») est un
+    # brief 'rejected', jamais affiché. Écartés malgré un lift élevé, parce
+    # qu'ils apparaissent dans des éloges : « faible » (0,5 % des positives,
+    # « faible fraction fœtale »), « risque » (8,7 %, « réduit le risque »),
+    # « extrêmement » (0,3 %, « extrêmement bien structurée »), « peu »
+    # (3,4 %, « approche peu explorée »), « échec » (3,7 %).
+    #
+    # Ces formes couvrent aussi les traductions naturelles des marqueurs
+    # anglais : likely → probable / probablement, unlikely → improbable,
+    # assumes → suppose, assumption → postulat, cannot → impossible.
+    "probable", "probablement", "improbable", "insuffisant", "insuffisante",
+    "aucun", "aucune", "suppose", "postulat", "erroné", "errone",
+    "restreint", "incertain", "impossible", "fragile", "négligeable",
+    "invalide", "spéculative", "speculative", "sous-estimée",
 ]
 
 # Frontières de mots, pour éviter qu'un marqueur ne matche à l'intérieur d'un

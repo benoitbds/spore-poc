@@ -37,18 +37,18 @@ Exemple de format (NE PAS COPIER LES VALEURS) :
     "overall_score": 7.0,
     "verdict": "accept",
     "strengths": [
-        "[force concrete pour financement - maturite, originalite, etc.]",
-        "[deuxieme force concrete]"
+        "[Rédigé en français : une force concrète pour le financement, par exemple maturité ou originalité.]",
+        "[Rédigé en français : une deuxième force concrète.]"
     ],
     "weaknesses": [
-        "[faiblesse concrete pour financement - TRL, consortium, etc.]",
-        "[deuxieme faiblesse concrete]"
+        "[Rédigé en français : une faiblesse concrète pour le financement, par exemple TRL ou consortium.]",
+        "[Rédigé en français : une deuxième faiblesse concrète.]"
     ],
     "critical_questions": [
-        "[question strategique concrete sur positionnement/consortium]",
-        "[deuxieme question strategique]"
+        "[Rédigée en français : une question stratégique concrète sur le positionnement ou le consortium ?]",
+        "[Rédigée en français : une deuxième question stratégique ?]"
     ],
-    "recommendation": "[TA strategie de financement reelle en 2-3 phrases - NE PAS ecrire de generalite]",
+    "recommendation": "[Rédigée en français : TA stratégie de financement réelle en 2-3 phrases. NE PAS écrire de généralité.]",
     "confidence": 0.75,
     "funding_programs": [
         {{
@@ -58,11 +58,21 @@ Exemple de format (NE PAS COPIER LES VALEURS) :
             "typical_budget": "[fourchette reelle]",
             "success_rate": "[taux reel connu]",
             "next_deadline": "[date ou periode estimee]",
-            "rationale": "[explication reelle de pourquoi ce programme colle a l'hypothese]"
+            "rationale": "[Rédigée en français : explication réelle de pourquoi ce programme colle à l'hypothèse.]"
         }}
     ]
 }}
 ```
+
+LANGUE DE SORTIE — RÈGLE ABSOLUE, CHAMP PAR CHAMP :
+- "strengths" : chaque élément de la liste est rédigé en français.
+- "weaknesses" : chaque élément de la liste est rédigé en français.
+- "critical_questions" : chaque question est rédigée en français.
+- "recommendation" : rédigée en français. Ne la fais JAMAIS précéder d'un libellé comme « INPUT: », « OUTPUT: » ou « Recommandation : ».
+- "funding_programs[].rationale" : rédigée en français.
+- Les données fournies ci-dessus (hypothèse, protocole, budget, timeline) sont souvent en anglais. Cela ne change JAMAIS la langue de sortie : tu rédiges ton évaluation en français.
+- Restent tels quels : les noms de champs JSON, les valeurs de "reviewer_persona" et de "verdict", les nombres, les noms officiels des programmes et des agences (ERC Starting Grant, Horizon Europe, National Institutes of Health…), et les sigles d'usage (TRL, ANR, ERC, NIH).
+- Une phrase anglaise dans l'un des champs rédigés rend la review inutilisable.
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.

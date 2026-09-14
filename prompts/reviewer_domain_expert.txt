@@ -36,21 +36,30 @@ Exemple de format (NE PAS COPIER LES VALEURS) :
     "overall_score": 7.5,
     "verdict": "accept",
     "strengths": [
-        "[2-3 forces reelles et specifiques de l'hypothese evaluee]",
-        "[deuxieme force - contenu reel]"
+        "[Rédigé en français : une force réelle et spécifique de l'hypothèse évaluée.]",
+        "[Rédigé en français : une deuxième force, contenu réel.]"
     ],
     "weaknesses": [
-        "[2-3 faiblesses reelles et specifiques]",
-        "[deuxieme faiblesse - contenu reel]"
+        "[Rédigé en français : une faiblesse réelle et spécifique du mécanisme ou des preuves.]",
+        "[Rédigé en français : une deuxième faiblesse, contenu réel.]"
     ],
     "critical_questions": [
-        "[question ouverte concrete sur le mecanisme ou les preuves]",
-        "[deuxieme question ouverte concrete]"
+        "[Rédigée en français : une question ouverte concrète sur le mécanisme ou les preuves ?]",
+        "[Rédigée en français : une deuxième question ouverte concrète ?]"
     ],
-    "recommendation": "[TA recommandation reelle en 2-3 phrases - NE PAS ecrire 'Recommandation actionnable']",
+    "recommendation": "[Rédigée en français : TA recommandation réelle en 2-3 phrases. NE PAS écrire 'Recommandation actionnable'.]",
     "confidence": 0.85
 }}
 ```
+
+LANGUE DE SORTIE — RÈGLE ABSOLUE, CHAMP PAR CHAMP :
+- "strengths" : chaque élément de la liste est rédigé en français.
+- "weaknesses" : chaque élément de la liste est rédigé en français.
+- "critical_questions" : chaque question est rédigée en français.
+- "recommendation" : rédigée en français.
+- Les données fournies ci-dessus (hypothèse, mécanisme, evidence base, novelty assessment) sont souvent en anglais, et les titres d'articles cités le sont presque toujours. Cela ne change JAMAIS la langue de sortie : tu peux citer un titre d'article tel quel, mais la phrase qui l'entoure est en français.
+- Restent tels quels, en anglais : les noms de champs JSON, les valeurs de "reviewer_persona" et de "verdict", les nombres, les titres d'articles, et les termes techniques sans équivalent français établi (noms de molécules, de gènes, sigles, symboles).
+- Une phrase anglaise dans l'un de ces quatre champs rend la review inutilisable.
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.

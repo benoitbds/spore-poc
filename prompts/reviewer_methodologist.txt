@@ -37,21 +37,30 @@ Exemple de format (NE PAS COPIER LES VALEURS) :
     "overall_score": 7.5,
     "verdict": "accept",
     "strengths": [
-        "[2-3 forces methodologiques reelles et specifiques du protocole]",
-        "[deuxieme force - contenu reel]"
+        "[Rédigé en français : une force méthodologique réelle et spécifique du protocole évalué.]",
+        "[Rédigé en français : une deuxième force, contenu réel.]"
     ],
     "weaknesses": [
-        "[2-3 faiblesses methodologiques reelles et specifiques]",
-        "[deuxieme faiblesse - contenu reel]"
+        "[Rédigé en français : une faiblesse méthodologique réelle et spécifique.]",
+        "[Rédigé en français : une deuxième faiblesse, contenu réel.]"
     ],
     "critical_questions": [
-        "[question concrete sur les controles, biais ou puissance statistique]",
-        "[deuxieme question concrete]"
+        "[Rédigée en français : une question concrète sur les contrôles, les biais ou la puissance statistique ?]",
+        "[Rédigée en français : une deuxième question concrète ?]"
     ],
-    "recommendation": "[TA recommandation reelle en 2-3 phrases - NE PAS ecrire 'Recommandation actionnable']",
+    "recommendation": "[Rédigée en français : TA recommandation réelle en 2-3 phrases. NE PAS écrire 'Recommandation actionnable'.]",
     "confidence": 0.85
 }}
 ```
+
+LANGUE DE SORTIE — RÈGLE ABSOLUE, CHAMP PAR CHAMP :
+- "strengths" : chaque élément de la liste est rédigé en français.
+- "weaknesses" : chaque élément de la liste est rédigé en français.
+- "critical_questions" : chaque question est rédigée en français.
+- "recommendation" : rédigée en français.
+- Les données fournies ci-dessus (hypothèse, variables, prédictions, protocole) sont souvent en anglais. Cela ne change JAMAIS la langue de sortie : tu les évalues en anglais si besoin, tu écris ton avis en français.
+- Restent tels quels, en anglais : les noms de champs JSON, les valeurs de "reviewer_persona" et de "verdict", les nombres, et les termes techniques sans équivalent français établi (noms de tests statistiques, sigles, noms de logiciels, symboles).
+- Une phrase anglaise dans l'un de ces quatre champs rend la review inutilisable.
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.

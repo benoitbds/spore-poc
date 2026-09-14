@@ -34,21 +34,30 @@ Exemple de format (NE PAS COPIER LES VALEURS) :
     "overall_score": 7.0,
     "verdict": "accept",
     "strengths": [
-        "[opportunite marche concrete avec chiffres ou noms d'acteurs]",
-        "[avantage competitif specifique]"
+        "[Rédigé en français : une opportunité de marché concrète, avec chiffres ou noms d'acteurs.]",
+        "[Rédigé en français : un avantage compétitif spécifique.]"
     ],
     "weaknesses": [
-        "[barriere concrete au deploiement]",
-        "[risque commercial identifie]"
+        "[Rédigé en français : une barrière concrète au déploiement.]",
+        "[Rédigé en français : un risque commercial identifié.]"
     ],
     "critical_questions": [
-        "[question business concrete sur adoption/ROI/IP]",
-        "[deuxieme question business concrete]"
+        "[Rédigée en français : une question business concrète sur l'adoption, le ROI ou la propriété intellectuelle ?]",
+        "[Rédigée en français : une deuxième question business concrète ?]"
     ],
-    "recommendation": "[TA strategie commerciale reelle en 2-3 phrases - NE PAS ecrire de generalite]",
+    "recommendation": "[Rédigée en français : TA stratégie commerciale réelle en 2-3 phrases. NE PAS écrire de généralité.]",
     "confidence": 0.70
 }}
 ```
+
+LANGUE DE SORTIE — RÈGLE ABSOLUE, CHAMP PAR CHAMP :
+- "strengths" : chaque élément de la liste est rédigé en français.
+- "weaknesses" : chaque élément de la liste est rédigé en français.
+- "critical_questions" : chaque question est rédigée en français.
+- "recommendation" : rédigée en français.
+- Les données fournies ci-dessus (hypothèse, protocole, prédictions) sont souvent en anglais. Cela ne change JAMAIS la langue de sortie : tu rédiges ton évaluation en français.
+- Restent tels quels, en anglais : les noms de champs JSON, les valeurs de "reviewer_persona" et de "verdict", les nombres, les noms d'entreprises et de produits, et les sigles d'usage (TRL, ROI, IP, TAM, CAGR).
+- Une phrase anglaise dans l'un de ces quatre champs rend la review inutilisable.
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.

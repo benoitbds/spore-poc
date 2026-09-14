@@ -27,7 +27,7 @@ CONTRE-PREUVES EXISTANTES :
 PREDICTIONS :
 {predictions}
 
-Tu DOIS inclure un "Top 3 reasons this will fail" dans tes weaknesses.
+Tu DOIS inclure dans tes weaknesses les trois raisons d'échec les plus probables. Chacune commence par le marqueur technique « FAIL REASON #n: » (n = 1, 2, 3), recopié exactement tel quel, en anglais et en majuscules : c'est un token lu par le système, pas du texte. La raison qui suit ce marqueur est rédigée en français.
 
 FORMAT DE SORTIE (JSON strict) :
 
@@ -40,22 +40,31 @@ Exemple de format (NE PAS COPIER LES VALEURS) :
     "overall_score": 5.0,
     "verdict": "weak_reject",
     "strengths": [
-        "[une ou deux forces reelles que meme un sceptique reconnait]",
-        "[deuxieme force - contenu reel]"
+        "[Rédigé en français : une force réelle que même un sceptique reconnaît.]",
+        "[Rédigé en français : une deuxième force, contenu réel.]"
     ],
     "weaknesses": [
-        "FAIL REASON #1: [raison d'echec concrete et specifique]",
-        "FAIL REASON #2: [deuxieme raison d'echec concrete]",
-        "FAIL REASON #3: [troisieme raison d'echec concrete]"
+        "FAIL REASON #1: [rédigée en français : la raison d'échec la plus probable, concrète et spécifique.]",
+        "FAIL REASON #2: [rédigée en français : une deuxième raison d'échec concrète.]",
+        "FAIL REASON #3: [rédigée en français : une troisième raison d'échec concrète.]"
     ],
     "critical_questions": [
-        "[question devastatrice reelle et pointue]",
-        "[deuxieme question devastatrice]"
+        "[Rédigée en français : une question dévastatrice réelle et pointue ?]",
+        "[Rédigée en français : une deuxième question dévastatrice ?]"
     ],
-    "recommendation": "[TA recommandation reelle sur ce qu'il faudrait demontrer - NE PAS ecrire de generalite]",
+    "recommendation": "[Rédigée en français : TA recommandation réelle sur ce qu'il faudrait démontrer. NE PAS écrire de généralité.]",
     "confidence": 0.80
 }}
 ```
+
+LANGUE DE SORTIE — RÈGLE ABSOLUE, CHAMP PAR CHAMP :
+- "strengths" : chaque élément de la liste est rédigé en français.
+- "weaknesses" : chaque élément est rédigé en français. Seul le marqueur « FAIL REASON #n: » en tête d'élément reste en anglais ; tout ce qui le suit est en français.
+- "critical_questions" : chaque question est rédigée en français.
+- "recommendation" : rédigée en français.
+- Les données fournies ci-dessus (hypothèse, mécanisme, contre-preuves, prédictions) sont souvent en anglais. Cela ne change JAMAIS la langue de sortie : tu les critiques en français.
+- Restent tels quels, en anglais : les noms de champs JSON, les valeurs de "reviewer_persona" et de "verdict", le marqueur « FAIL REASON #n: », les nombres, les titres d'articles, et les termes techniques sans équivalent français établi (sigles, symboles, noms de tests statistiques).
+- Une phrase anglaise dans l'un de ces quatre champs rend la review inutilisable.
 
 Les verdicts possibles sont : "strong_accept" | "accept" | "weak_accept" | "weak_reject" | "reject"
 Le score va de 0 a 10. La confidence de 0 a 1.
