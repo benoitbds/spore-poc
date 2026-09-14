@@ -1,19 +1,43 @@
-"""Translate the FR panel review of a research brief into Nature-grade EN.
+"""Translate the panel review of a research brief between French and English.
 
-Reads ``panel_data`` (FR prose) from the briefs table, sends each prose
-field — list items translated as ``---``-separated blocks — through an
-LLM with a strict scientific-translation prompt, reconstructs the JSON
-preserving every backend token verbatim (``reviewer_persona``,
-``verdict``, scores), and writes the result to ``panel_data_en``.
+Two sister entry points, one per direction, each with its own output
+validator:
 
-Mirror of ``translate_brief_vulgarization.py`` (S7.4 Phase 1+2). Same
-validation heuristics (UK spelling, no contractions, no
-discover/discovery, length ratio, residual French = STOP). Idempotent:
+* ``translate_panel`` — FR -> Nature-grade EN. Reads ``panel_data`` (FR
+  prose) from the briefs table, sends each prose field — list items
+  translated as ``---``-separated blocks — through an LLM with a strict
+  scientific-translation prompt, reconstructs the JSON preserving every
+  backend token verbatim (``reviewer_persona``, ``verdict``, scores), and
+  writes the result to ``panel_data_en``. Raises ``FrenchInOutputError``
+  on residual French.
+* ``translate_panel_to_fr`` — EN -> FR (S10-A). Repairs reviewer cards and
+  meta-review prose that the panel wrote in English inside ``panel_data``,
+  whose contract is French. Only the targeted cards are translated; the
+  others are copied verbatim. Raises ``EnglishInOutputError`` when the
+  output still reads as English.
+
+The two validators are deliberately separate functions: they are
+symmetric in intent but opposite in what they look for, and mixing them
+behind a ``direction`` flag would make both fragile. The list-splitting
+and fallback mechanics are shared.
+
+Both directions:
+
+* keep the ``FAIL REASON #n:`` marker out of the LLM's reach — it is split
+  off before translation and re-prepended verbatim, because
+  ``graph/panel_coherence.py`` reads it as its structural reserve marker;
+* strip prompt scaffolding the model sometimes echoes at the head of a
+  field (``INPUT: <source>\\n\\nOUTPUT: <translation>``, observed on
+  SPR-2026-2FD9) and surface each strip as a warning.
+
+Mirror of ``translate_brief_vulgarization.py`` (S7.4 Phase 1+2) for the
+FR -> EN path. Same validation heuristics (UK spelling, no contractions,
+no discover/discovery, length ratio, residual French = STOP). Idempotent:
 a brief that already has a non-NULL ``panel_data_en`` is skipped unless
 ``--force`` is passed.
 
-Voice: ALL fields use the formal Nature-grade passive register typical
-of scientific peer-review prose. No active second-person variant
+Voice (FR -> EN): ALL fields use the formal Nature-grade passive register
+typical of scientific peer-review prose. No active second-person variant
 (unlike the vulgarisation ``imagine_that`` field).
 """
 
@@ -21,9 +45,12 @@ from __future__ import annotations
 
 import argparse
 import asyncio
+import copy
 import json
 import re
 import sys
+from collections.abc import Callable, Collection, Mapping
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -36,8 +63,11 @@ from storage.database import get_connection
 
 logger = get_logger("translate_brief_panel")
 
+# Per-call and per-brief LLM usage: token counts are ints, cost_usd a float.
+UsageSummary = dict[str, int | float]
 
-# ── Prompt ─────────────────────────────────────────────────────────────
+
+# ── Prompts: FR -> EN ──────────────────────────────────────────────────
 
 BASE_PROMPT = """You are a scientific translator specialising in academic peer-review prose. Translate the following French text into English following these strict rules:
 
@@ -79,21 +109,35 @@ VOICE: Use PASSIVE voice and impersonal constructions throughout ("the panel not
 
 
 def _build_string_prompt(french_text: str) -> str:
-    """Compose a per-call prompt for a single string field."""
+    """Compose a per-call FR -> EN prompt for a single string field.
+
+    Args:
+        french_text: The French source text.
+
+    Returns:
+        The full prompt.
+    """
     return (
         f"{BASE_PROMPT}\n\n"
         f"INPUT: {french_text}\n\n"
         "OUTPUT: ONLY the English translation, nothing else. "
-        "No preamble, no explanation, no quotes around the translation."
+        "No preamble, no explanation, no quotes around the translation. "
+        "Do not repeat the input and do not write labels such as INPUT or OUTPUT."
     )
 
 
 def _build_list_prompt(items: list[str]) -> str:
-    """Compose a per-call prompt for a list of strings.
+    """Compose a per-call FR -> EN prompt for a list of strings.
 
     The items are joined with ``\\n---\\n`` separators; the model is
     asked to return the same separator-delimited structure with
     translated items in the same order. Preserves item count exactly.
+
+    Args:
+        items: The French source items.
+
+    Returns:
+        The full prompt.
     """
     body = "\n---\n".join(items)
     return (
@@ -104,7 +148,75 @@ def _build_list_prompt(items: list[str]) -> str:
         f"INPUT ({len(items)} items):\n"
         f"{body}\n\n"
         "OUTPUT: ONLY the translated items separated by `---`, in the same order, "
-        "no preamble, no explanation, no item count header."
+        "no preamble, no explanation, no item count header. "
+        "Do not repeat the input and do not write labels such as INPUT or OUTPUT."
+    )
+
+
+# ── Prompts: EN -> FR ──────────────────────────────────────────────────
+
+BASE_PROMPT_FR = """Tu es un traducteur scientifique spécialisé dans la prose d'évaluation par les pairs. Traduis en français le texte anglais fourni, en respectant strictement ces règles :
+
+REGISTRE : éditorial scientifique — précis, sobre, formel. Pas de familiarité, pas de ton publicitaire. Reste fidèle au sens et au degré de certitude du texte source : une réserve reste une réserve, une recommandation reste une recommandation. N'ajoute rien, ne résume rien.
+
+LANGUE : la traduction est entièrement en français. Aucune phrase ne reste en anglais.
+
+VOCABULAIRE :
+- "finding" / "findings" : « résultat », « constat ». Ne traduis pas par « découverte ».
+- "brief" / "briefs" : garder tel quel.
+- "panel", "reviewer", "meta-reviewer" : « le panel », « le relecteur », « le méta-relecteur ».
+- "hypothesis" : « hypothèse » ; "collision" : garder tel quel.
+- "assumption" : « postulat » ou « hypothèse de départ » ; "likely" : « probable » ou « probablement » ; "unlikely" : « improbable » ; "cannot" : « ne peut pas » ou « impossible ».
+
+PRÉSERVATION :
+- Conserver tous les noms propres (personnes, lieux, institutions, entreprises, équipements, logiciels).
+- Conserver tels quels les nombres, unités, dates, symboles, équations, DOI et marqueurs de citation comme "[2025]" ou "(P450cam, 1DZ8)".
+- Conserver tels quels les références de phase : "Phase 1", "Phase 2", "Phase 3".
+- Conserver en anglais les titres d'articles cités.
+- Conserver les noms officiels des programmes de financement et des agences (ERC Starting Grant, Horizon Europe, EIC Pathfinder, NIH R21…) et les sigles d'usage (TRL, ROI, IP, TAM, CAGR, GO/NO-GO).
+- Conserver les termes techniques sans équivalent français établi (noms de tests statistiques, de molécules, de gènes, de méthodes).
+- Conserver la mise en forme markdown présente dans le source, sans en inventer.
+
+SORTIE : uniquement la traduction. Ne recopie jamais le texte source. N'écris aucune étiquette (« TEXTE SOURCE », « TRADUCTION », « INPUT », « OUTPUT »), aucun préambule, aucune explication, aucun guillemet autour de la traduction."""
+
+
+def _build_string_prompt_fr(english_text: str) -> str:
+    """Compose a per-call EN -> FR prompt for a single string field.
+
+    Args:
+        english_text: The English source text.
+
+    Returns:
+        The full prompt.
+    """
+    return (
+        f"{BASE_PROMPT_FR}\n\n"
+        f"TEXTE SOURCE (anglais) :\n{english_text}\n\n"
+        "Réponds UNIQUEMENT par la traduction française de ce texte."
+    )
+
+
+def _build_list_prompt_fr(items: list[str]) -> str:
+    """Compose a per-call EN -> FR prompt for a list of strings.
+
+    Same ``---`` separator contract as ``_build_list_prompt``.
+
+    Args:
+        items: The English source items.
+
+    Returns:
+        The full prompt.
+    """
+    body = "\n---\n".join(items)
+    return (
+        f"{BASE_PROMPT_FR}\n\n"
+        f"Tu vas traduire {len(items)} éléments séparés par des lignes contenant uniquement `---`. "
+        "Rends la même structure : chaque élément traduit, séparé du suivant par une ligne contenant uniquement `---`. "
+        "N'ajoute ni ne retire aucun élément. Ne renumérote pas. Traduis chaque élément dans l'ordre.\n\n"
+        f"TEXTE SOURCE ({len(items)} éléments, anglais) :\n"
+        f"{body}\n\n"
+        "Réponds UNIQUEMENT par les éléments traduits séparés par `---`, dans le même ordre, "
+        "sans en-tête de décompte."
     )
 
 
@@ -112,7 +224,7 @@ def _build_list_prompt(items: list[str]) -> str:
 #
 # panel_data (FR source) and panel_data_en (this script writes) share the
 # same shape — only the prose is translated; tokens, scores and structure
-# are copied verbatim:
+# are copied verbatim. The EN -> FR direction uses the same field lists:
 #
 # {
 #   reviews: [
@@ -121,8 +233,8 @@ def _build_list_prompt(items: list[str]) -> str:
 #       overall_score     COPY (number)
 #       verdict           COPY (token EN)
 #       confidence        COPY (number)
-#       strengths[]       TRANSLATE (list of FR prose -> EN prose)
-#       weaknesses[]      TRANSLATE
+#       strengths[]       TRANSLATE (list of prose)
+#       weaknesses[]      TRANSLATE ("FAIL REASON #n:" marker kept verbatim)
 #       critical_questions[]  TRANSLATE
 #       recommendation    TRANSLATE (string)
 #       funding_programs[] COPY (only on funding_strategist; tokens + EN agency names)
@@ -160,7 +272,7 @@ META_STRING_FIELDS = ["critical_path", "final_recommendation"]
 # from the LLM template. Feeding these to the translator triggers
 # hallucinations: the model fabricates 1000+ chars of plausible
 # scientific prose from a 20-char placeholder. We detect placeholders
-# pre-translation and either skip them or pass through a fixed EN
+# pre-translation and either skip them or pass through a fixed
 # equivalent that preserves the operator signal.
 
 _PLACEHOLDER_MAP: dict[str, str] = {
@@ -171,22 +283,148 @@ _PLACEHOLDER_MAP: dict[str, str] = {
     "review parsing failed": "Review parsing failed.",
 }
 
+# EN -> FR: the English fallback strings written by
+# agents/multi_reviewer_panel.py when a reviewer or the meta-reviewer
+# fails, mapped to fixed French equivalents.
+_PLACEHOLDER_MAP_FR: dict[str, str] = {
+    "manual review needed": "Revue manuelle nécessaire.",
+    "manual review needed.": "Revue manuelle nécessaire.",
+    "actionable recommendation in 2-3 sentences.": "Recommandation actionnable en 2-3 phrases.",
+    "recommandation actionnable en 2-3 phrases.": "Recommandation actionnable en 2-3 phrases.",
+    "unable to parse review": "Impossible d'analyser l'évaluation.",
+    "unable to parse review.": "Impossible d'analyser l'évaluation.",
+    "review parsing failed": "Échec de l'analyse de l'évaluation.",
+    "review parsing failed.": "Échec de l'analyse de l'évaluation.",
+    "review failed": "Évaluation en échec.",
+    "review failed due to error": "Évaluation en échec à la suite d'une erreur.",
+    "meta-review parsing failed": "Échec de l'analyse de la méta-évaluation.",
+}
 
-def _placeholder_passthrough(text: str) -> str | None:
-    """Return the EN equivalent for a known placeholder, or None.
+
+def _placeholder_passthrough(
+    text: str,
+    mapping: Mapping[str, str] = _PLACEHOLDER_MAP,
+) -> str | None:
+    """Return the fixed equivalent for a known placeholder, or None.
 
     Matching is case-insensitive on whitespace-stripped input. Used to
     short-circuit translation for pipeline error/marker strings — these
     cause LLM hallucinations because the input is too short to anchor
     a faithful translation.
+
+    Args:
+        text: Source text.
+        mapping: Placeholder table of the translation direction.
+
+    Returns:
+        The replacement string, or None when ``text`` is not a placeholder.
     """
     if not text:
         return None
     key = text.strip().lower()
-    return _PLACEHOLDER_MAP.get(key)
+    return mapping.get(key)
 
 
-# ── Validation ─────────────────────────────────────────────────────────
+# ── FAIL REASON marker ─────────────────────────────────────────────────
+#
+# ``FAIL REASON #n:`` is a technical token, not prose: prompts/
+# reviewer_contrarian.txt prescribes it and graph/panel_coherence.py reads
+# it as the structural reserve marker behind 89.8 % of its decisions on
+# negative cards. A translator that renders it « RAISON D'ÉCHEC n° 1 »
+# would silently move briefs from one gate to another. It is therefore
+# split off before the LLM call and re-prepended verbatim afterwards — a
+# deterministic guarantee rather than a prompt instruction.
+
+#
+# Separator variants measured on the corpus: « FAIL REASON #n: » (the
+# prompt's form, ~95 %) and « FAIL REASON #n — » (SPR-2026-059C and 5
+# other cards). Whatever separator the source uses is kept verbatim.
+_FAIL_REASON_PREFIX_RE = re.compile(
+    r"^\s*(FAIL\s*REASON\s*(?:#\s*)?\d*(?:\s*[:\-–—.)])?)\s*",
+    re.IGNORECASE,
+)
+
+
+def _split_fail_reason(text: str) -> tuple[str, str]:
+    """Split a leading ``FAIL REASON #n:`` marker from the prose.
+
+    Args:
+        text: A prose item.
+
+    Returns:
+        Tuple of (marker, body). ``marker`` is the verbatim marker followed
+        by one space, or "" when the item carries none.
+    """
+    match = _FAIL_REASON_PREFIX_RE.match(text)
+    if not match:
+        return "", text
+    return f"{match.group(1).strip()} ", text[match.end():]
+
+
+# ── Prompt scaffolding echo ────────────────────────────────────────────
+#
+# SPR-2026-2FD9, reviews[4/funding_strategist].recommendation: the source
+# was already English, and the model answered with
+# ``INPUT: <source>\n\nOUTPUT: <translation>`` — hence an EN/FR length
+# ratio of 2.08. Labels from both directions' prompts are recognised.
+
+_INPUT_LABELS = r"INPUT|TEXTE\s+SOURCE|ENTR[ÉE]E"
+_OUTPUT_LABELS = (
+    r"OUTPUT|(?:ENGLISH\s+|FRENCH\s+)?TRANSLATION|TRADUCTION(?:\s+FRAN[ÇC]AISE)?|SORTIE"
+)
+_LABEL_SUFFIX = r"(?:\s*\([^)\n]{0,40}\))?\s*:"
+_LEAD_INPUT_RE = re.compile(rf"^\s*(?:{_INPUT_LABELS}){_LABEL_SUFFIX}\s*", re.IGNORECASE)
+_LEAD_OUTPUT_RE = re.compile(rf"^\s*(?:{_OUTPUT_LABELS}){_LABEL_SUFFIX}\s*", re.IGNORECASE)
+_INNER_OUTPUT_RE = re.compile(rf"\n\s*(?:{_OUTPUT_LABELS}){_LABEL_SUFFIX}\s*", re.IGNORECASE)
+
+
+def _strip_scaffold(field_path: str, text: str) -> tuple[str, list[str]]:
+    """Remove prompt scaffolding echoed at the head of an LLM output.
+
+    Two shapes are handled: an echoed source (``INPUT: <source>`` followed
+    later by ``OUTPUT: <translation>``, keep what follows the last output
+    label) and a bare leading label (``OUTPUT: <translation>``). Every
+    strip is logged as a warning and returned, so it never passes silently.
+
+    Args:
+        field_path: Field identifier for logging.
+        text: Raw LLM output (or one item of it).
+
+    Returns:
+        Tuple of (cleaned text, warnings).
+    """
+    warnings: list[str] = []
+    cleaned = text
+
+    lead_input = _LEAD_INPUT_RE.match(cleaned)
+    if lead_input:
+        inner = list(_INNER_OUTPUT_RE.finditer(cleaned, lead_input.end()))
+        if inner:
+            cleaned = cleaned[inner[-1].end():]
+            kind = "echoed_source"
+        else:
+            cleaned = cleaned[lead_input.end():]
+            kind = "input_label"
+        warnings.append(f"{field_path}: prompt scaffolding stripped ({kind})")
+
+    while True:
+        lead_output = _LEAD_OUTPUT_RE.match(cleaned)
+        if not lead_output:
+            break
+        cleaned = cleaned[lead_output.end():]
+        warnings.append(f"{field_path}: prompt scaffolding stripped (output_label)")
+
+    if warnings:
+        logger.warning(
+            "translation_scaffold_stripped",
+            field=field_path,
+            kinds=[w.rsplit("(", 1)[-1].rstrip(")") for w in warnings],
+            preview=text[:80],
+        )
+    return cleaned.strip(), warnings
+
+
+# ── Validation: FR -> EN ───────────────────────────────────────────────
 
 _FORBIDDEN_BARE = re.compile(r"\b(discover|discovery|discoveries|discovered|discovering)\b", re.IGNORECASE)
 _FORBIDDEN_NEGATION = re.compile(
@@ -245,9 +483,18 @@ class FrenchInOutputError(Exception):
 
 
 def _validate_text(field_path: str, fr_text: str, en_text: str) -> list[str]:
-    """Run quality checks on a single translated field.
+    """Run quality checks on a single FR -> EN translated field.
 
-    Returns warnings; raises ``FrenchInOutputError`` on residual French.
+    Args:
+        field_path: Field identifier for messages.
+        fr_text: French source.
+        en_text: English output.
+
+    Returns:
+        Warnings (style, vocabulary, length drift).
+
+    Raises:
+        FrenchInOutputError: On residual French in the output.
     """
     warnings: list[str] = []
 
@@ -291,10 +538,112 @@ def _validate_text(field_path: str, fr_text: str, en_text: str) -> list[str]:
     return warnings
 
 
+# ── Validation: EN -> FR ───────────────────────────────────────────────
+#
+# NOT a mirror of _validate_text. A symmetric list of "English words"
+# would fire on every legitimate French card: panel prose carries English
+# by contract — article titles, funding programme names (« ERC Starting
+# Grant »), product terms (« proof of concept », « open source »), the
+# FAIL REASON marker, persona and verdict tokens. The discriminator is
+# graph.lang_guard.detect, the very function behind check_panel_language:
+# the translator and the gate then share one notion of "still English",
+# so a field that passes here cannot fail validate_brief for language on
+# its own. detect() abstaining (short or technical text) means accept.
+#
+# Verbatim tokens and quoted spans (article titles) are removed before
+# detection so that they never count as English signal.
+
+_PERSONA_TOKENS = (
+    "methodologist", "domain_expert", "contrarian", "industrialist",
+    "funding_strategist", "meta_reviewer",
+)
+_VERDICT_TOKENS = (
+    "strong_accept", "weak_accept", "weak_reject", "accept", "reject",
+    "publish_brief", "revise_and_resubmit",
+)
+_VERBATIM_TOKEN_RE = re.compile(
+    r"FAIL\s*REASON\s*#?\s*\d*\s*:?"
+    r"|\b(?:%s)\b"
+    r"|[-+]?\d+(?:[.,]\d+)*\s*%%?"
+    % "|".join(re.escape(t) for t in (*_PERSONA_TOKENS, *_VERDICT_TOKENS)),
+    re.IGNORECASE,
+)
+_QUOTED_SPAN_RE = re.compile(r"«[^»]*»|“[^”]*”|\"[^\"\n]*\"|\*[^*\n]+\*")
+
+# FR/EN character-length ratio, measured on 2 788 paired prose fields of
+# the corpus (panel_data detected French vs panel_data_en detected
+# English): median 1.065, 2nd percentile 0.91, 98th percentile 1.21. The
+# window is the reciprocal of the FR -> EN window (0.70-1.25), rounded.
+_FR_EN_RATIO_MIN = 0.80
+_FR_EN_RATIO_MAX = 1.45
+
+
+class EnglishInOutputError(Exception):
+    """Raised when an EN -> FR output still reads as English."""
+
+
+def _strip_verbatim_tokens(text: str) -> str:
+    """Remove tokens that stay English by contract before language detection.
+
+    Args:
+        text: A French output field.
+
+    Returns:
+        The text without FAIL REASON markers, persona and verdict tokens,
+        numbers, and quoted or italicised spans.
+    """
+    without_quotes = _QUOTED_SPAN_RE.sub(" ", text)
+    return _VERBATIM_TOKEN_RE.sub(" ", without_quotes)
+
+
+def _validate_text_fr(field_path: str, en_text: str, fr_text: str) -> list[str]:
+    """Run quality checks on a single EN -> FR translated field.
+
+    Args:
+        field_path: Field identifier for messages.
+        en_text: English source.
+        fr_text: French output.
+
+    Returns:
+        Warnings (length drift, output identical to the source).
+
+    Raises:
+        EnglishInOutputError: When the output, verbatim tokens removed, is
+            detected as English.
+    """
+    # Imported here, not at module level: graph/__init__ imports the L0
+    # pipeline, which imports post_fire_pipeline, which imports
+    # agents.translation, which imports this module — a top-level import
+    # would close that cycle whenever agents.translation is imported first.
+    from graph.lang_guard import detect
+
+    warnings: list[str] = []
+
+    detected = detect(_strip_verbatim_tokens(fr_text))
+    if detected == "en":
+        raise EnglishInOutputError(
+            f"{field_path}: FR output detected as English: {fr_text[:120]!r}"
+        )
+
+    if fr_text.strip() == en_text.strip() and len(en_text.split()) >= 5:
+        warnings.append(f"{field_path}: FR output identical to the EN source")
+
+    en_len = max(len(en_text), 1)
+    ratio = len(fr_text) / en_len
+    if not _FR_EN_RATIO_MIN <= ratio <= _FR_EN_RATIO_MAX:
+        warnings.append(
+            f"{field_path}: FR/EN length ratio {ratio:.2f} outside "
+            f"{_FR_EN_RATIO_MIN:.2f}-{_FR_EN_RATIO_MAX:.2f}"
+        )
+
+    return warnings
+
+
 # ── Translation primitives ─────────────────────────────────────────────
 
 
 def _strip_wrapping_bold(text: str) -> str:
+    """Remove a single bold wrapper around the whole text."""
     stripped = text.strip()
     if not (stripped.startswith("**") and stripped.endswith("**")):
         return text
@@ -305,6 +654,7 @@ def _strip_wrapping_bold(text: str) -> str:
 
 
 def _strip_wrappers(text: str) -> str:
+    """Remove quotes, code fences and a bold wrapper around the whole text."""
     text = text.strip()
     if text.startswith('"') and text.endswith('"') and len(text) > 2:
         text = text[1:-1]
@@ -317,7 +667,8 @@ def _strip_wrappers(text: str) -> str:
 # occasionally lets it slip despite the prompt. Map each form to a
 # context-neutral replacement post-translation; the validator will still
 # warn if the family appears in negation contexts (which we leave
-# alone).
+# alone). FR -> EN only: « découverte » is legitimate French scientific
+# vocabulary and is never rewritten on the EN -> FR path.
 _DISCOVER_REPLACEMENTS = [
     (re.compile(r"\bdiscoveries\b"), "findings"),
     (re.compile(r"\bdiscovery\b"), "finding"),
@@ -352,8 +703,79 @@ def _replace_forbidden_discover(text: str) -> str:
     return text
 
 
-async def _llm_call(client, prompt: str, max_tokens: int = 2500) -> tuple[str, dict[str, int]]:
-    """Single LLM call with cost tracking. Returns (text, usage)."""
+def _identity(text: str) -> str:
+    """Post-processing no-op for the EN -> FR direction."""
+    return text
+
+
+@dataclass(frozen=True)
+class _Direction:
+    """Everything that differs between the two translation directions.
+
+    Attributes:
+        name: Direction label for logs ("fr_to_en" or "en_to_fr").
+        agent: Token-tracker agent label.
+        build_string_prompt: Prompt builder for a single string.
+        build_list_prompt: Prompt builder for a ``---``-separated list.
+        validate: Per-field validator ``(field_path, source, output)``
+            returning warnings and raising on wrong-language output.
+        placeholders: Placeholder passthrough table.
+        postprocess: Output post-processing applied after unwrapping.
+    """
+
+    name: str
+    agent: str
+    build_string_prompt: Callable[[str], str]
+    build_list_prompt: Callable[[list[str]], str]
+    validate: Callable[[str, str, str], list[str]]
+    placeholders: Mapping[str, str]
+    postprocess: Callable[[str], str]
+
+
+_FR_TO_EN = _Direction(
+    name="fr_to_en",
+    agent="translate_panel",
+    build_string_prompt=_build_string_prompt,
+    build_list_prompt=_build_list_prompt,
+    validate=_validate_text,
+    placeholders=_PLACEHOLDER_MAP,
+    postprocess=_replace_forbidden_discover,
+)
+
+_EN_TO_FR = _Direction(
+    name="en_to_fr",
+    agent="translate_panel_to_fr",
+    build_string_prompt=_build_string_prompt_fr,
+    build_list_prompt=_build_list_prompt_fr,
+    validate=_validate_text_fr,
+    placeholders=_PLACEHOLDER_MAP_FR,
+    postprocess=_identity,
+)
+
+
+def _zero_usage() -> UsageSummary:
+    """Usage summary of a field that needed no LLM call."""
+    return {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0}
+
+
+async def _llm_call(
+    client: Any,
+    prompt: str,
+    direction: _Direction,
+    max_tokens: int = 2500,
+) -> tuple[str, UsageSummary]:
+    """Single LLM call with cost tracking.
+
+    Args:
+        client: LLM client from ``get_llm_client``.
+        prompt: Full prompt.
+        direction: Translation direction (tracker label, post-processing).
+        max_tokens: Output token cap.
+
+    Returns:
+        Tuple of (unwrapped text, usage). Scaffolding is NOT stripped here:
+        callers strip it with a field path so the warning can name it.
+    """
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=max_tokens,
@@ -362,7 +784,7 @@ async def _llm_call(client, prompt: str, max_tokens: int = 2500) -> tuple[str, d
 
     tracker = get_token_tracker()
     cost = tracker.log_call(
-        agent="translate_panel",
+        agent=direction.agent,
         model=response.model,
         input_tokens=response.input_tokens,
         output_tokens=response.output_tokens,
@@ -370,7 +792,7 @@ async def _llm_call(client, prompt: str, max_tokens: int = 2500) -> tuple[str, d
         cache_hit=response.cache_hit,
     )
     text = _strip_wrappers(response.content)
-    text = _replace_forbidden_discover(text)
+    text = direction.postprocess(text)
     return text, {
         "input_tokens": response.input_tokens,
         "output_tokens": response.output_tokens,
@@ -379,126 +801,160 @@ async def _llm_call(client, prompt: str, max_tokens: int = 2500) -> tuple[str, d
 
 
 async def _translate_string(
-    client,
+    client: Any,
     field_path: str,
-    fr_text: str,
-) -> tuple[str, dict[str, int], list[str]]:
-    """Translate a single string. Returns (en_text, usage, warnings)."""
-    if not fr_text or not fr_text.strip():
-        return "", {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0}, []
+    source_text: str,
+    direction: _Direction = _FR_TO_EN,
+) -> tuple[str, UsageSummary, list[str]]:
+    """Translate a single string.
+
+    Args:
+        client: LLM client.
+        field_path: Field identifier for logs and warnings.
+        source_text: Text in the source language.
+        direction: Translation direction.
+
+    Returns:
+        Tuple of (translated text, usage, warnings).
+
+    Raises:
+        FrenchInOutputError: FR -> EN output still French.
+        EnglishInOutputError: EN -> FR output still English.
+    """
+    if not source_text or not source_text.strip():
+        return "", _zero_usage(), []
+
+    marker, body = _split_fail_reason(source_text)
+    if not body.strip():
+        return marker.strip(), _zero_usage(), []
+
     # Pipeline placeholders short-circuit the LLM call to avoid
     # hallucinations on minimal-context inputs.
-    placeholder_en = _placeholder_passthrough(fr_text)
-    if placeholder_en is not None:
+    placeholder = _placeholder_passthrough(body, direction.placeholders)
+    if placeholder is not None:
         logger.info(
             "translation_placeholder_passthrough",
             field=field_path,
-            fr=fr_text[:40],
-            en=placeholder_en,
+            direction=direction.name,
+            source=body[:40],
+            target=placeholder,
         )
-        return placeholder_en, {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0}, []
-    prompt = _build_string_prompt(fr_text)
-    en_text, usage = await _llm_call(client, prompt)
-    warnings = _validate_text(field_path, fr_text, en_text)
-    return en_text, usage, warnings
+        return marker + placeholder, _zero_usage(), []
+
+    prompt = direction.build_string_prompt(body)
+    raw, usage = await _llm_call(client, prompt, direction)
+    translated, warnings = _strip_scaffold(field_path, raw)
+    warnings.extend(direction.validate(field_path, body, translated))
+    return marker + translated, usage, warnings
 
 
 async def _translate_list(
-    client,
+    client: Any,
     field_path: str,
     items: list[str],
-) -> tuple[list[str], dict[str, int], list[str]]:
+    direction: _Direction = _FR_TO_EN,
+) -> tuple[list[str], UsageSummary, list[str]]:
     """Translate a list of strings as one ``---``-separated block.
 
     If the LLM returns a different item count, the script falls back to
     translating each item individually (more calls, higher cost, but
     preserves correctness).
+
+    Args:
+        client: LLM client.
+        field_path: Field identifier for logs and warnings.
+        items: Items in the source language; non-strings are dropped.
+        direction: Translation direction.
+
+    Returns:
+        Tuple of (translated items, usage, warnings).
+
+    Raises:
+        FrenchInOutputError: FR -> EN output still French.
+        EnglishInOutputError: EN -> FR output still English.
     """
     items = [s for s in items if isinstance(s, str)]
     if not items:
-        return [], {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0}, []
+        return [], _zero_usage(), []
 
-    # Per-item placeholder check before composing the LLM prompt. Any
-    # item that maps to a known placeholder is passed through and the
-    # remaining items are sent to the LLM. Result is reassembled in
-    # original order. A list whose items are ALL placeholders short-
-    # circuits entirely.
-    en_items_resolved: list[str | None] = [None] * len(items)
-    items_to_translate: list[tuple[int, str]] = []
-    for i, fr_item in enumerate(items):
-        placeholder_en = _placeholder_passthrough(fr_item)
-        if placeholder_en is not None:
-            en_items_resolved[i] = placeholder_en
+    # Per-item resolution before composing the LLM prompt: the FAIL
+    # REASON marker is split off, empty bodies and known placeholders are
+    # resolved without the LLM, and the remaining bodies are sent in one
+    # call. Result is reassembled in original order. A list whose items
+    # all resolve locally short-circuits entirely.
+    resolved: list[str | None] = [None] * len(items)
+    markers: list[str] = [""] * len(items)
+    to_translate: list[tuple[int, str]] = []
+    for i, source_item in enumerate(items):
+        marker, body = _split_fail_reason(source_item)
+        markers[i] = marker
+        if not body.strip():
+            resolved[i] = marker.strip()
+            continue
+        placeholder = _placeholder_passthrough(body, direction.placeholders)
+        if placeholder is not None:
+            resolved[i] = marker + placeholder
             logger.info(
                 "translation_placeholder_passthrough",
                 field=f"{field_path}[{i}]",
-                fr=fr_item[:40],
-                en=placeholder_en,
+                direction=direction.name,
+                source=body[:40],
+                target=placeholder,
             )
         else:
-            items_to_translate.append((i, fr_item))
+            to_translate.append((i, body))
 
-    if not items_to_translate:
-        return (
-            [s or "" for s in en_items_resolved],
-            {"input_tokens": 0, "output_tokens": 0, "cost_usd": 0.0},
-            [],
-        )
+    if not to_translate:
+        return [s or "" for s in resolved], _zero_usage(), []
 
-    # Build the prompt only on the non-placeholder subset.
-    items = [fr for _, fr in items_to_translate]
-    prompt = _build_list_prompt(items)
-    en_text, usage = await _llm_call(client, prompt, max_tokens=3500)
+    bodies = [body for _, body in to_translate]
+    prompt = direction.build_list_prompt(bodies)
+    raw, usage = await _llm_call(client, prompt, direction, max_tokens=3500)
+
+    all_warnings: list[str] = []
+    translated_block, block_warnings = _strip_scaffold(field_path, raw)
+    all_warnings.extend(block_warnings)
 
     # Split on lines containing only ``---`` (allow surrounding whitespace).
-    parts = re.split(r"\n\s*---\s*\n", en_text.strip())
+    parts = re.split(r"\n\s*---\s*\n", translated_block.strip())
     parts = [p.strip() for p in parts if p.strip()]
 
-    total_in = usage["input_tokens"]
-    total_out = usage["output_tokens"]
-    total_cost = usage["cost_usd"]
+    total_in = int(usage["input_tokens"])
+    total_out = int(usage["output_tokens"])
+    total_cost = float(usage["cost_usd"])
 
-    if len(parts) != len(items):
+    if len(parts) != len(bodies):
         # Fallback: per-item translation. Logged so the operator can see
         # the LLM split-marker mismatch and tune the prompt if it happens
         # often.
         logger.warning(
             "list_split_mismatch_fallback",
             field=field_path,
-            expected=len(items),
+            direction=direction.name,
+            expected=len(bodies),
             received=len(parts),
         )
-        all_warnings: list[str] = []
-        for sub_idx, (orig_idx, fr_item) in enumerate(items_to_translate):
+        for orig_idx, body in to_translate:
             sub_path = f"{field_path}[{orig_idx}]"
-            en_item, sub_usage, sub_warnings = await _translate_string(
-                client, sub_path, fr_item
+            translated_item, sub_usage, sub_warnings = await _translate_string(
+                client, sub_path, body, direction
             )
-            en_items_resolved[orig_idx] = en_item
+            resolved[orig_idx] = markers[orig_idx] + translated_item
             all_warnings.extend(sub_warnings)
-            total_in += sub_usage["input_tokens"]
-            total_out += sub_usage["output_tokens"]
-            total_cost += sub_usage["cost_usd"]
-        return (
-            [s or "" for s in en_items_resolved],
-            {
-                "input_tokens": total_in,
-                "output_tokens": total_out,
-                "cost_usd": total_cost,
-            },
-            all_warnings,
-        )
-
-    # Reassemble translated parts back into the original-indexed list.
-    all_warnings: list[str] = []
-    for (orig_idx, fr_item), en_item in zip(items_to_translate, parts):
-        en_items_resolved[orig_idx] = en_item
-        all_warnings.extend(
-            _validate_text(f"{field_path}[{orig_idx}]", fr_item, en_item)
-        )
+            total_in += int(sub_usage["input_tokens"])
+            total_out += int(sub_usage["output_tokens"])
+            total_cost += float(sub_usage["cost_usd"])
+    else:
+        # Reassemble translated parts back into the original-indexed list.
+        for (orig_idx, body), part in zip(to_translate, parts):
+            item_path = f"{field_path}[{orig_idx}]"
+            cleaned_part, part_warnings = _strip_scaffold(item_path, part)
+            all_warnings.extend(part_warnings)
+            all_warnings.extend(direction.validate(item_path, body, cleaned_part))
+            resolved[orig_idx] = markers[orig_idx] + cleaned_part
 
     return (
-        [s or "" for s in en_items_resolved],
+        [s or "" for s in resolved],
         {
             "input_tokens": total_in,
             "output_tokens": total_out,
@@ -511,128 +967,279 @@ async def _translate_list(
 # ── Per-brief translation orchestration ────────────────────────────────
 
 
-async def translate_panel(
+class _UsageAccumulator:
+    """Running total of the usage of every call made for one payload."""
+
+    def __init__(self) -> None:
+        self.input_tokens = 0
+        self.output_tokens = 0
+        self.cost_usd = 0.0
+
+    def add(self, usage: UsageSummary) -> None:
+        """Add one field's usage to the total."""
+        self.input_tokens += int(usage.get("input_tokens", 0))
+        self.output_tokens += int(usage.get("output_tokens", 0))
+        self.cost_usd += float(usage.get("cost_usd", 0.0))
+
+    def summary(self) -> UsageSummary:
+        """Usage summary in the shape returned by the public functions."""
+        return {
+            "cost_usd": self.cost_usd,
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+        }
+
+
+async def _translate_review_card(
+    client: Any,
     brief_id: str,
-    fr_payload: dict[str, Any],
-) -> tuple[dict[str, Any], list[str], dict[str, float]]:
-    """Translate a single brief's panel_data payload.
+    ridx: int,
+    card: dict[str, Any],
+    direction: _Direction,
+    usage: _UsageAccumulator,
+) -> tuple[dict[str, Any], list[str]]:
+    """Translate the prose fields of one reviewer card.
 
-    Returns (en_payload, warnings, usage_summary).
-    Raises FrenchInOutputError on a STOP signal (residual French).
+    Args:
+        client: LLM client.
+        brief_id: Brief identifier, for logs.
+        ridx: Card index in ``reviews``.
+        card: The source card.
+        direction: Translation direction.
+        usage: Accumulator receiving the card's usage.
+
+    Returns:
+        Tuple of (translated card, warnings). Backend tokens, numbers and
+        opaque blobs are copied verbatim.
     """
-    client = get_llm_client("translation")
+    translated: dict[str, Any] = {}
+    for key, value in card.items():
+        if key in REVIEWER_LIST_FIELDS or key in REVIEWER_STRING_FIELDS:
+            continue  # translated below
+        translated[key] = copy.deepcopy(value)
 
-    en_payload: dict[str, Any] = {}
-    all_warnings: list[str] = []
-    total_in = 0
-    total_out = 0
-    total_cost = 0.0
+    persona = card.get("reviewer_persona", f"reviewer_{ridx}")
+    warnings: list[str] = []
 
-    def _accum(usage: dict[str, int]) -> None:
-        nonlocal total_in, total_out, total_cost
-        total_in += usage.get("input_tokens", 0)
-        total_out += usage.get("output_tokens", 0)
-        total_cost += usage.get("cost_usd", 0.0)
+    for field in REVIEWER_LIST_FIELDS:
+        items = card.get(field) or []
+        field_path = f"reviews[{ridx}/{persona}].{field}"
+        out_items, field_usage, field_warnings = await _translate_list(
+            client, field_path, items, direction
+        )
+        translated[field] = out_items
+        usage.add(field_usage)
+        warnings.extend(field_warnings)
+        logger.info(
+            "translated_reviewer_field",
+            brief_id=brief_id,
+            direction=direction.name,
+            persona=persona,
+            field=field,
+            items=len(out_items),
+        )
 
-    # ── reviews[] ──────────────────────────────────────────────────────
-    fr_reviews = fr_payload.get("reviews") or []
-    en_reviews: list[dict[str, Any]] = []
-    for ridx, fr_r in enumerate(fr_reviews):
-        if not isinstance(fr_r, dict):
-            en_reviews.append(fr_r)
+    for field in REVIEWER_STRING_FIELDS:
+        text = card.get(field) or ""
+        field_path = f"reviews[{ridx}/{persona}].{field}"
+        out_text, field_usage, field_warnings = await _translate_string(
+            client, field_path, text, direction
+        )
+        translated[field] = out_text
+        usage.add(field_usage)
+        warnings.extend(field_warnings)
+        logger.info(
+            "translated_reviewer_field",
+            brief_id=brief_id,
+            direction=direction.name,
+            persona=persona,
+            field=field,
+            preview=out_text[:80],
+        )
+
+    return translated, warnings
+
+
+async def _translate_meta_review(
+    client: Any,
+    brief_id: str,
+    meta: dict[str, Any],
+    direction: _Direction,
+    usage: _UsageAccumulator,
+) -> tuple[dict[str, Any], list[str]]:
+    """Translate the prose fields of the meta-review.
+
+    Args:
+        client: LLM client.
+        brief_id: Brief identifier, for logs.
+        meta: The source meta-review.
+        direction: Translation direction.
+        usage: Accumulator receiving the meta-review's usage.
+
+    Returns:
+        Tuple of (translated meta-review, warnings). Non-prose keys are
+        copied verbatim.
+    """
+    translated: dict[str, Any] = {}
+    for key, value in meta.items():
+        if key in META_LIST_FIELDS or key in META_STRING_FIELDS:
             continue
+        translated[key] = copy.deepcopy(value)
 
-        en_r: dict[str, Any] = {}
-        # Copy verbatim: backend tokens + numbers + opaque blobs.
-        for k, v in fr_r.items():
-            if k in REVIEWER_LIST_FIELDS or k in REVIEWER_STRING_FIELDS:
-                continue  # translated below
-            en_r[k] = v
-
-        persona = fr_r.get("reviewer_persona", f"reviewer_{ridx}")
-
-        for field in REVIEWER_LIST_FIELDS:
-            items = fr_r.get(field) or []
-            field_path = f"reviews[{ridx}/{persona}].{field}"
-            en_items, usage, w = await _translate_list(client, field_path, items)
-            en_r[field] = en_items
-            _accum(usage)
-            all_warnings.extend(w)
-            logger.info(
-                "translated_reviewer_field",
-                brief_id=brief_id,
-                persona=persona,
-                field=field,
-                items=len(en_items),
-            )
-
-        for field in REVIEWER_STRING_FIELDS:
-            text = fr_r.get(field) or ""
-            field_path = f"reviews[{ridx}/{persona}].{field}"
-            en_text, usage, w = await _translate_string(client, field_path, text)
-            en_r[field] = en_text
-            _accum(usage)
-            all_warnings.extend(w)
-            logger.info(
-                "translated_reviewer_field",
-                brief_id=brief_id,
-                persona=persona,
-                field=field,
-                en_preview=en_text[:80],
-            )
-
-        en_reviews.append(en_r)
-    en_payload["reviews"] = en_reviews
-
-    # ── meta_review ────────────────────────────────────────────────────
-    fr_meta = fr_payload.get("meta_review") or {}
-    en_meta: dict[str, Any] = {}
-    for k, v in fr_meta.items():
-        if k in META_LIST_FIELDS or k in META_STRING_FIELDS:
-            continue
-        en_meta[k] = v
+    warnings: list[str] = []
 
     for field in META_LIST_FIELDS:
-        items = fr_meta.get(field) or []
-        en_items, usage, w = await _translate_list(
-            client, f"meta_review.{field}", items
+        items = meta.get(field) or []
+        out_items, field_usage, field_warnings = await _translate_list(
+            client, f"meta_review.{field}", items, direction
         )
-        en_meta[field] = en_items
-        _accum(usage)
-        all_warnings.extend(w)
+        translated[field] = out_items
+        usage.add(field_usage)
+        warnings.extend(field_warnings)
         logger.info(
             "translated_meta_field",
             brief_id=brief_id,
+            direction=direction.name,
             field=field,
-            items=len(en_items),
+            items=len(out_items),
         )
 
     for field in META_STRING_FIELDS:
-        text = fr_meta.get(field) or ""
-        en_text, usage, w = await _translate_string(
-            client, f"meta_review.{field}", text
+        text = meta.get(field) or ""
+        out_text, field_usage, field_warnings = await _translate_string(
+            client, f"meta_review.{field}", text, direction
         )
-        en_meta[field] = en_text
-        _accum(usage)
-        all_warnings.extend(w)
+        translated[field] = out_text
+        usage.add(field_usage)
+        warnings.extend(field_warnings)
         logger.info(
             "translated_meta_field",
             brief_id=brief_id,
+            direction=direction.name,
             field=field,
-            en_preview=en_text[:80],
+            preview=out_text[:80],
         )
 
-    en_payload["meta_review"] = en_meta
+    return translated, warnings
 
-    return (
-        en_payload,
-        all_warnings,
-        {
-            "cost_usd": total_cost,
-            "input_tokens": total_in,
-            "output_tokens": total_out,
-        },
+
+async def translate_panel(
+    brief_id: str,
+    fr_payload: dict[str, Any],
+) -> tuple[dict[str, Any], list[str], UsageSummary]:
+    """Translate a single brief's panel_data payload FR -> EN.
+
+    Args:
+        brief_id: Brief identifier, for logs.
+        fr_payload: ``panel_data`` with French prose.
+
+    Returns:
+        Tuple of (en_payload, warnings, usage_summary).
+
+    Raises:
+        FrenchInOutputError: On a STOP signal (residual French).
+    """
+    client = get_llm_client("translation")
+    usage = _UsageAccumulator()
+    all_warnings: list[str] = []
+    en_payload: dict[str, Any] = {}
+
+    en_reviews: list[Any] = []
+    for ridx, fr_card in enumerate(fr_payload.get("reviews") or []):
+        if not isinstance(fr_card, dict):
+            en_reviews.append(fr_card)
+            continue
+        en_card, warnings = await _translate_review_card(
+            client, brief_id, ridx, fr_card, _FR_TO_EN, usage
+        )
+        en_reviews.append(en_card)
+        all_warnings.extend(warnings)
+    en_payload["reviews"] = en_reviews
+
+    en_meta, warnings = await _translate_meta_review(
+        client, brief_id, fr_payload.get("meta_review") or {}, _FR_TO_EN, usage
     )
+    en_payload["meta_review"] = en_meta
+    all_warnings.extend(warnings)
+
+    return en_payload, all_warnings, usage.summary()
+
+
+async def translate_panel_to_fr(
+    brief_id: str,
+    en_payload: dict[str, Any],
+    *,
+    review_indices: Collection[int] | None = None,
+    include_meta: bool = True,
+) -> tuple[dict[str, Any], list[str], UsageSummary]:
+    """Translate English prose of a panel payload EN -> FR.
+
+    Sister of ``translate_panel``. Used to repair ``panel_data`` — whose
+    contract is French — when reviewer cards or the meta-review came back
+    in English. Selective: only the cards at ``review_indices`` (and the
+    meta-review when ``include_meta``) go through the LLM; every other part
+    of the payload is copied verbatim, so cards already in French are
+    never touched.
+
+    Args:
+        brief_id: Brief identifier or trace label, for logs. The briefs row
+            may not exist yet when this is called from the post-fire graph.
+        en_payload: ``panel_data``-shaped dict with ``reviews`` and
+            ``meta_review``.
+        review_indices: Indices in ``reviews`` of the cards to translate.
+            ``None`` translates every card; an empty collection none.
+        include_meta: Whether to translate the meta-review prose.
+
+    Returns:
+        Tuple of (fr_payload, warnings, usage_summary). ``fr_payload`` is a
+        new dict with the same keys as ``en_payload``.
+
+    Raises:
+        EnglishInOutputError: When a translated field still reads as
+            English. Nothing is partially applied: the caller receives the
+            exception instead of a half-translated payload.
+    """
+    reviews = en_payload.get("reviews") or []
+    targets = (
+        set(range(len(reviews))) if review_indices is None else set(review_indices)
+    )
+
+    fr_payload: dict[str, Any] = {
+        key: copy.deepcopy(value)
+        for key, value in en_payload.items()
+        if key not in ("reviews", "meta_review")
+    }
+    usage = _UsageAccumulator()
+    all_warnings: list[str] = []
+
+    needs_client = bool(targets & set(range(len(reviews)))) or (
+        include_meta and bool(en_payload.get("meta_review"))
+    )
+    client = get_llm_client("translation") if needs_client else None
+
+    fr_reviews: list[Any] = []
+    for ridx, card in enumerate(reviews):
+        if ridx not in targets or not isinstance(card, dict):
+            fr_reviews.append(copy.deepcopy(card))
+            continue
+        fr_card, warnings = await _translate_review_card(
+            client, brief_id, ridx, card, _EN_TO_FR, usage
+        )
+        fr_reviews.append(fr_card)
+        all_warnings.extend(warnings)
+    fr_payload["reviews"] = fr_reviews
+
+    meta = en_payload.get("meta_review")
+    if include_meta and isinstance(meta, dict) and meta:
+        fr_meta, warnings = await _translate_meta_review(
+            client, brief_id, meta, _EN_TO_FR, usage
+        )
+        fr_payload["meta_review"] = fr_meta
+        all_warnings.extend(warnings)
+    else:
+        fr_payload["meta_review"] = copy.deepcopy(meta) if meta is not None else {}
+
+    return fr_payload, all_warnings, usage.summary()
 
 
 # ── DB helpers ─────────────────────────────────────────────────────────
