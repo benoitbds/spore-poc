@@ -66,6 +66,11 @@ ALERT_EVENTS: dict[str, str] = {
     "vulgarization_failed": "vulgarisation en échec, brief non promu (C18)",
     "brief_validation_failed": "brief bloqué en 'pending' (C18)",
     "brief_promotion_failed": "promotion en base impossible (C18)",
+    # S10-A — les deux contrôles de cartes de node_validate_brief, tous deux
+    # en error et fail-closed. Absents d'ici, ils ont laissé 9 briefs bloqués
+    # seize jours dans la section « pending » sans que le motif soit nommé.
+    "brief_panel_language_mismatch": "cartes reviewer en anglais dans le champ FR, brief retenu en 'pending' (S10-A)",
+    "brief_panel_incoherent": "carte reviewer incohérente score ↔ commentaire, brief retenu en 'pending'",
     "brief_db_save_failed": "brief généré mais non persisté",
     "custom_brief_not_promoted": "RUN PAYANT : brief non promu (C18)",
     "custom_post_fire_failed": "RUN PAYANT : post-fire en échec",
@@ -102,6 +107,16 @@ DRIFT_THRESHOLD = 0.10
 # post-fire complet dure quelques minutes.
 PENDING_STALE_HOURS = 2
 
+# Événements par lesquels node_validate_brief (et son écriture en base)
+# laisse un brief en 'pending'. Le dernier connu pour un brief_id est son
+# motif de blocage, affiché dans la section des briefs bloqués.
+BLOCKING_EVENTS: frozenset[str] = frozenset({
+    "brief_panel_incoherent",
+    "brief_panel_language_mismatch",
+    "brief_validation_failed",
+    "brief_promotion_failed",
+})
+
 
 def _anchor_date(events: list[dict[str, Any]], forced: str | None) -> str | None:
     """Jour à analyser : celui fourni, sinon le dernier présent dans le log.
@@ -117,12 +132,34 @@ def _anchor_date(events: list[dict[str, Any]], forced: str | None) -> str | None
     return max(dates) if dates else None
 
 
+def last_blocking_events(events: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
+    """Table ``brief_id → dernier événement bloquant``, tous jours confondus.
+
+    Un brief bloqué depuis des jours a reçu son motif le jour de son run, pas
+    le jour ancré : la table se construit sur la liste complète des
+    événements, que ``collect`` a déjà lue, sans relire le fichier. Le log est
+    chronologique, donc le dernier événement rencontré l'emporte.
+    """
+    table: dict[str, dict[str, Any]] = {}
+    for evt in events:
+        brief_id = evt.get("brief_id")
+        if brief_id and evt.get("event") in BLOCKING_EVENTS:
+            table[brief_id] = evt
+    return table
+
+
 def collect(log_path: Path, forced_date: str | None) -> dict[str, Any]:
-    """Compte les événements du jour ancré, par classe."""
+    """Compte les événements du jour ancré, par classe.
+
+    Rend aussi ``last_block`` (voir ``last_blocking_events``), calculé sur la
+    même lecture du log.
+    """
     events = list(iter_json_events(log_path))
+    last_block = last_blocking_events(events)
     anchor = _anchor_date(events, forced_date)
     if anchor is None:
-        return {"anchor": None, "alerts": [], "counters": Counter(), "population": 0}
+        return {"anchor": None, "alerts": [], "counters": Counter(), "population": 0,
+                "last_block": last_block}
 
     day = [e for e in events if e.get("timestamp", "")[:10] == anchor]
 
@@ -140,7 +177,8 @@ def collect(log_path: Path, forced_date: str | None) -> dict[str, Any]:
     population = sum(1 for e in day if e.get("event") == "running_reviewer")
 
     return {"anchor": anchor, "alerts": alerts, "counters": counters,
-            "population": population, "day_events": len(day)}
+            "population": population, "day_events": len(day),
+            "last_block": last_block}
 
 
 def stale_pending_briefs(db_path: Path, hours: int = PENDING_STALE_HOURS) -> list[tuple[str, str]]:
@@ -184,6 +222,34 @@ def drifting_counters(counters: Counter, population: int) -> list[tuple[str, int
     return sorted(out, key=lambda t: -t[2])
 
 
+def _evt_detail(evt: dict[str, Any]) -> str:
+    """Détail lisible d'un événement d'alerte.
+
+    ``brief_panel_language_mismatch`` porte ``cards`` et
+    ``brief_panel_incoherent`` porte ``problems`` à la place de
+    ``missing_fields`` : des listes de dicts, résumées par carte plutôt que
+    recopiées brutes.
+    """
+    for key in ("error", "missing_fields"):
+        if evt.get(key):
+            return str(evt[key])
+    cards = evt.get("cards")
+    if isinstance(cards, list) and cards:
+        return "cartes détectées hors langue : " + ", ".join(
+            f"{c.get('reviewer', '?')} ({c.get('detected', '?')})"
+            if isinstance(c, dict) else str(c)
+            for c in cards
+        )
+    problems = evt.get("problems")
+    if isinstance(problems, list) and problems:
+        return "; ".join(
+            f"{p.get('reviewer', '?')} : {p.get('reason', '?')}"
+            if isinstance(p, dict) else str(p)
+            for p in problems
+        )
+    return str(evt.get("reason") or "")
+
+
 def _evt_line(evt: dict[str, Any]) -> str:
     name = evt.get("event", "?")
     label = ALERT_EVENTS.get(name, name)
@@ -193,10 +259,27 @@ def _evt_line(evt: dict[str, Any]) -> str:
         or evt.get("request_id")
         or "—"
     )
-    detail = evt.get("error") or evt.get("missing_fields") or evt.get("reason") or ""
+    detail = _evt_detail(evt)
     line = f"  • {label}\n    sujet : {subject}"
     if detail:
-        line += f"\n    détail : {str(detail)[:200]}"
+        line += f"\n    détail : {detail[:200]}"
+    return line
+
+
+def _stale_line(brief_id: str, created: str, block: dict[str, Any] | None) -> str:
+    """Entrée de la section des briefs bloqués, annotée de son motif."""
+    line = f"  • {brief_id}  (créé {created})"
+    if block is None:
+        return line + (
+            "\n    motif : inconnu — aucun événement de validation pour ce brief"
+            " dans le log (rotation, ou run antérieur au contrôle)"
+        )
+    name = block.get("event", "?")
+    when = str(block.get("timestamp", ""))[:10] or "date inconnue"
+    line += f"\n    motif : {ALERT_EVENTS.get(name, name)} — le {when}"
+    detail = _evt_detail(block)
+    if detail:
+        line += f"\n    détail : {detail[:200]}"
     return line
 
 
@@ -206,8 +289,19 @@ def format_digest(
     drifts: list[tuple[str, int, float]],
 ) -> tuple[str, str]:
     anchor = data["anchor"]
-    alerts = data["alerts"]
     counters = data["counters"]
+    last_block: dict[str, dict[str, Any]] = data.get("last_block", {})
+
+    # Un brief bloqué du jour qui figure aussi dans la section « pending »
+    # n'y est listé qu'une fois : son événement bloquant quitte les ÉCHECS,
+    # la ligne « pending » porte déjà le motif. Les autres alertes du même
+    # brief (une vulgarisation en échec, par exemple) restent : elles disent
+    # autre chose.
+    stale_ids = {bid for bid, _ in stale}
+    alerts = [
+        e for e in data["alerts"]
+        if not (e.get("brief_id") in stale_ids and e.get("event") in BLOCKING_EVENTS)
+    ]
 
     n = len(alerts) + len(stale) + len(drifts)
     subject = f"[SPORE] {n} chose(s) à regarder — pipeline du {anchor}"
@@ -225,7 +319,9 @@ def format_digest(
             f"plus de {PENDING_STALE_HOURS} h, invisibles du site",
             "",
         ]
-        parts += [f"  • {bid}  (créé {created})" for bid, created in stale]
+        parts += [
+            _stale_line(bid, created, last_block.get(bid)) for bid, created in stale
+        ]
         parts.append("")
 
     if drifts:
