@@ -58,6 +58,12 @@ Usage::
     python -m scripts.replay_blocked_briefs --brief-id SPR-2026-4B85
     python -m scripts.replay_blocked_briefs --all-pending [--dry-run]
     python -m scripts.replay_blocked_briefs --all-pending --backup-dir data/backups/s10b-...
+    python -m scripts.replay_blocked_briefs --restore-brief SPR-2026-4B85 --from data/backups/s10c-...
+
+``--restore-brief`` remet un brief dans l'état capturé par une sauvegarde
+(ligne, ``.md``, ``.json``, hashes vérifiés après écriture) via
+``scripts.backup_blocked_briefs.restore_brief``. Mêmes garde-fous que le
+rejeu : master propre, hors fenêtre du cron, sans autopilot.
 """
 
 from __future__ import annotations
@@ -101,6 +107,8 @@ from scripts.backup_blocked_briefs import (  # noqa: E402
     INVARIANT_COLUMNS,
     PENDING_SCOPE_SQL,
     BackupError,
+    RestoreError,
+    restore_brief,
     verify_backup,
 )
 from scripts.translate_brief_panel import (  # noqa: E402
@@ -915,6 +923,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("--brief-id", action="append", help="Brief à rejouer (répétable).")
     group.add_argument("--all-pending", action="store_true", help="Tous les briefs du périmètre S10-B.")
+    group.add_argument("--restore-brief", metavar="BRIEF_ID", help="Restaurer ce brief depuis --from.")
+    parser.add_argument("--from", dest="restore_from", type=Path, help="Sauvegarde source de --restore-brief.")
     parser.add_argument("--dry-run", action="store_true", help="Aucune écriture, aucun appel LLM.")
     parser.add_argument("--backup-dir", type=Path, help="Sauvegarde S10-B à utiliser (défaut : la plus récente).")
     parser.add_argument(
@@ -932,8 +942,31 @@ async def main() -> int:
         0 si aucun brief n'est resté bloqué, 1 sinon, 2 si un garde-fou refuse.
     """
     setup_logging()
-    args = _build_arg_parser().parse_args()
+    parser = _build_arg_parser()
+    args = parser.parse_args()
     db_path = get_settings().db_path
+
+    if args.restore_brief:
+        if args.restore_from is None:
+            parser.error("--restore-brief exige --from <dossier-de-sauvegarde>")
+        try:
+            preflight(ignore_cron_window=args.ignore_cron_window)
+            summary = restore_brief(args.restore_from, args.restore_brief, db_path)
+        except PreflightError as exc:
+            logger.error("replay_preflight_refused", error=str(exc))
+            print(f"REFUS — {exc}", file=sys.stderr)
+            return 2
+        except RestoreError as exc:
+            logger.error("restore_refused_or_failed", brief_id=args.restore_brief, error=str(exc))
+            print(f"ÉCHEC DE RESTAURATION — {exc}", file=sys.stderr)
+            return 3
+        print(
+            f"{summary['brief_id']}  restauré depuis {summary['backup']} (format {summary['format']})"
+            f" — status={summary['status']}, colonnes {summary['columns_verified']},"
+            f" fichiers {summary['files_verified']} : hashes vérifiés"
+        )
+        return 0
+
     brief_ids = pending_brief_ids(db_path) if args.all_pending else list(args.brief_id)
     if not brief_ids:
         print("Aucun brief à rejouer.")

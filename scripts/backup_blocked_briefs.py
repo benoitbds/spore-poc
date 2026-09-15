@@ -487,6 +487,202 @@ def verify_backup(
     return manifest
 
 
+# ── Restauration d'un brief ─────────────────────────────────────────────
+
+
+class RestoreError(RuntimeError):
+    """La restauration est refusée, ou son résultat ne correspond pas."""
+
+
+def _restore_targets_from_blobs(
+    backup_dir: Path, brief_id: str, entry: dict[str, Any]
+) -> dict[str, str | None]:
+    """Valeurs de colonnes à restaurer, lues dans les blobs (format 2).
+
+    Args:
+        backup_dir: Répertoire de sauvegarde.
+        brief_id: Identifiant du brief.
+        entry: Entrée du manifeste, blobs déjà vérifiés.
+
+    Returns:
+        ``{colonne: texte ou None}`` pour ``RESTORABLE_BLOB_COLUMNS``.
+
+    Raises:
+        RestoreError: Une colonne restaurable manque au manifeste.
+    """
+    blobs = entry.get("blobs") or {}
+    targets: dict[str, str | None] = {}
+    for column in RESTORABLE_BLOB_COLUMNS:
+        if column not in blobs:
+            raise RestoreError(f"{brief_id} : colonne {column} absente du manifeste")
+        meta = blobs[column]
+        targets[column] = None if meta is None else (backup_dir / meta["file"]).read_bytes().decode("utf-8")
+    return targets
+
+
+def _restore_targets_from_db_copy(
+    backup_dir: Path, manifest: dict[str, Any], brief_id: str, entry: dict[str, Any]
+) -> dict[str, str | None]:
+    """Valeurs de colonnes à restaurer, lues dans la copie de base (format 1).
+
+    Args:
+        backup_dir: Répertoire de sauvegarde.
+        manifest: Manifeste format 1.
+        brief_id: Identifiant du brief.
+        entry: Entrée du manifeste.
+
+    Returns:
+        ``{colonne: texte ou None}`` pour ``RESTORABLE_BLOB_COLUMNS``.
+
+    Raises:
+        RestoreError: Copie de base absente, altérée, ou incohérente avec
+            l'instantané du manifeste.
+    """
+    db_copy = backup_dir / manifest["db"]["file"]
+    if not db_copy.is_file() or sha256_file(db_copy) != manifest["db"]["sha256"]:
+        raise RestoreError(f"manifeste format 1 : copie de base absente ou altérée ({db_copy})")
+    conn = sqlite3.connect(f"file:{db_copy}?mode=ro", uri=True)
+    try:
+        snapshot = _row_snapshot(conn, brief_id)
+        values = read_row_columns(conn, brief_id, RESTORABLE_BLOB_COLUMNS)
+    finally:
+        conn.close()
+    if snapshot is None or values is None:
+        raise RestoreError(f"{brief_id} absent de la copie de base")
+    diverging = [k for k, v in entry["row"].items() if snapshot.get(k) != v]
+    if diverging:
+        raise RestoreError(f"{brief_id} : copie de base incohérente avec le manifeste ({diverging})")
+    return values
+
+
+def _replace_file(target: Path, source: Path, expected_sha256: str) -> None:
+    """Remplace atomiquement un fichier par une copie sauvegardée.
+
+    Args:
+        target: Fichier à remplacer.
+        source: Copie sauvegardée.
+        expected_sha256: Hash attendu après écriture.
+
+    Raises:
+        RestoreError: Le fichier écrit n'a pas le hash attendu.
+    """
+    tmp = target.with_name(f".{target.name}.restore-tmp")
+    shutil.copy2(source, tmp)
+    tmp.replace(target)
+    actual = sha256_file(target)
+    if actual != expected_sha256:
+        raise RestoreError(f"hash de {target} après écriture : {actual} ≠ {expected_sha256}")
+
+
+def restore_brief(backup_dir: Path, brief_id: str, db_path: Path) -> dict[str, Any]:
+    """Remet un brief dans l'état capturé par une sauvegarde.
+
+    Restaure le ``.md``, le ``.json`` et, en un seul ``UPDATE``, les colonnes
+    ``status``, ``brief_md_path``, ``brief_json_path`` et
+    ``RESTORABLE_BLOB_COLUMNS``. Les colonnes invariantes ne sont pas écrites :
+    elles doivent déjà correspondre au manifeste, sinon la restauration est
+    refusée (quelque chose d'autre que le rejeu a modifié le brief).
+
+    ``status`` est réécrit à sa valeur sauvegardée : c'est le retour à un
+    instantané, pas une promotion. Un brief restauré en 'complete' l'était
+    au moment de la sauvegarde.
+
+    Source des colonnes : les blobs pour un manifeste format 2, sans toucher
+    à la copie de la base ; la copie de la base pour un manifeste format 1.
+
+    Après écriture, relit la ligne et les fichiers et compare chaque valeur
+    et chaque hash au manifeste. Le moindre écart lève.
+
+    Args:
+        backup_dir: Répertoire de sauvegarde.
+        brief_id: Brief à restaurer.
+        db_path: Base de production.
+
+    Returns:
+        Un résumé : format, statut restauré, colonnes et fichiers vérifiés.
+
+    Raises:
+        RestoreError: Brief absent du manifeste, sauvegarde non conforme,
+            invariants divergents, ligne absente, ou résultat non conforme.
+    """
+    try:
+        manifest = load_manifest(backup_dir)
+    except BackupError as exc:
+        raise RestoreError(str(exc)) from exc
+    entry = manifest.get("briefs", {}).get(brief_id)
+    if entry is None:
+        raise RestoreError(f"{brief_id} absent du manifeste {backup_dir}")
+    fmt = int(manifest.get("format", 1))
+    try:
+        verify_brief_entry(backup_dir, brief_id, entry)
+    except BackupError as exc:
+        raise RestoreError(str(exc)) from exc
+
+    snapshot: dict[str, Any] = entry["row"]
+    if fmt >= MANIFEST_FORMAT:
+        blob_values = _restore_targets_from_blobs(backup_dir, brief_id, entry)
+    else:
+        blob_values = _restore_targets_from_db_copy(backup_dir, manifest, brief_id, entry)
+    targets: dict[str, Any] = {
+        "status": snapshot["status"],
+        "brief_md_path": snapshot["brief_md_path"],
+        "brief_json_path": snapshot["brief_json_path"],
+        **blob_values,
+    }
+
+    conn = sqlite3.connect(db_path, timeout=30)
+    try:
+        current = read_row_columns(conn, brief_id, INVARIANT_COLUMNS)
+        if current is None:
+            raise RestoreError(f"{brief_id} absent de la base de production")
+        diverging = {c: (snapshot[c], current[c]) for c in INVARIANT_COLUMNS if current[c] != snapshot[c]}
+        if diverging:
+            raise RestoreError(f"{brief_id} : invariants modifiés depuis la sauvegarde {diverging}")
+
+        logger.info("restore_started", brief_id=brief_id, backup=str(backup_dir), format=fmt)
+        for key in ("brief_md_path", "brief_json_path"):
+            target = resolve_brief_path(snapshot[key])
+            name = Path(snapshot[key]).name
+            _replace_file(target, backup_dir / "briefs" / name, entry["files"][name]["sha256"])
+
+        columns = list(targets)
+        conn.execute(
+            f"UPDATE briefs SET {', '.join(f'{c} = ?' for c in columns)} WHERE id = ?",
+            [*targets.values(), brief_id],
+        )
+        conn.commit()
+
+        after = read_row_columns(conn, brief_id, (*columns, *INVARIANT_COLUMNS)) or {}
+    finally:
+        conn.close()
+
+    mismatched = [c for c in columns if after.get(c) != targets[c]]
+    for column in RESTORABLE_BLOB_COLUMNS:
+        meta = (entry.get("blobs") or {}).get(column)
+        value = after.get(column)
+        if meta is not None and (value is None or sha256_text(value) != meta["sha256"]):
+            mismatched.append(f"{column}:sha256")
+    mismatched += [c for c in INVARIANT_COLUMNS if after.get(c) != snapshot[c]]
+    for name, meta in entry["files"].items():
+        key = "brief_md_path" if name.endswith(".md") else "brief_json_path"
+        if sha256_file(resolve_brief_path(snapshot[key])) != meta["sha256"]:
+            mismatched.append(f"file:{name}")
+    if mismatched:
+        logger.error("restore_failed", brief_id=brief_id, backup=str(backup_dir), mismatched=mismatched)
+        raise RestoreError(f"{brief_id} : état restauré non conforme {mismatched}")
+
+    summary = {
+        "brief_id": brief_id,
+        "backup": str(backup_dir),
+        "format": fmt,
+        "status": after.get("status"),
+        "columns_verified": columns,
+        "files_verified": sorted(entry["files"]),
+    }
+    logger.info("restore_completed", **summary)
+    return summary
+
+
 def _build_arg_parser() -> argparse.ArgumentParser:
     """Construit le parseur d'arguments.
 
