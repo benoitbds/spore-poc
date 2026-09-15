@@ -57,3 +57,6 @@ start_streamlit.sh
 Thumbs.db
 outputs/notify_state/
 outputs/run_logs/
+
+# S10-B — sauvegardes base + artefacts avant rejeu (scripts/backup_blocked_briefs.py)
+data/backups/
