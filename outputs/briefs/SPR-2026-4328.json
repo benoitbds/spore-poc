@@ -550,43 +550,43 @@
         "reviewer_persona": "domain_expert",
         "overall_score": 7.0,
         "verdict": "accept",
+        "confidence": 0.8,
         "strengths": [
-          "The hypothesis is built on a solid and well-established granular physics foundation. The proposed causal chain (vibration → increased kinetic temperature → reduced effective friction → destabilized force chains/arches) is theoretically coherent and aligns with core principles of jamming phase transitions and vibration-induced fluidization.",
-          "The positioning correctly identifies a meaningful gap: the application of granular fluidization principles to *continuous flow reactors* handling *liquid-solid suspensions*. While vibration for powder flow is well-studied, its targeted use to suppress clogging in confined liquid-suspension flow (e.g., microreactors) is less explored and represents a valuable translational step.",
-          "The explicit acknowledgment of 'known unknowns' (damping relationship, optimal Γ, long-term surface evolution) demonstrates rigorous scientific thinking and outlines a clear research pathway beyond the initial hypothesis."
+          "L'hypothèse repose sur une base solide et bien établie de physique granulaire. La chaîne causale proposée (vibration → augmentation de la température cinétique → réduction de la friction effective → déstabilisation des chaînes de forces et des arches) est théoriquement cohérente et s'aligne sur les principes fondamentaux des transitions de phase de blocage et de la fluidisation induite par vibration.",
+          "Le positionnement identifie correctement une lacune significative : l'application des principes de fluidisation granulaire aux *réacteurs à flux continu* traitant des *suspensions liquide-solide*. Si la vibration pour l'écoulement des poudres est bien étudiée, son utilisation ciblée pour supprimer le colmatage dans un écoulement confiné de suspension liquide (par exemple, les microréacteurs) est moins explorée et représente une étape translationnelle précieuse.",
+          "La reconnaissance explicite des « inconnues connues » (relation d'amortissement, Γ optimal, évolution de surface à long terme) témoigne d'une rigueur de raisonnement scientifique et dessine une voie de recherche claire au-delà de l'hypothèse initiale."
         ],
         "weaknesses": [
-          "The evidence base, while relevant, is heavily skewed towards *dry* or *gas-solid* systems (powder fluidization, conveying). The critical damping role of the liquid phase (viscosity η) is acknowledged but not substantiated by literature. The hypothesis extrapolates from dry granular mechanics to dense liquid suspensions without citing key works on inertial or viscous suspension rheology under vibration, which is a significant leap.",
-          "The mechanism assumes clogging is primarily frictional/geometric. For many real chemical suspensions (e.g., precipitates, crystals), adhesive forces (van der Waals, capillary bridges, electrostatic) can dominate clogging. The hypothesis does not address how vibration competes with these stronger cohesive forces, which may not be overcome by reduced frictional contacts alone.",
-          "The proposed measurement of μ_eff via shear cell or dynamic angle of repose for a *flowing, damped suspension* under vibration is non-trivial and may not directly translate to the confined, pressure-driven flow state at the orifice. The link between bulk property (μ_eff) and the micro-mechanics at the constriction is assumed but not detailed."
+          "La base de données probantes, bien que pertinente, est fortement biaisée en faveur des systèmes *secs* ou *gaz-solide* (fluidisation de poudres, transport). Le rôle d'amortissement critique de la phase liquide (viscosité η) est reconnu mais non étayé par la littérature. L'hypothèse extrapole de la mécanique granulaire sèche aux suspensions liquides denses sans citer les travaux clés sur la rhéologie des suspensions inertielles ou visqueuses sous vibration, ce qui constitue un saut considérable.",
+          "Le mécanisme postule que le colmatage est principalement frictionnel/géométrique. Pour de nombreuses suspensions chimiques réelles (par exemple, précipités, cristaux), les forces adhésives (van der Waals, ponts capillaires, électrostatiques) peuvent dominer le colmatage. L'hypothèse n'aborde pas la manière dont la vibration entre en compétition avec ces forces cohésives plus fortes, qui pourraient ne pas être surmontées par la seule réduction des contacts frictionnels.",
+          "La mesure proposée de μ_eff par cellule de cisaillement ou angle de repos dynamique pour une *suspension en écoulement, amortie* sous vibration est non triviale et pourrait ne pas se transposer directement à l'état d'écoulement confiné, piloté par la pression, à l'orifice. Le lien entre la propriété macroscopique (μ_eff) et la micromécanique à la constriction est postulé mais non détaillé."
         ],
         "critical_questions": [
-          "Given the high damping expected in a liquid medium, what is the proposed mechanism for efficiently coupling vibrational energy (Γ) directly into the solid phase's translational/rotational modes to achieve 'transient kinetic temperature' increase, rather than simply dissipating as fluid heat or acoustic waves?",
-          "How would the proposed mechanism scale or differ for particles where the dominant interparticle force is not friction but cohesion (e.g., sub-10 µm particles, hydrophobic aggregates, or particles with surface precipitates)? Would vibration alone be sufficient, or would it need to be combined with other strategies (e.g., surfactants, electrostatic repulsion)?",
-          "The hypothesis predicts an increase in the critical solids fraction (φ_c). For a continuous reactor, is the more relevant operational metric not φ_c itself, but the *critical flow rate* or *pressure* at a given φ? How does vibration modify the relationship between flow rate, pressure drop, and the probability of arch formation in the proposed system?"
+          "Compte tenu de l'amortissement élevé attendu en milieu liquide, quel est le mécanisme proposé pour coupler efficacement l'énergie vibrationnelle (Γ) directement dans les modes de translation/rotation de la phase solide afin d'obtenir une « température cinétique transitoire » accrue, plutôt qu'une simple dissipation sous forme de chaleur du fluide ou d'ondes acoustiques ?",
+          "Comment le mécanisme proposé passerait-il à l'échelle ou différerait-il pour des particules dont la force interparticulaire dominante n'est pas la friction mais la cohésion (par exemple, particules sub-10 µm, agrégats hydrophobes, ou particules présentant des précipités de surface) ? La vibration seule serait-elle suffisante, ou devrait-elle être combinée à d'autres stratégies (par exemple, tensioactifs, répulsion électrostatique) ?",
+          "L'hypothèse prédit une augmentation de la fraction volumique critique de solides (φ_c). Pour un réacteur continu, la mesure opérationnelle la plus pertinente n'est-elle pas φ_c elle-même, mais le *débit critique* ou la *pression* à un φ donné ? Comment la vibration modifie-t-elle la relation entre débit, perte de charge et probabilité de formation d'arches dans le système proposé ?"
         ],
-        "recommendation": "This is a promising and theoretically grounded hypothesis that merits experimental investigation. I recommend proceeding, but the initial experimental design must explicitly test the core assumption of frictional dominance and characterize the energy transfer efficiency in the liquid-suspension environment. A control experiment using strongly cohesive particles would help bound the applicability of the vibration-only strategy. The first phase should focus on mapping the phase diagram (φ, Γ, flow rate) for clogging in a simple orifice geometry.",
-        "confidence": 0.8
+        "recommendation": "Il s'agit d'une hypothèse prometteuse et théoriquement fondée qui mérite une investigation expérimentale. Je recommande de poursuivre, mais la conception expérimentale initiale doit tester explicitement le postulat central de dominance frictionnelle et caractériser l'efficacité de transfert d'énergie dans l'environnement de suspension liquide. Une expérience de contrôle utilisant des particules fortement cohésives aiderait à délimiter le domaine d'applicabilité de la stratégie fondée uniquement sur la vibration. La première phase devrait se concentrer sur la cartographie du diagramme de phase (φ, Γ, débit) pour le colmatage dans une géométrie d'orifice simple."
       },
       {
         "reviewer_persona": "contrarian",
         "overall_score": 4.5,
         "verdict": "weak_reject",
+        "confidence": 0.85,
         "strengths": [
-          "The hypothesis is mechanistically grounded in granular physics, linking vibration to reduced effective friction and disrupted force chains—a plausible pathway for dry granular systems.",
-          "The proposed experimental design includes specific, falsifiable predictions with quantitative bounds and null hypotheses, which is commendable and testable."
+          "L'hypothèse est mécaniquement fondée sur la physique granulaire, reliant la vibration à une réduction de la friction effective et à une perturbation des chaînes de forces — une voie plausible pour les systèmes granulaires secs.",
+          "Le plan expérimental proposé comprend des prédictions spécifiques et falsifiables, assorties de bornes quantitatives et d'hypothèses nulles, ce qui est louable et testable."
         ],
         "weaknesses": [
-          "FAIL REASON #1: Fluid-mediated damping will likely decouple vibration from the solid phase. In a liquid suspension, especially as viscosity (η) increases, the vibrational energy will be dissipated as fluid motion (acoustic streaming, viscous heating) rather than transmitted to particle agitation. The 'known unknown' about damping is the central flaw; the most probable failure scenario is that Γ > 1 produces negligible increase in particle kinetic temperature, leaving μ_eff unchanged and φ_c static.",
-          "FAIL REASON #2: Vibration may induce perverse granular dynamics that *promote* clogging. Controlled vibration can drive size segregation (Brazil nut effect), leading to local accumulation of larger particles or increased solids concentration at the constriction. It could also fluidize the bulk, increasing the delivery rate of particles to the orifice, thereby decreasing τ_clog. The assumption that vibration only disrupts arches ignores its potential to alter the bulk flow field detrimentally.",
-          "FAIL REASON #3: The long-term evolution of system properties under vibration is a critical confounder not addressed. For any realistic suspension, particle attrition (creating fines), surface wear (altering roughness and μ_eff), or adsorption of fluid components will change interparticle forces over time. The predicted 15-40 percentage point increase in φ_c assumes constant properties, but in a continuous reactor, these changes could nullify initial benefits or cause progressive performance decay."
+          "FAIL REASON #1: L'amortissement induit par le fluide découplera probablement la vibration de la phase solide. Dans une suspension liquide, en particulier lorsque la viscosité (η) augmente, l'énergie vibrationnelle sera dissipée sous forme de mouvement du fluide (acoustic streaming, échauffement visqueux) plutôt que transmise à l'agitation des particules. L'« inconnue connue » concernant l'amortissement constitue la faille centrale ; le scénario de défaillance le plus probable est que Γ > 1 produise une augmentation négligeable de la température cinétique des particules, laissant μ_eff inchangé et φ_c statique.",
+          "FAIL REASON #2: La vibration peut induire une dynamique granulaire perverse qui *favorise* le colmatage. Une vibration contrôlée peut entraîner une ségrégation par taille (effet noix du Brésil), conduisant à une accumulation locale de particules plus grosses ou à une concentration accrue de solides au niveau de la constriction. Elle pourrait également fluidiser la masse, augmentant le taux d'acheminement des particules vers l'orifice, diminuant ainsi τ_clog. Le postulat selon lequel la vibration ne fait que perturber les arches ignore son potentiel à altérer le champ d'écoulement de la masse de manière préjudiciable.",
+          "FAIL REASON #3: L'évolution à long terme des propriétés du système sous vibration est un facteur de confusion critique non traité. Pour toute suspension réaliste, l'attrition des particules (créant des fines), l'usure de surface (modifiant la rugosité et μ_eff), ou l'adsorption de composants fluides modifieront les forces interparticulaires au fil du temps. L'augmentation prédite de 15-40 points de pourcentage de φ_c suppose des propriétés constantes, mais dans un réacteur continu, ces changements pourraient annuler les bénéfices initiaux ou provoquer une dégradation progressive des performances."
         ],
         "critical_questions": [
-          "Given the high density and viscosity contrast between typical solids and carrier fluids, what direct evidence do you have that your chosen Γ range achieves sufficient particle-phase acceleration (relative to gravitational acceleration) to meaningfully reduce contact lifetimes, and not just agitate the fluid?",
-          "Your mechanism assumes arch destabilization is friction-limited. What if the dominant clogging mechanism in your specific system is not frictional arching but adhesive binding (e.g., due to residual cohesive forces, capillary bridges if the fluid wets particles, or van der Waals for fine particles)? Vibration would be ineffective against strong adhesives, a confounder your 'primary mechanism' assumption dismisses."
+          "Compte tenu du fort contraste de densité et de viscosité entre les solides typiques et les fluides porteurs, de quelles preuves directes disposez-vous que la plage de Γ choisie permet d'obtenir une accélération suffisante de la phase particulaire (par rapport à l'accélération gravitationnelle) pour réduire de manière significative les durées de contact, et non simplement agiter le fluide ?",
+          "Votre mécanisme postule que la déstabilisation de l'arche est limitée par la friction. Et si le mécanisme de colmatage dominant dans votre système spécifique n'était pas l'arche frictionnelle mais la liaison adhésive (par exemple, en raison de forces cohésives résiduelles, de ponts capillaires si le fluide mouille les particules, ou de forces de van der Waals pour les particules fines) ? La vibration serait inefficace contre des adhésifs forts, un facteur de confusion que votre postulat de « mécanisme principal » écarte."
         ],
-        "recommendation": "To move this from a plausible idea to a credible hypothesis, you must first provide pilot data demonstrating the causal link between Γ and μ_eff *in the specific solid-liquid suspension* (Prediction 2). This is the linchpin. Without direct evidence that vibration reduces effective friction in the wet, flowing system—not just in a dry shear cell—the entire chain is speculative. Furthermore, a mapping of the parameter space (Γ, η, particle concentration) is needed to identify if a functional operating window exists outside of trivial, low-η conditions.",
-        "confidence": 0.85
+        "recommendation": "Pour faire passer cette idée plausible au statut d'hypothèse crédible, il faut d'abord fournir des données pilotes démontrant le lien causal entre Γ et μ_eff *dans la suspension solide-liquide spécifique* (Prédiction 2). C'est là le point d'articulation. Sans preuve directe que la vibration réduit le frottement effectif dans le système humide et en écoulement — et non seulement dans une cellule de cisaillement à sec —, toute la chaîne est spéculative. En outre, une cartographie de l'espace des paramètres (Γ, η, concentration de particules) est nécessaire pour déterminer s'il existe une fenêtre de fonctionnement fonctionnelle en dehors de conditions triviales à faible η."
       },
       {
         "reviewer_persona": "industrialist",
@@ -678,16 +678,181 @@
     }
   },
   "vulgarization_fr": {
-    "title_fr": "Des vibrations pour déboucher les réacteurs chimiques en continu",
-    "hypothesis_in_brief": "Dans les réacteurs où circulent des mélanges de liquide et de particules solides, des bouchons se forment souvent au niveau des goulots d'étranglement. Cette hypothèse propose d'appliquer des vibrations mécaniques contrôlées pour agiter les particules, réduire les frottements entre elles et empêcher la formation d'arches solides qui bloquent l'écoulement. L'idée est de repousser le seuil de concentration en solides au-delà duquel le mélange se fige.",
-    "why_it_matters": "Le colmatage des réacteurs est un problème coûteux dans de nombreuses industries : fabrication de médicaments, transformation alimentaire, traitement des boues ou transport de minerais. Actuellement, on le contourne en diluant les mélanges ou en arrêtant la production pour nettoyer. Si cette approche fonctionne, elle offrirait une solution mécanique simple, sans additifs chimiques, pour augmenter le débit et la fiabilité des procédés.",
-    "imagine_that": "Imaginez un entonnoir rempli de sable humide : si vous le tapotez du doigt, le sable s'écoule mieux et ne forme pas de voûte au-dessus du trou. Ici, le principe est similaire : les vibrations secouent les particules, les empêchent de se bloquer les unes contre les autres et maintiennent l'écoulement fluide, même quand la concentration en solides est élevée.",
+    "title_fr": "Et si une simple vibration empêchait les réacteurs de se boucher ?",
+    "hypothesis_in_brief": "Dans un réacteur à flux continu où circulent des solides en suspension dans un liquide, le passage peut se boucher brutalement lorsque la concentration en solides dépasse un seuil critique. L'approche propose d'appliquer une vibration mécanique contrôlée à l'ensemble du réacteur : cette agitation réduirait le frottement entre les particules et les empêcherait de s'arc-bouter pour former un bouchon. Le seuil de colmatage serait ainsi repoussé, et les périodes de fonctionnement sans incident allongées.",
+    "why_it_matters": "Le colmatage des réacteurs et des canalisations est un problème industriel courant et coûteux : il oblige à arrêter la production, à démonter et nettoyer les équipements. Il concerne aussi bien l'industrie chimique (catalyseurs en suspension), agroalimentaire (purées, concentrés), minière (boues minérales) que le traitement des eaux. Une solution purement mécanique, sans additif chimique, serait plus simple à intégrer et moins chère à exploiter que les méthodes actuelles. Elle pourrait réduire les arrêts non planifiés et augmenter la quantité de matière traitée par unité de temps.",
+    "imagine_that": "Imaginez un entonnoir rempli de sable humide : si vous le secouez doucement, le sable s'écoule mieux. Sans vibration, les grains s'imbriquent et forment une petite voûte au-dessus de l'ouverture, qui bloque tout. En vibrant, vous cassez cette voûte et les grains glissent plus facilement. Ici, c'est la même idée, mais appliquée à un réacteur industriel rempli d'un liquide chargé de particules solides.",
     "concretely": {
-      "intro": "Pour tester cette hypothèse, le protocole prévoit trois phases de validation, de la simulation à l'expérience réelle.",
-      "phase1": "D'abord, une simulation numérique modélise le comportement de milliers de particules soumises à des vibrations dans un liquide, afin de vérifier que l'agitation réduit bien les frottements et retarde le blocage.",
-      "phase2": "Ensuite, une cellule d'écoulement transparente montée sur un vibreur électromagnétique permet d'observer directement la formation des bouchons et de mesurer la concentration critique de colmatage avec et sans vibration.",
-      "phase3": "Enfin, une série d'expériences systématiques fait varier l'intensité des vibrations, la viscosité du liquide et la taille du goulot pour déterminer les conditions optimales de déblocage."
+      "intro": "Le protocole se déroule en trois étapes, de la simulation informatique à la validation expérimentale, pour tester si la vibration augmente réellement le seuil de colmatage.",
+      "phase1": "Des simulations numériques (DEM-CFD) modélisent l'écoulement de 50 000 particules dans un liquide, avec et sans vibration, pour repérer les plages de vibration et de viscosité prometteuses avant de passer aux essais physiques.",
+      "phase2": "Une expérience de laboratoire utilise une colonne transparente avec un orifice, montée sur une table vibrante, pour mesurer si la vibration augmente la concentration maximale de solides avant bouchage, comparée à une situation sans vibration.",
+      "phase3": "Un plan d'expériences complet fait varier l'intensité de vibration, la viscosité du liquide et le rapport entre la taille du réacteur et celle des particules, afin de quantifier précisément l'effet et d'établir des règles de conception."
     },
-    "reviewers_say": "Le panel juge l'hypothèse bien fondée sur la physique des milieux granulaires et le protocole rigoureux, avec des prédictions claires et testables. Le principal point de débat concerne l'efficacité des vibrations dans un liquide visqueux : l'énergie pourrait se dissiper dans le fluide sans agiter les particules. Certains experts craignent aussi que les vibrations ne provoquent une ségrégation des particules et aggravent le colmatage. Le verdict est un avis favorable à la publication du brief, mais la priorité est de valider expérimentalement le transfert d'énergie aux particules en milieu liquide."
+    "reviewers_say": "Le panel d'experts juge l'hypothèse théoriquement solide et le protocole rigoureux, avec des prédictions quantitatives testables. Il salue l'approche par étapes, qui permet de valider progressivement le mécanisme et d'éviter des expériences coûteuses inutiles. Cependant, un point de désaccord majeur divise : dans un liquide visqueux, l'énergie vibratoire risque d'être absorbée par le fluide plutôt que de transmettre l'agitation aux particules, ce qui pourrait annuler l'effet. Un autre expert s'inquiète que la vibration ne favorise la ségrégation des particules ou n'accélère leur accumulation à l'orifice, aggravant le colmatage. Enfin, le mécanisme suppose que le frottement est la cause principale du bouchage, alors que dans certaines suspensions réelles, des forces d'adhésion entre particules pourraient dominer. Le verdict global est de poursuivre la recherche, mais il faudra d'abord démontrer expérimentalement que la vibration modifie bien le comportement des particules dans un liquide, et non seulement dans l'air."
+  },
+  "vulgarization_en": {
+    "title": "What if a simple vibration prevented reactors from clogging?",
+    "hypothesis_in_brief": "In a continuous-flow reactor in which solids suspended in a liquid circulate, the passage can become abruptly blocked when the solids concentration exceeds a critical threshold. The approach proposes applying a controlled mechanical vibration to the entire reactor: this agitation would reduce friction between particles and prevent them from arching against one another to form a plug. The clogging threshold would thereby be pushed back, and the periods of incident-free operation lengthened.",
+    "why_it_matters": "Reactor and pipeline fouling is a common and costly industrial problem: it necessitates halting production, dismantling and cleaning equipment. It affects the chemical industry (suspended catalysts), food processing (purées, concentrates), mining (mineral slurries) and water treatment alike. A purely mechanical solution, without chemical additives, would be simpler to integrate and cheaper to operate than current methods. It could reduce unplanned shutdowns and increase the quantity of material processed per unit of time.",
+    "imagine_that": "Imagine a funnel filled with damp sand: if you shake it gently, the sand flows better. Without vibration, the grains interlock and form a small arch above the opening, which blocks everything. By vibrating, you break this arch and the grains slide more easily. Here, it is the same idea, but applied to an industrial reactor filled with a liquid carrying solid particles.",
+    "reviewers_say": "The panel review judges the hypothesis to be theoretically sound and the protocol rigorous, with testable quantitative predictions. It commends the stepwise approach, which allows the mechanism to be validated progressively and unnecessary costly experiments to be avoided. However, one major point of disagreement divides the panel: in a viscous liquid, vibrational energy risks being absorbed by the fluid rather than transmitting agitation to the particles, which could cancel the effect. Another panel reviewer is concerned that the vibration might promote particle segregation or accelerate their accumulation at the orifice, worsening clogging. Finally, the mechanism assumes that friction is the principal cause of clogging, whereas in certain real suspensions, adhesion forces between particles could dominate. The overall verdict is to pursue the research, but it will first be necessary to demonstrate experimentally that vibration does indeed modify particle behaviour in a liquid, and not only in air.",
+    "concretely": {
+      "intro": "The protocol proceeds in three stages, from computational simulation to experimental validation, to test whether vibration genuinely raises the clogging threshold.",
+      "phase1": "Numerical simulations (DEM-CFD) model the flow of 50,000 particles in a liquid, with and without vibration, to identify promising vibration and viscosity ranges before proceeding to physical testing.",
+      "phase2": "A laboratory experiment uses a transparent column with an orifice, mounted on a vibrating table, to measure whether vibration increases the maximum solids concentration before clogging, compared with a situation without vibration.",
+      "phase3": "A full experimental design varies the vibration intensity, the liquid viscosity and the ratio between reactor size and particle size, so that the effect may be precisely quantified and design rules established."
+    }
+  },
+  "panel_en": {
+    "reviews": [
+      {
+        "reviewer_persona": "methodologist",
+        "overall_score": 8.2,
+        "verdict": "accept",
+        "confidence": 0.88,
+        "strengths": [
+          "The protocol adopts an exemplary sequential and conditional approach (GO/NO-GO phases), enabling efficient allocation of resources and progressive validation of the causal chain. The in silico Phase 1 is a major strength for refining parameters and testing the fundamental mechanism before any costly experiment.",
+          "The definition of falsifiable predictions is clear, quantitative, and accompanied by testable null hypotheses (H0). The dependent and independent variables are well identified and measurable. The use of state-of-the-art methods (RIM-PLIF, PIV, DEM-CFD) demonstrates a commitment to in-depth mechanistic characterisation."
+        ],
+        "weaknesses": [
+          "Statistical power, although mentioned (≥100 trials), is not justified by an a priori calculation based on an expected effect size and an estimated variance. The Phase 2 success criterion (non-overlapping confidence intervals) is demanding but could mask a smaller real effect. A formal power analysis for ANOVA and logistic regression is required.",
+          "The risk of selection and measurement bias in Phase 2 is underestimated. The definition of clogging ('complete cessation >30s') is operational but could be influenced by flow transients. The absence of blinding of the operator who declares clogging introduces a risk of confirmation bias, particularly for borderline trials."
+        ],
+        "critical_questions": [
+          "For Phase 2, how is the homogeneity and stability of the solid volume fraction (φ) in the feed cell ensured, particularly under vibration, so as to avoid a systematic measurement bias? Is a calibration and sampling protocol planned?",
+          "The mediation criterion (Phase 3) linking μ_eff to the increase in φ_c is ambitious. How is the contribution of friction reduction to be isolated from other concomitant effects of vibration (such as dilation) in the analysis? Is the measurement of μ_eff in a shear cell a valid proxy for the effective friction at the orifice in flow?"
+        ],
+        "recommendation": "The protocol is broadly highly rigorous and merits funding and implementation. It is strongly recommended that Phase 2 be supplemented by: 1) a formal statistical power analysis to determine the required number of trials; 2) full automation of clogging detection via real-time analysis of the pressure signal or video, to eliminate operator bias. Phase 3 should include a preliminary campaign to validate the reliability of the vibrating shear cell before its intensive use."
+      },
+      {
+        "reviewer_persona": "domain_expert",
+        "overall_score": 7.0,
+        "verdict": "accept",
+        "confidence": 0.8,
+        "strengths": [
+          "The hypothesis rests on a solid and well-established foundation of granular physics. The proposed causal chain (vibration → increase in kinetic temperature → reduction of effective friction → destabilisation of force chains and arches) is theoretically coherent and aligns with the fundamental principles of jamming phase transitions and vibration-induced fluidisation.",
+          "The positioning correctly identifies a significant gap: the application of granular fluidisation principles to *continuous-flow reactors* processing *liquid–solid suspensions*. While vibration for powder flow is well studied, its targeted use to suppress clogging in a confined liquid-suspension flow (for example, microreactors) is less explored and represents a valuable translational step.",
+          "The explicit recognition of \"known unknowns\" (damping relationship, optimal Γ, long-term surface evolution) demonstrates rigour in scientific reasoning and delineates a clear research path beyond the initial hypothesis."
+        ],
+        "weaknesses": [
+          "The evidence base, although relevant, is strongly biased towards *dry* or *gas-solid* systems (powder fluidisation, transport). The critical damping role of the liquid phase (viscosity η) is acknowledged but not supported by the literature. The hypothesis extrapolates from dry granular mechanics to dense liquid suspensions without citing key work on the rheology of inert or viscous suspensions under vibration, which constitutes a considerable leap.",
+          "The mechanism postulates that clogging is primarily frictional/geometric. For many real chemical suspensions (for example, precipitates, crystals), adhesive forces (van der Waals, capillary bridges, electrostatic) may dominate clogging. The hypothesis does not address how vibration competes with these stronger cohesive forces, which might not be overcome by the reduction of frictional contacts alone.",
+          "The proposed measurement of μ_eff by shear cell or dynamic angle of repose for a *flowing, damped suspension* under vibration is non-trivial and might not translate directly to the confined, pressure-driven flow state at the orifice. The link between the macroscopic property (μ_eff) and the micromechanics at the constriction is postulated but not detailed."
+        ],
+        "critical_questions": [
+          "Given the high damping expected in a liquid medium, what mechanism is proposed to couple vibrational energy (Γ) efficiently and directly into the translational/rotational modes of the solid phase so as to obtain an increased \"transient kinetic temperature\", rather than mere dissipation as heat into the fluid or as acoustic waves?",
+          "How would the proposed mechanism scale, or differ, for particles whose dominant interparticle force is not friction but cohesion (for example, sub-10 µm particles, hydrophobic aggregates, or particles exhibiting surface precipitates)? Would vibration alone be sufficient, or would it need to be combined with other strategies (for example, surfactants, electrostatic repulsion)?",
+          "The hypothesis predicts an increase in the critical solids volume fraction (φ_c). For a continuous reactor, is the most operationally relevant measurement not φ_c itself, but rather the *critical flow rate* or the *pressure* at a given φ? How does vibration alter the relationship between flow rate, pressure drop and the probability of arch formation in the proposed system?"
+        ],
+        "recommendation": "This is a promising and theoretically grounded hypothesis that merits experimental investigation. Continuation is recommended, but the initial experimental design must explicitly test the central postulate of frictional dominance and characterise the energy transfer efficiency in the liquid suspension environment. A control experiment using strongly cohesive particles would help delimit the domain of applicability of the vibration-only strategy. The first phase should focus on mapping the phase diagram (φ, Γ, flow rate) for clogging in a simple orifice geometry."
+      },
+      {
+        "reviewer_persona": "contrarian",
+        "overall_score": 4.5,
+        "verdict": "weak_reject",
+        "confidence": 0.85,
+        "strengths": [
+          "The hypothesis is mechanically grounded in granular physics, linking vibration to a reduction in effective friction and to a perturbation of force chains — a plausible pathway for dry granular systems.",
+          "The proposed experimental plan comprises specific and falsifiable predictions, together with quantitative bounds and null hypotheses, which is commendable and testable."
+        ],
+        "weaknesses": [
+          "FAIL REASON #1: The damping induced by the fluid will probably decouple the vibration from the solid phase. In a liquid suspension, particularly as viscosity (η) increases, vibrational energy will be dissipated as fluid motion (acoustic streaming, viscous heating) rather than transferred to particle agitation. The \"known unknown\" concerning damping constitutes the central flaw; the most probable failure scenario is that Γ > 1 yields a negligible increase in the kinetic temperature of the particles, leaving μ_eff unchanged and φ_c static.",
+          "FAIL REASON #2: Vibration may induce a perverse granular dynamics that *favours* clogging. Controlled vibration can drive size segregation (Brazil nut effect), leading to local accumulation of larger particles or increased solids concentration at the constriction. It could also fluidise the bulk, increasing the rate of particle delivery to the orifice and thereby decreasing τ_clog. The postulate that vibration merely disrupts arches ignores its potential to alter the bulk flow field detrimentally.",
+          "FAIL REASON #3: The long-term evolution of system properties under vibration is a critical confounder that is not addressed. For any realistic suspension, particle attrition (creating fines), surface wear (modifying roughness and μ_eff), or adsorption of fluid components will alter interparticle forces over time. The predicted increase of 15–40 percentage points in φ_c assumes constant properties, but in a continuous reactor such changes could negate the initial benefits or cause progressive performance degradation."
+        ],
+        "critical_questions": [
+          "Given the strong contrast in density and viscosity between typical solids and carrier fluids, what direct evidence is available that the chosen range of Γ yields sufficient acceleration of the particulate phase (relative to gravitational acceleration) to reduce contact times significantly, rather than merely agitating the fluid?",
+          "The proposed mechanism postulates that destabilisation of the arch is limited by friction. What if the dominant clogging mechanism in the specific system under study is not the frictional arch but adhesive bonding (for example, owing to residual cohesive forces, capillary bridges if the fluid wets the particles, or van der Waals forces for fine particles)? Vibration would be ineffective against strong adhesives, a confounder that the postulate of a \"primary mechanism\" sets aside."
+        ],
+        "recommendation": "To move this plausible idea to the status of a credible hypothesis, pilot data must first be provided demonstrating the causal link between Γ and μ_eff *within the specific solid–liquid suspension* (Prediction 2). This is the point of articulation. Without direct evidence that vibration reduces the effective friction in the wet, flowing system — and not only in a dry shear cell — the entire chain is speculative. Furthermore, a mapping of the parameter space (Γ, η, particle concentration) is necessary to determine whether a functional operating window exists outside trivial low-η conditions."
+      },
+      {
+        "reviewer_persona": "industrialist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "confidence": 0.75,
+        "strengths": [
+          "Addresses a major and costly operational problem (clogging) in heavy industries such as mining (slurry hydrotransport), agri-food (concentrates, pastes), chemicals (suspended catalysts) and water/sludge treatment.",
+          "Potentially disruptive competitive advantage: a purely mechanical solution, potentially cheaper and more robust than chemical alternatives (flow-improving additives) or automated shutdown/cleaning systems. May increase reactor uptime and throughput."
+        ],
+        "weaknesses": [
+          "Major barrier to deployment: integration into existing industrial reactors. The application of controlled vibrations at scale to equipment under pressure/load is a non-trivial engineering challenge (scale-up, material fatigue, adaptation costs).",
+          "A highly niche initial market (suppliers of specialised processing equipment) before a broader licensing potential. ROI depends strongly on the avoided cost of production downtime, which is high but difficult to quantify universally."
+        ],
+        "critical_questions": [
+          "What is the business model? Is a patentable vibration system (hardware plus control) sold as an add-on to reactor manufacturers (for example FLSmidth, Metso, Alfa Laval), or is a know-how licence granted for integration?",
+          "How is intellectual property to be managed? The general concept of vibration is difficult to protect. The IP will need to focus on specific control algorithms (adaptive frequency/amplitude as a function of pressure/flow sensors) or on exciter geometries optimised for granular fluidisation."
+        ],
+        "recommendation": "Approve the Phase 1 & 2 validation budget (max €17k) to establish proof of concept and initial IP data. In parallel, initiate exploratory interviews with process engineers in the mining industry (hydrotransport) and manufacturers of lobe pumps/Archimedean screws to validate customer pain points and integration constraints. Position the development as an anti-clogging module for next-generation continuous-flow reactors."
+      },
+      {
+        "reviewer_persona": "funding_strategist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "confidence": 0.8,
+        "funding_programs": [
+          {
+            "program": "PE (Projet Exploratoire) - AAPG 2025",
+            "agency": "ANR (Agence Nationale de la Recherche, France)",
+            "fit_score": 0.9,
+            "typical_budget": "€30k - €120k",
+            "success_rate": "~15-20%",
+            "next_deadline": "Octobre 2024 (pour AAPG 2025)",
+            "rationale": "Parfait pour le TRL et le budget visés. Le programme PE est conçu pour tester des hypothèses risquées avec un protocole clair et des critères GO/NO-GO. L'approche fondamentale (mécanique des milieux granulaires) couplée à un problème appliqué colle au périmètre."
+          },
+          {
+            "program": "ERC Starting Grant 2025 (Panel PE8)",
+            "agency": "European Research Council",
+            "fit_score": 0.7,
+            "typical_budget": "~€1.5M sur 5 ans",
+            "success_rate": "~12-15%",
+            "next_deadline": "Octobre 2024",
+            "rationale": "L'hypothèse présente le niveau d'ambition et d'originalité requis. Il faudrait la reformuler en un programme de recherche plus large (ex: 'Active Soft Matter Mechanics for Sustainable Process Intensification') utilisant cette idée comme noyau. Le budget demandé permet de monter en TRL après la preuve de concept."
+          },
+          {
+            "program": "EIC Pathfinder Open 2025",
+            "agency": "European Innovation Council (Horizon Europe)",
+            "fit_score": 0.6,
+            "typical_budget": "€3M - €4M pour un consortium",
+            "success_rate": "~5-10%",
+            "next_deadline": "Mars 2025 (estimation)",
+            "rationale": "Convient pour une recherche collaborative sur une technologie radicalement nouvelle. Le projet actuel est une excellente étude de faisabilité préalable. Pour soumettre, il faut construire un consortium de 3-5 partenaires (recherche + PME high-tech) et élargir la vision vers une nouvelle classe de réacteurs 'anti-clogging'."
+          }
+        ],
+        "strengths": [
+          "A clear and testable mechanistic hypothesis with a well-structured stepwise validation protocol, which is highly valued by reviewers.",
+          "A concrete industrial problem (clogging) with high transfer potential for chemical, pharmaceutical and sludge-treatment processes."
+        ],
+        "weaknesses": [
+          "Current TRL is very low (1-2). The project described is a fundamental proof of concept. It is too early-stage for most Horizon Europe collaborative calls, which target TRL 4-6.",
+          "The proposed budget and timeline are modest and correspond to an exploratory project. This limits direct funding options and suggests that seed funding should be pursued first."
+        ],
+        "critical_questions": [
+          "Are industrial partners already identified (for example, reactor manufacturers or process companies) with whom a use case and a future consortium could be co-constructed?",
+          "What existing literature addresses vibration for granular fluidisation in dense suspensions? Can the originality of the application to clogging under continuous flow be demonstrated?"
+        ],
+        "recommendation": "The first objective is to secure exploratory research funding (PE or JCJC type) to execute the 8–14 month protocol and generate robust preliminary data. In parallel, discussions are to be initiated with an equipment manufacturer (e.g. GEA, Sartorius) with a view to a future collaborative project of the EIC Transition or Horizon Europe Pillar 2 type, aimed at the development of a reactor prototype."
+      }
+    ],
+    "meta_review": {
+      "consensus_score": 6.55,
+      "verdict": "publish_brief",
+      "brief_quality_gate": true,
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.54,
+      "key_consensus": [
+        "The hypothesis is theoretically grounded, mechanistically plausible, and addresses a concrete and costly industrial problem (clogging).",
+        "The proposed experimental protocol is judged to be rigorous, sequential, and based on falsifiable predictions, which constitutes a major strength.",
+        "The project is at an exploratory stage (TRL 1-2) and requires prior experimental validation before any consideration of deployment or large-scale funding."
+      ],
+      "key_disagreements": [
+        "The efficiency of vibrational energy transfer in a liquid suspension (damping) is the principal point of fracture. The Contrarian and the Domain Expert judge this obstacle to be potentially prohibitive, whereas the Methodologist and the others consider that the protocol is designed to test it.",
+        "The dominant nature of the clogging mechanism (friction vs. adhesion) is not settled. The domain experts doubt the applicability to cohesive suspensions, a point that the initial protocol does not explicitly cover.",
+        "The impact of vibration on granular dynamics is interpreted differently: as a tool for targeted fluidisation (baseline hypothesis) or as a risk of inducing perverse effects (segregation, wear) liable to aggravate clogging (Contrarian)."
+      ],
+      "revision_guidance": [],
+      "critical_path": "The experimental demonstration that the application of vibration (Γ) in a viscous liquid medium effectively reduces interparticle friction (μ_eff) under flow conditions, and that this reduction is the causal mechanism leading to a measurable increase in φ_c. Failure to establish this causal link would invalidate the central chain of argumentation.",
+      "final_recommendation": "The panel recommends the publication of a research brief for this hypothesis. It is sufficiently well founded, testable and relevant to justify an investigation. However, the critical path identified requires that Phase 1 (in silico) and Phase 2 (experimental) be executed with particular attention paid to the quantification of energetic coupling in liquid medium and to the exclusion of adhesive mechanisms. The Contrarian's concerns regarding damping and perverse dynamics must be integrated as explicit risks to be tested and monitored within the protocol. Funding should target exploratory programmes (ANR PE type) to generate these decisive proofs of concept."
+    }
   }
 }

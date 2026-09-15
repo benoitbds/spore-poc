@@ -548,21 +548,21 @@
         "reviewer_persona": "contrarian",
         "overall_score": 4.5,
         "verdict": "weak_reject",
+        "confidence": 0.8,
         "strengths": [
-          "The hypothesis is mechanistically detailed and makes specific, falsifiable predictions with quantitative bounds, which is excellent for rigorous testing.",
-          "It attempts to unify surface science, reaction kinetics, and materials dynamics into a novel self-repair framework, which is conceptually ambitious and potentially transformative."
+          "L'hypothèse est mécanistiquement détaillée et formule des prédictions spécifiques et falsifiables avec des bornes quantitatives, ce qui est excellent pour une mise à l'épreuve rigoureuse.",
+          "Elle tente d'unifier la science des surfaces, la cinétique réactionnelle et la dynamique des matériaux en un cadre novateur d'auto-réparation, ce qui est conceptuellement ambitieux et potentiellement transformateur."
         ],
         "weaknesses": [
-          "FAIL REASON #1: The proposed mechanism critically depends on the reversible reconstruction being faster than all irreversible deactivation pathways (k_reconstruct > 10 * k_sinter). This is a heroic assumption. In real catalytic nanoparticles under reaction conditions, sintering, bulk oxidation, phase segregation, and coking are typically kinetically favored and irreversible on the proposed timescale (10-1000 s). The 'self-repair' loop would be rapidly overwhelmed by cumulative damage.",
-          "FAIL REASON #2: The hypothesis assumes a coherent, particle-wide oscillatory reconstruction. For nanoparticles <10 nm, surface energy dominates and reconstructions are often pinned or incoherent. Thermal fluctuations, defect sites, and facet heterogeneity will desynchronize the cycle, leading to a damped, averaged surface state rather than a sustained limit cycle with measurable amplitude (Δθ 0.05-0.20 ML).",
-          "FAIL REASON #3: The key feedback loop requires the reaction intermediate (e.g., O*) to be both the driver of reconstruction AND part of the main catalytic cycle. In most relevant reactions (e.g., CO oxidation, methane reforming), O* coverage is either always near-saturation or near-zero under efficient catalytic conditions, leaving no 'window' for modulation. The proposed oscillation exists in a narrow, possibly non-catalytic, region of parameter space."
+          "FAIL REASON #1: Le mécanisme proposé dépend de manière critique de ce que la reconstruction réversible soit plus rapide que toutes les voies de désactivation irréversibles (k_reconstruct > 10 * k_sinter). Il s'agit là d'un postulat héroïque. Dans les nanoparticules catalytiques réelles en conditions de réaction, le frittage, l'oxydation en masse, la ségrégation de phase et la cokéfaction sont typiquement cinétiquement favorisés et irréversibles à l'échelle de temps proposée (10-1000 s). La boucle d'« auto-réparation » serait rapidement submergée par l'accumulation des dommages.",
+          "FAIL REASON #2: L'hypothèse postule une reconstruction oscillatoire cohérente à l'échelle de la particule. Pour des nanoparticules <10 nm, l'énergie de surface domine et les reconstructions sont souvent épinglées ou incohérentes. Les fluctuations thermiques, les sites de défauts et l'hétérogénéité des facettes désynchroniseront le cycle, conduisant à un état de surface amorti et moyenné plutôt qu'à un cycle limite soutenu d'amplitude mesurable (Δθ 0,05-0,20 ML).",
+          "FAIL REASON #3: La boucle de rétroaction clé exige que l'intermédiaire réactionnel (par ex. O*) soit à la fois le moteur de la reconstruction ET partie intégrante du cycle catalytique principal. Dans la plupart des réactions pertinentes (par ex. l'oxydation du CO, le reformage du méthane), la couverture en O* est soit toujours proche de la saturation, soit proche de zéro dans des conditions catalytiques efficaces, ne laissant aucune « fenêtre » pour une modulation. L'oscillation proposée existe dans une région étroite, possiblement non catalytique, de l'espace des paramètres."
         ],
         "critical_questions": [
-          "Can you provide a single documented example of a heterogeneous catalyst (not a model single crystal under UHV) where a reversible surface reconstruction cycle with a period of 10-1000 s has been directly observed to persist for >100 cycles without damping or being disrupted by irreversible processes?",
-          "Your stability prediction (#1) compares an 'oscillatory' state to a 'static' state of identical composition. How will you experimentally ensure the 'static' catalyst does not also undergo reconstruction or deactivation? Isn't the 'static' state itself a theoretical construct, as all surfaces dynamically adapt? This creates a confounder where you may be comparing two dynamic states, not a dynamic vs. static one."
+          "Pouvez-vous fournir un exemple unique et documenté d'un catalyseur hétérogène (et non d'un monocristal modèle sous UHV) pour lequel un cycle de reconstruction de surface réversible d'une période de 10-1000 s a été directement observé comme persistant pendant >100 cycles sans amortissement ni perturbation par des processus irréversibles ?",
+          "Votre prédiction de stabilité (#1) compare un état « oscillatoire » à un état « statique » de composition identique. Comment garantirez-vous expérimentalement que le catalyseur « statique » ne subit pas lui aussi une reconstruction ou une désactivation ? L'état « statique » n'est-il pas lui-même une construction théorique, puisque toutes les surfaces s'adaptent dynamiquement ? Cela crée un facteur de confusion où vous comparez peut-être deux états dynamiques, et non un état dynamique à un état statique."
         ],
-        "recommendation": "To convince a skeptic, you must first demonstrate the core oscillatory phenomenon exists as predicted in a real, working catalyst nanoparticle. Use in situ TEM/AP-XPS to show: 1) Coherent, limit-cycle oscillations in surface structure/chemistry (not just reaction rate) over >50 cycles. 2) That these oscillations are indeed the dominant dynamic process, with quantifiable rates of irreversible deactivation shown to be at least an order of magnitude slower. 3) A direct manipulation of the cycle (e.g., via intermediate pulsing as in Prediction #2) that proves the causal link, not just correlation.",
-        "confidence": 0.8
+        "recommendation": "Pour convaincre un sceptique, il faut d'abord démontrer que le phénomène oscillatoire central existe tel que prédit dans une nanoparticule de catalyseur réelle et fonctionnelle. Utiliser la TEM/AP-XPS in situ pour montrer : 1) des oscillations cohérentes à cycle limite dans la structure/la chimie de surface (et non seulement dans la vitesse de réaction) sur >50 cycles. 2) que ces oscillations constituent bien le processus dynamique dominant, avec des vitesses quantifiables de désactivation irréversible démontrées au moins d'un ordre de grandeur plus lentes. 3) une manipulation directe du cycle (par exemple, via une impulsion d'intermédiaire comme dans la Prédiction #2) qui prouve le lien causal, et non une simple corrélation."
       },
       {
         "reviewer_persona": "industrialist",
@@ -657,16 +657,181 @@
     }
   },
   "vulgarization_fr": {
-    "title_fr": "Le catalyseur qui respire : quand une surface s'use pour mieux se régénérer",
-    "hypothesis_in_brief": "Les catalyseurs solides, utilisés dans l'industrie chimique, perdent peu à peu leur efficacité car leur surface s'abîme. Cette hypothèse propose que, sous certaines conditions, la surface d'un catalyseur pourrait osciller entre deux états : un état actif et un état moins actif, dans un cycle qui s'auto-entretient. Ce mouvement de balancier, loin d'être un défaut, permettrait au matériau de réparer lui-même les dommages de surface et de ralentir son vieillissement.",
-    "why_it_matters": "Dans l'industrie pétrochimique ou la production d'ammoniac, les catalyseurs coûtent cher et se dégradent en quelques années, forçant des arrêts d'usine coûteux. Si ce mécanisme d'oscillation auto-réparatrice existe, il pourrait conduire à concevoir des catalyseurs qui durent beaucoup plus longtemps, sans avoir à les remplacer. Cela réduirait les coûts et l'énergie gaspillée, sans nécessiter de nouveaux matériaux miracles, mais en exploitant une propriété dynamique déjà présente dans certains systèmes.",
-    "imagine_that": "Imaginez un jardinier qui, au lieu de laisser ses outils rouiller, les utilise en alternance : il frotte la bêche contre le sol pour la nettoyer, puis la laisse reposer à l'air libre. Ce faisant, une fine couche d'oxyde se forme, la protégeant de la rouille profonde. Puis, en la réutilisant, il gratte cette couche, exposant le métal neuf. Ce cycle de frottement et de repos, s'il est bien rythmé, entretient l'outil bien mieux qu'un usage continu ou un stockage statique. Ici, c'est la réaction chimique elle-même qui joue le rôle du jardinier, en créant et en effaçant tour à tour une couche protectrice à la surface du catalyseur.",
+    "title_fr": "Et si les catalyseurs se réparaient tout seuls en oscillant ?",
+    "hypothesis_in_brief": "L'hypothèse propose qu'un catalyseur métallique puisse alterner spontanément entre deux états de surface : un état actif et un état légèrement oxydé, moins actif. Ce va-et-vient périodique, appelé cycle limite, empêcherait l'accumulation des dommages irréversibles (frittage, encrassement) et prolongerait la durée de vie du catalyseur. L'approche consiste à tester si cette oscillation auto-entretenue constitue un mécanisme intrinsèque d'auto-réparation.",
+    "why_it_matters": "Les catalyseurs hétérogènes sont au cœur de la fabrication de carburants, d'engrais et de plastiques. Leur dégradation progressive oblige les usines à remplacer régulièrement des matériaux coûteux et à interrompre la production. Si un catalyseur pouvait entretenir lui-même un cycle de reconstruction de surface qui ralentit son vieillissement, on réduirait les arrêts de production et la consommation de métaux précieux. Cela concernerait directement la pétrochimie, la synthèse d'ammoniac et le reformage du méthane. La question reste ouverte : ce mécanisme n'a pas encore été observé dans des conditions industrielles.",
+    "imagine_that": "Imaginez un carreleur qui, au lieu de laisser sa mosaïque se fissurer avec le temps, poserait et retirerait une fine couche de mortier en cadence régulière. Chaque cycle comble les micro-fissures avant qu'elles ne deviennent des fractures profondes. La surface reste globalement la même, mais elle se rajeunit en permanence. Le catalyseur ferait pareil avec sa propre surface : une oxydation légère suivie d'une réduction, en boucle.",
     "concretely": {
-      "intro": "Pour vérifier si ce cycle d'oscillation existe vraiment, le protocole propose trois phases de test, allant de la simulation sur ordinateur à l'expérience en laboratoire.",
-      "phase1": "D'abord, un modèle informatique simule la réaction (par exemple, l'oxydation du méthane sur une surface de nickel) et la reconstruction de surface. Le but est de voir si, mathématiquement, le cycle oscillant peut s'installer et se maintenir.",
-      "phase2": "Ensuite, on observe en temps réel une nanoparticule de nickel dans un microscope électronique spécial (ETEM), capable de filmer la surface pendant qu'elle catalyse une réaction. On cherche à voir si la surface oscille bien entre un état métallique et un état oxydé.",
-      "phase3": "Enfin, on fait fonctionner deux catalyseurs identiques pendant 100 heures : l'un dans des conditions censées produire l'oscillation, l'autre dans des conditions stables. On mesure si le premier se dégrade moins vite, en comptant le nombre de sites actifs restants."
+      "intro": "L'approche se déploie en trois phases, avec des critères d'arrêt clairs si les prédictions échouent.",
+      "phase1": "Des simulations numériques de cinétique chimique testent si la boucle de rétroaction négative entre réaction et reconstruction de surface peut produire des oscillations stables dans les bornes annoncées (période de 10 à 1000 secondes, amplitude de 0,05 à 0,20 monocouche).",
+      "phase2": "Des nanoparticules de nickel déposées sur silice sont observées en microscopie électronique environnementale sous gaz réactionnel, pour vérifier si la surface oscille réellement entre état métallique et état oxydé, et si ces oscillations modifient l'activité catalytique.",
+      "phase3": "Deux catalyseurs identiques sont comparés sur plus de 100 heures dans des réacteurs parallèles : l'un maintenu dans un état stationnaire, l'autre laissé osciller. La vitesse de dégradation de la surface active est mesurée pour voir si l'oscillation réduit effectivement la perte de sites actifs."
     },
-    "reviewers_say": "Le panel de relecteurs est partagé mais valide la publication du brief. Les points forts sont la précision des prédictions (bornes chiffrées, conditions claires) et la structure du protocole en phases avec des points d'arrêt. Le principal désaccord porte sur la faisabilité : le mécanisme suppose que la reconstruction de surface soit plus rapide que les processus d'usure irréversible (frittage, encrassement), ce qui est difficile à garantir dans des nanoparticules réelles. Un expert craint aussi que les oscillations ne soient pas synchronisées sur une particule entière, ce qui les rendrait invisibles. Le verdict final est de lancer la phase de modélisation (peu coûteuse), mais de conditionner les phases expérimentales à des contrôles stricts des artefacts de mesure."
+    "reviewers_say": "Le panel reconnaît une hypothèse mécanistiquement détaillée, ancrée dans la dynamique non linéaire des surfaces catalytiques, avec des prédictions quantitatives falsifiables. Le protocole en trois phases et ses critères GO/NO-GO sont jugés rigoureux. Les réserves portent sur la condition cinétique critique : la reconstruction réversible devrait être dix fois plus rapide que le frittage, ce qui est loin d'être acquis dans des nanoparticules réelles. Un expert doute même qu'une oscillation cohérente puisse exister à l'échelle d'une particule de moins de 10 nanomètres, où les défauts et l'hétérogénéité désynchronisent le cycle. Le verdict global est de publier le brief et de lancer la Phase 1 (modélisation), mais de conditionner les phases expérimentales à des contrôles renforcés contre les artefacts de faisceau électronique. Pour y croire, il faudrait d'abord voir le cycle limite émerger en simulation, puis être observé sans ambiguïté sur un système modèle."
+  },
+  "vulgarization_en": {
+    "title": "What if catalysts could repair themselves by oscillating?",
+    "hypothesis_in_brief": "The hypothesis proposes that a metal catalyst can spontaneously alternate between two surface states: an active state and a slightly oxidised, less active state. This periodic back-and-forth, termed a limit cycle, would prevent the accumulation of irreversible damage (sintering, fouling) and extend the catalyst's lifespan. The approach consists in testing whether this self-sustained oscillation constitutes an intrinsic self-repair mechanism.",
+    "why_it_matters": "Heterogeneous catalysts are central to the manufacture of fuels, fertilizers and plastics. Their progressive degradation forces plants to replace expensive materials at regular intervals and to interrupt production. If a catalyst could sustain its own surface-reconstruction cycle that slows its ageing, production stoppages and the consumption of precious metals would be reduced. This would bear directly on petrochemicals, ammonia synthesis and methane reforming. The question remains open: this mechanism has not yet been observed under industrial conditions.",
+    "imagine_that": "Imagine a tiler who, instead of letting his mosaic crack with time, would lay down and remove a thin layer of mortar at a regular cadence. Each cycle fills the micro-cracks before they become deep fractures. The surface remains broadly the same, but it rejuvenates continuously. The catalyst would do the same with its own surface: a light oxidation followed by a reduction, in a loop.",
+    "reviewers_say": "The panel recognises a mechanistically detailed hypothesis, anchored in the non-linear dynamics of catalytic surfaces, with falsifiable quantitative predictions. The three-phase protocol and its GO/NO-GO criteria are judged rigorous. Reservations concern the critical kinetic condition: reversible reconstruction would need to be ten times faster than sintering, which is far from assured in real nanoparticles. One expert even doubts that a coherent oscillation can exist at the scale of a particle smaller than 10 nanometres, where defects and heterogeneity desynchronise the cycle. The overall verdict is to publish the brief and launch Phase 1 (modelling), but to condition the experimental phases on reinforced controls against electron-beam artefacts. For this to be believed, the limit cycle would first need to be seen emerging in simulation, then observed unambiguously on a model system.",
+    "concretely": {
+      "intro": "The approach unfolds in three phases, with clear stopping criteria should the predictions fail.",
+      "phase1": "Numerical simulations of chemical kinetics test whether the negative feedback loop between reaction and surface reconstruction can produce stable oscillations within the stated bounds (period of 10 to 1000 seconds, amplitude of 0.05 to 0.20 monolayer).",
+      "phase2": "Nickel nanoparticles deposited on silica are observed by environmental electron microscopy under reactive gas, to test whether the surface genuinely oscillates between a metallic state and an oxidised state, and whether such oscillations alter catalytic activity.",
+      "phase3": "Two identical catalysts are compared over more than 100 hours in parallel reactors: one maintained in a steady state, the other allowed to oscillate. The rate of degradation of the active surface is measured to determine whether oscillation effectively reduces the loss of active sites."
+    }
+  },
+  "panel_en": {
+    "reviews": [
+      {
+        "reviewer_persona": "methodologist",
+        "overall_score": 8.0,
+        "verdict": "accept",
+        "confidence": 0.8,
+        "strengths": [
+          "Protocol structured in phases with clear GO/NO-GO criteria, enabling progressive evaluation and an early stop decision in the event of theoretical or experimental failure.",
+          "Hypothesis formulated in a falsifiable manner with precise quantitative predictions (bounds, thresholds) and rigorous identification of dependent/independent variables."
+        ],
+        "weaknesses": [
+          "Phase 2 (minimal validation) carries a high risk of artefacts induced by the electron beam (ETEM), potentially critical for observing a subtle oscillatory phenomenon. The protocol does not detail the controls sufficiently to guard against this (e.g., tests at different electron fluxes, irradiated vs. non-irradiated areas).",
+          "Statistical power is explicitly calculated only for Prediction 1 (n=15). For Predictions 2 and 3, based on single or sparsely repeated perturbation experiments, the risk of false negatives (type II error) is not quantified."
+        ],
+        "critical_questions": [
+          "How is an intrinsic oscillation of the catalytic system to be distinguished from an oscillation forced by external reactor instabilities (e.g., thermal coupling, concentration gradients)? Are specific experimental controls planned (e.g., verification of the absence of oscillations on an inert catalyst under the same flow conditions)?",
+          "Is the key surface-state measurement (θ) by white-line ratio EELS or XPS signal sufficiently sensitive and specific to detect variations of 0.05–0.20 ML? Are ex situ calibrations or reference measurements on well-defined surfaces planned to validate the quantitative signal–θ relationship?"
+        ],
+        "recommendation": "Approve the general plan, but require a detailed addendum covering: 1) protocols for controlling beam artefacts in Phase 2 (e.g., dose mapping, repetition with low-dose STEM or beam-free techniques such as rapid in situ IR spectroscopy), and 2) a statistical power analysis/replication plan for the perturbation experiments (Predictions 2 & 3). Also incorporate a blinded trial for the analysis of long-term degradation data (Phase 3) to limit confirmation bias."
+      },
+      {
+        "reviewer_persona": "domain_expert",
+        "overall_score": 7.5,
+        "verdict": "accept",
+        "confidence": 0.85,
+        "strengths": [
+          "The hypothesis is firmly grounded in the established theoretical framework of non-linear dynamics in heterogeneous catalysis (Krischer/Eiswirth/Ertl systems). It offers an elegant and functional generalisation of the isothermal oscillations observed, reinterpreting them as a mechanism of 'intrinsic repair'.",
+          "The evidence base is relevant and of high quality. References [2025] and [2021] provide direct experimental demonstrations of the reaction–reconstruction coupling leading to self-sustained oscillations, validating the core of the proposed mechanism. The distinction between 'direct', 'indirect' and 'analogous' evidence is well handled."
+        ],
+        "weaknesses": [
+          "The causal link between oscillation amplitude (Δθ) and the improvement in long-term stability (the 'repair') remains speculative and is not quantified. The hypothesis assumes that oscillatory reconstruction prevents irreversible mechanisms (sintering, fouling), but it does not demonstrate why oscillation would be more effective than a static and stable surface state.",
+          "The kinetic condition 'k_reconstruct > 10 * k_sinter' is crucial but difficult to verify experimentally ex ante. It represents a significant feasibility barrier for the design of such catalysts, as irreversible deactivation rates are often rapid and poorly characterised at the nanometre scale under reaction conditions."
+        ],
+        "critical_questions": [
+          "How can a 'repairing oscillatory state' be distinguished experimentally from a mere 'oscillatory state modulating activity'? Which metrics (for example, catalyst lifetime, post-mortem analysis of the extent of sintering) would allow the 'self-repair' aspect to be validated beyond the mere observation of the oscillation?",
+          "The hypothesis rests on a strong and rapid coupling between intermediate coverage and surface reconstruction. For nanoparticles of critical size (< 5 nm), might the stochastic fluctuations of the coverages and the reconstruction kinetics at the scale of the entire particle break the coherence of the limit cycle, leading to chaotic or asynchronous behaviour?"
+        ],
+        "recommendation": "Continue developing this hypothesis by defining a precise experimental model system (e.g. CH4/NiO or CO/O2 on Rh) to test quantitatively the correlation between the oscillation parameters (τ, Δθ) and resistance to deactivation. The system is to be modelled with mean-field equations (of the reaction-diffusion type) including an irreversible deactivation term, in order to identify the conditions under which oscillation minimises the loss of average activity over the long term."
+      },
+      {
+        "reviewer_persona": "contrarian",
+        "overall_score": 4.5,
+        "verdict": "weak_reject",
+        "confidence": 0.8,
+        "strengths": [
+          "The hypothesis is mechanistically detailed and formulates specific, falsifiable predictions with quantitative bounds, which is excellent for rigorous testing.",
+          "It attempts to unify surface science, reaction kinetics and materials dynamics into a novel self-repair framework, which is conceptually ambitious and potentially transformative."
+        ],
+        "weaknesses": [
+          "FAIL REASON #1: The proposed mechanism depends critically on the reversible reconstruction being faster than all irreversible deactivation pathways (k_reconstruct > 10 * k_sinter). This is a heroic postulate. In real catalytic nanoparticles under reaction conditions, sintering, bulk oxidation, phase segregation and coking are typically kinetically favoured and irreversible on the proposed timescale (10–1000 s). The \"self-healing\" loop would be rapidly overwhelmed by the accumulation of damage.",
+          "FAIL REASON #2: The hypothesis postulates a coherent oscillatory reconstruction at the particle scale. For nanoparticles <10 nm, surface energy dominates and reconstructions are often pinned or incoherent. Thermal fluctuations, defect sites and facet heterogeneity will desynchronise the cycle, leading to a damped, averaged surface state rather than a sustained limit cycle of measurable amplitude (Δθ 0.05–0.20 ML).",
+          "FAIL REASON #3: The key feedback loop requires that the reaction intermediate (e.g. O*) be both the driver of the reconstruction AND an integral part of the main catalytic cycle. In most relevant reactions (e.g. CO oxidation, methane reforming), the O* coverage is either always near saturation or near zero under efficient catalytic conditions, leaving no \"window\" for modulation. The proposed oscillation exists in a narrow, possibly non-catalytic, region of parameter space."
+        ],
+        "critical_questions": [
+          "Can a single, documented example be provided of a heterogeneous catalyst (and not a model single crystal under UHV) for which a reversible surface reconstruction cycle with a period of 10–1000 s has been directly observed to persist for >100 cycles without damping or perturbation by irreversible processes?",
+          "The stability prediction (#1) compares an \"oscillatory\" state with a \"static\" state of identical composition. How will it be ensured experimentally that the \"static\" catalyst does not itself undergo reconstruction or deactivation? Is the \"static\" state not itself a theoretical construct, given that all surfaces adapt dynamically? This creates a confounder whereby two dynamic states may be compared, rather than a dynamic state with a static one."
+        ],
+        "recommendation": "To convince a sceptic, it must first be demonstrated that the central oscillatory phenomenon exists as predicted in a real, functional catalyst nanoparticle. In situ TEM/AP-XPS should be used to show: 1) coherent limit-cycle oscillations in surface structure/chemistry (and not merely in reaction rate) over >50 cycles. 2) that these oscillations indeed constitute the dominant dynamic process, with quantifiable rates of irreversible deactivation demonstrated to be at least an order of magnitude slower. 3) a direct manipulation of the cycle (for example, via a pulse of an intermediate as in Prediction #2) that proves the causal link, and not a mere correlation."
+      },
+      {
+        "reviewer_persona": "industrialist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "confidence": 0.7,
+        "strengths": [
+          "Addresses a critical and costly industrial need: the degradation of heterogeneous catalysts in heavy chemical processes (petrochemicals, ammonia synthesis, reforming) represents billions in lost productivity and replacement costs.",
+          "Potentially disruptive competitive advantage: an intrinsically 'self-healing' catalyst could offer a considerably extended operational lifetime, reducing plant shutdowns and catalyst costs — a powerful selling point."
+        ],
+        "weaknesses": [
+          "Major technological barrier: the transition from observation of a model nanoparticle in ETEM to a stable, high-performing industrial catalyst (supported, formulated) constitutes an enormous leap. The oscillatory dynamics could be dampened within a real fixed bed.",
+          "High commercial risk: the industrial catalyst market is extremely conservative. Adopters (BASF, Clariant, Johnson Matthey) demand decades of reliability data. A new dynamic property would be perceived as an additional risk."
+        ],
+        "critical_questions": [
+          "Can a specific industrial reaction be identified (e.g. selective oxidation of CO, oxidation of ammonia) where the mechanism is most likely to operate and where the economic gain would justify the development risk?",
+          "What is the intellectual property plan? Is patent protection of the concept of a 'catalyst designed to oscillate' feasible, or will the phenomenon be regarded as a non-patentable natural property of a specific material?"
+        ],
+        "recommendation": "Continue the Phase 1 validation protocol (low cost) to confirm theoretical viability. In parallel, initiate confidential discussions with an industrial partner specialising in advanced catalysis (e.g. Haldor Topsoe) to assess interest and jointly define a targeted pilot application, conditioning any major investment in Phases 2 and 3."
+      },
+      {
+        "reviewer_persona": "funding_strategist",
+        "overall_score": 7.5,
+        "verdict": "accept",
+        "confidence": 0.8,
+        "funding_programs": [
+          {
+            "program": "ERC Proof of Concept (PoC)",
+            "agency": "European Research Council (ERC)",
+            "fit_score": 0.85,
+            "typical_budget": "€150k",
+            "success_rate": "~40%",
+            "next_deadline": "Trois deadlines par an (janvier, avril, septembre)",
+            "rationale": "Parfait si le PI est un lauréat ERC en cours. Le budget et la durée (18 mois) correspondent au protocole. L'objectif est de valider le potentiel d'innovation d'une idée issue de la recherche fondamentale, ce qui colle avec la phase de validation de principe. Le TRL bas (2-3) est acceptable."
+          },
+          {
+            "program": "AAPG JCJC - Jeunes Chercheuses, Jeunes Chercheurs",
+            "agency": "Agence Nationale de la Recherche (ANR)",
+            "fit_score": 0.75,
+            "typical_budget": "€200k-300k",
+            "success_rate": "~15-20%",
+            "next_deadline": "Octobre 2024 (estimation pour l'appel 2025)",
+            "rationale": "Financement idéal pour un.e jeune PI en France pour monter sa première équipe. Le projet doit être repensé pour un budget plus important (incluant un doctorant ou post-doc). La nature exploratoire et fondamentale de l'hypothèse est bien adaptée à cet appel. Il faudra renforcer le volet modélisation/computation pour justifier la taille du consortium (1-2 partenaires)."
+          },
+          {
+            "program": "Pathfinder Open (HORIZON-EIC-2024-PATHFINDEROPEN)",
+            "agency": "European Innovation Council (EIC) under Horizon Europe",
+            "fit_score": 0.7,
+            "typical_budget": "€3-4M pour le consortium",
+            "success_rate": "~5-10%",
+            "next_deadline": "23 octobre 2024 (prochaine ouverture estimée)",
+            "rationale": "Cible à moyen terme. L'idée est radicalement nouvelle et vise une rupture technologique (catalyseurs auto-réparants), ce qui correspond parfaitement au mandat du Pathfinder. Le projet actuel constitue une excellente phase de faisabilité pour préparer une telle proposition. Il faudra construire un consortium solide (académique + industriel potentiel) et étoffer le plan vers des applications à plus haut TRL (4-5)."
+          }
+        ],
+        "strengths": [
+          "A precise and falsifiable mechanistic hypothesis, formulated with clear quantitative parameters (Ea, Δθ, τ).",
+          "A well-structured three-phase validation protocol, with explicit GO/NO-GO criteria, enabling risk management.",
+          "High potential for scientific disruption: the finding of an intrinsic self-repair mechanism could revolutionise the design of durable catalysts."
+        ],
+        "weaknesses": [
+          "TRL is very low (1-2). The project is principally a proof of principle. Fundamental research funding programmes often require a more advanced conceptual maturity or preliminary evidence.",
+          "The estimated protocol budget (€20k-120k) is atypical: too high for a mobility grant, too low for a standard collaborative project. A budgetary repositioning is required.",
+          "The consortium is not defined. A hypothesis of this nature requires close collaboration between theoreticians, experimentalists in in situ/operando characterisation, and specialists in catalysis."
+        ],
+        "critical_questions": [
+          "Which precise model catalytic systems (e.g. Pd(110)/CO, Pt(100)/NO+CO, specific alloys) have already exhibited oscillations suggesting this mechanism? Are preliminary data available?",
+          "How is the simultaneous measurement of surface kinetics (θ) and structure (reconstruction) at the scale of a single nanoparticle to be achieved? Is access to an ETEM or a synchrotron beamline guaranteed?",
+          "Is the 'repair' demonstrated by increased TOF stability over multiple cycles relative to an inert catalyst? How can the benefit be quantified convincingly for a reviewer?"
+        ],
+        "recommendation": "Position this project as a 'High-Risk, High-Gain' Seed Project to validate the fundamental mechanism. Target seed funding first (ERC PoC, ANR JCJC) to acquire preliminary proof of concept, then assemble an interdisciplinary consortium for a larger proposal (HORIZON-EIC-2024-PATHFINDEROPEN) aimed at exploiting the mechanism for industrial catalysts."
+      }
+    ],
+    "meta_review": {
+      "consensus_score": 6.82,
+      "verdict": "publish_brief",
+      "brief_quality_gate": true,
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.8,
+      "key_consensus": [
+        "The hypothesis is mechanistically detailed, anchored in a robust theoretical framework (non-linear dynamics in catalysis) and formulated in a falsifiable manner with precise quantitative predictions.",
+        "The three-phase validation protocol with GO/NO-GO criteria is judged to be well structured and suited to progressive evaluation and risk management.",
+        "The potential for scientific breakthrough and the addressing of a critical industrial need (catalyst degradation) are recognised as major strengths, justifying further exploration."
+      ],
+      "key_disagreements": [
+        "Feasibility of the central mechanism: The Contrarian and the Domain Expert strongly doubt that the critical kinetic condition (k_reconstruct > 10 * k_sinter) can be met in real nanoparticles under operating conditions, where irreversible processes dominate.",
+        "Observability of the coherent oscillation: The Contrarian raises a fundamental challenge regarding the possibility of a coherent limit cycle at the scale of a nanoparticle (<10 nm) owing to facet heterogeneity and fluctuations, while the Methodologist is concerned about experimental artefacts that could mask or mimic the phenomenon.",
+        "Industrial impact vs. risk: The Industrialist acknowledges the disruptive potential but emphasises the enormous gap between proof-of-principle validation (TRL 1-2) and adoption in a conservative market, pointing to a high commercial risk."
+      ],
+      "revision_guidance": [],
+      "critical_path": "The direct and unambiguous experimental demonstration of the coherent oscillatory limit cycle (surface structure and chemistry) on a single active catalytic nanoparticle, over at least 50 cycles, while quantifying that the irreversible deactivation rates (sintering, fouling) are indeed an order of magnitude lower. This is the absolute prerequisite for validating the core of the hypothesis and addressing the most severe objections.",
+      "final_recommendation": "The panel recommends publication of the brief for project launch, recognising its ambition and conceptual rigour, but emphasising that it constitutes a high-risk hypothesis. Phase 1 (modelling) should be approved without reservation. Progression to Phases 2 and 3 (experimental validation) is conditional on the integration, within the protocol, of rigorous controls against artefacts (electron beam, reactor instabilities) as required by the Methodologist, and on the design of experiments capable of directly addressing the feasibility challenges raised by the Contrarian and the Domain Expert, notably the comparative quantification of reversible and irreversible kinetics."
+    }
   }
 }

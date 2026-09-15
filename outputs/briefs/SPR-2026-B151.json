@@ -594,43 +594,43 @@
         "reviewer_persona": "domain_expert",
         "overall_score": 7.8,
         "verdict": "accept",
+        "confidence": 0.82,
         "strengths": [
-          "The hypothesis is theoretically coherent and well-structured. The causal chain from data assimilation to microstructure prediction follows a logical, physics-based progression that aligns with solidification theory (G*R → nucleation/growth → grain structure).",
-          "The positioning is astute. Leveraging the Ensemble Kalman Filter's proven robustness in highly non-linear, transient aerospace systems (like liquid rocket engines) to address the 'black box' of the twin-roll casting roll gap is a compelling and novel conceptual transfer. The evidence base correctly identifies both direct and analogous supporting literature.",
-          "The explicit acknowledgment of 'known unknowns' (actuator dynamics, stochastic nucleation, covariance inflation) demonstrates a sophisticated understanding of the practical challenges in transitioning from theory to application, which strengthens the proposal's credibility."
+          "L'hypothèse est théoriquement cohérente et bien structurée. La chaîne causale allant de l'assimilation de données à la prédiction de la microstructure suit une progression logique, fondée sur la physique, qui s'accorde avec la théorie de la solidification (G*R → nucléation/croissance → structure de grains).",
+          "Le positionnement est judicieux. Exploiter la robustesse éprouvée du filtre de Kalman d'ensemble dans des systèmes aérospatiaux fortement non linéaires et transitoires (tels que les moteurs-fusées à ergols liquides) pour traiter la « boîte noire » que constitue l'entrefer des cylindres en coulée entre cylindres est un transfert conceptuel convaincant et novateur. La base de preuves identifie correctement la littérature à l'appui, tant directe qu'analogue.",
+          "La reconnaissance explicite des « inconnues connues » (dynamique des actionneurs, nucléation stochastique, inflation de covariance) témoigne d'une compréhension approfondie des défis pratiques du passage de la théorie à l'application, ce qui renforce la crédibilité de la proposition."
         ],
         "weaknesses": [
-          "The core assumption regarding 'sufficient fidelity' of the multi-physics model is a significant hurdle. Capturing first-order effects on microstructure in TRC requires exceptionally accurate modeling of the interfacial heat transfer coefficient (IHTC) and deformation in the mushy zone, which are notoriously difficult to characterize and are highly dynamic. The EnKF's robustness to 'moderate structural errors' in these terms is optimistic and requires rigorous demonstration.",
-          "The validation assumption is a critical path item. Obtaining experimental access to internal state variables (e.g., mushy zone profile) via rapid quench for a high-speed process like TRC is extremely challenging and may not provide the spatially and temporally dense data required for robust RMSE validation against the digital twin's full-field estimates.",
-          "The hypothesis implicitly assumes observability. The proposed assimilation of roll surface temperature and separating force may not provide sufficient information to uniquely estimate the internal thermal and solidification fields (e.g., to disentangle G and R independently). This is a fundamental control-theoretic concern not addressed in the mechanism."
+          "Le postulat central concernant la « fidélité suffisante » du modèle multi-physique constitue un obstacle majeur. La capture des effets de premier ordre sur la microstructure dans le TRC exige une modélisation exceptionnellement précise du coefficient de transfert thermique interfacial (IHTC) et de la déformation dans la zone pâteuse, lesquels sont notoirement difficiles à caractériser et hautement dynamiques. La robustesse de l'EnKF face à des « erreurs structurelles modérées » dans ces termes est optimiste et nécessite une démonstration rigoureuse.",
+          "Le postulat de validation est un élément critique du cheminement. L'obtention d'un accès expérimental aux variables d'état internes (par exemple, le profil de la zone pâteuse) par trempe rapide pour un procédé à grande vitesse comme le TRC est extrêmement difficile et pourrait ne pas fournir les données spatialement et temporellement denses requises pour une validation robuste du RMSE par rapport aux estimations de champ complet du jumeau numérique.",
+          "L'hypothèse suppose implicitement l'observabilité. L'assimilation proposée de la température de surface des cylindres et de la force de séparation pourrait ne pas fournir suffisamment d'informations pour estimer de manière unique les champs thermiques et de solidification internes (par exemple, pour dissocier G et R indépendamment). Il s'agit d'une préoccupation fondamentale de la théorie du contrôle qui n'est pas abordée dans le mécanisme."
         ],
         "critical_questions": [
-          "Given the dominant uncertainty in TRC models stems from the boundary condition (IHTC) rather than initial conditions, how would the EnKF be specifically configured (e.g., state augmentation for parameter estimation) to simultaneously estimate both the internal thermal state *and* this critical, spatially varying parameter?",
-          "The RMSE target of ≤15% is relative to which experimental measurement? If it's a point measurement (e.g., thermocouple at one location), it may be achievable. If it's a field measurement (e.g., full mushy zone thickness profile), this is an exceptionally ambitious target given the validation challenges. Can you define the validation metric and reference method with more precision?",
-          "The cited 2024 TRC digital twin paper focuses on correlation. What specific evidence or preliminary results suggest that the *dynamic* state estimation error (which the EnKF minimizes) is the limiting factor for microstructure prediction, as opposed to the *static* model structural error?"
+          "Étant donné que l'incertitude dominante dans les modèles TRC provient de la condition aux limites (IHTC) plutôt que des conditions initiales, comment l'EnKF serait-il spécifiquement configuré (par exemple, l'augmentation d'état pour l'estimation de paramètres) afin d'estimer simultanément à la fois l'état thermique interne *et* ce paramètre critique variant spatialement ?",
+          "La cible de RMSE de ≤15 % est relative à quelle mesure expérimentale ? S'il s'agit d'une mesure ponctuelle (par exemple, un thermocouple à un emplacement), elle peut être atteignable. S'il s'agit d'une mesure de champ (par exemple, le profil complet de l'épaisseur de la zone pâteuse), il s'agit d'une cible exceptionnellement ambitieuse compte tenu des difficultés de validation. Pouvez-vous définir la métrique de validation et la méthode de référence avec plus de précision ?",
+          "L'article cité de 2024 sur le jumeau numérique TRC se concentre sur la corrélation. Quelles preuves spécifiques ou quels résultats préliminaires suggèrent que l'erreur *dynamique* d'estimation d'état (que l'EnKF minimise) est le facteur limitant pour la prédiction de la microstructure, par opposition à l'erreur *statique* de structure du modèle ?"
         ],
-        "recommendation": "This is a promising and intellectually rigorous hypothesis that merits investigation. I recommend proceeding with a phased approach: first, a detailed observability and identifiability analysis of the proposed sensor suite with the high-fidelity model; second, an 'offline' EnKF study using high-quality experimental data from an instrumented pilot TRC line to quantify the actual reduction in state estimation error before claiming microstructure prediction capability. The novelty lies in the specific transfer of aerospace-grade estimation techniques, and this should be the focus.",
-        "confidence": 0.82
+        "recommendation": "Il s'agit d'une hypothèse prometteuse et intellectuellement rigoureuse qui mérite d'être étudiée. Je recommande de procéder selon une approche par phases : premièrement, une analyse détaillée de l'observabilité et de l'identifiabilité de la suite de capteurs proposée avec le modèle haute fidélité ; deuxièmement, une étude EnKF « hors ligne » utilisant des données expérimentales de haute qualité issues d'une ligne pilote TRC instrumentée afin de quantifier la réduction réelle de l'erreur d'estimation d'état avant de revendiquer une capacité de prédiction de la microstructure. La nouveauté réside dans le transfert spécifique de techniques d'estimation de qualité aérospatiale, et c'est sur cela que devrait porter l'attention."
       },
       {
         "reviewer_persona": "contrarian",
         "overall_score": 4.5,
         "verdict": "weak_reject",
+        "confidence": 0.85,
         "strengths": [
-          "The hypothesis correctly identifies the Ensemble Kalman Filter (EnKF) as a theoretically suitable tool for non-linear, transient state estimation, and its prior success in controlled aerospace environments provides a plausible starting point.",
-          "The proposed validation method (quench-interruption) for the core prediction is direct and physically grounded, moving beyond purely digital validation."
+          "L'hypothèse identifie correctement le filtre de Kalman d'ensemble (EnKF) comme un outil théoriquement adapté à l'estimation d'état non linéaire et transitoire, et son succès antérieur dans des environnements aérospatiaux contrôlés constitue un point de départ plausible.",
+          "La méthode de validation proposée (interruption par trempe) pour la prédiction centrale est directe et physiquement fondée, dépassant le cadre d'une validation purement numérique."
         ],
         "weaknesses": [
-          "FAIL REASON #1: The 'sufficient fidelity' assumption for the multi-physics model is likely fatally flawed. Twin-roll casting involves extreme, coupled phenomena—turbulent free-surface flow with solidification, dynamic interfacial contact/heat transfer, and viscoplastic deformation—that are notoriously difficult to model even offline. The structural model error will likely be so large and non-Gaussian that the EnKF's capacity to 'handle' model error is overwhelmed, leading to filter divergence or physically meaningless state estimates.",
-          "FAIL REASON #2: The sensor data available for assimilation is critically insufficient to constrain the high-dimensional internal state. Surface temperature and separating force are integral, low-bandwidth outputs that are non-uniquely related to the internal solidification front. This is a severe observability problem. The EnKF cannot magically create information about internal thermal gradients from these few, indirect, and noisy measurements.",
-          "FAIL REASON #3: The validation premise itself is unstable. The 'ground truth' from quench-interruption experiments is not a direct, synchronous measurement of the process state. The quench event itself perturbs the thermal and solidification history. The RMSE ≤15% target is arbitrary and likely unachievable given the compounded uncertainties in the model, the sensors, and the validation method."
+          "FAIL REASON #1: Le postulat de « fidélité suffisante » pour le modèle multi-physique est probablement entaché d'un vice rédhibitoire. La coulée entre cylindres implique des phénomènes extrêmes et couplés — écoulement turbulent à surface libre avec solidification, contact interfacial dynamique et transfert thermique, et déformation viscoplastique — notoirement difficiles à modéliser même hors ligne. L'erreur du modèle structurel sera probablement si grande et non gaussienne que la capacité de l'EnKF à « gérer » l'erreur de modèle sera submergée, conduisant à une divergence du filtre ou à des estimations d'état physiquement dépourvues de sens.",
+          "FAIL REASON #2: Les données de capteurs disponibles pour l'assimilation sont d'une insuffisance critique pour contraindre l'état interne de haute dimension. La température de surface et la force de séparation sont des sorties intégrales à faible bande passante, liées de manière non univoque au front de solidification interne. Il s'agit d'un problème d'observabilité sévère. L'EnKF ne peut pas créer par magie de l'information sur les gradients thermiques internes à partir de ces quelques mesures indirectes et bruitées.",
+          "FAIL REASON #3: Le postulat de validation lui-même est instable. La « vérité terrain » issue des expériences d'interruption par trempe n'est pas une mesure directe et synchrone de l'état du procédé. L'événement de trempe lui-même perturbe l'histoire thermique et de solidification. La cible de RMSE ≤15 % est arbitraire et probablement inatteignable compte tenu des incertitudes composées dans le modèle, les capteurs et la méthode de validation."
         ],
         "critical_questions": [
-          "Given the known orders-of-magnitude uncertainty in the interfacial heat transfer coefficient (IHTC) in rolling/solidification contacts—which is highly dynamic and pressure-dependent—what specific evidence do you have that the EnKF's covariance inflation can compensate for this, rather than merely producing a precise but inaccurate estimate of a wrong state?",
-          "The hypothesis assumes the causal chain from macroscale parameters to grain size is dominant (≥40% variance explained). What if the dominant noise source is micro-scale (e.g., inoculant particle distribution, oxide bi-films) or comes from upstream melt conditioning? Wouldn't this render the entire digital twin, however accurate for thermal fields, irrelevant for the stated microstructure goal?"
+          "Compte tenu de l'incertitude connue de plusieurs ordres de grandeur sur le coefficient de transfert thermique interfacial (IHTC) dans les contacts de laminage/solidification — hautement dynamique et dépendant de la pression — de quelles preuves spécifiques disposez-vous que l'inflation de covariance de l'EnKF peut compenser cela, plutôt que de produire simplement une estimation précise mais inexacte d'un état erroné ?",
+          "L'hypothèse postule que la chaîne causale allant des paramètres macroscopiques à la taille de grain est dominante (≥40 % de variance expliquée). Et si la source de bruit dominante était à l'échelle microscopique (par exemple, la distribution des particules d'inoculant, les bi-films d'oxyde) ou provenait de la préparation du bain en amont ? Cela ne rendrait-il pas l'ensemble du jumeau numérique, aussi précis soit-il pour les champs thermiques, non pertinent pour l'objectif de microstructure énoncé ?"
         ],
-        "recommendation": "Before testing the full hypothesis, demonstrate that a high-fidelity, standalone (no EnKF) CFD-thermodynamics model of the TRC process can predict the mushy zone profile within 25% RMSE against quench data across multiple operating points. Then, perform an observability analysis using the proposed sensor suite to prove that the internal thermal state is theoretically recoverable. Without these foundational results, the EnKF integration is a solution in search of a solvable problem.",
-        "confidence": 0.85
+        "recommendation": "Avant de tester l'hypothèse complète, démontrer qu'un modèle CFD-thermodynamique autonome (sans EnKF) à haute fidélité du procédé TRC peut prédire le profil de la zone pâteuse avec un RMSE inférieur à 25 % par rapport aux données de trempe sur plusieurs points de fonctionnement. Ensuite, réaliser une analyse d'observabilité à l'aide de la suite de capteurs proposée pour prouver que l'état thermique interne est théoriquement récupérable. Sans ces résultats fondamentaux, l'intégration de l'EnKF est une solution en quête d'un problème soluble."
       },
       {
         "reviewer_persona": "industrialist",
@@ -723,16 +723,185 @@
     }
   },
   "vulgarization_fr": {
-    "title_fr": "L'ADN d'un métal en fusion : peut-on prédire sa structure en le coulant ?",
-    "hypothesis_in_brief": "Lors du coulage d'un métal entre deux rouleaux froids (coulée en bande), la structure finale du métal solide dépend de la manière dont il se solidifie. Cette hypothèse propose d'utiliser un « jumeau numérique » — une simulation ultra-précise du processus — couplé à un algorithme de filtrage (le Filtre de Kalman d'Ensemble, ou EnKF) capable d'absorber en temps réel les données de capteurs (température, force). L'idée est de déduire, à partir de ces mesures indirectes, l'état exact de la zone de solidification à l'intérieur du métal, là où on ne peut pas mettre de sonde.",
-    "why_it_matters": "Dans l'industrie, contrôler la microstructure d'un métal (la taille et la forme de ses grains) est crucial pour ses propriétés mécaniques : résistance, ductilité, légèreté. Actuellement, on ne peut vérifier cette microstructure qu'après coulage, en découpant un échantillon. Cela coûte cher et ne permet pas de corriger le tir en cours de production. Si cette approche fonctionnait, elle permettrait de prédire et d'ajuster en direct la qualité du métal, réduisant les rebuts et ouvrant la voie à des alliages sur-mesure pour l'aéronautique ou l'automobile.",
-    "imagine_that": "Imaginez que vous cuisiniez une crème brûlée dans un four opaque. Vous ne pouvez pas voir si la crème a bien pris au centre, mais vous mesurez la température de la paroi du plat et le temps écoulé. Un pâtissier expérimenté peut, avec ces seules infos, deviner l'état de la crème. Ici, le jumeau numérique est ce pâtissier, et le Filtre de Kalman est son cerveau : il combine les mesures imparfaites (température, force) avec sa connaissance de la physique de la cuisson pour estimer, en temps réel, la texture exacte au cœur du moule.",
+    "title_fr": "Un jumeau numérique piloté par un filtre aérospatial pour voir l'intérieur des bandes coulées",
+    "hypothesis_in_brief": "La coulée entre cylindres produit des bandes métalliques en quelques secondes, mais l'intérieur du métal en train de se solidifier reste invisible. Cette hypothèse propose d'estimer cet état interne en temps réel en combinant un modèle physique détaillé du procédé et un filtre mathématique conçu à l'origine pour piloter des moteurs de fusée. L'objectif est de prédire l'épaisseur de la zone pâteuse et la vitesse de refroidissement avec une erreur inférieure à 15 % par rapport à des mesures directes.",
+    "why_it_matters": "Dans la production de bandes d'aluminium ou de magnésium, la taille des grains formés pendant la solidification détermine la résistance et la ductilité du produit final. Aujourd'hui, cette taille de grains n'est connue qu'après coup, par analyse métallographique en laboratoire, quand la bande est déjà fabriquée. Estimer en direct les conditions de solidification permettrait d'ajuster la vitesse de coulée, l'écartement des cylindres ou la surchauffe du métal pour viser une microstructure cible, et de réduire les rebuts. Cela concerne les producteurs de bandes laminées et les fabricants d'équipements de coulée continue.",
+    "imagine_that": "Imaginez un boulanger qui enfourne des centaines de pains par jour sans jamais pouvoir ouvrir le four. Il règle la température et le temps selon son expérience, mais il ne sait si la mie est bien alvéolée qu'en coupant un pain après cuisson. Maintenant, imaginez qu'il dispose d'un thermomètre à pâte planté dans chaque four et d'un modèle mathématique qui, à partir de la température en surface et de la résistance de la pâte, reconstitue en direct l'état de la mie à cœur. C'est exactement ce que cette hypothèse tente de faire pour le métal en fusion entre les cylindres.",
     "concretely": {
-      "intro": "Pour tester cette hypothèse, un protocole en trois phases a été conçu, allant de la simulation pure à une validation industrielle.",
-      "phase1": "D'abord, tout se passe sur ordinateur : on crée un modèle simplifié de la coulée et on y injecte du bruit artificiel. On vérifie si le filtre parvient à estimer l'épaisseur de la zone pâteuse avec une erreur inférieure à 15%.",
-      "phase2": "Ensuite, on réalise une seule coulée pilote instrumentée. On arrête brutalement le processus en projetant de l'eau (trempe) pour figer l'état interne du métal. On compare alors la prédiction du jumeau numérique avec la mesure réelle sur l'échantillon.",
-      "phase3": "Enfin, on répète l'expérience pour une vingtaine de conditions de coulée différentes (vitesse, écartement des rouleaux, température). On analyse statistiquement si les réglages macroscopiques expliquent au moins 40% de la variation de la taille des grains obtenue."
+      "intro": "L'approche se teste en trois étapes, de la simulation pure jusqu'à la validation sur une ligne pilote instrumentée.",
+      "phase1": "Un modèle informatique du procédé est construit et couplé au filtre mathématique. On vérifie, en simulant du bruit de capteurs et des erreurs de modèle, si l'erreur d'estimation reste sous les 15 %.",
+      "phase2": "Une seule expérience sur une ligne pilote, avec des capteurs de température et de force, permet de comparer une estimation à une mesure directe obtenue en interrompant brutalement la solidification par trempe.",
+      "phase3": "Un plan d'expériences balaie plusieurs vitesses de coulée, écartements, surchauffes et refroidissements pour vérifier que les quatre paramètres principaux expliquent au moins 40 % de la variance observée sur la taille des grains."
     },
-    "reviewers_say": "Le panel de relecteurs est partagé mais valide la publication du brief. Le protocole en trois phases est salué comme un modèle de rigueur : il permet de tester le concept à moindre coût avant de s'engager dans des expériences lourdes. L'idée de transférer un algorithme utilisé pour stabiliser les moteurs de fusée vers la métallurgie est jugée originale et prometteuse. Cependant, un relecteur sceptique (le « contrarian ») pointe deux failles majeures : le modèle physique de la coulée est si complexe qu'il risque d'être trop imprécis, et les seules mesures disponibles (température de surface, force) ne suffisent peut-être pas à déduire l'état interne. Le verdict final est un « oui, mais » : l'hypothèse mérite d'être explorée, à condition que la première phase de simulation démontre que le filtre peut surmonter ces difficultés."
+    "reviewers_say": "Le panel reconnaît une hypothèse théoriquement cohérente et un transfert de technologie original, de l'aérospatial vers la métallurgie. Le protocole en trois phases, avec des critères d'arrêt clairs, est jugé rigoureux et reproductible. Les réserves portent sur deux points : la capacité du modèle physique à atteindre une fidélité suffisante pour capturer les phénomènes couplés dans l'entrefer, et l'observabilité de l'état interne à partir de capteurs de surface peu nombreux et bruités. Un reviewer conteste même la faisabilité fondamentale, évoquant un risque de divergence du filtre. Le verdict global est de publier le brief, mais en conditionnant la suite à la réussite de la Phase 1, qui doit démontrer que le modèle seul prédit correctement l'état interne avant d'y ajouter le filtre."
+  },
+  "vulgarization_en": {
+    "title": "An aerospace filter-driven digital twin for seeing inside casting strips",
+    "hypothesis_in_brief": "Twin-roll casting produces metal strip in a matter of seconds, yet the interior of the solidifying metal remains invisible. This hypothesis proposes to estimate that internal state in real time by combining a detailed physical model of the process with a mathematical filter originally designed to steer rocket engines. The objective is to predict the thickness of the mushy zone and the cooling rate with an error below 15 % relative to direct measurements.",
+    "why_it_matters": "In the production of aluminium or magnesium strip, the grain size formed during solidification determines the strength and ductility of the final product. At present, this grain size is known only after the fact, through metallographic analysis in the laboratory, once the strip has already been manufactured. Estimating solidification conditions in real time would allow the casting speed, roll gap or metal superheat to be adjusted towards a target microstructure, and would reduce scrap. This concerns producers of rolled strip and manufacturers of continuous casting equipment.",
+    "imagine_that": "Imagine a baker who loads hundreds of loaves a day into the oven without ever being able to open it. He sets the temperature and the time from experience, but he only knows whether the crumb is well aerated by cutting a loaf after baking. Now imagine he has a dough thermometer inserted into each oven and a mathematical model that, from the surface temperature and the resistance of the dough, reconstructs the state of the crumb at the core in real time. This is exactly what this hypothesis attempts to do for molten metal between the rolls.",
+    "reviewers_say": "The panel recognises a theoretically coherent hypothesis and an original technology transfer, from aerospace to metallurgy. The three-phase protocol, with clear stop criteria, is judged rigorous and reproducible. Reservations concern two points: the capacity of the physical model to reach sufficient fidelity to capture the coupled phenomena in the air gap, and the observability of the internal state from few and noisy surface sensors. One reviewer even contests the fundamental feasibility, evoking a risk of filter divergence. The overall verdict is to publish the brief, but conditioning the continuation on the success of Phase 1, which must demonstrate that the model alone correctly predicts the internal state before adding the filter.",
+    "concretely": {
+      "intro": "The approach is tested in three stages, from pure simulation through to validation on an instrumented pilot line.",
+      "phase1": "A computational model of the process is constructed and coupled to the mathematical filter. By simulating sensor noise and model errors, it is verified whether the estimation error remains below 15%.",
+      "phase2": "A single experiment on a pilot line, with temperature and force sensors, allows an estimate to be compared against a direct measurement obtained by abruptly interrupting solidification through quenching.",
+      "phase3": "An experimental design sweeps several casting speeds, spacings, superheats and cooling rates to verify that the four principal parameters account for at least 40% of the variance observed in grain size."
+    }
+  },
+  "panel_en": {
+    "reviews": [
+      {
+        "reviewer_persona": "methodologist",
+        "overall_score": 8.2,
+        "verdict": "accept",
+        "confidence": 0.9,
+        "strengths": [
+          "The three-phase protocol (in silico, minimal validation, full validation) is a model of progressive rigour. It enables conceptual failures to be detected at low cost before substantial experimental resources are committed, in keeping with the principle of parsimony.",
+          "The a priori identification and quantification of success criteria (GO/NO-GO/PIVOT) for each phase are exceptionally clear. This structures the approach, limits confirmation bias by defining objective stopping points, and improves reproducibility.",
+          "The strategy for addressing internal validity is robust: the use of twin experiments in Phase 1, a single ground truth point in Phase 2 (quench), and a factorial experimental design with centre points in Phase 3. Quench-interruption control is the appropriate baseline method for the key dependent variable."
+        ],
+        "weaknesses": [
+          "The statistical power of Phase 3 is not calculated. The claim of '~20–30 trials' for a 4-factor factorial design with interactions and centre points is vague. Without a prior power analysis based on an expected effect size, an underpowered ANOVA is risked (Type II error), compromising the validation of prediction 3 (R² ≥ 0.40).",
+          "The risk of measurement bias for the key variable (paste zone thickness) is underestimated. The operational definition ('distance between solid fraction isotherms of 0.2 and 0.8') depends strongly on the metallographic preparation protocol (etching agent, contrast) and on the image segmentation algorithm. No inter-operator calibration protocol or analyst blinding is mentioned.",
+          "Phase 2 (minimal validation) presents a high risk of overinterpretation owing to an N=1. A single validation point, even with good agreement, does not permit the performance to be extrapolated to the entire operating window. The GO/NO-GO criterion based on a single measurement is too permissive; an error ≤15% could be due to chance."
+        ],
+        "critical_questions": [
+          "For Phase 3, what is the sample size calculation (number of trials) based on: a minimum detectable effect size for R², a target statistical power (e.g., 0.8), and an alpha of 0.05? Is a fractional design of resolution IV or V sufficient to estimate the main effects without confounding with two-order interactions?",
+          "How is the measurement uncertainty on the ground truth derived from the quench to be controlled and quantified? Are a blinded measurement protocol (the analyst being unaware of the value estimated by the EnKF) and repeated measurements by several operators planned, in order to establish a confidence interval around the experimental measurement against which the error ≤15% will be compared?",
+          "Is selection bias addressed for the quench trials in Phase 3 ('a subset of 5-8 trials')? Will the selection of this subset be random or stratified to cover the parameter space? A systematic bias (e.g., performing the quench only on the most stable trials) would invalidate the statistical inference on the RMSE."
+        ],
+        "recommendation": "Approve the protocol with mandatory modifications before Phase 3. Require: 1) a formal statistical power calculation and a definitive experimental design (e.g., Box-Behnken design or resolution V fractional factorial) for Phase 3; 2) the addition of a standardised metallography protocol with inter-operator validation for measurement of the mushy zone thickness; 3) modification of the Phase 2 criterion to include at least 3 replicates at the nominal point in order to estimate experimental variability. The fundamental structure is excellent but requires this quantitative strengthening."
+      },
+      {
+        "reviewer_persona": "domain_expert",
+        "overall_score": 7.8,
+        "verdict": "accept",
+        "confidence": 0.82,
+        "strengths": [
+          "The hypothesis is theoretically coherent and well structured. The causal chain from data assimilation to microstructure prediction follows a logical, physics-based progression that aligns with solidification theory (G*R → nucleation/growth → grain structure).",
+          "The positioning is judicious. Exploiting the proven robustness of the ensemble Kalman filter in highly non-linear and transient aerospace systems (such as liquid-propellant rocket engines) to address the \"black box\" constituted by the gap between rolls in roll casting is a convincing and novel conceptual transfer. The evidence base correctly identifies the supporting literature, both direct and analogous.",
+          "The explicit recognition of \"known unknowns\" (actuator dynamics, stochastic nucleation, covariance inflation) demonstrates a thorough understanding of the practical challenges of moving from theory to application, which strengthens the credibility of the proposal."
+        ],
+        "weaknesses": [
+          "The central postulate concerning the \"sufficient fidelity\" of the multi-physics model constitutes a major obstacle. Capturing first-order effects on the microstructure in the TRC requires exceptionally accurate modelling of the interfacial heat transfer coefficient (IHTC) and of the strain in the mushy zone, which are notoriously difficult to characterise and highly dynamic. The robustness of the EnKF in the face of \"moderate structural errors\" in these terms is optimistic and requires rigorous demonstration.",
+          "The validation postulate is a critical element of the pathway. Obtaining experimental access to internal state variables (for example, the mushy zone profile) by rapid quenching for a high-speed process such as the TRC is extremely difficult and may not provide the spatially and temporally dense data required for robust validation of the RMSE against the digital twin's full-field estimates.",
+          "The hypothesis implicitly assumes observability. The proposed assimilation of the roll surface temperature and of the separating force may not provide sufficient information to estimate the internal thermal and solidification fields uniquely (for example, to dissociate G and R independently). This is a fundamental concern of control theory that is not addressed in the mechanism."
+        ],
+        "critical_questions": [
+          "Given that the dominant uncertainty in TRC models arises from the boundary condition (IHTC) rather than from the initial conditions, how would the EnKF be specifically configured (for example, state augmentation for parameter estimation) so as to estimate simultaneously both the internal thermal state *and* this critical spatially varying parameter?",
+          "The RMSE target of ≤15 % is relative to which experimental measurement? If it concerns a point measurement (for example, a thermocouple at a single location), it may be attainable. If it concerns a field measurement (for example, the full profile of the mushy-zone thickness), it constitutes an exceptionally ambitious target given the difficulties of validation. Can the validation metric and the baseline method be defined with greater precision?",
+          "The cited 2024 paper on the TRC digital twin focuses on correlation. What specific evidence or preliminary results suggest that the *dynamic* state-estimation error (which the EnKF minimises) is the limiting factor for microstructure prediction, as opposed to the *static* model-structure error?"
+        ],
+        "recommendation": "This is a promising and intellectually rigorous hypothesis that merits investigation. A phased approach is recommended: first, a detailed analysis of the observability and identifiability of the proposed sensor suite with the high-fidelity model; second, an \"offline\" EnKF study using high-quality experimental data from an instrumented TRC pilot line in order to quantify the actual reduction in state-estimation error before any claim of microstructure-prediction capability is made. The novelty lies in the specific transfer of aerospace-grade estimation techniques, and it is on this that attention should be focused."
+      },
+      {
+        "reviewer_persona": "contrarian",
+        "overall_score": 4.5,
+        "verdict": "weak_reject",
+        "confidence": 0.85,
+        "strengths": [
+          "The hypothesis correctly identifies the ensemble Kalman filter (EnKF) as a tool theoretically suited to non-linear and transient state estimation, and its prior success in controlled aerospace environments constitutes a plausible starting point.",
+          "The proposed validation method (quench interruption) for the central prediction is direct and physically grounded, exceeding the scope of a purely numerical validation."
+        ],
+        "weaknesses": [
+          "FAIL REASON #1: The assumption of \"sufficient fidelity\" for the multi-physics model is probably vitiated by a fatal flaw. The casting between rolls involves extreme and coupled phenomena — turbulent free-surface flow with solidification, dynamic interfacial contact and heat transfer, and viscoplastic deformation — which are notoriously difficult to model even offline. The structural model error will probably be so large and non-Gaussian that the capacity of the EnKF to \"handle\" model error will be overwhelmed, leading to filter divergence or to physically meaningless state estimates.",
+          "FAIL REASON #2: The sensor data available for assimilation are critically insufficient to constrain the high-dimensional internal state. Surface temperature and separation force are low-bandwidth integral outputs, related non-uniquely to the internal solidification front. This is a severe observability problem. The EnKF cannot magically create information about internal thermal gradients from these few indirect and noisy measurements.",
+          "FAIL REASON #3: The validation assumption itself is unsound. The \"ground truth\" derived from quench-interruption experiments is not a direct and synchronous measurement of the process state. The quench event itself perturbs the thermal and solidification history. The RMSE target of ≤15 % is arbitrary and probably unattainable given the compounded uncertainties in the model, the sensors and the validation method."
+        ],
+        "critical_questions": [
+          "Given the known uncertainty of several orders of magnitude in the interfacial heat transfer coefficient (IHTC) at rolling/solidification contacts — highly dynamic and pressure-dependent — what specific evidence is available that covariance inflation in the EnKF can compensate for this, rather than merely producing a precise but inaccurate estimate of an erroneous state?",
+          "The hypothesis posits that the causal chain from macroscopic parameters to grain size is dominant (≥40% of variance explained). What if the dominant noise source is at the microscopic scale (for example, the distribution of inoculant particles, oxide bi-films) or originates from upstream melt preparation? Would this not render the entire digital twin, however accurate for thermal fields, irrelevant to the stated microstructural objective?"
+        ],
+        "recommendation": "Before testing the full hypothesis, it must be demonstrated that a standalone high-fidelity CFD-thermodynamic model (without EnKF) of the TRC process can predict the mushy-zone profile with an RMSE below 25 % relative to quench data across several operating points. An observability analysis must then be performed using the proposed sensor suite to establish that the internal thermal state is theoretically recoverable. Without these foundational results, the integration of the EnKF is a solution in search of a tractable problem."
+      },
+      {
+        "reviewer_persona": "industrialist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "confidence": 0.75,
+        "strengths": [
+          "Addresses a critical need of the light-metals industry (Al, Mg) for in-line microstructure control, with an immediate addressable market among hot-rolled strip producers such as Novelis, Constellium and Hydro, and among foundry equipment manufacturers (Danieli, SMS group).",
+          "Potentially disruptive competitive advantage: a shift from retrospective control (post-mortem metallography) to predictive, real-time control of solidification, enabling dynamic adjustment towards target mechanical properties and a reduction in scrap."
+        ],
+        "weaknesses": [
+          "A major barrier to deployment: integration into existing industrial lines requires robust in-situ sensors (thermography, ultrasound) in a hostile environment (high temperature, mechanical stress), together with a non-trivial real-time computing infrastructure.",
+          "The business model is unclear: software licence sales (heavy CAPEX) versus an optimisation service (subscription)? The value perceived by the operator must outweigh the cost and complexity of implementation."
+        ],
+        "critical_questions": [
+          "What is the intellectual property strategy? Does the core value reside in the EnKF algorithm (difficult to patent on its own) or in the specific coupling with the multi-physics model and the proprietary calibration data? Is an approach based on trade secret protection of the calibrated models more viable?",
+          "What is the concrete ROI for a client? Can the reduction in scrap (%), the energy savings (via an optimised superheat), or the gain in market share on high-value-added alloys (e.g. aluminium alloys for batteries) be quantified to justify an investment >€500k?"
+        ],
+        "recommendation": "Launch Phase 1 (minimal budget) to validate the principle in silico and refine the value proposition. In parallel, initiate exploratory non-disclosing discussions with a pilot industrial partner (e.g. an applied research institute such as the Institut de Recherche Technologique Jules Verne or an advanced metallurgist) to co-define the sensor specifications and the priority use case, a sine qua non condition for progression to Phases 2 and 3."
+      },
+      {
+        "reviewer_persona": "funding_strategist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "confidence": 0.8,
+        "funding_programs": [
+          {
+            "program": "ERC Proof of Concept Grant",
+            "agency": "European Research Council",
+            "fit_score": 0.7,
+            "typical_budget": "€150,000",
+            "success_rate": "~35-40%",
+            "next_deadline": "16 octobre 2024 (prochaine fenêtre prévue)",
+            "rationale": "Ce programme est idéal si le PI détient déjà un ERC (Starting/Consolidator/Advanced) sur des sujets liés (data assimilation, modélisation multi-physique). Il permet de financer l'exploration du potentiel d'innovation et de transfert de la recherche fondamentale, correspondant parfaitement au budget et à la timeline des Phases 1 et 2. Il valide la faisabilité avant un projet plus large."
+          },
+          {
+            "program": "M-ERA.NET 3 Call 2024 (Thème 1 : Modeling for manufacturing)",
+            "agency": "M-ERA.NET (Réseau d'agences nationales et européennes)",
+            "fit_score": 0.85,
+            "typical_budget": "€300k - €800k par partenaire (projet total ~€1-2M)",
+            "success_rate": "~15-20%",
+            "next_deadline": "Novembre 2024 (pour pré-propositions)",
+            "rationale": "Appel transnational parfaitement aligné sur le développement de modèles numériques pour les procédés de fabrication. L'hypothèse sur le jumeau numérique avec assimilation de données pour le coulage est un cas d'école. Nécessite un consortium d'au moins 3 entités issues de 3 pays participants. L'ANR est partenaire pour les équipes françaises."
+          },
+          {
+            "program": "Horizon Europe - Cluster 4 'Digital, Industry and Space' - Destination 7 : Innovative Digital Technologies for Manufacturing (DIGITAL-2024-CLOUD-AI-07)",
+            "agency": "European Commission",
+            "fit_score": 0.9,
+            "typical_budget": "€3M - €5M par projet",
+            "success_rate": "~5-10%",
+            "next_deadline": "20 novembre 2024 (pour le topic 7.1 : AI-powered modelling and prediction)",
+            "rationale": "Le topic spécifique 'AI-powered modelling and prediction for manufacturing processes' vise exactement ce type d'innovation : utiliser l'IA/le data assimilation pour créer des jumeaux numériques prédictifs et réduire l'écart modèle-réalité. Le projet doit démontrer un impact industriel significatif, nécessitant un consortium fort incluant un équipementier métallurgique (ex: Primetals, Danieli) et un producteur d'aluminium (ex: Constellium, Hydro)."
+          }
+        ],
+        "strengths": [
+          "The hypothesis is very well formulated, with a clear and realistic incremental validation protocol, demonstrating a refined understanding of the technology readiness level (TRL) maturation stages.",
+          "An original technology-transfer approach (aerospace to manufacturing) with potentially disruptive implications for the control of complex metallurgical processes."
+        ],
+        "weaknesses": [
+          "The proposed budget and timeline (€25k–120k, 8–14 months) are atypical and do not correspond to the standards of major European programmes, indicating a very low initial TRL (TRL 2–3).",
+          "The consortium is currently implicit or single-partner. Targeted calls require a multi-stakeholder consortium (industry, academic, multiple countries) to be competitive."
+        ],
+        "critical_questions": [
+          "What is the strategy for constituting a consortium that includes an industrial partner owning a pilot or industrial TRC line, essential for the credibility of Phases 2 and 3?",
+          "How is the scale-up between validation on a simplified model (Phase 1) and application to a physical pilot-scale process, with all its unmodelled uncertainties, to be justified?"
+        ],
+        "recommendation": "A 'Proof of Concept' or 'Seed' funding type is to be targeted first in order to execute Phase 1 and refine the hypothesis. In parallel, an academic-industrial consortium is to be structured with a view to a collaborative EU call on the digitalisation of industrial processes, presenting the preliminary results as a major asset."
+      }
+    ],
+    "meta_review": {
+      "consensus_score": 6.72,
+      "verdict": "publish_brief",
+      "brief_quality_gate": true,
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 6.7,
+      "key_consensus": [
+        "The three-phase protocol is recognised as a rigorous and progressive methodological structure, representing a model of incremental validation.",
+        "The hypothesis is judged to be theoretically coherent and presents an original and promising approach to technology transfer (aerospace to metallurgy).",
+        "The need for quantitative strengthening of the protocol, notably regarding the statistical power of Phase 3 and the robustness of the experimental measurements, is a point of unanimous agreement.",
+        "The crucial importance of partnering with an industrial partner possessing a pilot line for the experimental validation phases is emphasised by several experts."
+      ],
+      "key_disagreements": [
+        "The fundamental feasibility of the hypothesis is contested. The Contrarian and the Domain Expert strongly doubt the capacity of the multi-physics model to achieve sufficient fidelity and the observability of the internal state with the proposed sensors, whereas the Methodologist and the others accept the principle subject to technical improvements.",
+        "The assessment of risk differs radically: the Contrarian identifies potentially fatal \"reasons for failure\" (structural model error, observability), whereas the other reviewers regard these challenges as technical obstacles to be overcome within the framework of a phased approach.",
+        "The ambition of the validation criterion (RMSE ≤15%) is perceived either as an ambitious but achievable objective with a robust protocol (Domain Expert, Methodologist), or as arbitrary and probably unattainable given the cumulative uncertainties (Contrarian)."
+      ],
+      "revision_guidance": [],
+      "critical_path": "The prior demonstration, in Phase 1, that the standalone numerical model can predict the mushy zone profile with a reasonable error (<25% RMSE) against quench data, coupled with a rigorous analysis of the observability of the system with the proposed sensor suite. Without this foundational validation, the integration of the EnKF risks being a \"technological solutionism\" applied to a poorly constrained problem.",
+      "final_recommendation": "The panel recommends publication of the brief, recognising the intellectual merit and potential of the hypothesis, but with substantial reservations. Continuation of the project is conditional upon strict execution of Phase 1, which must serve as a decisive test of the fundamental premises (model fidelity and observability). Subsequent phases will be required to incorporate methodological robustness requirements (power analysis, standardised measurement protocol) and to rely on a consortium including a pilot industrial partner. The emphasis must remain on incremental validation and quantification of uncertainties at each stage."
+    }
   }
 }

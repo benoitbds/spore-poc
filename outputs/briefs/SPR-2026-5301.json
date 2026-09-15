@@ -504,42 +504,42 @@
         "reviewer_persona": "domain_expert",
         "overall_score": 8.0,
         "verdict": "accept",
+        "confidence": 0.9,
         "strengths": [
-          "The hypothesis is theoretically sound and well-grounded in core CRE principles. It correctly identifies the LVRPA as the fundamental engineering variable in photochemical reactors, analogous to concentration in thermal reactors, and proposes its active spatial/temporal engineering. This is a sophisticated and correct application of the PFR/CSTR design philosophy to photochemistry.",
-          "The proposed causal mechanism is chemically plausible. The logic of matching high LVRPA to high ground-state concentration to suppress secondary photoreactions of the primary product is consistent with established photochemical kinetics (e.g., for consecutive photo-reactions A → B → C). This directly addresses a common selectivity issue in photochemical scale-up where uniform illumination often leads to over-irradiation of products.",
-          "The positioning against the state-of-the-art is accurate. The novelty assessment correctly identifies that while light intensity has been used as a control variable (e.g., in photobioreactors), the explicit, systematic engineering of the *spatial photon flux distribution* within a continuous flow reactor to optimize quantum yield and selectivity, framed through rigorous CRE analogies, represents a significant and logical advancement."
+          "L'hypothèse est théoriquement solide et bien ancrée dans les principes fondamentaux du CRE. Elle identifie correctement la LVRPA comme la variable d'ingénierie fondamentale dans les réacteurs photochimiques, analogue à la concentration dans les réacteurs thermiques, et propose son ingénierie spatiale/temporelle active. Il s'agit d'une application sophistiquée et correcte de la philosophie de conception PFR/CSTR à la photochimie.",
+          "Le mécanisme causal proposé est chimiquement plausible. La logique consistant à faire correspondre une LVRPA élevée à une concentration élevée à l'état fondamental pour supprimer les photoréactions secondaires du produit primaire est cohérente avec la cinétique photochimique établie (par exemple, pour les photoréactions consécutives A → B → C). Cela répond directement à un problème de sélectivité courant dans le passage à l'échelle photochimique, où un éclairage uniforme conduit souvent à une sur-irradiation des produits.",
+          "Le positionnement par rapport à l'état de l'art est exact. L'évaluation de la nouveauté identifie correctement que, si l'intensité lumineuse a été utilisée comme variable de contrôle (par exemple, dans les photobioréacteurs), l'ingénierie explicite et systématique de la *distribution spatiale du flux photonique* au sein d'un réacteur à flux continu pour optimiser le rendement quantique et la sélectivité, formulée à travers des analogies rigoureuses avec le CRE, représente une avancée significative et logique."
         ],
         "weaknesses": [
-          "The evidence base, while supportive in spirit, is not directly from the field of synthetic photochemical reaction engineering. The key analogous paper (Deschênes & Wouwer, 2015) is from bioprocessing. The hypothesis would be significantly strengthened by citing foundational CRE-photochemistry works on LVRPA modeling (e.g., Cassano, Alfano, Cabrera et al.) and recent literature on spatially structured illumination in flow photoreactors (e.g., using LED arrays, patterned reactors, or light guides).",
-          "The hypothesis makes a strong assumption that the system is limited by photochemical kinetics, not mass transfer. In practice, especially for fast photoreactions, mass transfer of reactants (e.g., gases like O2) or of the excited state itself (in the case of triplet-triplet annihilation or quenching) can become limiting. The proposed benefits may be diminished or require co-optimization with mixing intensity.",
-          "The quantitative targets (15-40% increase in Φ, 20-50% in selectivity) are stated but not rigorously justified by the cited evidence or a conceptual kinetic model. While the direction of improvement is clear, the magnitude is highly system-dependent and should be presented as a range to be validated, rather than a predicted outcome."
+          "La base de données probantes, bien qu'encourageante dans son esprit, ne provient pas directement du domaine de l'ingénierie des réactions photochimiques synthétiques. L'article analogue clé (Deschênes & Wouwer, 2015) relève du bioprocédé. L'hypothèse serait sensiblement renforcée par la citation de travaux fondamentaux à l'interface du génie des réactions chimiques et de la photochimie sur la modélisation de la LVRPA (par ex. Cassano, Alfano, Cabrera et al.) et de la littérature récente sur l'illumination spatialement structurée dans les photoréacteurs à flux (par ex. utilisation de matrices de LED, de réacteurs à motifs ou de guides de lumière).",
+          "L'hypothèse pose un postulat fort selon lequel le système est limité par la cinétique photochimique et non par le transfert de matière. En pratique, en particulier pour les photoréactions rapides, le transfert de matière des réactifs (par ex. des gaz comme O2) ou de l'état excité lui-même (dans le cas de l'annihilation triplet-triplet ou de la désactivation) peut devenir limitant. Les bénéfices proposés peuvent être diminués ou nécessiter une co-optimisation avec l'intensité du mélange.",
+          "Les cibles quantitatives (augmentation de 15-40 % du Φ, de 20-50 % de la sélectivité) sont énoncées mais ne sont pas rigoureusement justifiées par les données probantes citées ni par un modèle cinétique conceptuel. Si la direction de l'amélioration est claire, son amplitude dépend fortement du système et devrait être présentée comme une plage à valider, plutôt que comme un résultat prédit."
         ],
         "critical_questions": [
-          "For the proposed mechanism to be generalizable, how would you determine the *optimal* LVRPA profile a priori? Does this require full kinetic characterization (quantum yields, rate constants for primary and secondary photoreactions), or could it be discovered in real-time via a process control strategy (e.g., model predictive control using an in-situ spectroscopic probe)?",
-          "The hypothesis relies on accurate, spatially resolved LVRPA measurement via chemical actinometry. How do you propose to implement this in a practical, non-invasive manner within a continuous reactor without disrupting flow patterns or introducing contaminants? Would you use a separate, identical reactor train, or can the actinometer be co-flowed in a way that does not interfere with the main reaction?"
+          "Pour que le mécanisme proposé soit généralisable, comment détermineriez-vous a priori le profil de LVRPA *optimal* ? Cela nécessite-t-il une caractérisation cinétique complète (rendements quantiques, constantes de vitesse des photoréactions primaires et secondaires), ou pourrait-il être déterminé en temps réel via une stratégie de contrôle du procédé (par exemple, une commande prédictive par modèle utilisant une sonde spectroscopique in situ) ?",
+          "L'hypothèse repose sur une mesure précise et spatialement résolue de la LVRPA par actinométrie chimique. Comment proposez-vous de la mettre en œuvre de manière pratique et non invasive au sein d'un réacteur continu, sans perturber les régimes d'écoulement ni introduire de contaminants ? Utiliseriez-vous une ligne de réacteurs séparée et identique, ou l'actinomètre peut-il être co-circulé d'une manière qui n'interfère pas avec la réaction principale ?"
         ],
-        "recommendation": "This is a compelling and well-formulated hypothesis that bridges a critical gap between photochemical science and chemical engineering practice. I recommend proceeding with experimental validation using a well-characterized model photoreaction system exhibiting consecutive kinetics (e.g., a selective photo-oxidation or isomerization). The initial focus should be on demonstrating proof-of-concept with a static, spatially engineered light field (e.g., a graded-intensity LED panel over a tubular PFR) before exploring dynamic temporal control. A supporting mathematical model coupling radiation field equations with reaction kinetics would greatly strengthen the proposal.",
-        "confidence": 0.9
+        "recommendation": "Il s'agit d'une hypothèse convaincante et bien formulée, qui comble une lacune critique entre la science photochimique et la pratique du génie chimique. Je recommande de poursuivre par une validation expérimentale à l'aide d'un système de photoréaction modèle bien caractérisé présentant une cinétique consécutive (par exemple, une photo-oxydation ou une isomérisation sélective). L'effort initial devrait porter sur la démonstration d'une preuve de concept avec un champ lumineux statique et spatialement structuré (par exemple, un panel de LED à intensité graduée au-dessus d'un PFR tubulaire) avant d'explorer un contrôle temporel dynamique. Un modèle mathématique de soutien couplant les équations du champ de rayonnement à la cinétique réactionnelle renforcerait grandement la proposition."
       },
       {
         "reviewer_persona": "contrarian",
         "overall_score": 4.5,
         "verdict": "weak_reject",
+        "confidence": 0.85,
         "strengths": [
-          "The hypothesis is built on a sound chemical engineering principle: spatially matching a driving force (photon flux) to a kinetic profile (reactant concentration) to improve performance. This is analogous to optimizing temperature profiles in tubular reactors.",
-          "The proposed use of in-situ chemical actinometry in a segmented side-stream is a sophisticated and appropriate methodological choice to address the critical challenge of measuring LVRPA without interference."
+          "L'hypothèse repose sur un principe solide de génie chimique : apparier spatialement une force motrice (flux de photons) à un profil cinétique (concentration du réactif) afin d'améliorer la performance. Cela est analogue à l'optimisation des profils de température dans les réacteurs tubulaires.",
+          "Le recours proposé à l'actinométrie chimique in situ dans un courant latéral segmenté constitue un choix méthodologique sophistiqué et approprié pour répondre au défi critique de la mesure de la LVRPA sans interférence."
         ],
         "weaknesses": [
-          "FAIL REASON #1: The core assumption that secondary photoreactions are the dominant parasitic pathway is a critical vulnerability. The predicted 15-40% yield boost hinges on this. If the system is limited instead by thermal side reactions, quenching by solvent/impurities, or mass transfer limitations (e.g., of a quencher or co-reactant), engineering photon flux will have negligible or even detrimental effects. The hypothesis does not adequately rule these out.",
-          "FAIL REASON #2: The proposed model reactions (azobenzene isomerization, chalcone cycloaddition) are notoriously sensitive to local thermal effects from light absorption. A non-uniform photon flux will create a non-uniform temperature field, introducing a massive, unaddressed confounder. The observed effect could be due to an optimized thermal profile, not the LVRPA profile itself, rendering the causal chain unproven.",
-          "FAIL REASON #3: The predicted effect sizes (15-40% yield, 20-50% selectivity increase) are enormous for a single reactor engineering parameter. This suggests either an exceptionally poorly optimized baseline (making the finding less novel) or an overestimation of the leverage this parameter has. Such large effects are prone to be artifacts of specific, non-scalable reactor geometries or measurement artifacts in actinometry, leading to false positives."
+          "FAIL REASON #1: Le postulat central selon lequel les photoréactions secondaires constituent la voie parasite dominante représente une vulnérabilité critique. L'augmentation de rendement prédite de 15-40 % en dépend. Si le système est plutôt limité par des réactions secondaires thermiques, par l'extinction par le solvant ou les impuretés, ou par des limitations de transfert de masse (par exemple d'un extincteur ou d'un co-réactif), l'ingénierie du flux de photons aura des effets négligeables, voire préjudiciables. L'hypothèse ne permet pas d'exclure ces possibilités de manière adéquate.",
+          "FAIL REASON #2: Les réactions modèles proposées (isomérisation de l'azobenzène, cycloaddition de chalcone) sont notoirement sensibles aux effets thermiques locaux issus de l'absorption de la lumière. Un flux de photons non uniforme créera un champ de température non uniforme, introduisant un facteur de confusion massif et non traité. L'effet observé pourrait être dû à un profil thermique optimisé, et non au profil de LVRPA lui-même, rendant la chaîne causale non démontrée.",
+          "FAIL REASON #3: Les tailles d'effet prédites (rendement de 15-40 %, augmentation de la sélectivité de 20-50 %) sont énormes pour un seul paramètre d'ingénierie de réacteur. Cela suggère soit une référence exceptionnellement mal optimisée (ce qui rend le résultat moins novateur), soit une surestimation de l'influence de ce paramètre. Des effets aussi importants sont susceptibles d'être des artéfacts de géométries de réacteur spécifiques et non adaptées au passage à l'échelle, ou des artéfacts de mesure en actinométrie, conduisant à des faux positifs."
         ],
         "critical_questions": [
-          "How will you definitively decouple the effect of the engineered LVRPA profile from the concomitant engineered temperature profile? What controls (e.g., isothermal reactor jacket, low-concentration runs to minimize heating) will prove the photonic, not thermal, origin of any improvement?",
-          "Your kinetic assumption requires the primary product to be more photoactive than the reactant for secondary reactions to be significant. For your chosen model reactions, where is the quantitative spectroscopic and kinetic evidence (e.g., quantum yields for secondary photoreactions of the product) that this condition holds strongly enough to justify the predicted selectivity leaps?"
+          "Comment allez-vous découpler de manière définitive l'effet du profil de LVRPA modifié de celui du profil de température modifié concomitant ? Quels contrôles (par exemple, une chemise de réacteur isotherme, des essais à faible concentration pour minimiser l'échauffement) permettront de prouver l'origine photonique, et non thermique, de toute amélioration ?",
+          "Votre postulat cinétique exige que le produit primaire soit plus photoactif que le réactif pour que les réactions secondaires soient significatives. Pour les réactions modèles choisies, où se trouvent les preuves spectroscopiques et cinétiques quantitatives (par exemple, les rendements quantiques des photoréactions secondaires du produit) établissant que cette condition est suffisamment vérifiée pour justifier les sauts de sélectivité prédits ?"
         ],
-        "recommendation": "Before testing the full hypothesis, you must first publish a foundational study characterizing the *standalone* kinetics of the secondary photoreaction of your primary product under identical conditions. Then, design a control experiment using a non-photoactive product mimic to demonstrate that the observed benefits vanish when secondary photoreactions are impossible, isolating the proposed mechanism from thermal/fluid dynamic confounders.",
-        "confidence": 0.85
+        "recommendation": "Avant de tester l'hypothèse complète, vous devez d'abord publier une étude fondamentale caractérisant la cinétique *isolée* de la photoreaction secondaire de votre produit principal dans des conditions identiques. Ensuite, concevez une expérience de contrôle utilisant un mimétique de produit non photoactif pour démontrer que les bénéfices observés disparaissent lorsque les photoreactions secondaires sont impossibles, isolant ainsi le mécanisme proposé des facteurs de confusion thermiques et de dynamique des fluides."
       },
       {
         "reviewer_persona": "industrialist",
@@ -634,16 +634,186 @@
     }
   },
   "vulgarization_fr": {
-    "title_fr": "Éclairer une réaction chimique comme on dose l'arrosage d'un jardin",
-    "hypothesis_in_brief": "Dans un réacteur photochimique en continu, la lumière n'est pas répartie uniformément. Cette hypothèse propose de concevoir un éclairage dont l'intensité varie le long du réacteur : forte à l'entrée, plus faible à la sortie. L'idée est d'adapter la dose de photons à la concentration des molécules réactives, pour éviter de sur-éclairer le produit final et ainsi limiter les réactions parasites.",
-    "why_it_matters": "La synthèse de médicaments ou de matériaux par la lumière est prometteuse, mais son passage à l'échelle industrielle se heurte à un problème : un éclairage uniforme abîme souvent le produit final. En optimisant la distribution des photons, cette approche pourrait augmenter le rendement de la réaction de 15 à 40 % et améliorer sa sélectivité de 20 à 50 points de pourcentage. Cela réduirait le coût de production de molécules complexes, notamment dans l'industrie pharmaceutique.",
-    "imagine_that": "Imaginez que vous arrosiez un jardin avec un tuyau d'arrosage. Si vous ouvrez le robinet à fond et que vous arrosez uniformément toute la parcelle, les plantes en début de parcours reçoivent trop d'eau, tandis que celles en fin de parcours n'en ont pas assez. Pour un arrosage efficace, vous ajustez le débit : beaucoup d'eau là où les racines sont denses et avides, moins là où le sol est déjà saturé. Ici, c'est la lumière qui joue le rôle de l'eau, et les molécules réactives sont les plantes.",
+    "title_fr": "Éclairer un réacteur chimique comme on dose un éclairage de scène : la lumière non uniforme peut doubler l'efficacité",
+    "hypothesis_in_brief": "Dans un réacteur photochimique — un dispositif où la lumière déclenche une réaction chimique — la lumière est aujourd'hui distribuée de façon uniforme. Cette hypothèse propose de la distribuer de manière volontairement inégale, en concentrant la lumière là où les molécules de départ sont abondantes et en la réduisant là où le produit recherché commence à se former. L'objectif : éviter que le produit soit lui-même dégradé par la lumière, et augmenter ainsi le rendement et la sélectivité de la réaction.",
+    "why_it_matters": "La photochimie permet de fabriquer des médicaments et des matériaux spéciaux en utilisant la lumière comme source d'énergie, à la place de la chaleur. Mais son passage à l'échelle industrielle se heurte à un problème de coût : les lampes et les LED consomment beaucoup, et une partie de la lumière est gaspillée. Si l'on parvient à augmenter le rendement quantique de 15 à 40 % sans changer la dose totale de photons, cela réduirait proportionnellement la puissance d'éclairage nécessaire et le coût de production. Les secteurs concernés sont la chimie fine, la pharmacie et les matériaux avancés.",
+    "imagine_that": "Imaginez un four de boulangerie qui cuit des baguettes sur un tapis roulant. Si la chaleur est répartie uniformément, les baguettes à l'entrée du four, encore crues, reçoivent trop peu de chaleur, tandis que celles qui sortent, déjà cuites, continuent de chauffer et brûlent. Le boulanger expérimenté ajuste les résistances : fort au début, faible à la fin. Ici, c'est la même idée : on place une lumière intense à l'entrée du réacteur, là où les molécules n'ont pas encore réagi, et une lumière plus faible à la sortie, là où le produit commence à se former. La lumière suit le tapis roulant chimique au lieu de l'arroser uniformément.",
     "concretely": {
-      "intro": "Pour vérifier cette idée, le protocole prévoit trois phases de test, de l'ordinateur au laboratoire.",
-      "phase1": "D'abord, une simulation numérique modélise deux réactions modèles (isomérisation de l'azobenzène et cycloaddition [2+2]) pour calculer l'effet d'un gradient de lumière sur le rendement et la sélectivité, sans construire de réacteur.",
-      "phase2": "Ensuite, un petit réacteur en tube transparent est équipé d'une rangée de LEDs dont l'intensité est contrôlée indépendamment. On compare le résultat d'un éclairage uniforme à celui d'un éclairage dégressif, à dose totale de lumière identique.",
-      "phase3": "Enfin, un réacteur en verre micro-structuré avec une matrice de LEDs adressables individuellement permet de tester plusieurs formes de gradient et d'explorer un contrôle dynamique de la lumière en temps réel."
+      "intro": "L'approche se déroule en trois étapes, de la simulation informatique à la validation expérimentale complète, avec des critères d'arrêt clairs à chaque phase.",
+      "phase1": "Des simulations informatiques testent d'abord l'idée sur deux réactions modèles dont les vitesses sont déjà publiées : l'isomérisation de l'azobenzène et une cycloaddition de dérivé de chalcone. L'objectif est de vérifier par le calcul qu'un gradient de lumière décroissant augmente bien le rendement avant de construire quoi que ce soit.",
+      "phase2": "Un réacteur en tube transparent est construit avec des LED modulables placées le long du tube, permettant de régler l'intensité lumineuse zone par zone. Une seule réaction modèle est testée, et l'on compare le rendement obtenu avec un gradient de lumière contre un éclairage uniforme à dose totale identique.",
+      "phase3": "Un réacteur plus précis, avec une matrice de LED adressables individuellement, permet de tester plusieurs réactions, d'optimiser la forme exacte du gradient et d'explorer un contrôle dynamique dans le temps. Des mesures de rendement quantique et de sélectivité sont réalisées avec des méthodes de caractérisation avancées."
     },
-    "reviewers_say": "Le panel juge l'hypothèse solide sur le plan théorique : adapter un gradient de force motrice (la lumière) à un profil de concentration est un principe classique d'ingénierie des réacteurs. La méthode par étapes (simulation, expérience simple, validation complète) est saluée pour sa rigueur. Mais un expert pointe un risque majeur : si les réactions parasites sont d'origine thermique ou liées au transfert de matière, le gradient lumineux n'aura aucun effet. Un autre craint que la mesure de la lumière absorbée ne perturbe l'écoulement. Le verdict global est favorable à la publication du brief, mais la priorité est de concevoir des expériences de contrôle qui isolent l'effet de la lumière de celui de la chaleur ou du mélange."
+    "reviewers_say": "Le panel reconnaît une hypothèse théoriquement solide, bien ancrée dans les principes du génie des réacteurs, et une méthodologie progressive qui gère bien le risque. Les points forts incluent des critères de succès quantitatifs précis et une approche par étapes avec des décisions d'arrêt claires. Les principales réserves portent sur trois points : la puissance statistique n'est pas calculée, la méthode de mesure de la lumière absorbée pourrait perturber l'écoulement, et surtout un facteur de confusion thermique n'est pas suffisamment contrôlé — un éclairage non uniforme crée aussi un échauffement non uniforme, et l'effet observé pourrait venir de la température plutôt que de la lumière. Le verdict global est d'accepter le brief, avec un score de 6,97 sur 10, à condition d'ajouter des contrôles expérimentaux robustes pour isoler l'effet photique des effets thermiques et fluidiques."
+  },
+  "vulgarization_en": {
+    "title": "Illuminating a chemical reactor as one would cue stage lighting: non-uniform light can double efficiency",
+    "hypothesis_in_brief": "In a photochemical reactor — a device in which light triggers a chemical reaction — light is currently distributed uniformly. This hypothesis proposes that it be distributed in a deliberately uneven manner, concentrating light where the starting molecules are abundant and reducing it where the desired product begins to form. The objective: to prevent the product itself from being degraded by light, and thereby to increase the yield and selectivity of the reaction.",
+    "why_it_matters": "Photochemistry enables the manufacture of pharmaceuticals and specialty materials using light as an energy source in place of heat. Its scale-up to industrial production, however, confronts a cost problem: lamps and LEDs consume heavily, and a portion of the light is wasted. If the quantum yield can be increased from 15 to 40 % without altering the total photon dose, the illumination power required and the production cost would be reduced proportionally. The sectors concerned are fine chemicals, pharmaceuticals and advanced materials.",
+    "imagine_that": "Imagine a bakery oven baking baguettes on a conveyor belt. If the heat is distributed evenly, the baguettes at the oven entrance, still raw, receive too little heat, while those exiting, already baked, continue to heat and burn. The experienced baker adjusts the heating elements: strong at the start, weak at the end. Here, the same idea applies: you place an intense light at the reactor entrance, where the molecules have not yet reacted, and a weaker light at the exit, where the product begins to form. The light follows the chemical conveyor belt instead of spraying it uniformly.",
+    "reviewers_say": "The panel recognises a theoretically sound hypothesis, well grounded in reactor engineering principles, and a progressive methodology that manages risk well. Strengths include precise quantitative success criteria and a staged approach with clear stop decisions. The principal reservations concern three points: statistical power is not calculated, the method for measuring absorbed light could perturb the flow, and above all a thermal confounding factor is not sufficiently controlled — non-uniform illumination also creates non-uniform heating, and the observed effect could arise from temperature rather than light. The overall verdict is to accept the brief, with a score of 6.97 out of 10, provided that robust experimental controls are added to isolate the photic effect from thermal and fluidic effects.",
+    "concretely": {
+      "intro": "The approach proceeds in three stages, from computational simulation to full experimental validation, with clear stopping criteria at each phase.",
+      "phase1": "Computer simulations first test the idea on two model reactions whose rates are already published: the isomerisation of azobenzene and a cycloaddition of a chalcone derivative. The objective is to verify by calculation that a decreasing light gradient does indeed increase the yield before anything is built.",
+      "phase2": "A transparent tube reactor is constructed with tunable LEDs placed along the tube, allowing light intensity to be adjusted zone by zone. A single model reaction is tested, and the yield obtained with a light gradient is compared against uniform illumination at identical total dose.",
+      "phase3": "A more precise reactor, with an individually addressable LED array, allows several reactions to be tested, the exact shape of the gradient to be optimised, and dynamic control over time to be explored. Quantum yield and selectivity measurements are performed using advanced characterisation methods."
+    }
+  },
+  "panel_en": {
+    "reviews": [
+      {
+        "reviewer_persona": "methodologist",
+        "overall_score": 8.2,
+        "verdict": "accept",
+        "confidence": 0.9,
+        "strengths": [
+          "A staged approach (in silico, minimal validation, full validation) is excellent for managing risk and resources. The prior modelling phase is a major methodological strength that allows the hypothesis and the experimental design to be refined before any substantial investment.",
+          "Explicit identification and planning of GO/NO-GO/PIVOT criteria for each phase. This demonstrates exceptional rigour in scientific project management and a commitment to falsifiability. The definition of minimum detectable effects (≥12%, ≥15 points) is crucial.",
+          "Well-defined controls: the uniformly illuminated reactor is a perfect control for isolating the effect of flow engineering. The measurement of identical total photon dose across conditions is fundamental to the internal validity of the comparison."
+        ],
+        "weaknesses": [
+          "Statistical power is not explicitly calculated in the protocol. 'n=4 replicates' is mentioned, but without justification based on an expected effect size, preliminary variability, or a chosen alpha/beta. This leaves doubt as to the capacity to detect the 12% effect with sufficient probability (e.g., power > 0.8).",
+          "Risk of measurement bias in Phase 2: the actinometric method by segmented flow is ingenious but intrusive. The injection of slugs may perturb the flow (increased axial dispersion) and thereby modify the reaction kinetics that are being measured, creating an artefact. A control plan to verify the impact of segmentation on conversion is necessary.",
+          "'External validity', or generalisation, rests heavily on the choice of model reactions in Phase 3. The protocol identifies a risk that the effect holds only for azobenzene. A more robust justification for the choice of the 3–4 reactions (covering a broad kinetic parameter space: Φ, product absorption spectra, presence of photo-induced secondary reactions) would strengthen the plan."
+        ],
+        "critical_questions": [
+          "For Phase 2, what is the expected variability (standard deviation) in the measurement of Φ_app for the azobenzene reaction, based on preliminary data or the literature? Is a retrospective power calculation with n=4, an effect of 12%, and this estimated variability feasible? If not, is a higher n (6–8) conceivable within the budget?",
+          "Is the control of the 'axial dispersion' variable sufficient? Poor plug flow (low Boden number) could smooth concentration gradients and thereby attenuate, or even cancel, the benefit of a light gradient. Is it planned to characterise the residence time distribution (RTD) of the modular reactor to verify that it is comparable across illumination configurations and close to plug flow?",
+          "How will confirmation bias be avoided during the analysis of Phase 3 data? Optimisation of the flow profile (DoE) and testing across multiple reactions multiply the comparisons. Is a correction for multiple comparisons (Bonferroni, FDR) planned in the statistical analysis plan to maintain an overall alpha of 0.05?"
+        ],
+        "recommendation": "The protocol is broadly well designed and merits funding. It is strongly recommended that the weaknesses be addressed before start-up: 1) An a priori power analysis should be performed to justify the sample sizes in Phase 2 and Phase 3. 2) Hydrodynamic characterisation (DTD) of the Phase 2 reactor should be planned to ensure the validity of the 1D model. 3) A detailed statistical analysis plan should be added for Phase 3, including the handling of multiple comparisons."
+      },
+      {
+        "reviewer_persona": "domain_expert",
+        "overall_score": 8.0,
+        "verdict": "accept",
+        "confidence": 0.9,
+        "strengths": [
+          "The hypothesis is theoretically sound and well grounded in the fundamental principles of CRE. It correctly identifies the LVRPA as the fundamental engineering variable in photochemical reactors, analogous to concentration in thermal reactors, and proposes its active spatial/temporal engineering. This constitutes a sophisticated and correct application of the PFR/CSTR design philosophy to photochemistry.",
+          "The proposed causal mechanism is chemically plausible. The logic of matching a high LVRPA to a high ground-state concentration in order to suppress secondary photoreactions of the primary product is consistent with established photochemical kinetics (for example, for consecutive photoreactions A → B → C). This directly addresses a common selectivity problem in photochemical scale-up, where uniform illumination often leads to over-irradiation of products.",
+          "The positioning relative to the state of the art is accurate. The novelty assessment correctly identifies that, although light intensity has been used as a control variable (for example, in photobioreactors), the explicit and systematic engineering of the *spatial distribution of photon flux* within a continuous-flow reactor to optimise quantum yield and selectivity, formulated through rigorous analogies with CRE, represents a significant and logical advance."
+        ],
+        "weaknesses": [
+          "The evidence base, while encouraging in spirit, does not derive directly from the field of synthetic photochemical reaction engineering. The key analogous article (Deschênes & Wouwer, 2015) belongs to bioprocess engineering. The hypothesis would be substantially strengthened by citation of foundational work at the interface of chemical reaction engineering and photochemistry on LVRPA modelling (e.g. Cassano, Alfano, Cabrera et al.) and of recent literature on spatially structured illumination in flow photoreactors (e.g. the use of LED arrays, patterned reactors or light guides).",
+          "The hypothesis rests on a strong postulate that the system is limited by photochemical kinetics rather than by mass transfer. In practice, particularly for fast photoreactions, mass transfer of reactants (e.g. gases such as O2) or of the excited state itself (in the case of triplet-triplet annihilation or deactivation) may become limiting. The proposed benefits may be diminished or may require co-optimisation with mixing intensity.",
+          "The quantitative targets (a 15–40 % increase in Φ, a 20–50 % increase in selectivity) are stated but are not rigorously justified by the cited evidence or by a conceptual kinetic model. While the direction of improvement is clear, its magnitude depends strongly on the system and should be presented as a range to be validated, rather than as a predicted result."
+        ],
+        "critical_questions": [
+          "For the proposed mechanism to be generalisable, how would the *optimal* LVRPA profile be determined a priori? Does this require full kinetic characterisation (quantum yields, rate constants of the primary and secondary photoreactions), or could it be determined in real time via a process-control strategy (for example, model predictive control using an in situ spectroscopic probe)?",
+          "The hypothesis rests on a precise, spatially resolved measurement of the LVRPA by chemical actinometry. How is this to be implemented practically and non-invasively within a continuous reactor, without perturbing the flow regimes or introducing contaminants? Would a separate, identical reactor line be used, or can the actinometer be co-circulated in a manner that does not interfere with the main reaction?"
+        ],
+        "recommendation": "This is a compelling and well-formulated hypothesis that addresses a critical gap between photochemical science and chemical engineering practice. Progression to experimental validation using a well-characterised model photoreaction system exhibiting consecutive kinetics (for example, a photo-oxidation or a selective isomerisation) is recommended. The initial effort should focus on demonstrating proof of concept with a static and spatially structured light field (for example, an LED panel with graded intensity above a tubular PFR) before exploring dynamic temporal control. A supporting mathematical model coupling the radiation field equations to the reaction kinetics would greatly strengthen the proposal."
+      },
+      {
+        "reviewer_persona": "contrarian",
+        "overall_score": 4.5,
+        "verdict": "weak_reject",
+        "confidence": 0.85,
+        "strengths": [
+          "The hypothesis rests on a sound chemical-engineering principle: spatially matching a driving force (photon flux) to a kinetic profile (reactant concentration) in order to improve performance. This is analogous to the optimisation of temperature profiles in tubular reactors.",
+          "The proposed use of in situ chemical actinometry within a segmented lateral flow constitutes a sophisticated and appropriate methodological choice to address the critical challenge of measuring the LVRPA without interference."
+        ],
+        "weaknesses": [
+          "FAIL REASON #1: The central premise that secondary photoreactions constitute the dominant parasitic pathway represents a critical vulnerability. The predicted yield increase of 15–40% depends upon it. If the system is instead limited by thermal side reactions, by quenching by solvent or impurities, or by mass-transfer limitations (for example of a quencher or a co-reactant), then engineering of the photon flux will have negligible, or even detrimental, effects. The hypothesis does not adequately exclude these possibilities.",
+          "FAIL REASON #2: The proposed model reactions (azobenzene isomerisation, chalcone cycloaddition) are notoriously sensitive to local thermal effects arising from light absorption. A non-uniform photon flux will create a non-uniform temperature field, introducing a massive and unaddressed confounder. The observed effect could be due to an optimised thermal profile, and not to the LVRPA profile itself, leaving the causal chain undemonstrated.",
+          "FAIL REASON #3: The predicted effect sizes (yield of 15–40%, selectivity increase of 20–50%) are enormous for a single reactor-engineering parameter. This suggests either an exceptionally poorly optimised baseline (which renders the result less novel), or an overestimation of the influence of this parameter. Effects of such magnitude are likely to be artefacts of specific reactor geometries unsuited to scale-up, or artefacts of actinometric measurement, leading to false positives."
+        ],
+        "critical_questions": [
+          "How will the effect of the modified LVRPA profile be definitively decoupled from that of the concomitant modified temperature profile? Which controls (for example, an isothermal reactor jacket, low-concentration runs to minimise heating) will serve to prove the photonic, rather than thermal, origin of any improvement?",
+          "The kinetic postulate requires that the primary product be more photoactive than the reactant for the secondary reactions to be significant. For the model reactions selected, where is the quantitative spectroscopic and kinetic evidence (for example, the quantum yields of the secondary photoreactions of the product) establishing that this condition is sufficiently verified to justify the predicted selectivity jumps?"
+        ],
+        "recommendation": "Before the full hypothesis is tested, a fundamental study must first be published characterising the *isolated* kinetics of the secondary photoreaction of the principal product under identical conditions. A control experiment is then to be designed using a non-photoactive product mimetic to demonstrate that the observed benefits disappear when secondary photoreactions are impossible, thereby isolating the proposed mechanism from thermal and fluid-dynamics confounders."
+      },
+      {
+        "reviewer_persona": "industrialist",
+        "overall_score": 6.5,
+        "verdict": "weak_accept",
+        "confidence": 0.75,
+        "strengths": [
+          "Addresses a critical efficiency need in a rapidly growing market: photochemical synthesis for pharma (APIs under expired patents, stereoselective syntheses) and advanced materials (functional polymers). The paying actors would be the Chemical Development departments of large pharma (Pfizer, Merck, Sanofi) and fine-chemical specialists (BASF, Evonik, CABB).",
+          "Direct competitive advantage: reduction of photon cost, a major bottleneck in photochemical scale-up. A 30% increase in quantum yield translates into a proportional reduction in illumination power (CAPEX/OPEX) and/or an increase in throughput for the same reactor."
+        ],
+        "weaknesses": [
+          "Barrier to deployment: engineering complexity and the need for sophisticated process control. The current flow-reactor market (Vapourtec, Corning, Syrris) sells standardised solutions. Integrating a dynamic gradient illumination system increases cost and operational complexity, which may deter organic chemists, the primary users.",
+          "Commercial risk: the value demonstrated on azobenzene (model reaction) does not guarantee transfer to complex industrial reactions (e.g., flow photoredox) in which intermediates are sensitive and mechanisms poorly understood. The current TRL (2–3) is far from a product (TRL 7+)."
+        ],
+        "critical_questions": [
+          "What is the business model? Sale of patented reactors at a premium price (high CAPEX), or licensing of the know-how (control algorithm, optical design) to existing reactor manufacturers? Is the customer ROI clear (payback period < 2 years)?",
+          "What is the intellectual property strategy? The concept of LVRPA optimisation is well documented in the academic literature. Protectable IP would reside in specific gradient-generation devices (optics, individually controlled LED arrays) and in real-time control algorithms coupling spectroscopy and flow adjustment."
+        ],
+        "recommendation": "Fund Phase 1 (in silico) to validate the effect on 2–3 target industrial reactions (e.g., a [2+2] cycloaddition for lactam synthesis, a photoredox reaction for a C–N coupling). Then, seek an industrial partner (a reactor manufacturer or an end user in pharma) to co-fund Phase 2 on a reaction from its portfolio, with a confidentiality and licence-option agreement. Target the pilot and pharma R&D market first, before production scale-up."
+      },
+      {
+        "reviewer_persona": "funding_strategist",
+        "overall_score": 7.5,
+        "verdict": "accept",
+        "confidence": 0.8,
+        "funding_programs": [
+          {
+            "program": "ERC Proof of Concept Grant (PoC)",
+            "agency": "European Research Council",
+            "fit_score": 0.85,
+            "typical_budget": "€150,000",
+            "success_rate": "~35-40%",
+            "next_deadline": "16 octobre 2024 (prochaine fenêtre prévue)",
+            "rationale": "Programme idéal si le PI détient déjà un ERC (Starting, Consolidator, Advanced). Il finance précisément l'exploration du potentiel d'innovation et de commercialisation d'une idée issue de la recherche fondamentale. L'hypothèse, si issue d'un projet ERC sur la photochimie fondamentale, est un candidat parfait pour valider un principe d'ingénierie applicatif."
+          },
+          {
+            "program": "AAPG JCJC - Appel à Projets Générique Jeunes Chercheuses et Jeunes Chercheurs",
+            "agency": "Agence Nationale de la Recherche (ANR)",
+            "fit_score": 0.75,
+            "typical_budget": "€150,000 - €300,000",
+            "success_rate": "~12-18% (varie par section)",
+            "next_deadline": "Octobre 2024 (pour démarrage 2025)",
+            "rationale": "Appel phare de l'ANR pour les porteurs de projet en début de carrière. Le projet correspond bien au domaine \"Chimie et Procédés\". La méthodologie progressive et le budget demandé sont alignés. Il permet de financer une thèse ou un post-doc pour exécuter le protocole complet et constituer une première équipe."
+          },
+          {
+            "program": "Horizon Europe - EIC Pathfinder Open (ancien FET Open)",
+            "agency": "European Innovation Council (Commission Européenne)",
+            "fit_score": 0.7,
+            "typical_budget": "€3-4 millions pour un consortium",
+            "success_rate": "~5-10%",
+            "next_deadline": "23 octobre 2024 (prochaine date prévue)",
+            "rationale": "Pour l'étape suivante, une fois la preuve de principe validée. Ce programme finance la recherche de rupture à un stade précoce (TRL 1-3). L'hypothèse, si étayée par des résultats préliminaires, pourrait être le cœur d'une proposition visant à créer une nouvelle discipline : le 'Photonic Process Engineering'. Nécessite un consortium interdisciplinaire (chimistes, ingénieurs des procédés, physiciens de la lumière)."
+          }
+        ],
+        "strengths": [
+          "A clear and testable core hypothesis with precise quantitative success criteria (15–40% increase).",
+          "A rigorous and staged methodological approach (in silico -> minimal validation -> full protocol) that minimises technical and financial risk.",
+          "Positioning at the intersection of two thriving domains: photochemical reactor engineering and advanced process control, with disruptive potential for sustainable chemistry."
+        ],
+        "weaknesses": [
+          "Current TRL is very low (1-2). The proposed protocol aims to reach TRL 3-4, which is below the minimum thresholds for most Horizon Europe collaborative calls (TRL 4-6).",
+          "The consortium is not defined. The approach is presented as a single-beneficiary or small-team project, limiting access to large programmes requiring transnational partnerships.",
+          "Budget and timeline are very modest for full validation. Phase 3 (€60-100k) is undersized for an in-depth exploration of generalisation across multiple reactions and for advanced characterisation."
+        ],
+        "critical_questions": [
+          "What is the priority model reaction beyond azobenzene? The credibility of the impact depends on demonstration with a value-added transformation for pharmaceuticals or materials.",
+          "How is the photon flux profile (LVRPA) in the reactor to be quantified experimentally to validate the model? Access to in situ sensor/actinometry techniques is crucial.",
+          "Have potential industrial partners been identified (flow reactor manufacturers, fine chemicals companies) to co-construct the next stage of the project after the proof of concept?"
+        ],
+        "recommendation": "Target first a 'Proof of Concept' or 'Young Researcher' type of funding to validate the fundamental principle and raise the TRL. Structure the application around the originality of the photonic field engineering as a control variable, distinct from the mere optimisation of light sources. In parallel, initiate discussions with a photonics engineer and an organic chemist to build a future consortium for a collaborative project."
+      }
+    ],
+    "meta_review": {
+      "consensus_score": 6.97,
+      "verdict": "publish_brief",
+      "brief_quality_gate": true,
+      "llm_verdict": "publish_brief",
+      "llm_consensus_score": 7.2,
+      "key_consensus": [
+        "The hypothesis is theoretically sound, well positioned, and rests on a fundamental principle of reactor engineering (matching a driving-force gradient to a kinetic profile).",
+        "The proposed methodology (staged approach, GO/NO-GO criteria, control by total photon dose) is judged rigorous and excellent for managing risk.",
+        "The potential for impact is recognised, notably in addressing a critical bottleneck (photon cost) in the scale-up of photochemistry, with potential applications in pharma and fine chemicals."
+      ],
+      "key_disagreements": [
+        "The robustness of the presumed causal mechanism (suppression of secondary photochemical reactions) against confounding factors (thermal profile, mass-transfer limitations, other parasitic pathways). The Contrarian judges this to be a critical flaw, whereas the others identify it as a risk to be managed.",
+        "The magnitude of the predicted effects (15–40% increase): perceived as ambitious but plausible by domain experts, yet judged suspect and potentially artefactual by the Contrarian.",
+        "The level of readiness for generalisation: the Domain Expert and the Methodologist call for a more robust justification of the choice of model reactions and for the management of multiple comparisons, whereas the Industrialist highlights the risk of transfer to complex industrial systems."
+      ],
+      "revision_guidance": [],
+      "critical_path": "The capacity to demonstrate, in a controlled and unambiguous manner, that the improvement in performance is indeed attributable to the engineering of the LVRPA profile (and not to a concomitant thermal profile or to a measurement artefact), and that this mechanism is generalisable beyond a single, well-chosen model reaction.",
+      "final_recommendation": "The panel recommends publication of the brief, recognising the quality and potential of the hypothesis. Its experimental validation must imperatively address the methodological concerns (statistical power, hydrodynamic characterisation) and, above all, include robust experimental controls to isolate the photic effect from thermal and fluidic effects. The immediate priority is a rigorous proof of concept on a well-characterised model system, before considering generalisation."
+    }
   }
 }
