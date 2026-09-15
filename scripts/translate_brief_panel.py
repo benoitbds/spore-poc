@@ -67,6 +67,93 @@ logger = get_logger("translate_brief_panel")
 UsageSummary = dict[str, int | float]
 
 
+# ── Technical glossary (shared by both directions) ─────────────────────
+#
+# S10-C — closed list of methodological and statistical terms with an
+# established French rendering. Built from the English prose of the panel
+# corpus (49 public briefs with English cards + the 9 S10-B briefs), where
+# these terms are the most frequent, and from the S10-B EN -> FR outputs,
+# which rendered some of them inconsistently: « effet de taille » next to
+# « taille d'effet », « étalonnage » and « calibration » used
+# interchangeably, « confondant » next to « facteur de confusion ».
+#
+# One table feeds both prompts so the two directions cannot drift apart:
+# EN -> FR reads it left to right, FR -> EN right to left. The optional
+# third column is the British form required by the FR -> EN register when
+# it differs from the (usually US) spelling found in the source. Keep it short
+# and closed — terms without an established French rendering (in silico,
+# GO/NO-GO, statistical test names) are preserved by the PRESERVATION
+# rules, not listed here.
+TECHNICAL_GLOSSARY: tuple[tuple[str, str, str | None], ...] = (
+    ("effect size", "taille d'effet", None),
+    ("sample size", "taille d'échantillon", None),
+    ("statistical power", "puissance statistique", None),
+    ("power analysis", "analyse de puissance", None),
+    ("underpowered", "de puissance statistique insuffisante", None),
+    ("confounder / confounding factor", "facteur de confusion", None),
+    ("confounding (bias)", "biais de confusion", None),
+    ("baseline (model, method)", "référence (modèle de référence, méthode de référence)", None),
+    ("baseline (measurement)", "mesure initiale", None),
+    ("endpoint / primary outcome", "critère de jugement / critère de jugement principal", None),
+    ("proof of concept", "preuve de concept", None),
+    ("pilot study", "étude pilote", None),
+    ("ground truth", "vérité terrain", None),
+    ("false positive / false negative", "faux positif / faux négatif", None),
+    ("overfitting", "surapprentissage", None),
+    ("cross-validation", "validation croisée", None),
+    ("held-out set", "jeu de test réservé", None),
+    ("batch effect", "effet de lot", None),
+    ("signal-to-noise ratio", "rapport signal sur bruit", None),
+    ("selection bias", "biais de sélection", None),
+    ("multiple comparisons", "comparaisons multiples", None),
+    ("confidence interval", "intervalle de confiance", None),
+    ("null hypothesis", "hypothèse nulle", None),
+    ("positive control / negative control", "contrôle positif / contrôle négatif", None),
+    ("blinding", "mise en aveugle", None),
+    ("dose-response", "dose-réponse", None),
+    ("calibration (of a model or of probabilities)", "calibration", None),
+    ("calibration (of an instrument or a measurement)", "étalonnage", None),
+    ("reproducibility", "reproductibilité", None),
+    ("generalizability", "généralisabilité", "generalisability"),
+    ("scalability / scale-up", "passage à l'échelle", None),
+    ("state of the art", "état de l'art", None),
+    ("bottleneck", "goulot d'étranglement", None),
+    ("addressable market", "marché adressable", None),
+    ("barrier to entry", "barrière à l'entrée", None),
+)
+
+
+def _glossary_en_to_fr() -> str:
+    """Render the glossary for the EN -> FR prompt.
+
+    Returns:
+        A prompt section listing « English » → « French » pairs.
+    """
+    lines = [f'- "{en}" → « {fr} »' for en, fr, _ in TECHNICAL_GLOSSARY]
+    return (
+        "GLOSSAIRE TECHNIQUE (liste fermée, rendus obligatoires) :\n"
+        + "\n".join(lines)
+        + "\nJamais « effet de taille » pour \"effect size\". Pour un terme de la liste, "
+        "utilise exactement ce rendu, y compris au pluriel ; la précision entre "
+        "parenthèses indique le contexte, elle ne se traduit pas."
+    )
+
+
+def _glossary_fr_to_en() -> str:
+    """Render the glossary for the FR -> EN prompt.
+
+    Returns:
+        A prompt section listing French → English pairs.
+    """
+    lines = [f'- « {fr} » → "{en_gb or en}"' for en, fr, en_gb in TECHNICAL_GLOSSARY]
+    return (
+        "TECHNICAL GLOSSARY (closed list, mandatory renderings):\n"
+        + "\n".join(lines)
+        + "\nFor a listed term, use exactly this rendering, plural included; "
+        "the parenthesised context is guidance only and is not translated."
+    )
+
+
 # ── Prompts: FR -> EN ──────────────────────────────────────────────────
 
 BASE_PROMPT = """You are a scientific translator specialising in academic peer-review prose. Translate the following French text into English following these strict rules:
@@ -105,7 +192,9 @@ PRESERVATION:
 - Preserve markdown formatting (bold, italics, lists) — but do not invent markdown that is not in the source.
 - If a French expression has no clean English equivalent, prefer scientific clarity over literal translation.
 
-VOICE: Use PASSIVE voice and impersonal constructions throughout ("the panel notes that...", "the protocol is structured...", "the hypothesis is judged..."). Avoid second-person address. Maintain the formal Nature-grade register typical of academic peer-review prose."""
+VOICE: Use PASSIVE voice and impersonal constructions throughout ("the panel notes that...", "the protocol is structured...", "the hypothesis is judged..."). Avoid second-person address. Maintain the formal Nature-grade register typical of academic peer-review prose.
+
+""" + _glossary_fr_to_en()
 
 
 def _build_string_prompt(french_text: str) -> str:
@@ -177,7 +266,9 @@ PRÉSERVATION :
 - Conserver les termes techniques sans équivalent français établi (noms de tests statistiques, de molécules, de gènes, de méthodes).
 - Conserver la mise en forme markdown présente dans le source, sans en inventer.
 
-SORTIE : uniquement la traduction. Ne recopie jamais le texte source. N'écris aucune étiquette (« TEXTE SOURCE », « TRADUCTION », « INPUT », « OUTPUT »), aucun préambule, aucune explication, aucun guillemet autour de la traduction."""
+SORTIE : uniquement la traduction. Ne recopie jamais le texte source. N'écris aucune étiquette (« TEXTE SOURCE », « TRADUCTION », « INPUT », « OUTPUT »), aucun préambule, aucune explication, aucun guillemet autour de la traduction.
+
+""" + _glossary_en_to_fr()
 
 
 def _build_string_prompt_fr(english_text: str) -> str:
@@ -570,12 +661,23 @@ _VERBATIM_TOKEN_RE = re.compile(
 )
 _QUOTED_SPAN_RE = re.compile(r"«[^»]*»|“[^”]*”|\"[^\"\n]*\"|\*[^*\n]+\*")
 
-# FR/EN character-length ratio, measured on 2 788 paired prose fields of
-# the corpus (panel_data detected French vs panel_data_en detected
-# English): median 1.065, 2nd percentile 0.91, 98th percentile 1.21. The
-# window is the reciprocal of the FR -> EN window (0.70-1.25), rounded.
-_FR_EN_RATIO_MIN = 0.80
-_FR_EN_RATIO_MAX = 1.45
+# FR/EN character-length ratio of EN -> FR output, recalibrated in S10-C on
+# real translations: 374 prose fields (list items and strings) translated
+# EN -> FR by this function during the S10-B replay, source read from the
+# pre-replay backup. Median 1.20, 1st percentile 1.03, 99th percentile
+# 1.42, observed range 0.91-1.48 — French is structurally longer, questions
+# the most (the 1.48 is a faithful critical_questions item on SPR-2026-27B2).
+#
+# The previous window (0.80-1.45) had been derived from the FR -> EN corpus
+# (median 1.065), i.e. from the other direction: its upper bound sat inside
+# the normal tail and produced warnings on correct translations. The window
+# is kept as a detector of real failures — truncation or omission below,
+# echo of the source or added content above (an echoed source doubles the
+# length) — with margin around the observed range. The FR -> EN window of
+# _validate_text (0.70-1.25) is left unchanged: 530 fields measured on the
+# same replay span 0.73-1.11, none outside it.
+_FR_EN_RATIO_MIN = 0.85
+_FR_EN_RATIO_MAX = 1.60
 
 
 class EnglishInOutputError(Exception):
