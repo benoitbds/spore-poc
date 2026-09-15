@@ -10,8 +10,8 @@ Couvre, sans appel LLM réel ni écriture dans la base de production :
   mêmes fichiers), ``created_at``, le score, le verdict et ``revision_count``
   sont inchangés, la date du brief n'est pas remise à aujourd'hui.
 * ``replay_brief`` de bout en bout sur une base et un répertoire de sortie
-  temporaires : promotion par ``node_validate_brief``, blocage en 'pending'
-  quand la vulgarisation échoue puis reprise, dry-run sans écriture ni appel.
+  temporaires : promotion par ``node_validate_brief``, restauration quand la
+  vulgarisation échoue puis reprise, dry-run sans écriture ni appel.
 * ``replay_language_problems`` : une traduction EN identique au FR est refusée.
 
 Le traducteur EN→FR réel est exercé ; seul son client LLM est remplacé par le
@@ -51,7 +51,10 @@ from scripts.backup_blocked_briefs import create_backup  # noqa: E402
 from storage import init_database  # noqa: E402
 from storage import save_brief as save_brief_db  # noqa: E402
 from tests.test_s10a_panel_language import (  # noqa: E402
+    PERSONAS,
     FakeTranslationClient,
+    _french_card,
+    _french_meta,
     _patched_client,
     english_panel,
     mixed_panel,
@@ -262,7 +265,12 @@ class RehydrateStateTests(unittest.TestCase):
     def test_scope(self) -> None:
         row = _briefs_row(english_panel())
         self.assertIsNone(replay.scope_skip_reason(row))
-        self.assertEqual(replay.scope_skip_reason({**row, "status": "complete"}), "already_complete")
+        # S10-C : le périmètre est défini par le panel, pas par le statut.
+        self.assertIsNone(replay.scope_skip_reason({**row, "status": "complete"}))
+        french = json.dumps({"reviews": [_french_card(*p) for p in PERSONAS], "meta_review": _french_meta()})
+        self.assertEqual(
+            replay.scope_skip_reason({**row, "status": "complete", "panel_data": french}), "no_english_cards"
+        )
         self.assertEqual(replay.scope_skip_reason({**row, "status": "rejected"}), "status_rejected")
         self.assertEqual(replay.scope_skip_reason({**row, "is_stub": 1}), "stub")
 
@@ -443,12 +451,14 @@ class ReplayBriefTests(TempEnvironment):
             after["body_markdown"], (self.briefs_dir / f"{BRIEF_ID}.md").read_text(encoding="utf-8")
         )
 
-        # Rejouable : un brief promu n'est pas retraité.
+        # Rejouable : un brief promu a un panel français et n'est pas retraité.
         again = await replay.replay_brief(BRIEF_ID, dry_run=False, backup_dir=backup_dir)
-        self.assertEqual((again.outcome, again.reason), ("skipped", "already_complete"))
+        self.assertEqual((again.outcome, again.reason), ("skipped", "no_english_cards"))
 
-    async def test_failed_vulgarization_stays_pending_then_resumes(self) -> None:
+    async def test_failed_vulgarization_is_restored_then_resumes(self) -> None:
         await self.seed_blocked_brief(english_panel())
+        before_row = _row(self.db_path)
+        before_files = {p.name: _sha(p) for p in sorted(self.briefs_dir.iterdir())}
         backup_dir = self.make_backup()
 
         patches = _patched_tail(_fake_vulgarization(RuntimeError("LLM indisponible")))
@@ -456,19 +466,18 @@ class ReplayBriefTests(TempEnvironment):
             blocked = await replay.replay_brief(BRIEF_ID, dry_run=False, backup_dir=backup_dir)
 
         self.assertEqual((blocked.outcome, blocked.reason), ("still_blocked", "vulgarization_failed"))
-        row = _row(self.db_path)
-        self.assertEqual(row["status"], "pending")
-        # L'ancienne vulgarisation polluée n'a pas survécu au rejeu partiel.
-        self.assertIsNone(row["vulgarization_data"])
+        # S10-C : l'échec après écriture restaure le brief, pas de demi-réécriture.
+        self.assertTrue(blocked.restored)
+        self.assertEqual(_row(self.db_path), before_row)
+        self.assertEqual({p.name: _sha(p) for p in sorted(self.briefs_dir.iterdir())}, before_files)
 
-        # Le sidecar a été réécrit : la reprise relit l'hypothèse dans la sauvegarde.
         client = FakeTranslationClient()
         patches = _patched_tail(_fake_vulgarization())
         with _patched_client(client), patches[0], patches[1], patches[2]:
             resumed = await replay.replay_brief(BRIEF_ID, dry_run=False, backup_dir=backup_dir)
 
         self.assertEqual(resumed.outcome, "completed", resumed)
-        self.assertEqual(client.calls, [])  # panel déjà normalisé : aucune traduction EN→FR
+        self.assertGreater(len(client.calls), 0)  # panel restauré en anglais : retraduit
         self.assertEqual(_row(self.db_path)["status"], "complete")
 
     async def test_dry_run_writes_nothing_and_calls_nothing(self) -> None:
