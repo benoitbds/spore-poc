@@ -67,6 +67,7 @@ def generate_brief_markdown(
     sharpened: SharpeningOutput,
     protocol: ProtocolOutput,
     panel: PanelOutput,
+    generated_on: date | None = None,
 ) -> str:
     """Generate the full markdown brief.
 
@@ -78,6 +79,9 @@ def generate_brief_markdown(
         sharpened: Hypothesis Sharpening output.
         protocol: Experimental Protocol output.
         panel: Panel review output.
+        generated_on: Generation date stamped in the brief. Defaults to
+            today; a replay of an existing brief (S10-B) passes the date
+            of the original row so the brief is not redated.
 
     Returns:
         Complete markdown string.
@@ -85,7 +89,7 @@ def generate_brief_markdown(
     novelty = grounding.get("novelty_assessment", {})
     meta = panel["meta_review"]
     reviews = panel["reviews"]
-    today = date.today().isoformat()
+    today = (generated_on or date.today()).isoformat()
 
     # Collect all referenced papers for the References section
     all_refs: list[dict[str, Any]] = []
@@ -435,15 +439,20 @@ def generate_brief_json(
     protocol: ProtocolOutput,
     panel: PanelOutput,
     vulgarization_fr: dict[str, Any] | None = None,
+    generated_on: date | None = None,
 ) -> dict[str, Any]:
     """Generate the structured JSON brief.
+
+    Args:
+        generated_on: Value of ``generated_at``. Defaults to today; see
+            ``generate_brief_markdown``.
 
     Returns:
         Dict suitable for JSON serialization.
     """
     out = {
         "brief_id": brief_id,
-        "generated_at": date.today().isoformat(),
+        "generated_at": (generated_on or date.today()).isoformat(),
         "domains": domains,
         "original_hypothesis": hypothesis,
         "grounding": {
@@ -474,6 +483,7 @@ async def save_brief(
     protocol: ProtocolOutput,
     panel: PanelOutput,
     vulgarization_fr: dict[str, Any] | None = None,
+    generated_on: date | None = None,
 ) -> tuple[Path | None, Path | None]:
     """Generate and save the brief as markdown and JSON.
 
@@ -485,6 +495,9 @@ async def save_brief(
         sharpened: Sharpened hypothesis.
         protocol: Experimental protocol.
         panel: Panel review output.
+        vulgarization_fr: Optional French vulgarization block for the JSON.
+        generated_on: Generation date stamped in both files. Defaults to
+            today; the S10-B replay passes the original row's date.
 
     Returns:
         Tuple of (markdown_path, json_path). **Both are None** when
@@ -511,7 +524,8 @@ async def save_brief(
 
     # Generate markdown
     md_content = generate_brief_markdown(
-        brief_id, hypothesis, domains, grounding, sharpened, protocol, panel
+        brief_id, hypothesis, domains, grounding, sharpened, protocol, panel,
+        generated_on=generated_on,
     )
     md_path = briefs_dir / f"{brief_id}.md"
     md_path.write_text(md_content, encoding="utf-8")
@@ -521,6 +535,7 @@ async def save_brief(
     json_content = generate_brief_json(
         brief_id, hypothesis, domains, grounding, sharpened, protocol, panel,
         vulgarization_fr=vulgarization_fr,
+        generated_on=generated_on,
     )
     json_path = briefs_dir / f"{brief_id}.json"
     json_path.write_text(json.dumps(json_content, indent=2, ensure_ascii=False), encoding="utf-8")
