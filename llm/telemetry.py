@@ -76,7 +76,11 @@ async def record_llm_call(
         attempt=attempt,
         latency_ms=response.latency_ms,
         cache_hit=response.cache_hit,
-        **context,
+        # Hors d'un nœud (scripts, rejeu), le sujet est inconnu : on n'écrit pas
+        # une paire à ``null`` sur chaque ligne du log. La colonne, elle, reste
+        # NULL. Dans un nœud, B.2 l'a déjà liée au contexte, donc
+        # ``merge_contextvars`` la rajoute de toute façon.
+        **{key: value for key, value in context.items() if value is not None},
     )
 
     values = (

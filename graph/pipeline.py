@@ -30,6 +30,8 @@ from storage import (
     update_hypothesis_auto_feedback,
 )
 from storage.database import get_connection
+from structlog.contextvars import bind_contextvars, unbind_contextvars
+
 from logging_config import get_logger, get_token_tracker, reset_token_tracker
 from progress import get_progress_tracker, reset_progress_tracker
 
@@ -150,6 +152,8 @@ async def reviewer_and_post_fire(state: PipelineState) -> PipelineState:
                         keywords=[],
                         gap_manifest=hypothesis.gap_manifest.model_dump()
                         if hypothesis.gap_manifest else {},
+                        run_id=state.get("run_id"),
+                        hypothesis_id=hypothesis.id,
                     )
                     fire_briefs.append({
                         "hypothesis_id": hypothesis.id,
@@ -283,6 +287,11 @@ async def run_pipeline(
         Final pipeline state with all results
     """
     run_id = f"run-{datetime.now().strftime('%Y%m%d-%H%M%S')}-{uuid4().hex[:6]}"
+
+    # S11/B.2 — lié ici plutôt que répété à chaque appel : tout événement du
+    # run, y compris ceux des agents et du post-fire, porte désormais son
+    # ``run_id``. Délié dans le ``finally`` de cette fonction.
+    bind_contextvars(run_id=run_id)
 
     logger.info(
         "pipeline_starting",
@@ -431,6 +440,9 @@ async def run_pipeline(
             )
 
         raise
+
+    finally:
+        unbind_contextvars("run_id")
 
 
 def get_compiled_pipeline():

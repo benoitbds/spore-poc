@@ -437,6 +437,8 @@ async def run_custom_request(request_id: str) -> dict[str, Any]:
             keywords=[],
             gap_manifest=hypothesis.gap_manifest.model_dump() if hypothesis.gap_manifest else {},
             grounding_degraded=grounding_degraded,
+            run_id=request_id,
+            hypothesis_id=hypothesis.id,
         )
     except Exception as exc:  # noqa: BLE001
         logger.error("custom_post_fire_failed", request_id=request_id, error=str(exc))

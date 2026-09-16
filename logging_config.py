@@ -1,12 +1,39 @@
 """Structured logging configuration for SPORE."""
 
 import sys
+from collections.abc import Iterator
+from contextlib import contextmanager
 from typing import Any
 
 import structlog
 from structlog.typing import Processor
 
 from config import get_settings
+
+
+@contextmanager
+def log_context(**fields: Any) -> Iterator[None]:
+    """Lie des champs à tous les événements émis dans le bloc.
+
+    S11/B.2. ``merge_contextvars`` est en tête des processors, donc les champs
+    liés ici apparaissent sur chaque événement, y compris ceux émis par du code
+    appelé plus bas — et par les tâches lancées dans le bloc, qui héritent du
+    contexte à leur création (le fan-out des reviewers en dépend).
+
+    Les valeurs ``None`` sont ignorées : un champ absent vaut mieux qu'un champ
+    à ``null`` sur chaque ligne du log. Les valeurs précédentes sont restaurées
+    à la sortie, ce qui rend l'imbrication sûre.
+
+    Args:
+        **fields: Champs à lier, par exemple ``run_id``, ``hypothesis_id``,
+            ``node``.
+
+    Yields:
+        Rien ; le bloc s'exécute avec les champs liés.
+    """
+    bound = {key: value for key, value in fields.items() if value is not None}
+    with structlog.contextvars.bound_contextvars(**bound):
+        yield
 
 
 def setup_logging() -> None:

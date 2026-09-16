@@ -10,6 +10,8 @@ Conditional edges:
   - After meta-reviewer: revise_and_resubmit loops back to sharpening (max 2)
 """
 
+import functools
+from collections.abc import Awaitable, Callable
 from datetime import date
 from typing import Any, Optional, TypedDict
 from uuid import uuid4
@@ -53,13 +55,19 @@ from storage import (
     init_database,
     update_brief,
 )
-from logging_config import get_logger
+from logging_config import get_logger, log_context
 
 logger = get_logger("post_fire_pipeline")
 
 
 class PostFireState(TypedDict, total=False):
     """State for the post-fire pipeline."""
+
+    # Identité du run, pour la journalisation (S11/B.2) et la mesure par appel.
+    # hypothesis_id vient de l'hypothèse 🔥 qui a déclenché le post-fire ;
+    # sans lui, les événements des nœuds ne désignent aucun sujet.
+    run_id: str
+    hypothesis_id: str
 
     # Input
     hypothesis: str
@@ -124,6 +132,43 @@ class PostFireState(TypedDict, total=False):
 
 # ── Node functions ───────────────────────────────────────────
 
+
+def logged_node(
+    node_name: str,
+) -> Callable[[Callable[[PostFireState], Awaitable[Any]]], Callable[[PostFireState], Awaitable[Any]]]:
+    """Lie ``node``, ``run_id`` et ``hypothesis_id`` à tout le nœud.
+
+    S11/B.2. Les nœuds appellent des agents qui journalisent eux-mêmes ; sans
+    ce liage, un ``protocol_parse_failed`` ne dit pas de quelle hypothèse il
+    parle, et il a fallu le retrouver par proximité temporelle. Le contexte est
+    délié à la sortie, y compris en cas d'exception.
+
+    Args:
+        node_name: Nom du nœud, tel qu'il apparaîtra dans le log et dans
+            ``llm_calls``.
+
+    Returns:
+        Décorateur applicable à une fonction de nœud.
+    """
+
+    def decorator(
+        func: Callable[[PostFireState], Awaitable[Any]],
+    ) -> Callable[[PostFireState], Awaitable[Any]]:
+        @functools.wraps(func)
+        async def wrapper(state: PostFireState) -> Any:
+            with log_context(
+                node=node_name,
+                run_id=state.get("run_id"),
+                hypothesis_id=state.get("hypothesis_id"),
+            ):
+                return await func(state)
+
+        return wrapper
+
+    return decorator
+
+
+@logged_node("persist_grounding_kill")
 async def node_persist_grounding_kill(state: PostFireState) -> PostFireState:
     """Persist a killed-at-grounding brief row so the kill is auditable.
 
@@ -168,6 +213,7 @@ async def node_persist_grounding_kill(state: PostFireState) -> PostFireState:
     return {**state, "brief_id": brief_id}
 
 
+@logged_node("persist_panel_reject")
 async def node_persist_panel_reject(state: PostFireState) -> PostFireState:
     """Persist a panel-rejected brief row so the score survives the reject.
 
@@ -222,6 +268,7 @@ async def node_persist_panel_reject(state: PostFireState) -> PostFireState:
     return {**state, "brief_id": brief_id}
 
 
+@logged_node("skip_grounding")
 async def node_skip_grounding(state: PostFireState) -> PostFireState:
     """Inject an empty grounding stub when SS is unavailable.
 
@@ -251,6 +298,7 @@ async def node_skip_grounding(state: PostFireState) -> PostFireState:
     return {**state, "grounding": empty_grounding, "kill_reason": None}
 
 
+@logged_node("literature_grounding")
 async def node_literature_grounding(state: PostFireState) -> PostFireState:
     """Run literature grounding."""
     input_data = GroundingInput(
@@ -276,6 +324,7 @@ async def node_literature_grounding(state: PostFireState) -> PostFireState:
     }
 
 
+@logged_node("hypothesis_sharpening")
 async def node_hypothesis_sharpening(state: PostFireState) -> PostFireState:
     """Run hypothesis sharpening."""
     grounding = state["grounding"]
@@ -308,6 +357,7 @@ async def node_hypothesis_sharpening(state: PostFireState) -> PostFireState:
     }
 
 
+@logged_node("experimental_protocol")
 async def node_experimental_protocol(state: PostFireState) -> PostFireState:
     """Run experimental protocol design."""
     sharpened = SharpeningOutput(**state["sharpened"])
@@ -321,6 +371,7 @@ async def node_experimental_protocol(state: PostFireState) -> PostFireState:
     }
 
 
+@logged_node("multi_reviewer_panel")
 async def node_multi_reviewer_panel(state: PostFireState) -> PostFireState:
     """Run the 5-reviewer panel + meta-reviewer."""
     sharpened = SharpeningOutput(**state["sharpened"])
@@ -434,6 +485,7 @@ def _flagged_card_indices(panel: dict[str, Any]) -> list[int]:
     return indices
 
 
+@logged_node("normalize_panel_language")
 async def node_normalize_panel_language(state: PostFireState) -> PostFireState:
     """Traduit en français les cartes et la meta-review restées en anglais.
 
@@ -550,6 +602,7 @@ async def node_normalize_panel_language(state: PostFireState) -> PostFireState:
     return {**state, "panel": normalized}
 
 
+@logged_node("vulgarization")
 async def node_vulgarization(state: PostFireState) -> PostFireState:
     """Produce French vulgarization and persist it into brief JSON + DB."""
     import json as _json
@@ -696,6 +749,7 @@ async def _patch_json_sidecar(
         )
 
 
+@logged_node("translation_hook")
 async def node_translation_hook(state: PostFireState) -> dict[str, Any]:
     """Translate vulgarization_data and panel_data FR -> EN.
 
@@ -818,6 +872,7 @@ async def node_translation_hook(state: PostFireState) -> dict[str, Any]:
     return {**state, **state_updates}
 
 
+@logged_node("research_brief")
 async def node_research_brief(state: PostFireState) -> PostFireState:
     """Generate and save the research brief."""
     brief_id = f"SPR-{date.today().strftime('%Y')}-{uuid4().hex[:4].upper()}"
@@ -950,6 +1005,7 @@ def _missing_required_fields(state: PostFireState) -> list[str]:
     return missing
 
 
+@logged_node("validate_brief")
 async def node_validate_brief(state: PostFireState) -> PostFireState:
     """Dernier nœud du graphe : promeut le brief en 'complete', ou le laisse.
 
@@ -1208,6 +1264,8 @@ async def run_post_fire_pipeline(
     keywords: list[str] | None = None,
     gap_manifest: dict[str, Any] | None = None,
     grounding_degraded: bool = False,
+    run_id: str | None = None,
+    hypothesis_id: str | None = None,
 ) -> PostFireState:
     """Run the complete post-fire pipeline.
 
@@ -1218,6 +1276,9 @@ async def run_post_fire_pipeline(
         keywords: Optional keywords for search.
         gap_manifest: Optional existing gap manifest.
         grounding_degraded: If True, skip literature grounding (SS was down).
+        run_id: Run L0 à l'origine du post-fire, pour la journalisation.
+        hypothesis_id: Hypothèse 🔥 à l'origine du post-fire. Sans lui, les
+            événements des nœuds ne désignent aucun sujet (S11/B.2).
 
     Returns:
         Final PostFireState with all results.
@@ -1230,6 +1291,8 @@ async def run_post_fire_pipeline(
         grounding_degraded = True
 
     initial_state: PostFireState = {
+        "run_id": run_id,
+        "hypothesis_id": hypothesis_id,
         "hypothesis": hypothesis,
         "domains": domains,
         "mechanisms": mechanisms,

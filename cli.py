@@ -605,6 +605,7 @@ def post_fire(hypothesis_id: str):
                 keywords=[],
                 gap_manifest=hypothesis.gap_manifest.model_dump()
                 if hypothesis.gap_manifest else {},
+                hypothesis_id=hypothesis.id,
             )
 
             progress.update(task, description="Post-fire pipeline complete!")
