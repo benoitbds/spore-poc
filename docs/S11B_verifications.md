@@ -184,3 +184,75 @@ brief passe, `rejected` sinon ; une seule tentative.
   l'exécution.
 
 Le brief reste publié. La validation de schéma en sortie de nœud ouvre le sprint suivant.
+
+---
+
+# Réalisation B.1 à B.7 — 16/09/2026
+
+Six commits sur master, `300d73b` → `f344455`, poussés sur le backup privé.
+Le détail de chaque décision est dans les messages de commit ; ce qui suit ne
+retient que ce qui change la lecture des documents précédents.
+
+## Ce que la vérification en direct a corrigé
+
+| Affirmation | Vérification | Résultat |
+|---|---|---|
+| « DeepSeek refuse `max_tokens` au-delà de 8192 » (commentaire dans `agents/experimental_protocol.py`) | Trois appels réels sur `deepseek-v4-flash` | **Faux.** 16000, 32000 et 64000 sont acceptés, `finish_reason=stop`. Héritage de V3.2. Le nœud protocole a tourné à 8000 pour rien. |
+| `model` renvoyé par l'API, jamais journalisé (B.0.1) | Mesuré à chaque appel depuis B.1 | L'API sert **`deepseek-flash`**, nom différent du `deepseek-v4-flash` configuré. `system_fingerprint` : `aeb56401…`. Les deux sont désormais en base. |
+| Le protocole tient dans le plafond relevé | Essai réel après B.3 et B.4, hypothèse synthétique | Protocole en 3 phases complet : 4 054 jetons de sortie, `finish_reason=stop`, parsé sans réparation. Marge de 4x sous le plafond. |
+
+## Incident — un test a écrasé un brief publié
+
+`tests/test_sprint4_register_brief.py` réenregistre par conception
+`SPR-2026-7626` dans la base **réelle**. Exécuté à 18:08 lors du passage de la
+suite, il a écrasé 7 colonnes du brief d'avril : `created_at` remis à
+aujourd'hui, `body_markdown`, `vulgarization_data`, `panel_data_en` et
+`vulgarization_data_en` mis à NULL, `revision_count` remis à 0,
+`sharpened_data` remplacé.
+
+- **Détecté** en vérifiant la fenêtre de sélection S9.3, où 7626 était remonté
+  en tête avec un `created_at` du jour.
+- **Restauré** depuis `data/backups/s11-20260916T175438Z` : les 32 colonnes sont
+  de nouveau identiques à la sauvegarde, le `.md` sur disque n'avait pas bougé.
+- **Cause aggravante** : depuis B.1, les doubles de test passent par la vraie
+  couche client, donc les tests écrivaient aussi leur mesure dans `llm_calls`
+  de production — 378 lignes factices, supprimées.
+- **Garde-fou** : `tests/__init__.py` redirige `SPORE_DB_PATH` et
+  `SPORE_OUTPUT_DIR` vers un dossier temporaire. Échappatoire explicite :
+  `SPORE_TEST_USE_REAL_DB=1`.
+- **À ne pas lancer sans intention** : `tests/test_calibration.py`,
+  `test_calibration_v2.py` et `test_literature_grounding.py` appellent l'API
+  réelle — ce sont des scripts de calibration, pas des tests.
+
+## Fenêtre de sélection S9.3 — contrôle
+
+Les deux briefs mis en quarantaine le 16/09 **ne sont pas** dans la fenêtre des
+20 derniers scores : ils datent d'avril et d'août, la fenêtre remonte au 10/09.
+Aucune contamination du seuil. `get_recent_consensus_scores` ne filtre que sur
+`panel_consensus_score > 0` : les lignes `failed_*` écrites par B.5 portent un
+score NULL et en sortent d'elles-mêmes.
+
+## Écarts assumés par rapport à la consigne
+
+1. **B.5.1** — la ligne d'échec est écrite dans le décorateur de nœud, pas à
+   l'endroit où `post_fire_failed` est émis. À cet endroit-là, dans
+   `graph/pipeline.py`, l'exception a déjà fait perdre l'état du graphe : les
+   blobs déjà produits seraient définitivement perdus. `post_fire_failed`
+   continue d'être émis au même endroit qu'avant.
+2. **B.3** — `data/l0_genome.yaml` porte une quatrième modification non
+   demandée : `synthesis.max_tokens` 3000 → 4000. Le code appelait 4000 en
+   ignorant le genome ; aligner le genome sur la production évite un
+   avertissement de bornage permanent, et rend visible que toute mutation L1
+   de ce paramètre était sans effet.
+3. **B.5.4** — `scripts/backfill_reviewer.py` filtre la table `hypotheses`, pas
+   `briefs` : son `status != 'rejected'` n'est pas concerné, il n'a pas été
+   touché.
+
+## À faire hors de ce dépôt
+
+- **Baq** : installer `deploy/logrotate/spore` (commande en tête du fichier).
+- **Baq** : redémarrer le serveur Next (quarantaine du 16/09, voir plus haut).
+- **spore-web** : le commentaire de `src/lib/brief-visibility.ts` énumère les
+  statuts écrits par Python — « quatre statuts et pas d'autres » — et demande
+  explicitement qu'on l'y ajoute. Les statuts `failed_*` manquent. Le prédicat
+  lui-même est correct (liste d'admission), seul le commentaire est périmé.
