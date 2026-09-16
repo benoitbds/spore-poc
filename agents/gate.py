@@ -12,6 +12,7 @@ from agents.base import PipelineState, load_prompt
 from models.collision import Collision
 from config import get_genome
 from llm import get_llm_client
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 from progress import get_progress_tracker
 
@@ -55,7 +56,7 @@ async def evaluate_collision(collision: Collision) -> GateResult:
     try:
         response = await client.complete(
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=400,
+            max_tokens=max_tokens_for("gate"),
             node="gate",
         )
 

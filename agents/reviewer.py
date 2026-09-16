@@ -11,6 +11,7 @@ from pydantic import BaseModel, Field
 
 from agents.base import load_prompt
 from llm import get_llm_client, LLMResponse
+from llm.limits import max_tokens_for
 from models.hypothesis import Hypothesis, HumanFeedback
 from logging_config import get_logger
 
@@ -277,7 +278,7 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
     response = await client.complete(
         messages=messages,
         system=_get_reviewer_prompt(),
-        max_tokens=1000,
+        max_tokens=max_tokens_for("reviewer"),
         temperature=0.3,  # Low temperature for consistent evaluation
         node="reviewer",
     )

@@ -11,6 +11,7 @@ from agents.base import load_prompt
 from agents.hypothesis_sharpening import SharpeningOutput
 from llm import get_llm_client
 from llm.json_parse import complete_json
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("experimental_protocol")
@@ -116,18 +117,17 @@ async def experimental_protocol_agent(
     )
 
     logger.info("designing_protocol", title=sharpened["title"])
-    # max_tokens capped at 8000: DeepSeek's valid range is [1, 8192], so
-    # anything above 8192 returns HTTP 400 "Invalid max_tokens value" and
-    # triggers the Anthropic fallback. Previous bump to 10000 caused this
-    # exact failure. 5000 was too tight (18 KB truncations on iter 2);
-    # 8000 gives headroom up to ~32 KB for typical prose-heavy JSON while
-    # staying under the provider cap.
+    # Le plafond vient du genome, borné par llm/limits.py. Le commentaire
+    # précédent affirmait que DeepSeek refusait au-delà de 8192 : vérifié le
+    # 16/09/2026 sur deepseek-v4-flash, 16000, 32000 et 64000 passent. Ce
+    # plafond de 8192, hérité de V3.2, a laissé le protocole tronqué une fois
+    # sur deux en septembre (S11-A).
     try:
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
             node="experimental_protocol",
-            max_tokens=8000,
+            max_tokens=max_tokens_for("experimental_protocol"),
             temperature=0.4,
             tracker=tracker,
         )

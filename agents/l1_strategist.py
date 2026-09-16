@@ -20,6 +20,7 @@ import yaml
 
 from config import get_genome, get_constitution
 from llm import get_llm_client
+from llm.limits import max_tokens_for
 from models.mutation import (
     Mutation,
     MutationType,
@@ -147,7 +148,7 @@ async def propose_mutations(
     # Call LLM
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=4000,
+        max_tokens=max_tokens_for("l1_strategist"),
         temperature=0.3,  # Lower temperature for more consistent analysis
         node="l1_strategist",
     )

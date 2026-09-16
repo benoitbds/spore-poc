@@ -16,6 +16,7 @@ from agents.base import load_prompt
 from knowledge.semantic_scholar import SemanticScholarClient, get_semantic_scholar_client
 from llm import get_llm_client
 from llm.json_parse import complete_json
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("literature_grounding")
@@ -97,8 +98,8 @@ async def _step1_extract_queries(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            node="literature_grounding",
-            max_tokens=2000,
+            node="literature_grounding_queries",
+            max_tokens=max_tokens_for("literature_grounding_queries"),
             temperature=0.4,
             tracker=tracker,
         )
@@ -232,7 +233,7 @@ async def _step3_analyze(
             client,
             [{"role": "user", "content": prompt}],
             node="literature_grounding",
-            max_tokens=8000,
+            max_tokens=max_tokens_for("literature_grounding"),
             temperature=0.3,
             tracker=tracker,
         )

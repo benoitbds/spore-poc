@@ -10,6 +10,7 @@ from typing import Any, TypedDict
 from agents.base import load_prompt
 from llm import get_llm_client
 from llm.json_parse import complete_json
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("hypothesis_sharpening")
@@ -90,7 +91,7 @@ async def hypothesis_sharpening_agent(input_data: SharpeningInput) -> Sharpening
             client,
             [{"role": "user", "content": prompt}],
             node="hypothesis_sharpening",
-            max_tokens=8000,
+            max_tokens=max_tokens_for("hypothesis_sharpening"),
             temperature=0.4,
             tracker=tracker,
         )

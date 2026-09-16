@@ -9,6 +9,7 @@ from typing import Any
 
 from config import get_genome
 from llm import get_llm_client
+from llm.limits import max_tokens_for
 from models.hypothesis import Hypothesis, ImpactAnalysis, ImpactScore
 from agents.base import PipelineState, load_prompt
 from logging_config import get_logger, get_token_tracker
@@ -69,7 +70,7 @@ async def analyze_impact(hypothesis: Hypothesis) -> ImpactAnalysis | None:
     try:
         response = await client.complete(
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=2000,
+            max_tokens=max_tokens_for("impact"),
             node="impact",
         )
 

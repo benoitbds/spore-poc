@@ -13,6 +13,7 @@ from agents.experimental_protocol import ProtocolOutput
 from agents.multi_reviewer_panel import PanelOutput
 from llm import get_llm_client
 from llm.json_parse import complete_json
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("vulgarization")
@@ -132,7 +133,7 @@ async def vulgarization_agent(
             client,
             [{"role": "user", "content": prompt}],
             node="vulgarization",
-            max_tokens=3000,
+            max_tokens=max_tokens_for("vulgarization"),
             temperature=0.5,
             tracker=tracker,
         )

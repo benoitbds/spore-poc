@@ -10,6 +10,7 @@ from typing import Any
 from config import get_genome
 from llm import get_llm_client
 from llm.json_parse import complete_json
+from llm.limits import max_tokens_for
 from models.hypothesis import Hypothesis, Scores
 from agents.base import PipelineState, DebateLog, load_prompt, format_predictions, format_context
 from logging_config import get_logger, get_token_tracker
@@ -86,7 +87,7 @@ async def run_devil_advocate(
             client,
             [{"role": "user", "content": prompt}],
             node="critic_devil",
-            max_tokens=8000,
+            max_tokens=max_tokens_for("critic_devil"),
             temperature=0.7,
             tracker=tracker,
         )
@@ -157,7 +158,7 @@ async def run_angel_advocate(
             client,
             [{"role": "user", "content": prompt}],
             node="critic_angel",
-            max_tokens=8000,
+            max_tokens=max_tokens_for("critic_angel"),
             temperature=0.7,
             tracker=tracker,
         )

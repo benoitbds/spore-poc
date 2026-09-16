@@ -16,6 +16,7 @@ import yaml
 
 from config import get_constitution
 from llm import get_llm_client
+from llm.limits import max_tokens_for
 from models.mutation import (
     Mutation,
     MutationStatus,
@@ -129,7 +130,7 @@ async def evaluate_mutation(
 
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=2000,
+        max_tokens=max_tokens_for("l1_critic"),
         temperature=0.2,  # Low temperature for consistent evaluation
         node="l1_critic",
     )

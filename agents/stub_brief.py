@@ -22,6 +22,7 @@ from typing import Any
 from uuid import uuid4
 
 from llm import get_llm_client
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("stub_brief")
@@ -134,7 +135,7 @@ async def generate_stub_brief(
     client = get_llm_client("research_brief")
     response = await client.complete(
         messages=[{"role": "user", "content": prompt}],
-        max_tokens=3000,
+        max_tokens=max_tokens_for("stub_brief"),
         temperature=0.6,
         node="stub_brief",
     )

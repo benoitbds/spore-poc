@@ -9,6 +9,7 @@ from typing import Any
 
 from config import get_genome
 from llm import get_llm_client, LLMResponse
+from llm.limits import max_tokens_for
 from models.collision import Collision
 from models.hypothesis import (
     Hypothesis,
@@ -117,7 +118,7 @@ async def synthesize_hypothesis(
     try:
         response = await client.complete(
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=4000,
+            max_tokens=max_tokens_for("synthesis"),
             node="synthesis",
         )
 

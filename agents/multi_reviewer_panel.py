@@ -20,6 +20,7 @@ from agents.hypothesis_sharpening import SharpeningOutput
 from agents.experimental_protocol import ProtocolOutput
 from llm import get_llm_client
 from llm.json_parse import complete_json
+from llm.limits import max_tokens_for
 from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("multi_reviewer_panel")
@@ -384,7 +385,7 @@ async def _run_single_reviewer(
             client,
             [{"role": "user", "content": prompt}],
             node=f"reviewer_{persona}",
-            max_tokens=2000,
+            max_tokens=max_tokens_for(f"reviewer_{persona}"),
             temperature=0.5,
             tracker=tracker,
         )
@@ -548,7 +549,7 @@ async def run_meta_reviewer(
             client,
             [{"role": "user", "content": prompt}],
             node="meta_reviewer",
-            max_tokens=2000,
+            max_tokens=max_tokens_for("meta_reviewer"),
             temperature=0.3,
             tracker=tracker,
         )
