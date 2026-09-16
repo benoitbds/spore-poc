@@ -1,0 +1,57 @@
+# Rotation de /var/log/spore.log — S11/B.7.
+#
+# Ce fichier est la seule source d'historique du pipeline antérieure à la
+# table `llm_calls` (S11/B.1) : au 16/09/2026 il portait 165 164 lignes et
+# 33 Mo sans avoir jamais tourné. Tout le diagnostic S11-A en est sorti.
+#
+# D'où les choix :
+#
+#   rotate 52 + weekly  un an d'historique. Le diagnostic a eu besoin de
+#                       remonter à avril ; garder moins revient à s'interdire
+#                       la même enquête l'an prochain.
+#   copytruncate        le pipeline et l'API écrivent dans ce fichier par un
+#                       descripteur ouvert au démarrage du processus, sans
+#                       recevoir de SIGHUP. Sans copytruncate, ils
+#                       continueraient d'écrire dans l'inode renommé et le
+#                       nouveau fichier resterait vide. Fenêtre de perte :
+#                       les lignes écrites entre la copie et la troncature,
+#                       négligeable pour un pipeline qui tourne à 04:15.
+#   delaycompress       la rotation peut tomber pendant qu'un processus écrit
+#                       encore ; on ne compresse qu'au tour suivant.
+#   missingok           pas de log, pas d'erreur : le cron ne doit pas
+#                       échouer sur une installation neuve.
+#   notifempty          ne pas faire tourner un fichier vide.
+#
+# Installation, à exécuter par Baq :
+#
+#     sudo install -m 644 -o root -g root \
+#         /home/baq/Projects/spore-poc/deploy/logrotate/spore \
+#         /etc/logrotate.d/spore
+#
+# Vérification sans rien modifier :
+#
+#     sudo logrotate --debug /etc/logrotate.d/spore
+#
+# Forcer une rotation pour vérifier en conditions réelles :
+#
+#     sudo logrotate --force /etc/logrotate.d/spore
+#     ls -l /var/log/spore.log*
+#
+# Le fichier appartient à l'utilisateur `baq` : `su` le dit à logrotate, qui
+# refuse sinon de faire tourner un log qu'il ne possède pas quand le
+# répertoire est accessible en écriture à un non-root.
+#
+# Pas de directive `create` : avec `copytruncate`, le fichier d'origine n'est
+# jamais renommé, donc il n'y a rien à recréer et logrotate ignorerait la
+# directive. L'y laisser laisserait croire à une garantie qui n'existe pas.
+
+/var/log/spore.log {
+    weekly
+    rotate 52
+    compress
+    delaycompress
+    copytruncate
+    missingok
+    notifempty
+    su baq baq
+}
