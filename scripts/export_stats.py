@@ -11,6 +11,13 @@ PROJECT_ROOT = Path(__file__).parent.parent
 DB_PATH = PROJECT_ROOT / "data" / "spore.db"
 OUT_PATH = Path("/home/baq/Projects/spore-web/data/stats.json")
 
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from storage.database import BRIEF_EXISTS_STATUSES  # noqa: E402
+
+#: Marqueurs pour ``status IN (...)``, autant que de statuts admis.
+BRIEF_STATUS_PLACEHOLDERS = ",".join("?" * len(BRIEF_EXISTS_STATUSES))
+
 
 def main() -> None:
     if not DB_PATH.exists():
@@ -28,7 +35,14 @@ def main() -> None:
     total_curated = q(
         "SELECT COUNT(*) as n FROM hypotheses WHERE status IN ('curated','human_reviewed','validated')"
     )[0]["n"]
-    total_briefs = q("SELECT COUNT(*) as n FROM briefs WHERE status != 'rejected'")[0]["n"]
+    # S11/B.5 — liste d'admission, et non « tout sauf rejected » : les lignes
+    # failed_* écrites depuis ce sprint marquent une panne technique, pas un
+    # brief. Une liste de refus les aurait laissées entrer en silence, comme
+    # elle laissera entrer le prochain statut inventé.
+    total_briefs = q(
+        f"SELECT COUNT(*) as n FROM briefs WHERE status IN ({BRIEF_STATUS_PLACEHOLDERS})",
+        BRIEF_EXISTS_STATUSES,
+    )[0]["n"]
 
     fire_count = q(
         "SELECT COUNT(*) as n FROM hypotheses WHERE json_extract(auto_feedback_json, '$.verdict') = 'a_tester'"
@@ -42,14 +56,16 @@ def main() -> None:
     # Novelty average across briefs
     avg_novelty_row = q(
         "SELECT AVG(novelty_score) as avg FROM briefs "
-        "WHERE novelty_score IS NOT NULL AND status != 'rejected'"
+        f"WHERE novelty_score IS NOT NULL AND status IN ({BRIEF_STATUS_PLACEHOLDERS})",
+        BRIEF_EXISTS_STATUSES,
     )
     avg_novelty = avg_novelty_row[0]["avg"] if avg_novelty_row[0]["avg"] else None
 
     # Panel consensus average
     avg_panel_row = q(
         "SELECT AVG(panel_consensus_score) as avg FROM briefs "
-        "WHERE panel_consensus_score IS NOT NULL AND status != 'rejected'"
+        f"WHERE panel_consensus_score IS NOT NULL AND status IN ({BRIEF_STATUS_PLACEHOLDERS})",
+        BRIEF_EXISTS_STATUSES,
     )
     avg_panel = avg_panel_row[0]["avg"] if avg_panel_row[0]["avg"] else None
 

@@ -35,7 +35,9 @@ from agents.experimental_protocol import (
 from agents.multi_reviewer_panel import (
     full_panel_review,
     selection_threshold,
+    MetaReviewFailed,
     PanelOutput,
+    PanelReviewFailed,
     SELECTION_FLOOR,
     SELECTION_WINDOW,
 )
@@ -53,6 +55,7 @@ from storage import (
     save_brief as save_brief_db,
     get_recent_consensus_scores,
     init_database,
+    save_failed_brief,
     update_brief,
 )
 from logging_config import get_logger, log_context
@@ -133,15 +136,112 @@ class PostFireState(TypedDict, total=False):
 # ── Node functions ───────────────────────────────────────────
 
 
+#: Statut ``briefs`` attribué quand un nœud échoue (S11/B.5).
+#:
+#: Les nœuds de persistance en sont absents : une panne dans un nœud qui écrit
+#: une ligne ne doit pas en écrire une autre. Le nœud de validation non plus —
+#: il laisse déjà le brief en 'pending', statut qui a son propre traitement.
+FAILURE_STATUS_BY_NODE: dict[str, str] = {
+    "skip_grounding": "failed_grounding",
+    "literature_grounding": "failed_grounding",
+    "hypothesis_sharpening": "failed_sharpening",
+    "experimental_protocol": "failed_protocol",
+    "multi_reviewer_panel": "failed_panel",
+    "normalize_panel_language": "failed_normalization",
+    "vulgarization": "failed_vulgarization",
+    "translation_hook": "failed_translation",
+    "research_brief": "failed_brief",
+}
+
+#: Exceptions qui nomment leur statut elles-mêmes, quel que soit le nœud.
+#:
+#: Le panel et la meta-review échouent tous deux dans
+#: ``node_multi_reviewer_panel`` : les distinguer par le nœud les confondrait,
+#: alors que la quarantaine du 16/09 les sépare déjà en base.
+FAILURE_STATUS_BY_EXCEPTION: tuple[tuple[type[BaseException], str], ...] = (
+    (MetaReviewFailed, "failed_meta_review"),
+    (PanelReviewFailed, "failed_panel"),
+)
+
+
+def failure_status(node_name: str, exc: BaseException) -> str | None:
+    """Statut à écrire pour un nœud qui a levé.
+
+    Args:
+        node_name: Nœud en échec.
+        exc: Exception levée.
+
+    Returns:
+        Statut ``failed_*``, ou ``None`` si ce nœud ne persiste pas d'échec.
+    """
+    for exception_type, status in FAILURE_STATUS_BY_EXCEPTION:
+        if isinstance(exc, exception_type):
+            return status
+    return FAILURE_STATUS_BY_NODE.get(node_name)
+
+
+async def persist_node_failure(
+    node_name: str, state: PostFireState, exc: BaseException
+) -> None:
+    """Écrit la ligne d'échec d'un nœud, blobs déjà produits compris.
+
+    L'écriture ne masque jamais la panne d'origine : toute erreur ici produit
+    un warning, et l'exception initiale poursuit sa route. Sans cette ligne,
+    une panne technique ne laissait aucune trace en base — les deux
+    troncatures de septembre n'ont été retrouvées que dans le log (A.5).
+
+    Args:
+        node_name: Nœud en échec.
+        state: État du graphe au moment de la panne.
+        exc: Exception levée.
+    """
+    status = failure_status(node_name, exc)
+    if status is None:
+        return
+
+    hypothesis_id = state.get("hypothesis_id")
+    # L'identifiant SPR- n'est attribué qu'au nœud de génération du brief :
+    # en amont, l'hypothèse sert d'identifiant de ligne (B.5.2).
+    row_id = state.get("brief_id") or hypothesis_id
+    if not row_id:
+        logger.warning("failed_brief_not_persisted", node=node_name, reason="no_identifier")
+        return
+
+    try:
+        await init_database()
+        await save_failed_brief(
+            row_id=row_id,
+            hypothesis_id=hypothesis_id or row_id,
+            status=status,
+            failure_reason=f"{type(exc).__name__}: {exc}",
+            grounding_data=state.get("grounding"),
+            sharpened_data=state.get("sharpened"),
+            protocol_data=state.get("protocol"),
+            panel_data=state.get("panel"),
+        )
+    except Exception as write_error:  # noqa: BLE001 — jamais au-dessus de la panne
+        logger.warning(
+            "failed_brief_not_persisted",
+            node=node_name,
+            brief_id=row_id,
+            error=str(write_error),
+        )
+
+
 def logged_node(
     node_name: str,
 ) -> Callable[[Callable[[PostFireState], Awaitable[Any]]], Callable[[PostFireState], Awaitable[Any]]]:
-    """Lie ``node``, ``run_id`` et ``hypothesis_id`` à tout le nœud.
+    """Lie le sujet au contexte et persiste l'échec du nœud.
 
-    S11/B.2. Les nœuds appellent des agents qui journalisent eux-mêmes ; sans
-    ce liage, un ``protocol_parse_failed`` ne dit pas de quelle hypothèse il
-    parle, et il a fallu le retrouver par proximité temporelle. Le contexte est
-    délié à la sortie, y compris en cas d'exception.
+    S11/B.2 pour le contexte : les nœuds appellent des agents qui journalisent
+    eux-mêmes ; sans ce liage, un ``protocol_parse_failed`` ne dit pas de
+    quelle hypothèse il parle, et il a fallu le retrouver par proximité
+    temporelle. Le contexte est délié à la sortie, exception comprise.
+
+    S11/B.5 pour l'échec : c'est ici que l'état partiel est encore accessible.
+    ``post_fire_failed`` reste émis un cran au-dessus, dans ``graph/pipeline``,
+    où l'exception a déjà fait perdre l'état — la ligne s'écrit donc plus bas
+    que l'endroit nommé par la consigne, pour garder les blobs.
 
     Args:
         node_name: Nom du nœud, tel qu'il apparaîtra dans le log et dans
@@ -161,7 +261,11 @@ def logged_node(
                 run_id=state.get("run_id"),
                 hypothesis_id=state.get("hypothesis_id"),
             ):
-                return await func(state)
+                try:
+                    return await func(state)
+                except Exception as exc:
+                    await persist_node_failure(node_name, state, exc)
+                    raise
 
         return wrapper
 

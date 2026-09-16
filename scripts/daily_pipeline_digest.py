@@ -10,12 +10,13 @@ jusqu'à la boîte mail, sans système d'alerting à maintenir.
 
 ## La ligne de partage : alerte ou compteur
 
-Alerter tout ferait presque un mail par jour rien qu'avec les 26
-``reviewer_parse_failed`` mensuels — un volume qui garantit qu'on cesse de
-lire. Or ces 26-là sont *gérés* : le repli du panel met ``confidence=0.0``,
-ce qui sort l'avis du consensus pondéré, par conception. Preuve empirique :
-sur les 14 briefs portant une review non parsée, **13 sont ``rejected``**. Le
-mécanisme a fonctionné.
+Alerter tout ferait presque un mail par jour : la règle est de ne porter à
+l'écran que ce qui a changé l'issue d'un run, et de compter le reste.
+
+Note S11/B.1 : les 26 ``reviewer_parse_failed`` mensuels étaient comptés, pas
+alertés, parce qu'un repli mettait ``confidence=0.0`` et sortait l'avis du
+consensus. Ce repli n'existe plus — une review illisible fait échouer le
+panel — donc l'événement est passé en ALERTE.
 
 D'où la règle appliquée ici :
 
@@ -210,6 +211,85 @@ def stale_pending_briefs(db_path: Path, hours: int = PENDING_STALE_HOURS) -> lis
         conn.close()
 
 
+#: Classement des pannes techniques, par type d'exception en tête de
+#: ``failure_reason`` (S11/B.5.6). Le format « TypeErreur: message » est écrit
+#: par ``persist_node_failure`` : on classe sur le type, pas sur la prose.
+FAILURE_CLASSES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("sortie tronquée", ("LLMOutputTruncated",)),
+    ("JSON invalide", ("JSONDecodeError", "ValueError", "KeyError")),
+    ("génération interrompue", ("LLMOutputIncomplete", "LLMResourceExhausted")),
+)
+
+
+def classify_failure(failure_reason: str | None) -> str:
+    """Range un motif de panne dans l'une des quatre classes.
+
+    Args:
+        failure_reason: Contenu de ``briefs.failure_reason``.
+
+    Returns:
+        Libellé de la classe ; « autre » si le type est inconnu ou absent.
+    """
+    head = (failure_reason or "").split(":", 1)[0].strip()
+    for label, types in FAILURE_CLASSES:
+        if head in types:
+            return label
+    return "autre"
+
+
+def failed_briefs(db_path: Path, anchor: str) -> list[dict[str, Any]]:
+    """Lignes ``failed_*`` créées le jour ancré.
+
+    « Depuis le dernier envoi » se traduit ici par « le jour ancré », comme
+    tout le reste du digest : le script s'ancre sur le dernier jour présent
+    dans le log et tourne une fois par jour. Aligner les deux fenêtres évite
+    d'inventer un fichier d'état — et évite de re-signaler les mêmes lignes.
+
+    Lecture seule stricte : connexion ``mode=ro``, aucune écriture possible.
+
+    Args:
+        db_path: Chemin de la base.
+        anchor: Jour ancré, au format ``YYYY-MM-DD``.
+
+    Returns:
+        Lignes, les plus anciennes d'abord.
+    """
+    if not db_path.exists():
+        return []
+    conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
+    try:
+        rows = conn.execute(
+            "SELECT id, hypothesis_id, status, failure_reason, created_at "
+            "FROM briefs WHERE status LIKE 'failed=_%' ESCAPE '=' "
+            "AND date(created_at) = ? ORDER BY created_at",
+            (anchor,),
+        ).fetchall()
+        return [
+            {
+                "id": r[0],
+                "hypothesis_id": r[1],
+                "status": r[2],
+                "failure_reason": r[3],
+                "created_at": r[4],
+            }
+            for r in rows
+        ]
+    except sqlite3.Error:
+        # Base d'avant la migration B.5 : pas de colonne failure_reason.
+        return []
+    finally:
+        conn.close()
+
+
+def _failed_line(row: dict[str, Any]) -> str:
+    """Entrée de la section des pannes techniques."""
+    line = f"  • {row['id']}  [{row['status']}]  {classify_failure(row['failure_reason'])}"
+    line += f"\n    hypothèse : {row['hypothesis_id']}"
+    if row["failure_reason"]:
+        line += f"\n    détail : {str(row['failure_reason'])[:200]}"
+    return line
+
+
 def drifting_counters(counters: Counter, population: int) -> list[tuple[str, int, float]]:
     """Compteurs dont la fréquence dépasse le seuil de dérive."""
     if population <= 0:
@@ -292,7 +372,19 @@ def format_digest(
     data: dict[str, Any],
     stale: list[tuple[str, str]],
     drifts: list[tuple[str, int, float]],
+    failed: list[dict[str, Any]] | None = None,
 ) -> tuple[str, str]:
+    """Rend le sujet et le corps du digest.
+
+    Args:
+        data: Sortie de ``collect``.
+        stale: Briefs restés en 'pending'.
+        drifts: Compteurs en dérive.
+        failed: Lignes ``failed_*`` du jour ancré (S11/B.5.6).
+
+    Returns:
+        Tuple ``(sujet, corps)``.
+    """
     anchor = data["anchor"]
     counters = data["counters"]
     last_block: dict[str, dict[str, Any]] = data.get("last_block", {})
@@ -308,7 +400,8 @@ def format_digest(
         if not (e.get("brief_id") in stale_ids and e.get("event") in BLOCKING_EVENTS)
     ]
 
-    n = len(alerts) + len(stale) + len(drifts)
+    failed = failed or []
+    n = len(alerts) + len(stale) + len(drifts) + len(failed)
     subject = f"[SPORE] {n} chose(s) à regarder — pipeline du {anchor}"
 
     parts = [f"Digest pipeline post-fire — {anchor}", ""]
@@ -316,6 +409,15 @@ def format_digest(
     if alerts:
         parts += [f"ÉCHECS ({len(alerts)}) — l'issue d'un run a changé", ""]
         parts += [_evt_line(e) for e in alerts]
+        parts.append("")
+
+    if failed:
+        parts += [
+            f"PANNES TECHNIQUES ({len(failed)}) — run interrompu, ligne "
+            "conservée en base pour rejeu",
+            "",
+        ]
+        parts += [_failed_line(row) for row in failed]
         parts.append("")
 
     if stale:
@@ -383,12 +485,13 @@ def main() -> int:
     db_path = PROJECT_ROOT / "data" / "spore.db"
     stale = stale_pending_briefs(db_path)
     drifts = drifting_counters(data["counters"], data["population"])
+    failed = failed_briefs(db_path, data["anchor"])
 
-    if not (data["alerts"] or stale or drifts) and not args.always:
+    if not (data["alerts"] or stale or drifts or failed) and not args.always:
         # Le cas nominal : rien à dire, donc rien envoyé.
         return 0
 
-    subject, body = format_digest(data, stale, drifts)
+    subject, body = format_digest(data, stale, drifts, failed)
 
     if args.dry_run or args.always:
         print(f"Subject: {subject}")

@@ -412,6 +412,103 @@ async def init_database() -> None:
         except Exception:
             logger.debug("db_migration_panel_data_en_already_present")
 
+        # S11/B.5 — motif de la panne technique qui a interrompu un run.
+        # Colonne distincte de kill_reason, qui sert aux rejets
+        # SCIENTIFIQUES (already_proven, contre-preuve fatale) et alimente
+        # les taux publiés : y écrire une panne fausserait le taux de kill
+        # au grounding. Le format est « TypeErreur: message », pour que le
+        # digest classe par type plutôt qu'en relisant de la prose.
+        try:
+            await conn.execute("ALTER TABLE briefs ADD COLUMN failure_reason TEXT")
+            await conn.commit()
+            logger.info("db_migration_failure_reason_added")
+        except Exception:
+            logger.debug("db_migration_failure_reason_already_present")
+
+
+#: Statuts qui signifient « un brief existe » : tout le reste est soit un
+#: rejet, soit une panne. Les calculs publics filtrent sur cette liste plutôt
+#: que sur ``status != 'rejected'`` — une liste de refus laisse entrer chaque
+#: nouveau statut en silence, ce que S11/B.5 vient précisément d'ajouter.
+BRIEF_EXISTS_STATUSES: tuple[str, ...] = ("complete", "pending", "killed")
+
+
+async def save_failed_brief(
+    row_id: str,
+    hypothesis_id: str,
+    status: str,
+    failure_reason: str,
+    *,
+    grounding_data: dict | None = None,
+    sharpened_data: dict | None = None,
+    protocol_data: dict | None = None,
+    panel_data: dict | None = None,
+) -> None:
+    """Persiste la panne technique d'un run post-fire, sans écraser l'existant.
+
+    Idempotent par construction : un rejeu qui échoue de nouveau met à jour la
+    même ligne. ``INSERT OR REPLACE`` est proscrit ici — il supprime puis
+    réinsère, ce qui remet ``created_at`` à maintenant et met à NULL toute
+    colonne non citée (constat S10-B). ``ON CONFLICT DO UPDATE`` ne touche que
+    les colonnes nommées, et les blobs déjà produits ne sont écrasés que par
+    une valeur non nulle.
+
+    Args:
+        row_id: Identifiant de la ligne. ``brief_id`` s'il a déjà été attribué,
+            sinon ``hypothesis_id`` — l'identifiant ``SPR-`` n'est attribué
+            qu'au nœud de génération du brief, donc une panne en amont n'en a
+            pas (documenté en B.5.2).
+        hypothesis_id: Hypothèse à l'origine du run.
+        status: ``failed_<nœud>`` : failed_grounding, failed_sharpening,
+            failed_protocol, failed_panel, failed_meta_review…
+        failure_reason: ``TypeErreur: message``.
+        grounding_data: Blob déjà produit, s'il existe.
+        sharpened_data: Blob déjà produit, s'il existe.
+        protocol_data: Blob déjà produit, s'il existe.
+        panel_data: Blob déjà produit, s'il existe.
+    """
+    payloads = {
+        "grounding_data": json.dumps(grounding_data, ensure_ascii=False) if grounding_data else None,
+        "sharpened_data": json.dumps(sharpened_data, ensure_ascii=False) if sharpened_data else None,
+        "protocol_data": json.dumps(protocol_data, ensure_ascii=False) if protocol_data else None,
+        "panel_data": json.dumps(panel_data, ensure_ascii=False) if panel_data else None,
+    }
+    async with get_connection() as conn:
+        await conn.execute(
+            """
+            INSERT INTO briefs (
+                id, hypothesis_id, status, failure_reason,
+                grounding_data, sharpened_data, protocol_data, panel_data
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+                status = excluded.status,
+                failure_reason = excluded.failure_reason,
+                grounding_data = COALESCE(excluded.grounding_data, briefs.grounding_data),
+                sharpened_data = COALESCE(excluded.sharpened_data, briefs.sharpened_data),
+                protocol_data = COALESCE(excluded.protocol_data, briefs.protocol_data),
+                panel_data = COALESCE(excluded.panel_data, briefs.panel_data)
+            """,
+            (
+                row_id,
+                hypothesis_id,
+                status,
+                failure_reason,
+                payloads["grounding_data"],
+                payloads["sharpened_data"],
+                payloads["protocol_data"],
+                payloads["panel_data"],
+            ),
+        )
+        await conn.commit()
+
+    logger.info(
+        "failed_brief_persisted",
+        brief_id=row_id,
+        hypothesis_id=hypothesis_id,
+        status=status,
+        failure_reason=failure_reason[:200],
+    )
+
 
 async def save_hypothesis(hypothesis: Hypothesis) -> None:
     """Save a hypothesis to the database."""
