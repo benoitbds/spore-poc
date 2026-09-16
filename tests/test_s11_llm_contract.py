@@ -382,6 +382,23 @@ class WidenOnTruncationTests(TempDatabase):
             )
         self.assertEqual(len(client.calls), 2)
 
+    async def test_extract_json_is_never_reached_on_a_truncated_output(self) -> None:
+        # Le contenu serait parsable : seul l'ordre des contrôles empêche de
+        # publier une sortie coupée qui se trouve, par accident, refermée.
+        client = ScriptedClient(
+            [response(finish_reason="length"), response(finish_reason="length")]
+        )
+        with mock.patch("llm.json_parse.extract_json") as parser:
+            with self.assertRaises(LLMOutputTruncated):
+                await complete_json(
+                    client,
+                    PROMPT,
+                    node="experimental_protocol",
+                    max_tokens=8000,
+                    temperature=0.4,
+                )
+        parser.assert_not_called()
+
     async def test_widening_is_capped_by_the_ceiling(self) -> None:
         client = ScriptedClient([response(finish_reason="length"), response()])
         await complete_json(
