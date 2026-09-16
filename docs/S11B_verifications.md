@@ -1,0 +1,186 @@
+# S11 — Phase B.0 : vérifications préalables
+
+Lecture seule, sauf la quarantaine décrite en fin de document (décision humaine du 16/09).
+Complète `docs/S11A_diagnostic_troncature.md`.
+
+## B.0.1 — Pourquoi les troncatures se regroupent entre le 11 et le 16/09
+
+Quatre facteurs examinés, un seul explique le regroupement.
+
+| Facteur | Verdict |
+|---|---|
+| Date d'introduction de `json_parse_retrying` | **Partiel.** Introduit le 24/08 (`1b345b3`). Avant cette date, une troncature ne laissait aucune trace exploitable. Mais entre le 24/08 et le 10/09 inclus, aucune troncature n'est enregistrée : l'instrumentation n'explique pas le trou. |
+| Commits du 01 au 12/09 sur prompts, schémas ou boucle de révision | **Aucun.** Le dépôt ne porte aucun commit dans cette fenêtre. Le voisin le plus proche est S10-A le 14/09 (prompts reviewer en français), postérieur aux troncatures du 10-11/09. |
+| Part des protocoles à itération ≥ 2 depuis le 01/08 | **Stable.** Entre 78 % et 100 % chaque semaine (S31 100 %, S35 78 %, S37 89 %, S38 100 %). Ce n'est pas le facteur. |
+| `model` renvoyé par l'API | **Non journalisé.** `LLMResponse.model` recopie le nom configuré ; la réponse du fournisseur n'est jamais lue. Un changement côté DeepSeek serait invisible. Corrigé en B.1 (`response_model`, `system_fingerprint`). |
+
+**Ce qui a changé est le volume de contenu, pas le format.** Médianes par semaine, sur les
+briefs stockés :
+
+| Semaine | Preuves | Prédictions | Risques | Critères | Équipements | Protocole (car.) |
+|---|---|---|---|---|---|---|
+| S31 (28/07-03/08) | 8 | 3 | 10 | 10 | 11 | 18 589 |
+| S33 (11-17/08) | 9 | 3 | 9 | 10 | 12 | 18 658 |
+| S35 (25-31/08) | 10 | 3 | 9 | 8 | 9 | 11 861 |
+| S36 (01-07/09) | 8 | 3 | 9 | 8 | 11 | 11 571 |
+| **S37 (08-14/09)** | **14** | **5** | **12** | **13** | **13** | **19 187** |
+| **S38 (15-16/09)** | **12** | **6** | **12** | **14** | **16** | **20 339** |
+
+Le sharpening rend deux fois plus de prédictions qu'en août et le protocole les décline
+phase par phase. La cause est en amont du nœud protocole, sans changement de code : elle
+fait l'objet de B.0.7.
+
+## B.0.2 — Les deux niveaux de réparation
+
+`llm/json_parse.py`, fonction `_repair()`, un seul passage conscient des frontières de
+chaînes :
+
+1. **Virgule finale** avant `}` ou `]`, retirée. Le passage caractère par caractère évite
+   la regex naïve `,\s*}`, qui corromprait un littéral contenant « trailing, } ».
+2. **Caractère de contrôle nu** dans une chaîne, échappé (`\n`, `\r`, `\t`, `\b`, `\f`, et
+   `\uXXXX` en dessous de 0x20).
+
+En amont, `_strip_fences()` tolère une fence de fermeture absente et `_slice_outermost()`
+isole l'objet le plus externe.
+
+**Aucun de ces niveaux ne peut rendre parsable une sortie tronquée.** Rien ne referme une
+chaîne, un crochet ou une accolade, rien n'extrait un objet interne complet à la place de
+l'objet attendu : quand `_slice_outermost` ne trouve pas le partenaire de l'ouvrant, il rend
+le texte tel quel pour que `json.loads` échoue franchement plutôt que de produire un faux
+positif. Le module le dit lui-même : « Périmètre : syntaxe uniquement ».
+
+Reste un cas théorique : un objet complet suivi d'un commentaire coupé net. Le contenu
+serait parsable alors que `finish_reason = length`. C'est précisément ce que B.1 rejette,
+et la raison pour laquelle le contrôle se fait avant tout parsing.
+
+## B.0.3 — Artefacts des briefs publiés
+
+91 briefs publiés contrôlés (`status='complete'`, hors stubs) : `protocol_data`,
+`panel_data` (cartes et meta-review) comparés aux champs attendus.
+
+### Listes autorisées à être vides
+
+Une liste vide n'est pas une non-conformité quand le contenu le justifie. Sont autorisées :
+
+- `phases[].required_resources.datasets` — une phase peut n'utiliser aucun jeu de données
+  (18 briefs sur 187 dans ce cas) ;
+- `phases[].required_resources.equipment` — une phase purement in silico n'a pas
+  d'équipement ;
+- `phases[].required_resources.software` — une phase purement expérimentale n'a pas de
+  logiciel ;
+- `meta_review.key_disagreements` — un panel peut être unanime ;
+- `meta_review.revision_guidance` — absent quand le verdict est `publish_brief`.
+
+**Règle à porter dans le schéma du sprint suivant** : une phase 1 doit comporter **au moins
+un jeu de données ou un logiciel**. Une phase 1 sans ni l'un ni l'autre n'est pas
+démarrable, ce que le champ `phase_1_quick_start.can_start_today` prétend pourtant.
+
+Toute autre liste vide, et toute clé absente, restent des non-conformités.
+
+### Non-conformités réelles : 3 sur 91
+
+| Brief | Date | Écart | Nature |
+|---|---|---|---|
+| `SPR-2026-DB14` | 20/07 | `phases[2].expected_outputs` **absente** | Omission du modèle. Le protocole se termine normalement : ce n'est pas une troncature. |
+| `SPR-2026-8FDE` | 22/08 | carte `funding_strategist` de repli | `confidence = 0.0`, `recommendation = "Manual review needed."`, aucune question critique. Le 5,0 de cette carte entre dans le consensus publié (6,02). |
+| `SPR-2026-6FEB` | 12/04 | meta-review de repli Python | `llm_verdict = parse_failed`, `final_recommendation` = « Meta-review failed to parse. Python consensus 6.84 at iter 2 ». |
+
+### Exhaustivité de la recherche des replis
+
+Recherche par marqueurs sur **tous** les briefs portant un panel (187 lignes, tous statuts),
+et non sur le seul schéma :
+
+- carte avec `confidence = 0.0` ou contenant « Manual review needed » ;
+- meta-review avec `llm_verdict = parse_failed` ;
+- toute occurrence de « failed to parse », « parse_failed », « parse failure ».
+
+Résultat : **deux briefs publiés** concernés, 8FDE et 6FEB — les mêmes que par le schéma.
+Onze briefs `rejected` portent aussi une carte de repli ; ils ne sont pas publiés et sortent
+du périmètre.
+
+**Piège écarté** : `meta_review.verdict_override_reason` contenant « Python threshold
+override » apparaît sur 23 briefs publiés et 40 rejetés. **Ce n'est pas un repli** : c'est le
+mécanisme de décision nominal, où les seuils Python arrêtent le verdict binaire à
+l'itération 2. Le confondre avec une panne aurait mis en quarantaine un quart du corpus.
+
+## B.0.4 — Liste de rejeu
+
+Deux événements `post_fire_failed` dans tout le log (09/04 → 16/09) :
+
+| Date | `hypothesis_id` | Message | Classement | Abouti depuis ? |
+|---|---|---|---|---|
+| 11/09 04:49 | `SPORE-2026-09-11-28b15004` | `Unterminated string ... (char 30941)` | **troncature** | Non : `curated`, verdict `a_tester`, aucun brief en base |
+| 16/09 04:48 | `SPORE-2026-09-16-8bc4e466` | `Unterminated string ... (char 25085)` | **troncature** | Non : idem |
+
+Aucun cas de JSON invalide, d'erreur API ni d'autre nature. Aucun brief ne porte un
+`hypothesis_id` en `SPORE-…` : un post-fire qui échoue avant le panel ne laisse aucune ligne
+(voir A.5), ce que B.5 corrige.
+
+## B.0.5 — S10-C
+
+| Chemin du rejeu S10-C | Passe par `complete_json` ? | Plafond modifié en B.3 ? |
+|---|---|---|
+| `node_normalize_panel_language` → `translate_panel_to_fr` | Non — `client.complete` en direct | Non |
+| `node_vulgarization` → `vulgarization_agent` | **Oui** | Non (vulgarisation hors B.3) |
+| `node_translation_hook` → traducteurs | Non — `client.complete` en direct | Non |
+| `node_validate_brief` | Aucun appel LLM | — |
+
+S10-C ne touche aucun nœud dont le plafond change, mais passe par `complete_json` via la
+vulgarisation : après B.1, une vulgarisation tronquée lèvera au lieu d'être parsée, et le
+rejeu restaurera le brief. **S10-C reste donc en pause**, et ne reprendra qu'après B.0.6.
+
+---
+
+## Quarantaine du 16/09 — SPR-2026-8FDE et SPR-2026-6FEB
+
+Décision humaine, appliquée selon la procédure d'août (`cda8fb8`, `docs/S3_D1b2_sidecars.md`
+pièce 2) : déplacement, jamais suppression.
+
+| Brief | Statut avant | Statut après | Consensus au moment de la quarantaine | Motif |
+|---|---|---|---|---|
+| `SPR-2026-8FDE` | `complete` | `failed_panel` | 6,02 | Carte `funding_strategist` de repli, entrée dans le consensus |
+| `SPR-2026-6FEB` | `complete` | `failed_meta_review` | 6,84 | Meta-review de repli Python après échec de parsing |
+
+Gestes appliqués :
+
+1. Sauvegarde préalable vérifiée : `data/backups/s11-20260916T175438Z` (format 2, 4 fichiers,
+   10 blobs), qui permet une restauration ligne et fichiers par
+   `scripts/replay_blocked_briefs.py --restore-brief … --from …`.
+2. `status` porté à `failed_panel` / `failed_meta_review`. Le prédicat de publication du
+   front (`status = 'complete' OR is_stub`) les exclut immédiatement.
+3. `.md` et `.json` déplacés de `outputs/briefs/` vers `outputs/unpublished/`. Les fichiers
+   de 6FEB étaient suivis par git : `git mv` et commit, sans quoi un `git checkout`
+   restaurerait les sidecars sur une branche que le cron de 04:15 exécute.
+4. `kill_reason` n'est **pas** renseigné : ce n'est pas un rejet scientifique. La colonne
+   `failure_reason` arrive en B.5 et recevra le motif.
+
+**À faire par Baq** : redémarrer le serveur Next. `public/briefs` est un lien symbolique vers
+`outputs/briefs/`, et Next indexe l'arborescence au démarrage : jusqu'au redémarrage, les
+deux sidecars répondent **400** au lieu de 404 (voir `docs/TECH_DEBT.md`, « Sortir un fichier
+de public/ sans redémarrer renvoie 400 »).
+
+**Deux conséquences connues, corrigées en B.5** :
+
+- `scripts/export_stats.py` compte les briefs par `status != 'rejected'` : les lignes
+  `failed_*` y entrent encore. Le fichier `data/stats.json` n'est pas régénéré par le cron ;
+  la correction (point B.5.4) arrivera avant toute régénération.
+- Les deux lignes gardent leur chemin de fichier d'origine, désormais périmé, comme les
+  quarantaines d'août. B.6 réécrira ces chemins en republiant, ou les laissera tels quels en
+  cas de rejet.
+
+**Suite prévue (B.6)** : rejouer les cinq reviewers et la meta-review à partir du sharpening
+et du protocole stockés, sans les régénérer ; appliquer le gate en vigueur ; republier si le
+brief passe, `rejected` sinon ; une seule tentative.
+
+## SPR-2026-DB14 — affichage vérifié, aucun rejeu
+
+`phases[2].expected_outputs` est absente. Le site ne casse pas :
+
+- `src/app/[locale]/briefs/BriefsClient.tsx` l. 98 lit `...(ph.expected_outputs ?? [])` — le
+  champ absent donne une liste vide ;
+- `BriefDetailClient.tsx` n'affiche pas ce champ du tout ;
+- les deux locales partagent ces composants, donc FR et EN se comportent à l'identique ;
+- `src/lib/types.ts` le déclare requis, mais c'est un type TypeScript, sans effet à
+  l'exécution.
+
+Le brief reste publié. La validation de schéma en sortie de nœud ouvre le sprint suivant.
