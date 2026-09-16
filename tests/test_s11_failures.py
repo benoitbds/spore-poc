@@ -232,6 +232,67 @@ class FailureRowTests(TempDatabase):
         self.assertNotIn("failed_protocol", BRIEF_EXISTS_STATUSES)
 
 
+class GraphIntegrationTests(TempDatabase):
+    """Le vrai graphe, avec ses arêtes, pas seulement le décorateur."""
+
+    GROUNDING: dict[str, Any] = {
+        "evidence_base": [{"title": "Papier"}],
+        "counter_evidence": [],
+        "novelty_assessment": {"score": 0.8, "verdict": "novel"},
+        "kill_reason": None,
+    }
+    SHARPENED: dict[str, Any] = {
+        "title": "Titre",
+        "formal_statement": "Énoncé",
+        "independent_variables": [],
+        "dependent_variables": [],
+        "falsifiable_predictions": [],
+        "proposed_mechanism": {},
+        "boundary_conditions": [],
+        "theoretical_framework": "biophysique",
+    }
+
+    async def test_a_truncated_protocol_stops_the_run_and_leaves_a_row(self) -> None:
+        async def grounding(_inp: Any) -> dict[str, Any]:
+            return self.GROUNDING
+
+        async def sharpening(_inp: Any) -> dict[str, Any]:
+            return self.SHARPENED
+
+        async def protocol(*_args: Any, **_kwargs: Any) -> dict[str, Any]:
+            raise truncation()
+
+        with mock.patch.object(post_fire, "literature_grounding_agent", grounding), \
+             mock.patch.object(post_fire, "hypothesis_sharpening_agent", sharpening), \
+             mock.patch.object(post_fire, "experimental_protocol_agent", protocol), \
+             mock.patch.object(post_fire, "is_ss_circuit_open", lambda: False):
+            # LangGraph laisse remonter l'exception du nœud telle quelle : le
+            # run s'arrête là, il ne produit pas de brief incomplet.
+            with self.assertRaises(LLMOutputTruncated):
+                await post_fire.run_post_fire_pipeline(
+                    hypothesis="H",
+                    domains=["A", "B"],
+                    mechanisms="M",
+                    run_id="run-probe",
+                    hypothesis_id=HYPOTHESIS,
+                )
+
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        try:
+            rows = conn.execute("SELECT * FROM briefs").fetchall()
+        finally:
+            conn.close()
+
+        self.assertEqual(len(rows), 1)
+        row = rows[0]
+        self.assertEqual((row["id"], row["status"]), (HYPOTHESIS, "failed_protocol"))
+        # Les deux nœuds réussis ont laissé leur travail : un rejeu n'aura pas
+        # à refaire le grounding, qui coûte des appels à Semantic Scholar.
+        self.assertIsNotNone(row["grounding_data"])
+        self.assertIsNotNone(row["sharpened_data"])
+
+
 class DigestTests(TempDatabase):
     """Ce que Baq lit le lendemain matin."""
 
