@@ -6,22 +6,79 @@ Supports:
 
 Usage:
     client = get_llm_client("synthesis")  # Gets client based on genome config
-    response = await client.complete(messages, max_tokens=1000)
+    response = await client.complete(messages, max_tokens=1000, node="synthesis")
 """
 
 import asyncio
+import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any
 
+from llm.errors import (
+    LLMOutputIncomplete,
+    LLMOutputTruncated,
+    LLMResourceExhausted,
+)
+from llm.telemetry import record_llm_call
 from logging_config import get_logger
 
 logger = get_logger("llm_client")
 
+#: Seule fin de génération dont le texte est exploitable.
+FINISH_STOP = "stop"
+
+#: Fin de génération par atteinte du plafond de sortie.
+FINISH_LENGTH = "length"
+
+#: Interruption transitoire côté fournisseur (DeepSeek).
+FINISH_RESOURCE = "insufficient_system_resource"
+
+#: Normalisation des motifs Anthropic vers le vocabulaire OpenAI/DeepSeek.
+_ANTHROPIC_FINISH_REASONS = {
+    "end_turn": FINISH_STOP,
+    "stop_sequence": FINISH_STOP,
+    "max_tokens": FINISH_LENGTH,
+}
+
+
+def normalize_anthropic_stop_reason(stop_reason: str | None) -> str:
+    """Traduit un ``stop_reason`` Anthropic en motif normalisé.
+
+    ``end_turn`` et ``stop_sequence`` deviennent ``stop``, ``max_tokens``
+    devient ``length``. Toute autre valeur est conservée telle quelle : elle
+    sera refusée comme motif inconnu plutôt que réinterprétée.
+
+    Args:
+        stop_reason: Valeur renvoyée par l'API Anthropic, éventuellement absente.
+
+    Returns:
+        Motif normalisé ; ``unknown`` si l'API n'en a pas renvoyé.
+    """
+    if not stop_reason:
+        return "unknown"
+    return _ANTHROPIC_FINISH_REASONS.get(stop_reason, stop_reason)
+
 
 @dataclass
 class LLMResponse:
-    """Unified response from any LLM provider."""
+    """Unified response from any LLM provider.
+
+    Attributes:
+        content: Texte produit.
+        input_tokens: Jetons d'entrée facturés.
+        output_tokens: Jetons produits.
+        model: Modèle **renvoyé par l'API**, et non le nom configuré : c'est la
+            seule façon de voir un changement de routage côté fournisseur.
+        provider: Fournisseur ayant servi l'appel.
+        cache_hit: Cache d'entrée touché (DeepSeek).
+        finish_reason: Motif de fin de génération, normalisé.
+        requested_model: Nom demandé, issu du genome. Clé de tarification du
+            ``TokenTracker`` — ne jamais lui substituer ``model``.
+        system_fingerprint: Empreinte de configuration renvoyée par l'API,
+            ``None`` si le fournisseur n'en expose pas.
+        latency_ms: Durée de l'appel, mesurée par le client.
+    """
 
     content: str
     input_tokens: int
@@ -29,6 +86,10 @@ class LLMResponse:
     model: str
     provider: str
     cache_hit: bool = False  # For DeepSeek cache tracking
+    finish_reason: str = FINISH_STOP
+    requested_model: str = ""
+    system_fingerprint: str | None = None
+    latency_ms: int = 0
 
 
 class LLMClient(ABC):
@@ -36,7 +97,6 @@ class LLMClient(ABC):
 
     provider: str = "unknown"
 
-    @abstractmethod
     async def complete(
         self,
         messages: list[dict[str, str]],
@@ -44,8 +104,21 @@ class LLMClient(ABC):
         temperature: float = 0.7,
         system: str | None = None,
         json_mode: bool = False,
+        *,
+        node: str,
+        attempt: int = 1,
     ) -> LLMResponse:
-        """Send a completion request to the LLM.
+        """Send a completion request to the LLM, measure it, and gate its end.
+
+        Squelette commun à tous les clients : l'appel réseau est délégué à
+        ``_complete``, puis la réponse est mesurée (``llm_calls``) et contrôlée.
+        Le contrôle est ici, et non chez les appelants, pour qu'aucun chemin —
+        parsing JSON, normalisation de langue, traduction — ne puisse utiliser
+        le texte d'une génération qui ne s'est pas terminée d'elle-même.
+
+        L'ordre compte : la mesure est écrite **avant** le contrôle, sinon les
+        appels tronqués, les seuls qui intéressent, seraient les seuls absents
+        de la table.
 
         Args:
             messages: List of message dicts with 'role' and 'content'
@@ -57,11 +130,102 @@ class LLMClient(ABC):
                 the word "json" in the prompt and errors otherwise, and not
                 every SPORE prompt is a JSON prompt (L0/L1 agents included).
                 Only callers whose prompt already asks for JSON may set it.
+            node: Nœud appelant, obligatoire. Sert de sujet à la mesure et aux
+                erreurs ; sans lui, une troncature ne désigne personne.
+            attempt: Numéro de tentative pour ce nœud, à partir de 1. Le client
+                ne peut pas le déduire : c'est l'appelant qui possède la boucle
+                de rejeu.
 
         Returns:
-            LLMResponse with content and usage info
+            LLMResponse dont ``finish_reason`` vaut ``stop``.
+
+        Raises:
+            LLMOutputTruncated: Génération coupée par le plafond de sortie.
+            LLMResourceExhausted: Interruption transitoire côté fournisseur.
+            LLMOutputIncomplete: Tout autre motif de fin.
         """
-        pass
+        started = time.perf_counter()
+        response = await self._complete(
+            messages, max_tokens, temperature, system, json_mode
+        )
+        response.latency_ms = int((time.perf_counter() - started) * 1000)
+
+        await record_llm_call(
+            response, node=node, attempt=attempt, max_tokens=max_tokens
+        )
+        _enforce_finish_reason(
+            response, node=node, attempt=attempt, max_tokens=max_tokens
+        )
+        return response
+
+    @abstractmethod
+    async def _complete(
+        self,
+        messages: list[dict[str, str]],
+        max_tokens: int,
+        temperature: float,
+        system: str | None,
+        json_mode: bool,
+    ) -> LLMResponse:
+        """Effectue l'appel réseau, sans mesure ni contrôle.
+
+        Args:
+            messages: Messages de la requête.
+            max_tokens: Plafond de sortie.
+            temperature: Température d'échantillonnage.
+            system: Prompt système optionnel.
+            json_mode: Mode JSON natif du fournisseur.
+
+        Returns:
+            LLMResponse renseignée, ``latency_ms`` exclu.
+        """
+
+
+def _enforce_finish_reason(
+    response: LLMResponse,
+    *,
+    node: str,
+    attempt: int,
+    max_tokens: int,
+) -> None:
+    """Refuse toute réponse qui ne s'est pas terminée d'elle-même.
+
+    Args:
+        response: Réponse à contrôler.
+        node: Nœud appelant.
+        attempt: Numéro de tentative.
+        max_tokens: Plafond demandé.
+
+    Raises:
+        LLMOutputTruncated: ``finish_reason`` vaut ``length``.
+        LLMResourceExhausted: ``finish_reason`` vaut
+            ``insufficient_system_resource``.
+        LLMOutputIncomplete: tout autre motif, ``unknown`` compris — une
+            réponse dont le fournisseur ne dit pas comment elle s'est terminée
+            n'est pas une réponse complète.
+    """
+    if response.finish_reason == FINISH_STOP:
+        return
+
+    fields: dict[str, Any] = {
+        "node": node,
+        "provider": response.provider,
+        "model": response.model,
+        "finish_reason": response.finish_reason,
+        "max_tokens": max_tokens,
+        "output_tokens": response.output_tokens,
+        "attempt": attempt,
+    }
+
+    if response.finish_reason == FINISH_LENGTH:
+        logger.error("llm_output_truncated", **fields)
+        raise LLMOutputTruncated("sortie tronquée par le plafond", **fields)
+    if response.finish_reason == FINISH_RESOURCE:
+        logger.warning("llm_resource_exhausted", **fields)
+        raise LLMResourceExhausted("ressources fournisseur indisponibles", **fields)
+
+    logger.error("llm_output_incomplete", **fields)
+    raise LLMOutputIncomplete("fin de génération inattendue", **fields)
 
 
 class AnthropicClient(LLMClient):
@@ -75,13 +239,13 @@ class AnthropicClient(LLMClient):
         self.client = anthropic.AsyncAnthropic(api_key=api_key)
         self.model = model
 
-    async def complete(
+    async def _complete(
         self,
         messages: list[dict[str, str]],
-        max_tokens: int = 4000,
-        temperature: float = 0.7,
-        system: str | None = None,
-        json_mode: bool = False,
+        max_tokens: int,
+        temperature: float,
+        system: str | None,
+        json_mode: bool,
     ) -> LLMResponse:
         # ``json_mode`` is accepted and deliberately NOT forwarded here.
         #
@@ -131,9 +295,16 @@ class AnthropicClient(LLMClient):
             content=content,
             input_tokens=response.usage.input_tokens,
             output_tokens=response.usage.output_tokens,
-            model=self.model,
+            # Modèle servi, pas le modèle demandé : l'API le renvoie, on le garde.
+            model=getattr(response, "model", "") or self.model,
             provider=self.provider,
             cache_hit=False,
+            finish_reason=normalize_anthropic_stop_reason(
+                getattr(response, "stop_reason", None)
+            ),
+            requested_model=self.model,
+            # Anthropic n'expose pas d'empreinte de configuration.
+            system_fingerprint=None,
         )
 
 
@@ -151,13 +322,13 @@ class DeepSeekClient(LLMClient):
         )
         self.model = model
 
-    async def complete(
+    async def _complete(
         self,
         messages: list[dict[str, str]],
-        max_tokens: int = 4000,
-        temperature: float = 0.7,
-        system: str | None = None,
-        json_mode: bool = False,
+        max_tokens: int,
+        temperature: float,
+        system: str | None,
+        json_mode: bool,
     ) -> LLMResponse:
         # DeepSeek uses OpenAI format - system is a message
         all_messages = []
@@ -206,13 +377,23 @@ class DeepSeekClient(LLMClient):
         if hasattr(response.usage, "prompt_cache_hit_tokens"):
             cache_hit = response.usage.prompt_cache_hit_tokens > 0
 
+        choice = response.choices[0]
+
         return LLMResponse(
-            content=response.choices[0].message.content or "",
+            content=choice.message.content or "",
             input_tokens=prompt_tokens,
             output_tokens=response.usage.completion_tokens,
-            model=self.model,
+            # Modèle servi, pas le modèle demandé : un changement de routage
+            # côté DeepSeek (l'alias ``deepseek-chat`` en a déjà connu un)
+            # n'est visible que par cette valeur.
+            model=getattr(response, "model", "") or self.model,
             provider=self.provider,
             cache_hit=cache_hit,
+            # Absent chez certains proxys : traité comme ``unknown``, donc
+            # refusé, plutôt que supposé terminé.
+            finish_reason=getattr(choice, "finish_reason", None) or "unknown",
+            requested_model=self.model,
+            system_fingerprint=getattr(response, "system_fingerprint", None),
         )
 
 
@@ -233,6 +414,32 @@ class FallbackClient(LLMClient):
         self.max_retries = max_retries
         self.base_delay = base_delay
 
+    async def _complete(
+        self,
+        messages: list[dict[str, str]],
+        max_tokens: int,
+        temperature: float,
+        system: str | None,
+        json_mode: bool,
+    ) -> LLMResponse:
+        """Jamais appelé : ce client n'émet aucune requête lui-même.
+
+        Args:
+            messages: Messages de la requête.
+            max_tokens: Plafond de sortie.
+            temperature: Température d'échantillonnage.
+            system: Prompt système optionnel.
+            json_mode: Mode JSON natif du fournisseur.
+
+        Raises:
+            NotImplementedError: Toujours. ``complete`` est redéfini au-dessus
+                et délègue aux clients enfants, qui mesurent et contrôlent
+                l'appel qu'ils ont réellement passé.
+        """
+        raise NotImplementedError(
+            "FallbackClient délègue à ses clients enfants ; _complete n'est pas utilisé"
+        )
+
     async def complete(
         self,
         messages: list[dict[str, str]],
@@ -240,27 +447,85 @@ class FallbackClient(LLMClient):
         temperature: float = 0.7,
         system: str | None = None,
         json_mode: bool = False,
+        *,
+        node: str,
+        attempt: int = 1,
     ) -> LLMResponse:
+        """Appelle le primaire, avec backoff, puis le secondaire.
+
+        Ce client ne réimplémente ni la mesure ni le contrôle de fin de
+        génération : il délègue à ``complete`` de l'enfant, qui écrit la ligne
+        ``llm_calls`` de l'appel qu'il a réellement passé. Une seule ligne par
+        appel réseau, donc, et le fournisseur y est celui qui a répondu.
+
+        Args:
+            messages: Messages de la requête.
+            max_tokens: Plafond de sortie.
+            temperature: Température d'échantillonnage.
+            system: Prompt système optionnel.
+            json_mode: Mode JSON natif du fournisseur.
+            node: Nœud appelant, transmis tel quel.
+            attempt: Numéro de tentative de l'appelant, transmis tel quel. Les
+                réessais internes de ce client ne l'incrémentent pas : ils
+                portent sur la même tentative logique.
+
+        Returns:
+            LLMResponse dont ``finish_reason`` vaut ``stop``.
+
+        Raises:
+            LLMOutputTruncated: Propagée sans réessai ni repli.
+            LLMOutputIncomplete: Propagée sans réessai ni repli.
+            Exception: L'erreur du secondaire si le primaire et lui échouent.
+        """
         # Try primary with exponential backoff
         last_error = None
-        for attempt in range(self.max_retries):
+        for retry in range(self.max_retries):
             try:
                 response = await self.primary.complete(
-                    messages, max_tokens, temperature, system, json_mode
+                    messages,
+                    max_tokens,
+                    temperature,
+                    system,
+                    json_mode,
+                    node=node,
+                    attempt=attempt,
                 )
                 return response
+            except (LLMOutputTruncated, LLMOutputIncomplete):
+                # Le prompt et le plafond sont identiques d'un essai à l'autre :
+                # rejouer ne produirait qu'une troncature de plus, et basculer
+                # sur le secondaire la produirait au tarif Sonnet. Le plafond
+                # se corrige d'un cran plus haut (``complete_json``), le
+                # contenu ne se corrige pas ici.
+                raise
+            except LLMResourceExhausted as e:
+                # Transitoire côté fournisseur : c'est exactement le cas que
+                # le backoff ci-dessous sert à absorber.
+                last_error = e
+                delay = self.base_delay * (2**retry)
+                logger.warning(
+                    "primary_provider_exhausted",
+                    provider=self.primary.provider,
+                    node=node,
+                    attempt=retry + 1,
+                    max_retries=self.max_retries,
+                    retry_delay=delay,
+                )
+                if retry < self.max_retries - 1:
+                    await asyncio.sleep(delay)
             except Exception as e:
                 last_error = e
-                delay = self.base_delay * (2**attempt)
+                delay = self.base_delay * (2**retry)
                 logger.warning(
                     "primary_provider_failed",
                     provider=self.primary.provider,
-                    attempt=attempt + 1,
+                    node=node,
+                    attempt=retry + 1,
                     max_retries=self.max_retries,
                     error=str(e),
                     retry_delay=delay,
                 )
-                if attempt < self.max_retries - 1:
+                if retry < self.max_retries - 1:
                     await asyncio.sleep(delay)
 
         # Fallback to secondary provider
@@ -268,11 +533,18 @@ class FallbackClient(LLMClient):
             "falling_back_to_secondary",
             primary=self.primary.provider,
             fallback=self.fallback.provider,
+            node=node,
             last_error=str(last_error),
         )
 
         response = await self.fallback.complete(
-            messages, max_tokens, temperature, system, json_mode
+            messages,
+            max_tokens,
+            temperature,
+            system,
+            json_mode,
+            node=node,
+            attempt=attempt,
         )
 
         # Mark that we used fallback

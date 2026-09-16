@@ -118,13 +118,14 @@ async def synthesize_hypothesis(
         response = await client.complete(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=4000,
+            node="synthesis",
         )
 
         # Track tokens
         tracker = get_token_tracker()
         tracker.log_call(
             agent="synthesis",
-            model=response.model,
+            model=response.requested_model,
             input_tokens=response.input_tokens,
             output_tokens=response.output_tokens,
             provider=response.provider,

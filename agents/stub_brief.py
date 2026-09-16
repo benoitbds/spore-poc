@@ -136,11 +136,12 @@ async def generate_stub_brief(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=3000,
         temperature=0.6,
+        node="stub_brief",
     )
 
     get_token_tracker().log_call(
         "stub_brief",
-        response.model,
+        response.requested_model,
         response.input_tokens,
         response.output_tokens,
         provider=response.provider,

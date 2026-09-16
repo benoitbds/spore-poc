@@ -85,7 +85,7 @@ async def run_devil_advocate(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="critic_devil",
+            node="critic_devil",
             max_tokens=8000,
             temperature=0.7,
             tracker=tracker,
@@ -156,7 +156,7 @@ async def run_angel_advocate(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="critic_angel",
+            node="critic_angel",
             max_tokens=8000,
             temperature=0.7,
             tracker=tracker,

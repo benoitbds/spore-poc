@@ -40,7 +40,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import graph.post_fire_pipeline as post_fire  # noqa: E402
 from graph.lang_guard import check_panel_language, detect  # noqa: E402
 from graph.panel_coherence import check_panel  # noqa: E402
-from llm.client import LLMResponse  # noqa: E402
+from llm.client import LLMClient, LLMResponse  # noqa: E402
 from scripts import daily_pipeline_digest as digest  # noqa: E402
 
 
@@ -200,12 +200,19 @@ def mixed_panel() -> dict[str, Any]:
     }
 
 
-class FakeTranslationClient:
+class FakeTranslationClient(LLMClient):
     """Double du client LLM : rend du français, compte ses appels.
 
     Il répond au format des prompts EN→FR : autant d'éléments séparés par
     ``---`` que le prompt de liste en annonce, une phrase sinon.
+
+    Il dérive du vrai ``LLMClient`` et n'implémente que l'appel réseau : la
+    mesure et le contrôle de ``finish_reason`` (S11/B.1) restent ceux de la
+    production, donc un double qui rend ``length`` fait lever le traducteur
+    exactement comme le ferait DeepSeek.
     """
+
+    provider = "deepseek"
 
     _LIST_COUNT_RE = re.compile(r"TEXTE SOURCE \((\d+) éléments")
 
@@ -213,16 +220,20 @@ class FakeTranslationClient:
         self,
         sentence: str = FRENCH_WITH_RESERVE,
         error: Exception | None = None,
+        finish_reason: str = "stop",
     ) -> None:
         self.sentence = sentence
         self.error = error
+        self.finish_reason = finish_reason
         self.calls: list[str] = []
 
-    async def complete(
+    async def _complete(
         self,
         messages: list[dict[str, str]],
         max_tokens: int = 2500,
         temperature: float = 0.2,
+        system: str | None = None,
+        json_mode: bool = False,
     ) -> LLMResponse:
         """Rend la traduction simulée du prompt reçu."""
         prompt = messages[-1]["content"]
@@ -238,6 +249,8 @@ class FakeTranslationClient:
             output_tokens=50,
             model="deepseek-v4-flash",
             provider="deepseek",
+            finish_reason=self.finish_reason,
+            requested_model="deepseek-v4-flash",
         )
 
 

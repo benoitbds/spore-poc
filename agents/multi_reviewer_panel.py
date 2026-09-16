@@ -24,6 +24,73 @@ from logging_config import get_logger, get_token_tracker
 
 logger = get_logger("multi_reviewer_panel")
 
+#: Ordre des personas, identique à celui des tâches lancées par ``run_panel``.
+PERSONAS: tuple[str, ...] = (
+    "methodologist",
+    "domain_expert",
+    "contrarian",
+    "industrialist",
+    "funding_strategist",
+)
+
+
+class PanelReviewFailed(Exception):
+    """Un reviewer au moins n'a pas produit d'évaluation exploitable.
+
+    Levée au lieu d'une carte de repli : une note sans évaluation n'entre pas
+    dans le consensus, et un panel incomplet ne se publie pas. B.5 traduit
+    cette exception en statut ``failed_panel``.
+
+    Attributes:
+        persona: Premier persona en échec.
+        personas: Tous les personas en échec, dans l'ordre du panel.
+        cause: Exception d'origine.
+    """
+
+    def __init__(
+        self,
+        *,
+        persona: str,
+        cause: BaseException,
+        personas: list[str] | None = None,
+    ) -> None:
+        """Construit l'erreur.
+
+        Args:
+            persona: Premier persona en échec.
+            cause: Exception d'origine.
+            personas: Tous les personas en échec ; par défaut, le seul
+                ``persona``.
+        """
+        self.persona = persona
+        self.personas = personas or [persona]
+        self.cause = cause
+        super().__init__(f"panel incomplet : {', '.join(self.personas)} ({cause})")
+
+
+class MetaReviewFailed(Exception):
+    """La meta-review n'a pas produit de synthèse exploitable.
+
+    Levée au lieu du repli Python : le verdict calculé restait juste, mais la
+    synthèse publiée ne disait plus rien du panel. B.5 traduit cette exception
+    en statut ``failed_meta_review``.
+
+    Attributes:
+        iteration: Itération de révision en cours.
+        cause: Exception d'origine.
+    """
+
+    def __init__(self, *, iteration: int, cause: BaseException) -> None:
+        """Construit l'erreur.
+
+        Args:
+            iteration: Itération de révision en cours.
+            cause: Exception d'origine.
+        """
+        self.iteration = iteration
+        self.cause = cause
+        super().__init__(f"meta-review indisponible à l'itération {iteration} ({cause})")
+
 
 class ReviewerOutput(TypedDict):
     """Output from a single reviewer."""
@@ -157,9 +224,12 @@ def selection_threshold(recent_scores: list[float]) -> tuple[float, str]:
 def compute_consensus_score(reviews: list[ReviewerOutput]) -> float:
     """Confidence-weighted mean of reviewer scores.
 
-    Reviewers with ``confidence == 0`` (fallbacks) are excluded. If all
-    reviewers have zero confidence, returns 0.0 — the run will be rejected
-    by ``threshold_verdict``.
+    Reviewers with ``confidence == 0`` are excluded. Depuis S11/B.1 le pipeline
+    n'en produit plus : un reviewer en échec lève (``PanelReviewFailed``) au
+    lieu de rendre une carte de repli. L'exclusion reste pour les panels
+    historiques, rejoués ou relus, qui en portent encore. Si toutes les
+    confidences sont nulles, rend 0.0 — le run sera rejeté par
+    ``threshold_verdict``.
     """
     total_weight = sum(float(r.get("confidence", 0.0)) for r in reviews)
     if total_weight <= 0:
@@ -313,7 +383,7 @@ async def _run_single_reviewer(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent=f"reviewer_{persona}",
+            node=f"reviewer_{persona}",
             max_tokens=2000,
             temperature=0.5,
             tracker=tracker,
@@ -334,18 +404,12 @@ async def _run_single_reviewer(
         logger.info("reviewer_complete", persona=persona, score=review["overall_score"], verdict=review["verdict"])
         return review
     except (json.JSONDecodeError, KeyError) as exc:
+        # S11/B.1 — plus de carte de repli. Une carte à confidence=0.0 était
+        # exclue du consensus pondéré, mais elle entrait dans le panel publié
+        # et son 5,0 s'affichait comme une évaluation : une note sans
+        # évaluation. Le nœud échoue, B.5 la consigne en failed_panel.
         logger.error("reviewer_parse_failed", persona=persona, error=str(exc))
-        # confidence=0.0 so the fallback does not pollute the weighted consensus.
-        return ReviewerOutput(
-            reviewer_persona=persona,
-            overall_score=5.0,
-            verdict="weak_accept",
-            strengths=["Unable to parse review"],
-            weaknesses=["Review parsing failed"],
-            critical_questions=[],
-            recommendation="Manual review needed.",
-            confidence=0.0,
-        )
+        raise PanelReviewFailed(persona=persona, cause=exc) from exc
 
 
 async def run_panel(
@@ -420,27 +484,28 @@ async def run_panel(
     ]
 
     logger.info("panel_starting", reviewer_count=5)
+    # ``return_exceptions=True`` est conservé pour que les cinq tâches
+    # s'achèvent avant qu'on lève : sans lui, la première exception laisserait
+    # les autres appels en vol, non mesurés dans ``llm_calls``.
     reviews = await asyncio.gather(*tasks, return_exceptions=True)
 
-    # Handle any exceptions
     valid_reviews: list[ReviewerOutput] = []
+    failures: list[tuple[str, BaseException]] = []
     for i, result in enumerate(reviews):
-        if isinstance(result, Exception):
-            persona = ["methodologist", "domain_expert", "contrarian", "industrialist", "funding_strategist"][i]
+        if isinstance(result, BaseException):
+            persona = PERSONAS[i]
             logger.error("reviewer_failed", persona=persona, error=str(result))
-            # confidence=0.0 so the failed reviewer is excluded from the consensus.
-            valid_reviews.append(ReviewerOutput(
-                reviewer_persona=persona,
-                overall_score=5.0,
-                verdict="weak_accept",
-                strengths=["Review failed"],
-                weaknesses=["Review failed due to error"],
-                critical_questions=[],
-                recommendation="Manual review needed.",
-                confidence=0.0,
-            ))
+            failures.append((persona, result))
         else:
             valid_reviews.append(result)
+
+    # S11/B.1 — le panel est complet ou il n'est pas. Un panel à quatre cartes
+    # change le consensus sans que rien ne le signale sur la page publiée.
+    if failures:
+        personas = [persona for persona, _ in failures]
+        logger.error("panel_incomplete", failed=personas, obtained=len(valid_reviews))
+        first_persona, first_error = failures[0]
+        raise PanelReviewFailed(persona=first_persona, cause=first_error, personas=personas)
 
     logger.info("panel_complete", review_count=len(valid_reviews))
     return valid_reviews
@@ -482,7 +547,7 @@ async def run_meta_reviewer(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="meta_reviewer",
+            node="meta_reviewer",
             max_tokens=2000,
             temperature=0.3,
             tracker=tracker,
@@ -528,24 +593,16 @@ async def run_meta_reviewer(
         )
         return meta
     except (json.JSONDecodeError, KeyError) as exc:
-        logger.error("meta_reviewer_parse_failed", error=str(exc))
-        # LLM synthesis failed to parse — fall back to the Python-only decision.
-        return {
-            "consensus_score": py_consensus,
-            "verdict": py_verdict,
-            "key_consensus": ["Meta-review parsing failed"],
-            "key_disagreements": [],
-            "critical_path": "Manual review needed",
-            "final_recommendation": (
-                f"Meta-review failed to parse. Python consensus {py_consensus:.2f} "
-                f"at iter {iteration} → verdict '{py_verdict}'."
-            ),
-            "brief_quality_gate": py_verdict == "publish_brief",
-            "revision_guidance": [],
-            "llm_verdict": "parse_failed",
-            "llm_consensus_score": 0.0,
-            "verdict_override_reason": "Meta-reviewer LLM parse failure — Python fallback",
-        }
+        # S11/B.1 — plus de repli Python. Le verdict Python restait juste, mais
+        # la synthèse publiée ne disait plus rien du panel : consensus et
+        # désaccords remplacés par « Meta-review parsing failed ». Le nœud
+        # échoue, B.5 le consigne en failed_meta_review.
+        #
+        # À ne pas confondre avec ``verdict_override_reason: "Python threshold
+        # override"``, qui reste le mécanisme de décision nominal : là, la
+        # meta-review a bien été produite, seuls les seuils tranchent.
+        logger.error("meta_reviewer_parse_failed", error=str(exc), iteration=iteration)
+        raise MetaReviewFailed(iteration=iteration, cause=exc) from exc
 
 
 async def full_panel_review(

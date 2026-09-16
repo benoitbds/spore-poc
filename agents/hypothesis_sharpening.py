@@ -89,7 +89,7 @@ async def hypothesis_sharpening_agent(input_data: SharpeningInput) -> Sharpening
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="hypothesis_sharpening",
+            node="hypothesis_sharpening",
             max_tokens=8000,
             temperature=0.4,
             tracker=tracker,

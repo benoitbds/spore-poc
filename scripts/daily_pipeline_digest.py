@@ -83,12 +83,17 @@ ALERT_EVENTS: dict[str, str] = {
     "angel_json_parse_failed": "avocat illisible, hypothèse abandonnée",
     "critique_failed": "débat contradictoire en échec, hypothèse abandonnée",
     "reviewer_no_composite": "hypothèse arrivée au reviewer sans composite",
+    # S11/B.1 — les replis du panel sont supprimés : une review ou une
+    # meta-review illisible fait maintenant échouer le panel au lieu d'entrer
+    # dans le brief. L'issue du run change, donc alerte.
+    "reviewer_parse_failed": "review illisible, panel avorté (S11)",
+    "meta_reviewer_parse_failed": "meta-review illisible, panel avorté (S11)",
+    "panel_incomplete": "panel incomplet, run avorté (S11)",
 }
 
 # COMPTEUR : absorbé par un repli de conception. On mesure, on n'alerte pas —
 # sauf dérive.
 COUNTER_EVENTS: dict[str, str] = {
-    "reviewer_parse_failed": "review non parsée (repli confidence=0.0)",
     "json_parse_repaired": "JSON réparé par le parseur partagé (C17b)",
     "json_parse_retried": "JSON obtenu au second appel (C17b)",
     "json_parse_repair_insufficient": "réparation insuffisante (C17b)",

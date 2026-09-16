@@ -131,7 +131,7 @@ async def vulgarization_agent(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="vulgarization",
+            node="vulgarization",
             max_tokens=3000,
             temperature=0.5,
             tracker=tracker,

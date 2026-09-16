@@ -882,12 +882,13 @@ async def _llm_call(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=max_tokens,
         temperature=0.2,
+        node=direction.agent,
     )
 
     tracker = get_token_tracker()
     cost = tracker.log_call(
         agent=direction.agent,
-        model=response.model,
+        model=response.requested_model,
         input_tokens=response.input_tokens,
         output_tokens=response.output_tokens,
         provider=response.provider,

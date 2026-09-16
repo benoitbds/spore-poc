@@ -70,13 +70,14 @@ async def analyze_impact(hypothesis: Hypothesis) -> ImpactAnalysis | None:
         response = await client.complete(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2000,
+            node="impact",
         )
 
         # Track tokens
         tracker = get_token_tracker()
         tracker.log_call(
             agent="impact",
-            model=response.model,
+            model=response.requested_model,
             input_tokens=response.input_tokens,
             output_tokens=response.output_tokens,
             provider=response.provider,

@@ -328,12 +328,13 @@ async def _translate_one_field(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=1500,
         temperature=0.2,  # Low for translation — rewards precision over flair.
+        node="translate_vulgarization",
     )
 
     tracker = get_token_tracker()
     cost = tracker.log_call(
         agent="translate_vulgarization",
-        model=response.model,
+        model=response.requested_model,
         input_tokens=response.input_tokens,
         output_tokens=response.output_tokens,
         provider=response.provider,

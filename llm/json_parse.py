@@ -15,9 +15,9 @@ mesurer si la réparation devient fréquente :
 
 Périmètre : syntaxe uniquement. Ce module ne complète JAMAIS un contenu
 manquant, n'invente aucune clé, ne fournit aucune valeur par défaut. Un objet
-qu'on n'arrive pas à parser lève — c'est à l'appelant de décider s'il tombe en
-panne (literature_grounding, hypothesis_sharpening, experimental_protocol) ou
-s'il applique son propre repli de conception (le panel, avec confidence=0.0).
+qu'on n'arrive pas à parser lève — et depuis S11/B.1 tous les appelants tombent
+en panne : le panel n'a plus de carte de repli, une note sans évaluation
+n'entre pas dans le consensus.
 """
 
 from __future__ import annotations
@@ -25,6 +25,8 @@ from __future__ import annotations
 import json
 from typing import Any, Optional
 
+from llm.errors import LLMOutputTruncated
+from llm.limits import MAX_TOKENS_CEILING
 from logging_config import get_logger
 
 logger = get_logger(__name__)
@@ -244,7 +246,7 @@ async def complete_json(
     client: Any,
     messages: list[dict[str, str]],
     *,
-    agent: str,
+    node: str,
     max_tokens: int,
     temperature: float,
     system: Optional[str] = None,
@@ -252,15 +254,23 @@ async def complete_json(
 ) -> tuple[dict[str, Any], Any]:
     """Appelle le LLM en mode JSON et parse, avec les trois niveaux.
 
-    Niveau 3 (dernier recours) : un unique nouvel appel à
-    ``RETRY_TEMPERATURE``. Un seul — si une sortie déterministe échoue elle
-    aussi, réessayer ne fera que brûler des jetons.
+    Deux rejeux distincts, qui ne traitent pas la même panne :
+
+    * **Troncature** (``finish_reason = length``, levée par le client) : un
+      unique nouvel appel à plafond doublé, borné par ``MAX_TOKENS_CEILING``.
+      Le texte coupé n'est jamais parsé ni réparé — il ne manque pas une
+      virgule, il manque la fin. Si le second appel est coupé lui aussi,
+      l'exception passe : c'est le contenu demandé qu'il faut revoir.
+    * **JSON invalide** sur une sortie complète (niveau 3, C17b) : un unique
+      nouvel appel à ``RETRY_TEMPERATURE``. Un seul — si une sortie
+      déterministe échoue elle aussi, réessayer ne fera que brûler des jetons.
 
     Args:
         client: Client LLM (``llm.client.LLMClient``).
         messages: Messages de la requête.
-        agent: Nom de l'agent, pour la journalisation et le tracker.
-        max_tokens: Plafond de sortie.
+        node: Nom du nœud appelant, pour la journalisation, le tracker et la
+            table ``llm_calls``. Obligatoire.
+        max_tokens: Plafond de sortie du premier appel.
         temperature: Température du premier appel.
         system: Prompt système optionnel.
         tracker: Token tracker optionnel ; chaque appel LLM y est enregistré,
@@ -272,20 +282,27 @@ async def complete_json(
 
     Raises:
         json.JSONDecodeError: Les trois niveaux ont échoué.
+        LLMOutputTruncated: Sortie coupée, plafond doublé compris.
+        LLMOutputIncomplete: Fin de génération inattendue.
+        LLMResourceExhausted: Fournisseur indisponible après backoff.
     """
 
-    async def _call(temp: float) -> Any:
+    async def _call(temp: float, tokens: int, attempt: int) -> Any:
         response = await client.complete(
             messages=messages,
-            max_tokens=max_tokens,
+            max_tokens=tokens,
             temperature=temp,
             system=system,
             json_mode=True,
+            node=node,
+            attempt=attempt,
         )
         if tracker is not None:
             tracker.log_call(
-                agent=agent,
-                model=response.model,
+                agent=node,
+                # Nom demandé, et non celui renvoyé par l'API : c'est la clé
+                # de tarification du tracker.
+                model=response.requested_model,
                 input_tokens=response.input_tokens,
                 output_tokens=response.output_tokens,
                 provider=response.provider,
@@ -293,20 +310,45 @@ async def complete_json(
             )
         return response
 
-    response = await _call(temperature)
+    attempt = 1
     try:
-        data, _level = extract_json(response.content, agent=agent)
+        response = await _call(temperature, max_tokens, attempt)
+    except LLMOutputTruncated as exc:
+        widened = min(max_tokens * 2, MAX_TOKENS_CEILING)
+        if widened <= max_tokens:
+            logger.error(
+                "llm_output_truncated_at_ceiling",
+                node=node,
+                max_tokens=max_tokens,
+                ceiling=MAX_TOKENS_CEILING,
+                output_tokens=exc.output_tokens,
+            )
+            raise
+        attempt += 1
+        logger.warning(
+            "llm_output_truncated_retrying",
+            node=node,
+            max_tokens=max_tokens,
+            retry_max_tokens=widened,
+            output_tokens=exc.output_tokens,
+            attempt=attempt,
+        )
+        response = await _call(temperature, widened, attempt)
+        max_tokens = widened
+
+    try:
+        data, _level = extract_json(response.content, agent=node)
         return data, response
     except json.JSONDecodeError as exc:
         logger.warning(
             "json_parse_retrying",
-            agent=agent,
+            agent=node,
             error=str(exc),
             output_tokens=response.output_tokens,
             retry_temperature=RETRY_TEMPERATURE,
         )
 
-    retry_response = await _call(RETRY_TEMPERATURE)
-    data, level = extract_json(retry_response.content, agent=agent)
-    logger.warning("json_parse_retried", agent=agent, level_after_retry=level)
+    retry_response = await _call(RETRY_TEMPERATURE, max_tokens, attempt + 1)
+    data, level = extract_json(retry_response.content, agent=node)
+    logger.warning("json_parse_retried", agent=node, level_after_retry=level)
     return data, retry_response

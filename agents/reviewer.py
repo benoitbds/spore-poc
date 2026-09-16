@@ -279,6 +279,7 @@ async def review_hypothesis(hypothesis: Hypothesis) -> AutoFeedback:
         system=_get_reviewer_prompt(),
         max_tokens=1000,
         temperature=0.3,  # Low temperature for consistent evaluation
+        node="reviewer",
     )
 
     # Parse JSON response

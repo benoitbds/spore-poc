@@ -56,13 +56,14 @@ async def evaluate_collision(collision: Collision) -> GateResult:
         response = await client.complete(
             messages=[{"role": "user", "content": prompt}],
             max_tokens=400,
+            node="gate",
         )
 
         # Track tokens
         tracker = get_token_tracker()
         tracker.log_call(
             agent="gate",
-            model=response.model,
+            model=response.requested_model,
             input_tokens=response.input_tokens,
             output_tokens=response.output_tokens,
             provider=response.provider,

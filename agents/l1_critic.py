@@ -131,11 +131,12 @@ async def evaluate_mutation(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=2000,
         temperature=0.2,  # Low temperature for consistent evaluation
+        node="l1_critic",
     )
 
     get_token_tracker().log_call(
         "l1_critic",
-        response.model,
+        response.requested_model,
         response.input_tokens,
         response.output_tokens,
         provider=response.provider,

@@ -220,6 +220,39 @@ CREATE INDEX IF NOT EXISTS idx_mutations_applied_at ON mutations(applied_at);
 CREATE INDEX IF NOT EXISTS idx_mutations_target_path ON mutations(target_path);
 """
 
+# S11/B.1 — une ligne par appel LLM, y compris les appels tronqués qui lèvent
+# ensuite. Isolé du schéma principal parce que ``llm.telemetry`` le rejoue
+# à la volée pour les processus hors pipeline (scripts de traduction, rejeu)
+# qui n'appellent pas ``init_database``.
+#
+# ``model`` est le nom demandé (celui du genome, clé de tarification du
+# TokenTracker) ; ``response_model`` est celui que l'API déclare avoir servi.
+# Les deux sont conservés : leur divergence est la seule façon de voir un
+# changement de routage côté fournisseur.
+LLM_CALLS_SCHEMA = """
+CREATE TABLE IF NOT EXISTS llm_calls (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    run_id TEXT,
+    hypothesis_id TEXT,
+    node TEXT NOT NULL,
+    provider TEXT NOT NULL,
+    model TEXT NOT NULL,
+    response_model TEXT,
+    system_fingerprint TEXT,
+    attempt INTEGER NOT NULL,
+    max_tokens INTEGER NOT NULL,
+    input_tokens INTEGER,
+    output_tokens INTEGER,
+    finish_reason TEXT NOT NULL,
+    cache_hit INTEGER,
+    latency_ms INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_llm_calls_node_date ON llm_calls(node, created_at);
+"""
+
+SCHEMA = SCHEMA + LLM_CALLS_SCHEMA
+
 
 @asynccontextmanager
 async def get_connection() -> AsyncIterator[aiosqlite.Connection]:

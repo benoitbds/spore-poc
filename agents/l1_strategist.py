@@ -149,11 +149,12 @@ async def propose_mutations(
         messages=[{"role": "user", "content": prompt}],
         max_tokens=4000,
         temperature=0.3,  # Lower temperature for more consistent analysis
+        node="l1_strategist",
     )
 
     get_token_tracker().log_call(
         "l1_strategist",
-        response.model,
+        response.requested_model,
         response.input_tokens,
         response.output_tokens,
         provider=response.provider,

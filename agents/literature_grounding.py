@@ -97,7 +97,7 @@ async def _step1_extract_queries(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="literature_grounding",
+            node="literature_grounding",
             max_tokens=2000,
             temperature=0.4,
             tracker=tracker,
@@ -231,7 +231,7 @@ async def _step3_analyze(
         analysis, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="literature_grounding",
+            node="literature_grounding",
             max_tokens=8000,
             temperature=0.3,
             tracker=tracker,

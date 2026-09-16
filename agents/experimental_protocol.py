@@ -126,7 +126,7 @@ async def experimental_protocol_agent(
         data, _response = await complete_json(
             client,
             [{"role": "user", "content": prompt}],
-            agent="experimental_protocol",
+            node="experimental_protocol",
             max_tokens=8000,
             temperature=0.4,
             tracker=tracker,
