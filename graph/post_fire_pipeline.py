@@ -1357,6 +1357,20 @@ def create_post_fire_pipeline() -> StateGraph:
     # S3/C18 — la validation est le dernier nœud du chemin de publication.
     workflow.add_edge("translation_hook", "validate_brief")
     workflow.add_edge("validate_brief", END)
+    # --- v2 narrative layer ---
+    # Couche narrative v2 (récit, thèmes, voisines), après la publication.
+    # Le nœud attrape tout et rend {} : il ne modifie ni l'état ni le statut
+    # du brief. Import local et protégé : si la couche manque ou ne s'importe
+    # pas, le graphe reste celui de la v1 (validate_brief → END).
+    try:
+        from narrative.graph import node_narrative_layer
+
+        workflow.add_node("narrative_layer", node_narrative_layer)
+        workflow.add_edge("validate_brief", "narrative_layer")
+        workflow.add_edge("narrative_layer", END)
+    except Exception as narrative_exc:  # noqa: BLE001 — jamais bloquant
+        logger.error("narrative_layer_not_wired", error=str(narrative_exc)[:300])
+    # --- end v2 narrative layer ---
 
     return workflow
 

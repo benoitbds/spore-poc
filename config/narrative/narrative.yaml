@@ -1,0 +1,130 @@
+# Configuration de la couche narrative SPORE v2.
+#
+# Distincte du genome L0 (data/l0_genome.yaml) : le genome est le terrain de
+# mutation de L1, la couche narrative n'en fait pas partie. Aucune valeur de
+# ce fichier n'influence la sélection ni la publication d'un brief.
+#
+# Chemins relatifs : ancrés à la racine du dépôt.
+
+version: narrative_config_v0
+
+# Étiquette par défaut du registre de coût (v2_llm_costs.run_label).
+# La variable d'environnement SPORE_V2_RUN_LABEL la remplace.
+run_label: pipeline
+
+timeouts:
+  # Délai global du sous-graphe narratif, par brief (asyncio.wait_for).
+  layer_total_s: 900
+  # Délai d'un appel LLM (complete_json compris, rejeux internes compris).
+  llm_call_s: 240
+  # Délai des étapes mécaniques rejouées après un échec du sous-graphe.
+  mechanical_tail_s: 60
+
+# Rejeu avec backoff exponentiel des appels externes (pannes transitoires).
+# Les troncatures, fins incomplètes et JSON invalides ne sont pas rejoués ici :
+# complete_json les traite déjà une fois, au-delà c'est le contenu qu'il faut
+# revoir.
+retry:
+  max_attempts: 3
+  base_delay_s: 2.0
+  max_delay_s: 30.0
+
+# Limite du nombre d'étapes du sous-graphe (LangGraph recursion_limit).
+recursion_limit: 50
+
+story:
+  # Tentatives par (brief, langue) : 1 + 2 nouvelles tentatives au plus.
+  max_attempts: 3
+  translate_max_attempts: 3
+  # Fenêtre de l'année du récit, relative à l'année courante (UTC).
+  year_offset_min: 10
+  year_offset_max: 30
+  # Longueur du corps, en mots.
+  words:
+    fr: [450, 750]
+    en: [400, 820]
+  title_max_chars: 120
+
+writer:
+  # Nom d'agent passé à get_llm_client ; absent du genome, il retombe sur
+  # deepseek / deepseek-v4-flash (valeurs par défaut de get_provider_for_agent).
+  agent: story_writer
+  # provider/model à null : chemin standard get_llm_client(agent).
+  # Renseignés, ils construisent le client explicitement (évaluation du repli
+  # Anthropic sans toucher au genome).
+  provider: null
+  model: null
+  prompt: story_writer_v0
+  temperature: 0.8
+  # ~750 mots FR ≈ 1 300-1 650 jetons, plus l'enveloppe JSON et les champs
+  # mechanism / limit_or_risk. Plafond, pas facture : la troncature a été la
+  # première cause d'échec des critics.
+  max_tokens: 4000
+
+guard:
+  agent: story_guard
+  provider: null
+  model: null
+  prompt: story_guard_v0
+  temperature: 0.0
+  max_tokens: 1500
+  # Échelle des notes du juge : entiers de 0 à 10.
+  score_min: 0
+  score_max: 10
+  # Seuil par défaut ; toute note strictement inférieure rejette.
+  threshold: 7
+  # Seuils plus stricts sur les critères de sécurité.
+  thresholds:
+    no_real_entities: 9
+    constitution_exclusions: 9
+    no_promise_or_advice: 8
+    not_claimed_proven: 8
+  # Sauter le juge quand les contrôles mécaniques ont déjà rejeté (économie).
+  skip_judge_on_mechanical_failure: true
+  # « nous / notre / nos » (FR) et « we / our / us » (EN) rejetés partout,
+  # dialogues compris : un contrôle mécanique ne distingue pas le « nous »
+  # éditorial d'une réplique. Chaque rejet est consigné dans le rapport
+  # (catégorie first_person_plural) pour que la calibration le mesure.
+  strict_first_person_plural: true
+
+translate:
+  # Même chemin client que translation_hook (scripts/translate_brief_*.py).
+  agent: translation
+  provider: null
+  model: null
+  prompt: story_translate_v0
+  temperature: 0.2
+  max_tokens: 4000
+
+themes:
+  path: config/narrative/themes_v1.json
+
+neighbours:
+  # Voisines sortantes par idée complète : cible, bornes.
+  target: 4
+  min: 3
+  max: 5
+  # Liens entrants minimaux par idée complète publiée.
+  min_inbound: 3
+  # Liens de l'anneau des stubs (entrants et sortants).
+  stub_ring: 3
+
+paths:
+  # Denylist d'identité (non versionnée, jamais affichée). Absente ou vide :
+  # le contrôle échoue, donc le récit est rejeté (fail-closed).
+  identity_denylist: .identity_denylist
+  # Lue en lecture seule pour les exclusions éthiques (juge du garde).
+  constitution: data/constitution.yaml
+  # Cartes de domaines (lecture seule) : nom exact → parent_domain, pour
+  # theme_tagger. Deux formes : disciplines[].subdomains[] et subdomains[].
+  domain_maps:
+    - data/domains/all_science.json
+    - data/domains/materials_science.json
+
+backfill:
+  rate_limit_s: 2.0
+  default_cap_usd: 10.0
+  # Estimation prudente du coût d'un brief (FR + EN, gardes compris, 3 essais).
+  estimated_usd_per_brief: 0.02
+  capped_labels: [calibration, canary, backfill, catchup, theme_proposal]
+  spend_json: /home/baq/Projects/spore-v2/docs/v2/evidence/spend.json
