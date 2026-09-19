@@ -120,3 +120,13 @@ Implement the Post-Fire Pipeline as described in SPORE_Post_Fire_Pipeline_v1.md:
 - Auth : clé SSH `~/.ssh/id_ed25519_github` via `~/.ssh/config`
 - Convention : push après chaque sprint mergé sur master, ou immédiatement pour les commits sensibles
 - Backup : GitHub privé est le backup distant officiel de SPORE
+
+## Run v2 (en cours)
+
+Ce clone (`~/Projects/spore-v2-poc`, branche `v2`) porte la couche narrative v2 (story_writer, story_guard, theme_tagger). Pilotage et état : `~/Projects/spore-v2/docs/v2/` (`STATE.md`, `BACKLOG.json`, `DECISIONS.md`, `BLOCKERS.md`, `SPORE-V2-PROMPT.md`).
+
+Garde-fous du run :
+- `~/Projects/spore-poc` est la production (cron 04:15, `spore-api`) : lecture seule jusqu'à la bascule (`bash scripts/v2/switch_to_v2.sh` depuis `~/Projects/spore-v2`).
+- `constitution.yaml`, prompts, seuils, scores, gates et genome des agents L0 et Post-Fire (de Gate à translation_hook) : aucun diff contre `pre-v2`. La couche narrative s'ajoute après et n'influence ni sélection ni publication.
+- Migrations strictement additives. Base de production jamais écrite avant la bascule ; travail sur copies `sqlite3 ".backup"` dans `~/Projects/spore-v2-data/`.
+- Aucun e-mail, aucun `.env` ouvert, crontab et cron L1 inchangés, plafond LLM du run 10 USD.
