@@ -1,0 +1,64 @@
+{
+  "_doc": [
+    "Vocabulaire proscrit (M9, VERIFY_SPEC.md) — liste unique lue par m9_vocab_identity.mjs (HTML, messages/, src/) et m9_db.py (colonnes texte des tables v2_ de V2_DB).",
+    "Chaque motif est une expression régulière sans frontières : les moteurs ajoutent des frontières de mot Unicode (aucune lettre, chiffre ou _ collé avant ou après) et l'insensibilité à la casse.",
+    "fr : appliqué au texte en français (lang fr) ; en : au texte en anglais (lang en) ; en_us_spelling : orthographes américaines (liste fermée), texte anglais seulement.",
+    "Pronoms : 'US' en capitales (le pays) n'est pas le pronom 'us' ; toute autre casse l'est ('Us', 'us').",
+    "literals_excluded : citations verrouillées retirées du texte avant la recherche (signature, manifeste)."
+  ],
+  "fr": [
+    { "id": "découverte / découvrir", "re": "d[ée]couvr\\p{L}*|d[ée]couvert(?:e|es|s)?" },
+    { "id": "révolutionnaire", "re": "r[ée]volutionnaires?" },
+    { "id": "propulsé par l'IA", "re": "propuls[ée]e?s?\\s+par\\s+l['’]\\s?(?:IA|intelligence\\s+artificielle)" },
+    { "id": "nous (éditorial)", "re": "nous" },
+    { "id": "notre / nos (éditorial)", "re": "notre|nos" }
+  ],
+  "en": [
+    { "id": "discover*", "re": "discover\\p{L}*" },
+    { "id": "revolutionar*", "re": "revolutionar\\p{L}*" },
+    { "id": "powered by AI", "re": "powered\\s+by\\s+(?:AI|artificial\\s+intelligence)" },
+    { "id": "we (editorial)", "re": "we" },
+    { "id": "our / ours (editorial)", "re": "our|ours|ourselves" },
+    { "id": "us (editorial)", "re": "us", "notExact": ["US"] }
+  ],
+  "en_us_spelling": [
+    { "id": "favor*", "re": "favor|favors|favored|favoring|favorable|favorably|unfavorable|favorite|favorites" },
+    { "id": "behavior*", "re": "behavior|behaviors|behavioral|behaviorally" },
+    { "id": "color*", "re": "color|colors|colored|colorful|coloring|discolored" },
+    { "id": "center*", "re": "center|centers|centered|centering|epicenter" },
+    { "id": "organiz*", "re": "organization|organizations|organizational|organize|organized|organizes|organizing|reorganize|reorganized|self-organization|self-organizing" },
+    { "id": "optimiz*", "re": "optimize|optimized|optimizes|optimizing|optimization|optimizations" },
+    { "id": "analyz*", "re": "analyze|analyzed|analyzes|analyzing|analyzer" },
+    { "id": "realiz*", "re": "realize|realized|realizes|realizing|realization" },
+    { "id": "recogniz*", "re": "recognize|recognized|recognizes|recognizing" },
+    { "id": "characteriz*", "re": "characterize|characterized|characterizes|characterizing|characterization" },
+    { "id": "minimiz* / maximiz*", "re": "minimize|minimized|minimizes|minimizing|maximize|maximized|maximizes|maximizing" },
+    { "id": "utiliz*", "re": "utilize|utilized|utilizes|utilizing|utilization" },
+    { "id": "prioritiz*", "re": "prioritize|prioritized|prioritizes|prioritizing|prioritization" },
+    { "id": "emphasiz*", "re": "emphasize|emphasized|emphasizes|emphasizing" },
+    { "id": "summariz*", "re": "summarize|summarized|summarizes|summarizing" },
+    { "id": "generaliz*", "re": "generalize|generalized|generalizes|generalizing|generalization" },
+    { "id": "specializ*", "re": "specialize|specialized|specializes|specializing|specialization" },
+    { "id": "standardiz*", "re": "standardize|standardized|standardizes|standardizing|standardization" },
+    { "id": "stabiliz*", "re": "stabilize|stabilized|stabilizes|stabilizing|stabilization" },
+    { "id": "catalyz*", "re": "catalyze|catalyzed|catalyzes|catalyzing" },
+    { "id": "visualiz*", "re": "visualize|visualized|visualizes|visualizing|visualization" },
+    { "id": "normaliz*", "re": "normalize|normalized|normalizes|normalizing|normalization" },
+    { "id": "categoriz*", "re": "categorize|categorized|categorizes|categorizing" },
+    { "id": "mobiliz*", "re": "mobilize|mobilized|mobilizes|mobilizing|mobilization" },
+    { "id": "synthesiz*", "re": "synthesize|synthesized|synthesizes|synthesizing" },
+    { "id": "hypothesiz*", "re": "hypothesize|hypothesized|hypothesizes|hypothesizing" },
+    { "id": "polariz* / crystalliz* / metaboliz* / ioniz*", "re": "polarize|polarized|polarization|crystallize|crystallized|crystallization|metabolize|metabolized|metabolizes|ionize|ionized|ionization" },
+    { "id": "-eled / -eling", "re": "labeled|labeling|modeled|modeling|traveled|traveling|canceled|canceling|signaled|signaling|tunneling|fueled" },
+    { "id": "defense / offense", "re": "defense|defenses|offense" },
+    { "id": "gray / fiber / liter / theater", "re": "gray|fiber|fibers|liter|liters|theater|theaters" },
+    { "id": "-or (honour…)", "re": "honor|honors|labor|neighbor|neighbors|neighboring|neighborhood|humor|rumor|tumor|tumors|harbor|vapor|endeavor|odor|odors|flavor|flavors" },
+    { "id": "fulfill / enrollment / skillful", "re": "fulfill|fulfillment|enrollment|skillful" },
+    { "id": "ae/oe médicaux", "re": "pediatric|pediatrics|anemia|anesthesia|anesthetic|hemoglobin|hematology|leukemia|estrogen|fetal|fetus|edema|orthopedic|esophagus|diarrhea" },
+    { "id": "aluminum / sulfur", "re": "aluminum|sulfur|sulfate|sulfide" }
+  ],
+  "literals_excluded": [
+    "SPORE — A research collision engine.",
+    "A well-documented dead end is worth more than a glib unification."
+  ]
+}

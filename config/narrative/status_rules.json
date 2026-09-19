@@ -1,0 +1,53 @@
+{
+  "version": "status_rules_v1",
+  "source": "docs/v2/LIGNE_EDITORIALE.md §8 (D-017)",
+  "en": [
+    {
+      "id": "statut-en-1",
+      "re": "(?:was|were|has\\s+been|have\\s+been)(?:\\s+(?:then|successfully|already))?\\s+(?:conducted|performed|carried\\s+out|completed|run|obtained|achieved|verified|confirmed|validated|demonstrated|proven|proved|established|observed|measured|detected|constructed|built|exposed|compared|tested)"
+    },
+    {
+      "id": "statut-en-2",
+      "re": "(?:has|have)\\s+(?:yielded|shown|demonstrated|confirmed|validated|proven|established|revealed)"
+    },
+    {
+      "id": "statut-en-3",
+      "re": "it\\s+was\\s+(?:verified|shown|demonstrated|confirmed|found|established|observed)"
+    },
+    {
+      "id": "statut-en-4",
+      "re": "(?:this|the)\\s+(?:finding|result)s?\\s+(?:shows?|offers?|demonstrates?|confirms?|proves?)"
+    }
+  ],
+  "fr": [
+    {
+      "id": "statut-fr-1",
+      "re": "(?:a|ont)\\s+été\\s+(?:réalisé|mené|conduit|effectué|obtenu|vérifié|confirmé|validé|démontré|prouvé|établi|observé|mesuré|construit|testé)(?:e|s|es)?"
+    },
+    {
+      "id": "statut-fr-2",
+      "re": "(?:a|ont)\\s+(?:montré|démontré|prouvé|confirmé|validé|établi|révélé)"
+    },
+    {
+      "id": "statut-fr-3",
+      "re": "on\\s+a\\s+(?:vérifié|obtenu|mesuré|observé|montré|démontré|confirmé|testé|construit)"
+    },
+    {
+      "id": "statut-fr-4",
+      "re": "(?:ce|ces|cette)\\s+(?:résultats?|observations?)\\s+(?:montrent?|démontrent?|confirment?|prouvent?)"
+    }
+  ],
+  "conditions": {
+    "en": "if|whether|would|could|should|might|may|will|unless|once|until",
+    "fr": "si|s['’]ils?|pourrai(?:t|ent)|devrai(?:t|ent)|serai(?:t|ent)|sera|seront|permettrai(?:t|ent)|lorsque|quand|une\\s+fois|jusqu['’]à\\s+ce"
+  },
+  "fields": [
+    "title",
+    "title_fr",
+    "hypothesis_in_brief",
+    "concretely.intro",
+    "concretely.phase1",
+    "concretely.phase2",
+    "concretely.phase3"
+  ]
+}
