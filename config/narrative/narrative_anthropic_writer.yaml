@@ -1,3 +1,7 @@
+# VARIANTE D'ÉVALUATION — NE PAS UTILISER EN PRODUCTION.
+# Copie de config/narrative/narrative.yaml dont le seul écart est
+# writer.provider / writer.model (repli Anthropic), pour l'arbitrage
+# coût/qualité de l'itération 4 (docs/v2/calibration/iter4/fallback.md).
 # Configuration de la couche narrative SPORE v2.
 #
 # Distincte du genome L0 (data/l0_genome.yaml) : le genome est le terrain de
@@ -6,7 +10,7 @@
 #
 # Chemins relatifs : ancrés à la racine du dépôt.
 
-version: narrative_config_v2  # figé après l'itération 6 : writer_v2 / guard_v1 / translate_v2 (jury 9 FR, 8 EN sur 10)
+version: narrative_config_v1
 
 # Étiquette par défaut du registre de coût (v2_llm_costs.run_label).
 # La variable d'environnement SPORE_V2_RUN_LABEL la remplace.
@@ -52,18 +56,12 @@ writer:
   # provider/model à null : chemin standard get_llm_client(agent).
   # Renseignés, ils construisent le client explicitement (évaluation du repli
   # Anthropic sans toucher au genome).
-  # Arbitrage du repli Anthropic (itération 4, docs/v2/calibration/iter4/fallback.md) :
-  # les deux bras publient 9 récits FR et 9 EN sur 10 avec les mêmes prompts, mais
-  # claude-sonnet-5 coûte 0,1188 USD par brief contre 0,0016 (× 74, soit ≈ 10,7 USD
-  # pour le backfill des 90 briefs complets, plus que le plafond du run), refuse un
-  # brief sur dix (finish_reason=refusal, aucun texte produit, trois tentatives) et
-  # échange les défauts plutôt qu'il ne les réduit : meilleur sur les tics de surface,
-  # moins bon sur la fin au carnet (5 récits sur 9 contre 0), le repère d'époque daté
-  # (0 contre 3) et l'analogie du brief transplantée (4 sur 9 contre 2 sur 10). Le
-  # rédacteur reste donc sur DeepSeek ; le repli automatique de get_llm_client, lui,
-  # est inchangé et couvre toujours une panne du fournisseur.
-  provider: null
-  model: null
+  # Évaluation du repli Anthropic (itération 4) : SEUL le rédacteur change,
+  # garde et traducteur restent sur DeepSeek, pour que la comparaison porte
+  # sur la rédaction. Fichier d'évaluation, jamais la configuration par
+  # défaut de la couche.
+  provider: anthropic
+  model: claude-sonnet-5
   # v2 (calibration, itération 2) : le jury n'a accepté que 6 récits FR et 3 EN
   # sur 10 à l'itération 1. v2 ajoute six règles d'écriture tirées des refus,
   # avant les règles NEVER/ALWAYS : glose obligatoire de tout terme technique
@@ -144,77 +142,7 @@ writer:
   # contrôle passent de deux à quatre (era_r1, era_r2, why_it_works,
   # title_image) : normalise_story ne garde que les six champs du récit, ils
   # ne coûtent donc que des jetons de sortie.
-  # v5 (calibration, itération 5) : le jury n'a retenu que 4 récits FR et 6 EN
-  # sur 10 à l'itération 4, après 8/7 (itération 2) et 7/6 (itération 3). La
-  # série des versions est donc monotone décroissante en FR depuis v2, et la
-  # méthode qui l'a produite — ajouter à chaque tour les règles tirées des
-  # refus du tour précédent — est elle-même la cause : v2 faisait 138 lignes,
-  # v4 en fait 211, et le juré lecteur décrit treize récits sur treize bâtis
-  # sur le même gabarit (un laboratoire, un scientifique et un technicien, une
-  # mesure limite, une dispute sur « est-ce qu'on publie », une fin
-  # administrative). v5 repart donc de v2, pas de v4 : les ajouts de v3 et v4
-  # ne sont repris que lorsqu'ils corrigent un défaut observé sur des récits
-  # produits par v2 (fidélité au domaine, interdiction des questions à « on »,
-  # arithmétique du chiffre pivot), et non lorsqu'ils soignaient un dégât
-  # causé par la version précédente (liste de prénoms brûlés étendue, phrase
-  # d'ambiance d'ouverture, fin au carnet : aucun de ces défauts n'existait
-  # avant v3). Cinq changements de fond, tirés du bilan du juré lecteur :
-  # (a) B1 déplace la scène — la méthode est DÉJÀ en service, la décision
-  # finale appartient à quelqu'un qui n'est pas chercheur, et le laboratoire,
-  # le duo sachant/technicien, la délibération « est-ce qu'on publie » et la
-  # fin administrative sont interdits comme cadre principal ; c'est la lecture
-  # littérale de <editorial_concept> (« Et si ça marchait ? », les
-  # conséquences humaines), et le seul récit à moitié sorti du laboratoire
-  # (BFF6, agriculteurs et coopératives) est celui que le juré a préféré ;
-  # (b) B2 impose la glose du MOT-SUJET à sa première occurrence et avant tout
-  # chiffre — première cause de refus, mesurée : « mode » ×12 (0669),
-  # « gradient » ×10 (A08D a1), « pilote » et « canal » (8B20), « fonction
-  # d'onde » (816D) ; (c) B4 interdit les seuils énoncés en écarts
-  # statistiques sans unité ni ancrage (« deux fois et demie la variabilité
-  # attendue par hasard ») et refait porter le calcul du chiffre pivot ;
-  # (d) B5 interdit d'énoncer le succès au présent de vérité générale
-  # (« La correction fonctionne ») ou de l'adosser à une réglementation
-  # (« obligatoire depuis la directive de 2041 ») : quatre récits sur treize
-  # ont laissé le juré croire que la technique existe et marche aujourd'hui,
-  # ce qui est la ligne des garde-fous ; (e) B7 exige que la limite change une
-  # décision ou un résultat, et non qu'elle soit débattue en leçon de morale
-  # (les trois tentatives de 35F1 rejouent la même dispute « publier vite pour
-  # les malades » contre « publier honnêtement »). B6 demande deux repères
-  # d'époque, dont un dans les cent premiers mots, une date seule ne suffisant
-  # pas. Les cinq formulations que le juré cite en exemple ne sont PAS
-  # recopiées ici : v3 avait établi par grep que les exemples « ✓ » citables
-  # de v2 se retrouvaient mot pour mot d'un brief à l'autre ; elles sont
-  # décrites comme cible dans le prompt du garde, où les copier est sans
-  # effet. Trois champs de contrôle (glose, epoque, pour_qui) remplacent les
-  # quatre de v4 et se recopient mot pour mot depuis le corps.
-  # Prédiction falsifiable pour l'itération 6 : si v5 échoue, les récits FR
-  # de l'itération 5 conserveront le cadre laboratoire malgré B1 (mesurable
-  # par le champ constats.scène_principale du garde) ; si v5 réussit, la
-  # première cause de refus cessera d'être le mot-sujet non glosé.
-  # Résultat de cette prédiction, relevé sur les rapports du garde de
-  # l'itération 5 (champs judge.constats) : v5 a bien obtenu les deux choses
-  # qu'il visait — aucune des 17 tentatives FR ne se passe dans un laboratoire
-  # (ateliers, centre de tri, salle de contrôle d'opérateur, clinique
-  # vétérinaire ; la décision finale revient à un non-chercheur dans 8 relevés
-  # sur 8) et le mot-sujet est glosé à sa première ou deuxième apparition dans
-  # les 8 relevés. Le jury est pourtant retombé à 5 récits FR sur 10. La
-  # prédiction est donc falsifiée dans sa branche « le cadre laboratoire
-  # persistera » : v5 échoue en ayant corrigé ses deux cibles. C'est la méthode
-  # elle-même — ajouter à chaque tour les règles tirées des refus du tour
-  # précédent — qui ne converge pas.
-  #
-  # BILAN DE LA CALIBRATION (5 itérations, docs/v2/calibration/RESULT.md) : le
-  # seuil de <narrative_layer> — au moins 8 récits sur 10 acceptés par le jury
-  # sans retouche — n'est atteint par AUCUNE itération dans les deux langues.
-  # La meilleure est l'itération 2 : FR 8/10 (seuil atteint), EN 7/10 (seuil
-  # manqué d'un récit), 3 faux accepts, le minimum de la série. Elle domine les
-  # quatre autres sur les trois mesures à la fois, et la série FR décroît
-  # ensuite (8 → 7 → 4 → 5). Ce sont donc les versions de l'itération 2 qui
-  # sont conservées ici, et non les dernières écrites : story_writer_v2,
-  # story_guard_v1, story_translate_v1. Les fichiers v3 à v5 restent au dépôt,
-  # mesurés et documentés, pour reprendre la calibration ; ils ne sont pas la
-  # configuration.
-  prompt: story_writer_v2
+  prompt: story_writer_v4
   temperature: 0.8
   # ~750 mots FR ≈ 1 300-1 650 jetons, plus l'enveloppe JSON et les champs
   # mechanism / limit_or_risk. Plafond, pas facture : la troncature a été la
@@ -282,57 +210,9 @@ guard:
   # motif 7 vise aussi le cas où une même grandeur reçoit deux valeurs
   # incompatibles. B6 signale en plus les répliques anglaises introduites par
   # un tiret cadratin (BFF6 en a1).
-  # v4 (itération 5) : v3 a publié neuf récits que le jury a refusés (0669 fr
-  # et en, 072C fr, 816D fr et en, 8B20 fr, D3A8 fr, A08D en), et huit des dix
-  # briefs FR n'ont consommé qu'une seule tentative sur les trois autorisées.
-  # C'est là que se joue l'écart au seuil : les tirages sont indépendants, un
-  # garde qui rejette ce que le jury rejette rend deux tirages de plus. Le
-  # diagnostic de v3 → v4 n'est pas « il manque des motifs » (v2 → v3 était
-  # déjà passé de cinq à dix motifs sans effet) mais « le relevé n'est pas
-  # fait » : sur 0669 fr, le juge a noté readable_at_15 à 9 et fidelity à 9,
-  # doubts vide, sur un récit où « mode » revient douze fois sans glose et où
-  # une mesure de trois dixièmes de pour cent est annoncée comme « trois fois
-  # au-dessus » d'une tolérance de un pour cent. v4 retire donc la décision au
-  # juge : il répond à DIX CONTRÔLES FERMÉS (oui / non / sans objet), chacun
-  # adossé à un constat cité, et c'est Python (guard.evaluate_controls) qui en
-  # déduit le rejet, drapeau guard.require_controls. Une réponse défavorable,
-  # absente ou illisible rejette (fail-closed). « doubts » retombe à cinq
-  # motifs résiduels (entité réelle, promesse, exclusion de la constitution,
-  # corps vide, chaîne cause → effet irrécupérable) pour ne pas faire double
-  # emploi. Les constats sont désormais exportés dans le rapport : à
-  # l'itération 4 ils n'y figuraient pas, donc personne ne pouvait vérifier si
-  # le relevé avait eu lieu. Trois contrôles sont nouveaux et viennent du
-  # bilan du juré : mot_sujet_glose (première cause de refus),
-  # chiffre_pivot_lisible (seuils en rapports sans unité) et
-  # succes_enonce_comme_loi (le récit qui fait croire que la technique marche
-  # aujourd'hui). L'absence de repère d'époque reste une observation et non un
-  # rejet : en faire un motif aurait supprimé quatre récits acceptés à
-  # l'itération 3, et un garde trop strict ne produit pas un meilleur récit
-  # mais pas de récit du tout. Le fait que le récit se passe dans un
-  # laboratoire reste lui aussi une observation à l'itération 5 : c'est au
-  # rédacteur de sortir du laboratoire, et rejeter là-dessus dès le premier
-  # tour risquerait de vider la publication pendant que v5 se cale.
-  # Version conservée après la calibration : v1, celle de l'itération 2. Sur
-  # la mesure qui compte pour un garde — les faux accepts, c'est-à-dire les
-  # récits publiés que le jury a ensuite refusés, et il n'y a pas de jury en
-  # production — v1 est le meilleur des quatre gardes essayés : 3 faux accepts
-  # à l'itération 2, contre 8 (v0), 7 (v2), 8 (v3) et 6 (v4). L'élargissement
-  # successif des motifs de rejet (5 → 10 motifs de v2 à v3, puis les dix
-  # contrôles fermés de v4) n'a jamais fait baisser ce chiffre. Réserve
-  # honnête : garde et rédacteur ont changé ensemble à chaque tour, donc ces
-  # faux accepts ne sont pas imputables au seul garde ; v1 est retenu parce
-  # qu'il appartient à l'itération la mieux notée, pas parce qu'il aurait été
-  # isolément démontré meilleur.
-  prompt: story_guard_v1
+  prompt: story_guard_v3
   temperature: 0.0
-  max_tokens: 2600
-  # Exiger le bloc « controles » et en déduire le rejet en Python (v4+).
-  # OBLIGATOIREMENT false avec un prompt antérieur à v4 : seul story_guard_v4
-  # demande au juge de produire le bloc « controles ». Laissé à true avec v1,
-  # le bloc serait absent à chaque appel, evaluate_controls rejetterait
-  # (fail-closed, « judge:controls_missing ») et plus aucun récit ne serait
-  # publié. Le drapeau et la version du prompt se déplacent ensemble.
-  require_controls: false
+  max_tokens: 2200
   # Échelle des notes du juge : entiers de 0 à 10.
   score_min: 0
   score_max: 10
@@ -397,29 +277,7 @@ translate:
   # section ALWAYS ; v3 en fait une règle à part entière avec son exemple, et
   # ajoute le contrôle G5 sur le premier caractère de chaque ligne du corps.
   # Rien d'autre n'est touché : le reste des refus EN se corrige en français.
-  # Itération 5 : v3 est conservé, sans nouvelle version. Les trois refus EN
-  # de l'itération 4 (0669, 816D, A08D) sont hérités du français — mot-sujet
-  # non glosé, chiffre contradictoire, mécanisme jamais expliqué — et se
-  # corrigent dans story_writer_v5 ; aucun refus EN n'est imputable au
-  # traducteur. Changer trois prompts le même tour a rendu les itérations 3 et
-  # 4 inattribuables : v5 ne bouge que le rédacteur et le garde.
-  # Version conservée après la calibration : v1, celle de l'itération 2, parce
-  # que la configuration retenue est le TRIPLET de l'itération 2 et non un
-  # assemblage de versions jamais essayées ensemble. C'est le point coûteux de
-  # cet arbitrage, et il est écrit tel quel dans RESULT.md : l'écart au seuil
-  # en EN (7/10) vient pour deux tiers du traducteur v1. Deux briefs n'ont
-  # eu aucun récit anglais à l'itération 2, tous deux tués par le contrôle
-  # mécanique strict_first_person_plural sur les trois tentatives (SPR-2026-2A88
-  # et SPR-2026-816D) ; sur 2A88, les deux jurés acceptaient les trois
-  # tentatives, le garde les a refusées sur une seule occurrence de « we're ».
-  # C'est exactement ce que v2 a corrigé : à l'itération 3, 10 récits EN sur 10
-  # publiés et zéro rejet mécanique. Mais writer_v2 + translate_v2 n'a jamais
-  # tourné : à l'itération 3, le rédacteur avait changé en même temps. Prendre
-  # v2 ici reviendrait à figer une combinaison non mesurée et à déclarer un
-  # seuil atteint qui ne l'a pas été. La combinaison est consignée comme
-  # première reprise à tenter (RESULT.md, « Ce qui reste à faire »), pas comme
-  # configuration.
-  prompt: story_translate_v2
+  prompt: story_translate_v3
   temperature: 0.2
   max_tokens: 4000
 

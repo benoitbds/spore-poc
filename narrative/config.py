@@ -75,6 +75,9 @@ class GuardConfig:
             contrôles mécaniques ont déjà rejeté.
         strict_first_person_plural: Rejeter toute première personne du
             pluriel (« nous », « we »…), dialogues compris.
+        require_controls: Exiger le bloc ``controles`` du juge (prompts
+            ``story_guard_v4`` et suivants) et en déduire le rejet en Python.
+            Faux pour les prompts antérieurs, qui n'en produisent pas.
     """
 
     llm: LLMStepConfig
@@ -84,6 +87,7 @@ class GuardConfig:
     thresholds: Mapping[str, int]
     skip_judge_on_mechanical_failure: bool
     strict_first_person_plural: bool = True
+    require_controls: bool = False
 
     def threshold_for(self, criterion: str) -> int:
         """Seuil d'un critère.
@@ -256,6 +260,7 @@ def parse_config(raw: Mapping[str, Any]) -> NarrativeConfig:
                 guard_raw.get("skip_judge_on_mechanical_failure", True)
             ),
             strict_first_person_plural=bool(guard_raw.get("strict_first_person_plural", True)),
+            require_controls=bool(guard_raw.get("require_controls", False)),
         )
         config = NarrativeConfig(
             version=str(raw["version"]),

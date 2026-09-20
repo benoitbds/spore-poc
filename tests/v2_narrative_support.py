@@ -23,6 +23,7 @@ from typing import Any
 from llm.client import LLMClient, LLMResponse
 from narrative import llm as narrative_llm
 from narrative.config import LLMStepConfig, NarrativeConfig, load_config
+from narrative.guard import JUDGE_CONTROLS
 
 #: Entrée synthétique de denylist (aucun lien avec la vraie liste).
 DENYLIST_ENTRY = "Zorblax Quendimor"
@@ -115,14 +116,18 @@ def judge_verdict(
     verdict: str = "accept",
     doubts: Sequence[str] = (),
     overrides: Mapping[str, Any] | None = None,
+    controls: Mapping[str, Any] | None = None,
+    drop_controls: bool = False,
 ) -> dict[str, Any]:
-    """Verdict du juge.
+    """Verdict du juge, au format ``story_guard_v4`` (constats et contrôles).
 
     Args:
         score: Note de tous les critères.
         verdict: ``accept`` ou ``reject``.
         doubts: Doutes exprimés.
         overrides: Notes à remplacer par critère.
+        controls: Réponses de contrôle à remplacer.
+        drop_controls: Omettre entièrement le bloc ``controles``.
 
     Returns:
         Objet JSON du juge.
@@ -140,7 +145,21 @@ def judge_verdict(
         )
     }
     scores.update(overrides or {})
-    return {"scores": scores, "doubts": list(doubts), "verdict": verdict, "reasons": ["ok"]}
+    verdict_json: dict[str, Any] = {
+        "constats": {"objet_du_brief": "un matériau poreux", "objet_du_récit": "le même matériau"},
+        "scores": scores,
+        "doubts": list(doubts),
+        "verdict": verdict,
+        "reasons": ["ok"],
+    }
+    if not drop_controls:
+        answers = {
+            name: ("non" if unfavourable == "oui" else "oui")
+            for name, (unfavourable, _) in JUDGE_CONTROLS.items()
+        }
+        answers.update(controls or {})
+        verdict_json["controles"] = answers
+    return verdict_json
 
 
 Reply = str | dict[str, Any] | BaseException | tuple[str, str]

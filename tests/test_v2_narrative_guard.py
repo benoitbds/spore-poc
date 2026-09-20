@@ -15,6 +15,7 @@ import json
 import sys
 import tempfile
 import unittest
+from dataclasses import replace
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -27,7 +28,7 @@ from narrative.checks import (
     run_mechanical_checks,
     us_spelling_hits,
 )
-from narrative.guard import evaluate_verdict, guard_story, mechanical_settings
+from narrative.guard import JUDGE_CONTROLS, evaluate_verdict, guard_story, mechanical_settings
 from narrative.inputs import extract_inputs
 from storage import narrative_db
 from tests.test_s11_llm_contract import TempDatabase
@@ -195,6 +196,69 @@ class VerdictTests(unittest.TestCase):
         self.assertFalse(evaluate_verdict(judge_verdict(overrides={"fidelity": 11}), self.config)["passed"])
         self.assertFalse(evaluate_verdict(judge_verdict(overrides={"fidelity": True}), self.config)["passed"])
         self.assertFalse(evaluate_verdict(["not", "an", "object"], self.config)["passed"])
+
+    def test_constats_kept_for_audit(self) -> None:
+        section = evaluate_verdict(judge_verdict(), self.config)
+        self.assertEqual(section["constats"]["objet_du_brief"], "un matériau poreux")
+
+
+class ControlTests(unittest.TestCase):
+    """Contrôles fermés du juge, décidés en Python (``require_controls``)."""
+
+    def setUp(self) -> None:
+        self._tmp = tempfile.TemporaryDirectory()
+        # Le drapeau est posé ici, et non hérité de ``narrative.yaml`` : la
+        # configuration livrée suit la version du prompt du garde (seul
+        # ``story_guard_v4`` demande au juge le bloc « controles »), et la
+        # calibration a retenu ``story_guard_v1``. La machinerie testée ici
+        # doit l'être quelle que soit la version retenue.
+        base = make_config(Path(self._tmp.name))
+        self.config = base.with_changes(guard=replace(base.guard, require_controls=True))
+        self.assertTrue(self.config.guard.require_controls)
+
+    def tearDown(self) -> None:
+        self._tmp.cleanup()
+
+    def test_every_control_can_reject(self) -> None:
+        for name, (unfavourable, _) in JUDGE_CONTROLS.items():
+            with self.subTest(control=name):
+                section = evaluate_verdict(judge_verdict(controls={name: unfavourable}), self.config)
+                self.assertFalse(section["passed"])
+                self.assertIn(f"judge:control_failed:{name}", section["reasons"])
+
+    def test_missing_block_rejects(self) -> None:
+        section = evaluate_verdict(judge_verdict(drop_controls=True), self.config)
+        self.assertFalse(section["passed"])
+        self.assertIn("judge:controls_missing", section["reasons"])
+
+    def test_unreadable_answer_rejects(self) -> None:
+        section = evaluate_verdict(judge_verdict(controls={"raison_donnee": "peut-être"}), self.config)
+        self.assertFalse(section["passed"])
+        self.assertIn("judge:control_unreadable:raison_donnee", section["reasons"])
+        self.assertIsNone(section["controles"]["raison_donnee"])
+
+    def test_not_applicable_only_where_allowed(self) -> None:
+        allowed = evaluate_verdict(
+            judge_verdict(controls={"attente_medicale_bornee": "sans objet"}), self.config
+        )
+        self.assertTrue(allowed["passed"])
+        refused = evaluate_verdict(judge_verdict(controls={"fait_qui_change": "Sans objet."}), self.config)
+        self.assertFalse(refused["passed"])
+        self.assertIn("judge:control_not_applicable:fait_qui_change", refused["reasons"])
+
+    def test_answers_are_normalised(self) -> None:
+        section = evaluate_verdict(
+            judge_verdict(controls={"raison_donnee": " OUI ", "contradiction": "Non."}), self.config
+        )
+        self.assertTrue(section["passed"])
+        self.assertEqual(section["controles"]["raison_donnee"], "oui")
+        self.assertEqual(section["controles"]["contradiction"], "non")
+
+    def test_controls_ignored_when_not_required(self) -> None:
+        legacy = self.config.with_changes(guard=replace(self.config.guard, require_controls=False))
+        section = evaluate_verdict(judge_verdict(drop_controls=True), legacy)
+        self.assertTrue(section["passed"])
+        self.assertNotIn("controles", section)
 
 
 class GuardCallTests(TempDatabase):

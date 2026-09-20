@@ -25,7 +25,13 @@ from typing import Any
 import yaml
 
 from logging_config import get_logger
-from narrative.checks import MechanicalSettings, coerce_year, run_mechanical_checks, year_window
+from narrative.checks import (
+    MechanicalSettings,
+    coerce_year,
+    normalise,
+    run_mechanical_checks,
+    year_window,
+)
 from narrative.config import NarrativeConfig
 from narrative.inputs import StoryInputs, bullets
 from narrative.llm import CostMeter, call_json
@@ -42,6 +48,32 @@ JUDGE_CRITERIA: tuple[str, ...] = (
     "limit_present",
     "readable_at_15",
     "constitution_exclusions",
+)
+
+#: Contrôles fermés du juge (prompt ``story_guard_v4`` et suivants) :
+#: nom → (réponse défavorable, « sans objet » autorisé). Le juge répond
+#: « oui », « non » ou « sans objet » ; c'est Python qui en déduit le rejet,
+#: pour que la décision ne dépende plus de l'impression générale du juge
+#: (itération 4 : sept récits publiés avec des notes de 9 sur des défauts que
+#: les jurés ont relevés). Un contrôle absent ou illisible rejette aussi.
+JUDGE_CONTROLS: dict[str, tuple[str, bool]] = {
+    "raison_donnee": ("non", False),
+    "mot_sujet_glose": ("non", True),
+    "calcul_juste": ("non", True),
+    "chiffre_pivot_lisible": ("non", False),
+    "succes_enonce_comme_loi": ("oui", False),
+    "fait_qui_change": ("non", False),
+    "objet_du_brief_conserve": ("non", False),
+    "geste_dans_le_domaine": ("non", True),
+    "contradiction": ("oui", False),
+    "attente_medicale_bornee": ("non", True),
+}
+
+#: Réponses acceptées pour un contrôle, après normalisation.
+_CONTROL_YES: frozenset[str] = frozenset({"oui", "yes", "true", "vrai", "o"})
+_CONTROL_NO: frozenset[str] = frozenset({"non", "no", "false", "faux", "n"})
+_CONTROL_NA: frozenset[str] = frozenset(
+    {"sans objet", "sans-objet", "sansobjet", "non applicable", "n/a", "na", "aucun", "aucune"}
 )
 
 #: Exclusions utilisées si la constitution est illisible (fail-closed : le
@@ -122,16 +154,89 @@ def mechanical_settings(config: NarrativeConfig, lang: str) -> MechanicalSetting
     )
 
 
+def normalise_control(value: Any) -> str | None:
+    """Ramène une réponse de contrôle à ``oui``, ``non`` ou ``sans objet``.
+
+    Args:
+        value: Valeur rendue par le juge.
+
+    Returns:
+        Réponse normalisée, ou ``None`` si elle est illisible (rejet).
+    """
+    if not isinstance(value, str):
+        return None
+    text = normalise(value).strip(" .;:!\"'")
+    if text in _CONTROL_YES:
+        return "oui"
+    if text in _CONTROL_NO:
+        return "non"
+    if text in _CONTROL_NA:
+        return "sans objet"
+    return None
+
+
+def evaluate_controls(data: Any) -> tuple[dict[str, str | None], list[str]]:
+    """Lit le bloc ``controles`` du juge et en déduit les motifs de rejet.
+
+    Le juge ne décide pas : il répond à dix questions fermées, étayées par
+    ses constats, et Python applique la règle. Une réponse défavorable,
+    absente ou illisible rejette le récit (fail-closed).
+
+    Args:
+        data: Objet JSON rendu par le juge.
+
+    Returns:
+        Les réponses normalisées et les codes de raison produits.
+    """
+    raw = data.get("controles") if isinstance(data, Mapping) else None
+    if not isinstance(raw, Mapping):
+        return ({name: None for name in JUDGE_CONTROLS}, ["judge:controls_missing"])
+    answers: dict[str, str | None] = {}
+    reasons: list[str] = []
+    for name, (unfavourable, allow_na) in JUDGE_CONTROLS.items():
+        answer = normalise_control(raw.get(name))
+        answers[name] = answer
+        if answer is None:
+            reasons.append(f"judge:control_unreadable:{name}")
+        elif answer == unfavourable:
+            reasons.append(f"judge:control_failed:{name}")
+        elif answer == "sans objet" and not allow_na:
+            reasons.append(f"judge:control_not_applicable:{name}")
+    return answers, reasons
+
+
+def _sanitise_constats(data: Any) -> dict[str, Any] | None:
+    """Relevé factuel du juge, borné, conservé pour l'audit.
+
+    Args:
+        data: Objet JSON rendu par le juge.
+
+    Returns:
+        Constats tronqués, ou ``None`` s'ils sont absents.
+    """
+    raw = data.get("constats") if isinstance(data, Mapping) else None
+    if not isinstance(raw, Mapping):
+        return None
+    constats: dict[str, Any] = {}
+    for key, value in list(raw.items())[:20]:
+        if isinstance(value, list):
+            constats[str(key)[:60]] = [str(item)[:200] for item in value[:10]]
+        else:
+            constats[str(key)[:60]] = str(value)[:400]
+    return constats
+
+
 def evaluate_verdict(data: Any, config: NarrativeConfig) -> dict[str, Any]:
     """Transforme la sortie du juge en section ``judge`` du rapport.
 
     Args:
         data: Objet JSON rendu par le juge.
-        config: Configuration (échelle et seuils).
+        config: Configuration (échelle, seuils, contrôles fermés).
 
     Returns:
-        Section ``judge`` : ``passed``, ``scores``, ``threshold``,
-        ``thresholds``, ``doubts``, ``raw_verdict``, ``reasons`` (codes).
+        Section ``judge`` : ``passed``, ``constats``, ``controles``,
+        ``scores``, ``threshold``, ``thresholds``, ``doubts``,
+        ``raw_verdict``, ``reasons`` (codes).
     """
     guard = config.guard
     section: dict[str, Any] = {
@@ -146,6 +251,14 @@ def evaluate_verdict(data: Any, config: NarrativeConfig) -> dict[str, Any]:
     if not isinstance(data, Mapping):
         section["reasons"] = ["judge:malformed_output"]
         return section
+
+    constats = _sanitise_constats(data)
+    if constats is not None:
+        section["constats"] = constats
+    if guard.require_controls:
+        answers, control_reasons = evaluate_controls(data)
+        section["controles"] = answers
+        reasons.extend(control_reasons)
 
     scores_raw = data.get("scores")
     scores: dict[str, float | None] = {}
