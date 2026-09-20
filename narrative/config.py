@@ -26,6 +26,14 @@ CONFIG_ENV = "SPORE_NARRATIVE_CONFIG"
 #: Variable qui remplace l'étiquette de coût par défaut.
 RUN_LABEL_ENV = "SPORE_V2_RUN_LABEL"
 
+#: Règles du nœud ``explainer_flags`` (copies octet pour octet de
+#: ``spore-v2/scripts/v2/checks/``), section ``explainer_flags`` du YAML.
+DEFAULT_FLAG_RULES: dict[str, Path] = {
+    "vocab_rules": REPO_ROOT / "config" / "narrative" / "vocab_rules.json",
+    "status_rules": REPO_ROOT / "config" / "narrative" / "status_rules.json",
+    "vocab_allow": REPO_ROOT / "config" / "narrative" / "vocab_allow.txt",
+}
+
 
 class NarrativeConfigError(ValueError):
     """Configuration de la couche narrative absente ou invalide."""
@@ -126,6 +134,11 @@ class NarrativeConfig:
         backfill_estimated_usd_per_brief: Estimation prudente par brief.
         backfill_capped_labels: Étiquettes comptées dans le plafond.
         backfill_spend_json: Consolidation de la dépense du run.
+        vocab_rules_path: Motifs de vocabulaire proscrit (copie de
+            ``spore-v2/scripts/v2/checks/vocab_rules.json``).
+        status_rules_path: Motifs d'erreur de statut (copie de
+            ``status_rules.json``).
+        vocab_allow_path: Littéraux admis (copie de ``vocab_allow.txt``).
     """
 
     version: str
@@ -161,6 +174,9 @@ class NarrativeConfig:
     backfill_capped_labels: tuple[str, ...]
     backfill_spend_json: Path
     extra: Mapping[str, Any] = field(default_factory=dict)
+    vocab_rules_path: Path = DEFAULT_FLAG_RULES["vocab_rules"]
+    status_rules_path: Path = DEFAULT_FLAG_RULES["status_rules"]
+    vocab_allow_path: Path = DEFAULT_FLAG_RULES["vocab_allow"]
 
     def effective_run_label(self) -> str:
         """Étiquette de coût, variable d'environnement prioritaire.
@@ -224,6 +240,9 @@ def parse_config(raw: Mapping[str, Any]) -> NarrativeConfig:
         neighbours = raw["neighbours"]
         paths = raw["paths"]
         backfill = raw["backfill"]
+        flag_rules = raw.get("explainer_flags") or {}
+        if not isinstance(flag_rules, Mapping):
+            raise NarrativeConfigError("section 'explainer_flags' invalide")
         words = {
             lang: (int(bounds[0]), int(bounds[1])) for lang, bounds in story["words"].items()
         }
@@ -271,6 +290,9 @@ def parse_config(raw: Mapping[str, Any]) -> NarrativeConfig:
             backfill_estimated_usd_per_brief=float(backfill["estimated_usd_per_brief"]),
             backfill_capped_labels=tuple(str(x) for x in backfill["capped_labels"]),
             backfill_spend_json=Path(backfill["spend_json"]),
+            vocab_rules_path=_anchor(flag_rules.get("vocab_rules") or DEFAULT_FLAG_RULES["vocab_rules"]),
+            status_rules_path=_anchor(flag_rules.get("status_rules") or DEFAULT_FLAG_RULES["status_rules"]),
+            vocab_allow_path=_anchor(flag_rules.get("vocab_allow") or DEFAULT_FLAG_RULES["vocab_allow"]),
         )
     except (KeyError, TypeError, ValueError, IndexError) as exc:
         if isinstance(exc, NarrativeConfigError):

@@ -10,7 +10,7 @@ câblé après ``validate_brief`` par un bloc additif de
     story_writer → story_guard ─published→ story_translate_en → story_guard_en
          ↑______rejected (≤ 2 nouvelles)┘│         ↑_____rejected (≤ 2)____┘│
                         épuisé / échec ──┴──→ theme_tagger ←── publié / épuisé
-                                              → brief_link → neighbours_refresh → END
+                          → explainer_flags → brief_link → neighbours_refresh → END
 
 Garanties :
 
@@ -23,7 +23,11 @@ Garanties :
   une collision sur mesure déjà publiée (``api/custom_runner.py``) ;
 * un échec n'enlève que l'étage fiction : après un échec ou un délai
   dépassé, les brouillons ouverts sont rejetés et les étapes mécaniques
-  (thèmes, lien, voisines) rejouées sous leur propre délai.
+  (thèmes, signalements, lien, voisines) rejouées sous leur propre délai ;
+* ``explainer_flags`` (D-017) ne lit que la vulgarisation du brief et
+  n'écrit que dans ``v2_vocab_flags`` ; il tourne aussi quand les récits sont
+  désactivés (``write_stories=False`` : ``story_writer`` passe, le routage
+  mène à ``theme_tagger``).
 """
 
 from __future__ import annotations
@@ -37,7 +41,7 @@ from typing import Annotated, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from logging_config import get_logger, log_context
-from narrative import mechanical, story
+from narrative import explainer_flags, mechanical, story
 from narrative.config import NarrativeConfig, get_config
 from narrative.safety import assert_safe_write_path
 from storage import narrative_db
@@ -66,6 +70,7 @@ class NarrativeState(TypedDict, total=False):
         en_attempt: Dernière tentative EN.
         en_tries: Passages dans ``story_translate_en`` pendant cette exécution.
         themes: Slugs écrits par ``theme_tagger``.
+        vocab_flags: Compteurs de ``explainer_flags`` (par sorte).
         link_method: Méthode écrite par ``brief_link``.
         neighbours: Indicateurs de ``neighbours_refresh``.
         events: Journal des étapes (réducteur additif).
@@ -87,6 +92,7 @@ class NarrativeState(TypedDict, total=False):
     en_attempt: int
     en_tries: int
     themes: list[str]
+    vocab_flags: dict[str, Any]
     link_method: str | None
     neighbours: dict[str, Any]
     events: Annotated[list[str], operator.add]
@@ -229,6 +235,28 @@ async def node_theme_tagger(state: NarrativeState) -> dict[str, Any]:
     return {"themes": [slug for slug, _ in themes], "events": ["theme_tagger:done"]}
 
 
+async def node_explainer_flags(state: NarrativeState) -> dict[str, Any]:
+    """Signalements de la vulgarisation du brief (vocabulaire, statut, structure).
+
+    Sans LLM (D-017) : passes de ``narrative.explainer_flags``, écriture dans
+    ``v2_vocab_flags`` seulement.
+
+    Args:
+        state: État narratif.
+
+    Returns:
+        Mise à jour ``vocab_flags``.
+    """
+    try:
+        summary = await asyncio.to_thread(
+            explainer_flags.flag_brief, state["db_path"], state["brief_id"], _config()
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("narrative_explainer_flags_failed", brief_id=state.get("brief_id"), error=str(exc)[:300])
+        return {"events": ["explainer_flags:error"]}
+    return {"vocab_flags": summary.get("flags", {}), "events": ["explainer_flags:done"]}
+
+
 async def node_brief_link(state: NarrativeState) -> dict[str, Any]:
     """Lien brief ↔ hypothèse (``pipeline_state``).
 
@@ -323,6 +351,7 @@ def build_narrative_graph() -> StateGraph:
     workflow.add_node("story_translate_en", node_story_translate_en)
     workflow.add_node("story_guard_en", node_story_guard_en)
     workflow.add_node("theme_tagger", node_theme_tagger)
+    workflow.add_node("explainer_flags", node_explainer_flags)
     workflow.add_node("brief_link", node_brief_link)
     workflow.add_node("neighbours_refresh", node_neighbours_refresh)
 
@@ -343,7 +372,8 @@ def build_narrative_graph() -> StateGraph:
         route_after_story_guard_en,
         {"story_translate_en": "story_translate_en", "theme_tagger": "theme_tagger"},
     )
-    workflow.add_edge("theme_tagger", "brief_link")
+    workflow.add_edge("theme_tagger", "explainer_flags")
+    workflow.add_edge("explainer_flags", "brief_link")
     workflow.add_edge("brief_link", "neighbours_refresh")
     workflow.add_edge("neighbours_refresh", END)
     return workflow
@@ -407,7 +437,7 @@ async def _recover(state: Mapping[str, Any], config: NarrativeConfig, reason: st
         if closed:
             logger.warning("narrative_open_drafts_rejected", brief_id=brief_id, count=closed, reason=reason)
         tail_state = dict(state)
-        for node in (node_theme_tagger, node_brief_link, node_neighbours_refresh):
+        for node in (node_theme_tagger, node_explainer_flags, node_brief_link, node_neighbours_refresh):
             await node(tail_state)  # type: ignore[arg-type]
 
     try:
@@ -447,8 +477,8 @@ async def run_narrative_layer(
 
     Returns:
         Résumé : ``ran``, ``reason`` si la couche n'a rien fait, statuts
-        ``fr_status`` / ``en_status``, thèmes, lien, indicateurs du maillage,
-        ``failed`` si le sous-graphe a échoué.
+        ``fr_status`` / ``en_status``, thèmes, signalements (``vocab_flags``),
+        lien, indicateurs du maillage, ``failed`` si le sous-graphe a échoué.
     """
     summary: dict[str, Any] = {"brief_id": brief_id, "ran": False}
     try:
@@ -490,7 +520,7 @@ async def run_narrative_layer(
             await _recover(state, config, reason)
             return summary
 
-        for key in ("fr_status", "en_status", "themes", "link_method", "neighbours", "events"):
+        for key in ("fr_status", "en_status", "themes", "vocab_flags", "link_method", "neighbours", "events"):
             if key in final:
                 summary[key] = final[key]
         logger.info(

@@ -22,6 +22,7 @@ import json
 import sqlite3
 from collections.abc import Iterable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
+from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -33,6 +34,7 @@ NARRATIVE_TABLES: tuple[str, ...] = (
     "v2_brief_hypothesis",
     "v2_brief_neighbours",
     "v2_llm_costs",
+    "v2_vocab_flags",
 )
 
 #: DDL exact du contrat de données. Idempotent, strictement additif.
@@ -115,6 +117,30 @@ NARRATIVE_SCHEMA_STATEMENTS: tuple[str, ...] = (
         created_at TEXT
     )
     """,
+    # Addendum du 19/09 (D-017). « end » est un mot-clé SQL : toujours cité.
+    """
+    CREATE TABLE IF NOT EXISTS v2_vocab_flags (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        brief_id TEXT NOT NULL,
+        lang TEXT NOT NULL,
+        field TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        start INTEGER,
+        "end" INTEGER,
+        rule_idx INTEGER NULL,
+        field_sha256 TEXT NOT NULL,
+        status TEXT NOT NULL,
+        detected_at TEXT
+    )
+    """,
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS ux_v2_vocab_flags_key
+        ON v2_vocab_flags(brief_id, lang, field, kind, start, field_sha256)
+    """,
+    """
+    CREATE INDEX IF NOT EXISTS v2_vocab_flags_brief_idx
+        ON v2_vocab_flags(brief_id, lang, field)
+    """,
 )
 
 #: Valeurs admises, contrôlées en Python (le contrat ne pose pas de CHECK).
@@ -125,6 +151,8 @@ THEME_SOURCES = frozenset({"domain", "parent_domain", "fallback"})
 NEIGHBOUR_METHODS = frozenset(
     {"domain_embedding", "theme", "domain", "inbound_patch", "stub_ring"}
 )
+FLAG_KINDS = frozenset({"vocab", "statut", "structure"})
+FLAG_STATUSES = frozenset({"open", "corrected", "allowed"})
 
 #: Prédicat de publication du front (``src/lib/brief-visibility.ts``).
 PUBLISHED_BRIEF_PREDICATE = (
@@ -229,7 +257,7 @@ def narrative_schema_present(conn: sqlite3.Connection) -> bool:
         conn: Connexion.
 
     Returns:
-        ``True`` si les cinq tables existent.
+        ``True`` si toutes les tables de ``NARRATIVE_TABLES`` existent.
     """
     return all(table_exists(conn, name) for name in NARRATIVE_TABLES)
 
@@ -753,3 +781,138 @@ def max_cost_id(conn: sqlite3.Connection) -> int:
     if not table_exists(conn, "v2_llm_costs"):
         return 0
     return int(conn.execute("SELECT COALESCE(MAX(id), 0) FROM v2_llm_costs").fetchone()[0])
+
+
+# ── v2_vocab_flags ──────────────────────────────────────────────────
+
+
+@dataclass(frozen=True)
+class VocabFlagRow:
+    """Signalement à enregistrer (jamais le mot détecté).
+
+    Attributes:
+        lang: ``fr`` ou ``en``.
+        field: Chemin du champ dans la vulgarisation.
+        kind: ``vocab``, ``statut`` ou ``structure``.
+        start: Début (ou coupe pour ``structure``).
+        end: Fin exclusive, ``None`` pour ``structure``.
+        rule_idx: Rang du motif, ``None`` pour ``structure``.
+        field_sha256: Empreinte du champ lu.
+    """
+
+    lang: str
+    field: str
+    kind: str
+    start: int
+    end: int | None
+    rule_idx: int | None
+    field_sha256: str
+
+
+def sync_vocab_flags(
+    conn: sqlite3.Connection,
+    brief_id: str,
+    flags: Sequence[VocabFlagRow],
+    fields: Mapping[tuple[str, str], str],
+) -> dict[str, int]:
+    """Aligne ``v2_vocab_flags`` d'un brief sur une passe complète (une transaction).
+
+    * chaque signalement détecté est inséré ``open`` ; une ligne existante de
+      même clé est laissée telle quelle (``ON CONFLICT DO NOTHING``) : un
+      ``corrected`` (table de corrections du front) ou un ``allowed`` de
+      ``statut`` / ``structure`` (relecture) survit à la passe ;
+    * exception, fail-closed : une ligne ``vocab`` ``allowed`` de nouveau
+      détectée repasse ``open`` (son littéral a quitté ``vocab_allow.txt`` :
+      seul ce fichier lève un ``vocab``, §8) ;
+    * une ligne ``open`` que la passe ne détecte plus, sur le même texte
+      (même empreinte), passe à ``allowed`` si elle est de sorte ``vocab``
+      (le littéral est entré dans ``vocab_allow.txt``, §8, « Levée ») ;
+    * toute autre ligne ``open`` non détectée est supprimée : son texte a
+      changé (autre empreinte, champ disparu) ou la règle ne la produit plus ;
+    * les autres lignes ``corrected`` et ``allowed`` ne sont jamais modifiées.
+
+    Args:
+        conn: Connexion en écriture (schéma présent).
+        brief_id: Brief.
+        flags: Signalements détectés par la passe.
+        fields: ``(langue, chemin) → empreinte`` de chaque champ lu.
+
+    Returns:
+        ``inserted``, ``reopened``, ``allowed``, ``deleted``.
+
+    Raises:
+        ValueError: Langue ou sorte inconnue.
+    """
+    for flag in flags:
+        if flag.lang not in STORY_LANGS:
+            raise ValueError(f"langue de signalement invalide : {flag.lang!r}")
+        if flag.kind not in FLAG_KINDS:
+            raise ValueError(f"sorte de signalement invalide : {flag.kind!r}")
+    detected = {(f.lang, f.field, f.kind, f.start, f.field_sha256) for f in flags}
+    now = utc_now()
+    inserted = reopened = allowed = deleted = 0
+    with conn:
+        for flag in flags:
+            cursor = conn.execute(
+                'INSERT INTO v2_vocab_flags (brief_id, lang, field, kind, start, "end", rule_idx, '
+                "field_sha256, status, detected_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'open', ?) "
+                "ON CONFLICT(brief_id, lang, field, kind, start, field_sha256) DO NOTHING",
+                (
+                    brief_id,
+                    flag.lang,
+                    flag.field,
+                    flag.kind,
+                    flag.start,
+                    flag.end,
+                    flag.rule_idx,
+                    flag.field_sha256,
+                    now,
+                ),
+            )
+            inserted += cursor.rowcount
+            if cursor.rowcount == 0 and flag.kind == "vocab":
+                reopened += conn.execute(
+                    "UPDATE v2_vocab_flags SET status = 'open', detected_at = ? "
+                    "WHERE brief_id = ? AND lang = ? AND field = ? AND kind = 'vocab' AND start = ? "
+                    "AND field_sha256 = ? AND status = 'allowed'",
+                    (now, brief_id, flag.lang, flag.field, flag.start, flag.field_sha256),
+                ).rowcount
+        stale = conn.execute(
+            "SELECT id, lang, field, kind, start, field_sha256 FROM v2_vocab_flags "
+            "WHERE brief_id = ? AND status = 'open'",
+            (brief_id,),
+        ).fetchall()
+        for row in stale:
+            key = (row["lang"], row["field"], row["kind"], row["start"], row["field_sha256"])
+            if key in detected:
+                continue
+            same_text = fields.get((row["lang"], row["field"])) == row["field_sha256"]
+            if row["kind"] == "vocab" and same_text:
+                conn.execute("UPDATE v2_vocab_flags SET status = 'allowed' WHERE id = ?", (row["id"],))
+                allowed += 1
+            else:
+                conn.execute("DELETE FROM v2_vocab_flags WHERE id = ?", (row["id"],))
+                deleted += 1
+    return {"inserted": inserted, "reopened": reopened, "allowed": allowed, "deleted": deleted}
+
+
+def open_vocab_flags(conn: sqlite3.Connection, brief_id: str | None = None) -> list[dict[str, Any]]:
+    """Lignes ``open`` de ``v2_vocab_flags`` (relevé de l'opérateur).
+
+    Args:
+        conn: Connexion.
+        brief_id: Brief, ou ``None`` pour tous.
+
+    Returns:
+        Lignes, ordonnées par brief, langue, champ et position (vide si la
+        table manque).
+    """
+    if not table_exists(conn, "v2_vocab_flags"):
+        return []
+    sql = 'SELECT id, brief_id, lang, field, kind, start, "end", rule_idx, field_sha256, status, detected_at FROM v2_vocab_flags WHERE status = \'open\''
+    params: list[Any] = []
+    if brief_id is not None:
+        sql += " AND brief_id = ?"
+        params.append(brief_id)
+    sql += " ORDER BY brief_id, lang, field, start, kind"
+    return [dict(row) for row in conn.execute(sql, params)]

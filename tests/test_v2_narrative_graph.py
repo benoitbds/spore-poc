@@ -99,9 +99,11 @@ class NarrativeLayerTests(TempDatabase):
         self.assertEqual(en[0]["source_story_id"], fr[0]["id"])
         self.assertEqual(en[0]["story_year"], fr[0]["story_year"])
         self.assertEqual((fr[0]["writer_model"], fr[0]["guard_model"]), ("mock", "mock"))
-        self.assertEqual(fr[0]["prompt_version"], "story_writer_v0")
-        self.assertEqual(en[0]["prompt_version"], "story_translate_v0")
-        self.assertEqual(fr[0]["guard_prompt_version"], "story_guard_v0")
+        # Versions lues dans la configuration, jamais écrites en dur : une
+        # révision de prompt (calibration) ne doit pas casser ce test.
+        self.assertEqual(fr[0]["prompt_version"], self.config.writer.prompt)
+        self.assertEqual(en[0]["prompt_version"], self.config.translate.prompt)
+        self.assertEqual(fr[0]["guard_prompt_version"], self.config.guard.llm.prompt)
         self.assertEqual(len(fr[0]["body_sha256"]), 64)
         report = json.loads(fr[0]["guard_report_json"])
         self.assertEqual(report["decision"], "published")

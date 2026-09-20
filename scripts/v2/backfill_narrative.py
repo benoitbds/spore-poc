@@ -4,13 +4,16 @@ Pour chaque brief publié complet (non-stub) : récit FR, garde, version
 anglaise, garde EN — par le même code que le pipeline
 (``narrative.graph.run_narrative_layer``). Pour tous les briefs publiés :
 lien brief ↔ hypothèse (``fk`` puis ``text_match`` par les sidecars de
-développement), thèmes, puis maillage des voisines (une fois, à la fin).
+développement), thèmes, signalements de la vulgarisation
+(``explainer_flags``, D-017, sans LLM, ``--no-stories`` compris), puis
+maillage des voisines (une fois, à la fin).
 
 Propriétés :
 
 * **idempotent et reprenable** : un récit publié n'est jamais refait ; les
   tentatives sont comptées en base (trois au plus par brief et par langue) ;
-  un lien existant n'est pas écrasé ; thèmes et voisines sont recalculés ;
+  un lien existant n'est pas écrasé ; thèmes, signalements et voisines sont
+  recalculés (un signalement relu par l'opérateur garde son statut) ;
 * **limité en débit** (``--rate-limit`` secondes entre deux briefs) ;
 * **plafonné** : ``--max-usd`` (par défaut 10 USD moins la dépense déjà
   enregistrée dans les bases listées par ``docs/v2/evidence/spend.json``) ;
@@ -108,7 +111,9 @@ def build_parser() -> argparse.ArgumentParser:
         help="sidecars JSON des briefs (lecture seule) ; défaut : <SPORE_OUTPUT_DIR ou clone>/outputs/briefs",
     )
     parser.add_argument("--spend-json", type=Path, default=None, help="consolidation de la dépense du run")
-    parser.add_argument("--no-stories", action="store_true", help="liens, thèmes et voisines seulement")
+    parser.add_argument(
+        "--no-stories", action="store_true", help="liens, thèmes, signalements et voisines seulement"
+    )
     parser.add_argument("--no-spend-update", action="store_true", help="ne pas réécrire spend.json")
     parser.add_argument(
         "--load-llm-keys",
@@ -184,12 +189,18 @@ def spend_status(db_path: Path, spend_json: Path, config: NarrativeConfig) -> di
 def write_spend_json(path: Path, status: dict[str, Any]) -> None:
     """Réécrit la consolidation de dépense (chemin contrôlé par l'appelant).
 
+    ``total_usd`` ne baisse jamais : c'est le maximum du total recalculé sur
+    les bases sources et du total déjà consigné (une base source supprimée ne
+    fait pas disparaître sa dépense du plafond). ``computed_usd`` garde le
+    recalcul seul.
+
     Args:
         path: ``docs/v2/evidence/spend.json``.
         status: Résultat de ``spend_status``.
     """
     payload = {
-        "total_usd": status["computed_usd"],
+        "total_usd": status["total_usd"],
+        "computed_usd": status["computed_usd"],
         "by_label": status["by_label"],
         "sources": status["sources"],
         "updated_at": narrative_db.utc_now(),
@@ -357,7 +368,7 @@ def dry_run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, sp
     Returns:
         Résumé JSON.
     """
-    from narrative import mechanical
+    from narrative import explainer_flags, mechanical
     from narrative.themes import coverage
 
     with narrative_db.connect(db_path, readonly=True) as conn:
@@ -365,6 +376,7 @@ def dry_run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, sp
         plan = plan_stories(conn, config, only=args.brief, limit=args.limit)
         links = plan_links(conn, sidecars)
         themes = mechanical.tag_all(conn, config, write=False)
+        flags = explainer_flags.flag_all(conn, config, write=False)
         mapping = mechanical.theme_mapping(config)
         parents = mechanical.parent_index(config, conn)
         domain_names = [
@@ -402,6 +414,7 @@ def dry_run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, sp
             "per_theme": dict(Counter(slug for items in themes.values() for slug, _ in items)),
             "coverage": coverage(domain_names, mapping, parents),
         },
+        "explainer_flags": flags,
         "neighbours": neighbours,
         "budget": {"already_spent_usd": spend["total_usd"], "cap_this_run_usd": round(cap, 6)},
     }
@@ -422,7 +435,7 @@ async def run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, 
     Returns:
         Résumé JSON.
     """
-    from narrative import mechanical
+    from narrative import explainer_flags, mechanical
     from narrative.config import override_config
     from narrative.graph import run_narrative_layer
 
@@ -434,6 +447,7 @@ async def run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, 
                 conn, candidate.brief_id, candidate.hypothesis_id, candidate.method, overwrite=False
             )
         themes = mechanical.tag_all(conn, config, write=True)
+        flags = explainer_flags.flag_all(conn, config, write=True)
         plan = [] if args.no_stories else plan_stories(conn, config, only=args.brief, limit=args.limit)
         start_cost_id = narrative_db.max_cost_id(conn)
 
@@ -479,6 +493,7 @@ async def run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, 
         "links_written": dict(Counter(item.method for item in links["candidates"])),
         "links_unresolved_count": len(links["unresolved"]),
         "themes_written": len(themes),
+        "explainer_flags": flags,
         "stories": {"planned": len(plan), "processed": processed, "stopped": stopped},
         "neighbours": neighbours,
         "budget": {
@@ -511,6 +526,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     os.environ["SPORE_DB_PATH"] = str(db_path)
 
     config = load_config(args.config) if args.config else load_config()
+    if not args.dry_run and args.run_label not in config.backfill_capped_labels:
+        # Une étiquette hors plafond (« pipeline », faute de frappe) ferait
+        # échapper la dépense au plafond du run.
+        print(json.dumps({"error": f"étiquette hors plafond refusée : {args.run_label!r}"}), file=sys.stderr)
+        return 2
     spend_json = resolve_path(args.spend_json or config.backfill_spend_json)
     if not args.dry_run and not args.no_spend_update:
         assert_safe_write_path(spend_json, what="spend_json")

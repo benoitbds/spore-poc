@@ -1,0 +1,75 @@
+# Exceptions au contrôle M9 (vocabulaire proscrit et motifs génériques d'identité).
+# VERIFY_SPEC.md : « Exceptions : aucune, sauf identifiants techniques et URL (listées ici avec raison) ».
+# Toute ligne sans « | raison » non vide fait échouer M9. Ce fichier ne contient jamais d'élément de la denylist d'identité.
+# Chaque ligne est VALIDÉE par m9_vocab_identity.mjs : une ligne hors des formes ci-dessous fait échouer M9.vocab.
+#
+# Formats, un par ligne :
+#   <littéral exact> | <raison>        une URL (domaine/chemin), un jeton technique (sans espace, avec - _ / : . @ # =
+#                                      entre deux caractères alphanumériques) ou un libellé exact de plusieurs mots
+#                                      (un libellé cite une décision « D-0NN » dont la section traite de vocab_allow.txt,
+#                                      D-016 ; jamais retiré de messages/ ; en base, seulement en valeur entière ;
+#                                      retraits hors étiquette entière comptés dans la preuve) ;
+#                                      jamais un mot seul, et aucun terme proscrit FR/EN (hors orthographes américaines)
+#                                      dans un jeton ou un libellé. Le littéral (sensible à la casse) est retiré du texte
+#                                      avant la recherche du vocabulaire et des motifs génériques d'identité (jamais avant
+#                                      la denylist), seulement entre deux frontières : rien de collé avant, rien qui le
+#                                      prolonge après (github.com/compte<suite> reste contrôlé)
+#   email <adresse> | <raison>         adresse e-mail admise en plus de contact@spore-research.com
+#   attr <nom>=<valeur> | <raison>     le texte des éléments HTML qui portent cet attribut avec cette valeur (non vide) est
+#                                      exclu du contrôle de vocabulaire (jamais du contrôle d'identité). Attributs
+#                                      structurels refusés (lang, id, class, style, hidden, role, data-template,
+#                                      data-register, data-source…). La raison DOIT citer une décision « D-0NN » présente
+#                                      comme titre « ## D-0NN » dans docs/v2/DECISIONS.md, dont la section nomme l'attribut.
+#
+# Règle mécanique documentée (pas une ligne de ce fichier) : dans les chaînes de src/ uniquement, les jetons qui
+# contiennent « - _ / : . @ # = » (classes CSS comme items-center, identifiants, URL) sont des identifiants techniques
+# et ne sont pas lus comme de la prose. Le texte servi (HTML) et messages/ n'ont pas cette tolérance.
+#
+# Libellés de domaines académiques stockés tels quels en base (taxonomie du pipeline, orthographe américaine),
+# affichés comme étiquettes de données avec lang="en" (ARCHITECTURE_INFO.md §7.2 : « libellés anglais de la
+# taxonomie, affichés tels quels »). Ce sont des identifiants de données, pas du texte éditorial : ils ne peuvent
+# pas être réécrits sans toucher aux données du cœur. Seule la chaîne complète est admise ; « behavior » dans une
+# phrase reste un échec. Vérifiés le 2026-09-19 comme valeurs exactes de briefs.sharpened_data.domains des briefs
+# publiés (copie spore.base-20260919T074424Z.db).
+Ant Colony Optimization | D-016 : libellé exact de domaine en base (brief publié), étiquette de données
+Aquatic Invertebrate Ecology and Behavior | D-016 : libellé exact de domaine en base (brief publié), étiquette de données
+Insect and Arachnid Ecology and Behavior | D-016 : libellé exact de domaine en base (brief publié), étiquette de données
+Pediatric Medicine | D-016 : libellé exact de domaine en base (brief publié), étiquette de données
+# Non listés : « Behavioral Economics », « Manufacturing Process and Optimization », « Optimization » n'existent que
+# dans hypotheses.collision_json d'hypothèses non publiées ; à ajouter ici (même raison) si un brief publié les porte.
+#
+# Titre de référence bibliographique cité tel quel depuis les données d'un brief publié : niveau 3 de D-017
+# (citation verbatim du pipeline, jamais réécrite). Il apparaît dans la fixture GÉNÉRÉE du guide de style
+# (src/components/editorial/__fixtures__/db-extract.ts, en-tête « ne pas éditer à la main », deux occurrences :
+# référence et contre-preuve). Le corriger en orthographe britannique falsifierait le titre d'un article publié
+# et serait perdu à la prochaine exécution de extract_fixtures.py. Seule la chaîne complète est admise :
+# « modeling » dans une phrase de SPORE reste un échec.
+Roman CGI testbed HOWFSC modeling and validation | D-017 : titre de référence cité tel quel (niveau 3), orthographe de l'article publié
+#
+# Adresses d'exemple affichées comme placeholder dans les champs e-mail des formulaires (aucune boîte réelle).
+email your@email.com | exemple de saisie (placeholder de champ e-mail, EN), pas une adresse de contact
+email votre@email.fr | exemple de saisie (placeholder de champ e-mail, FR), pas une adresse de contact
+# Retiré le 2026-09-20 : plus aucun placeholder « vous@labo.fr » dans src/ ni messages/ (formulaire de collision
+# sur mesure réécrit) ; le guide de style n'affiche plus d'adresse d'exemple du tout.
+#
+# Dépôts et organisations GitHub TIERS cités dans les données des briefs publiés (grounding_data / protocol_data :
+# « données ouvertes », « logiciels »), rendus tels quels dans le dossier chercheur. Ce sont des URL de logiciels
+# scientifiques publics, pas des comptes liés à SPORE ni à son opérateur. Relevés le 2026-09-19 sur les briefs publiés
+# (copie spore.base-20260919T074424Z.db) ; un nouveau brief qui en cite un autre fera échouer M9.identity jusqu'à ajout ici.
+github.com/DeepCodon/DeepCodon | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/NanoComp/mpb | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/OMIS-project | organisation de projet tierce citée dans les données d'un brief publié
+github.com/andy-iskauskas/hmer | dépôt logiciel tiers (paquet R hmer) cité dans les données d'un brief publié
+github.com/compdyn/partmc | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/cornellius-gp/gpytorch | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/devitocodes/devito | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/exoclime/VULCAN | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/rigetti/pyquil | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/theislab/Scanpy | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/ucl-pond/pySuStaIn | dépôt logiciel tiers cité dans les données d'un brief publié
+# URL complètes (littéral retiré seulement entre frontières : le dépôt seul ne couvre plus ses sous-chemins).
+# Relevées le 2026-09-19 dans public/briefs (SPR-2026-7B83, SPR-2026-F0FA), mêmes données que la base.
+github.com/cornellius-gp/gpytorch/tree/master/examples | page d'exemples d'un dépôt logiciel tiers citée dans les données d'un brief publié
+github.com/ucl-pond/pySuStaIn/blob/master/examples/example_synthetic_data.ipynb | carnet d'exemple d'un dépôt logiciel tiers cité dans les données d'un brief publié
+attr data-source="pipeline" | D-017 : citations verbatim du pipeline (niveau 3), attribuées et présentées comme citations ; exemptées des contrôles lexicaux, jamais de la denylist d'identité ; volume publié par M9
+Favorable avec réserves | français correct (fixture FR du styleguide, verdict de panel) ; l'anglais « favourable » reste contrôlé — D-016/D-028
