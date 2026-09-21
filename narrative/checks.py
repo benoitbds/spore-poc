@@ -178,6 +178,84 @@ def proscribed_hits(text: str, lang: str, *, strict_first_person_plural: bool = 
     return hits
 
 
+# ── Texte libre du juge (rapport du garde) ──────────────────────────
+
+#: Préfixe des identifiants de règle consignés dans le rapport du garde. Un
+#: identifiant est un code technique, jamais de la prose : le terme proscrit y
+#: est toujours précédé d'un souligné, qui est un caractère de mot — ni le
+#: garde ni M9 (``scripts/v2/checks/m9_db.py``) ne peuvent l'y lire comme une
+#: occurrence, et le code reste donc affichable tel quel.
+RULE_ID_PREFIX = "vocab"
+
+#: Langues dont les règles s'appliquent au texte libre du juge : les deux. Le
+#: juge écrit dans la langue qu'il veut, et ``guard_report_json`` n'est pas une
+#: colonne de prose (DATA_CONTRACT.md) : M9 y applique les règles FR *et* EN.
+FREE_TEXT_LANGS: tuple[str, ...] = ("fr", "en")
+
+#: Code d'une raison du juge retirée du rapport.
+REDACTED_REASON_CODE = "reason_redacted"
+
+
+def proscribed_rule_ids(text: str) -> list[str]:
+    """Identifiants de règle du vocabulaire proscrit trouvés dans un texte libre.
+
+    Mêmes motifs que ``proscribed_hits``, appliqués dans les deux langues (le
+    texte libre du juge n'est pas la prose d'une langue déclarée) et rendus
+    sous forme de codes techniques (``vocab_fr_decouverte``).
+
+    Args:
+        text: Texte libre (raison du juge).
+
+    Returns:
+        Identifiants trouvés, sans doublon, par langue puis par motif.
+    """
+    ids: list[str] = []
+    for lang in FREE_TEXT_LANGS:
+        ids.extend(f"{RULE_ID_PREFIX}_{lang}_{name}" for name in proscribed_hits(text, lang))
+    return ids
+
+
+def redact_free_text(text: str, index: int) -> str | dict[str, Any]:
+    """Texte libre tel quel, ou son code s'il porte du vocabulaire proscrit.
+
+    Le rapport du garde est du texte écrit par SPORE (D-017, niveau 1,
+    tolérance nulle) : une raison du juge qui contient un terme proscrit n'est
+    pas stockée. Rien n'est perdu pour autant — le code garde le rang de la
+    raison et la ou les règles déclenchées, visibles dans le rapport comme
+    dans les coulisses.
+
+    Args:
+        text: Texte libre, déjà tronqué à la longueur stockée.
+        index: Rang de la raison dans la liste stockée.
+
+    Returns:
+        ``text`` inchangé, ou ``{"code": "reason_redacted", "rule": …, "index": …}``.
+    """
+    rules = proscribed_rule_ids(text)
+    if not rules:
+        return text
+    return {"code": REDACTED_REASON_CODE, "rule": ",".join(rules), "index": index}
+
+
+def redact_free_texts(items: Sequence[Any], *, max_chars: int, max_items: int) -> list[Any]:
+    """Raisons libres du juge : bornées, tronquées, puis caviardées.
+
+    Le filtre s'applique au texte **tronqué**, c'est-à-dire aux octets
+    réellement stockés.
+
+    Args:
+        items: Valeurs rendues par le juge (pas forcément des chaînes).
+        max_chars: Longueur maximale d'une raison stockée.
+        max_items: Nombre maximal de raisons stockées.
+
+    Returns:
+        Chaînes et codes de caviardage, dans l'ordre d'origine.
+    """
+    return [
+        redact_free_text(str(item)[:max_chars], index)
+        for index, item in enumerate(items[:max_items])
+    ]
+
 # ── Orthographe britannique et résidus de français (EN) ─────────────
 
 #: Compléments à la liste du mécanisme de traduction.
@@ -194,7 +272,12 @@ _US_SPELLINGS_EXTRA = re.compile(
     r"fiber|fibers|liter|liters|"
     r"catalog|catalogs|dialog|"
     r"esophagus|estrogen|hemoglobin|anemia|pediatric|pediatrician|"
-    # « sulfur » absent à dessein : graphie IUPAC, admise en anglais britannique.
+    # La graphie IUPAC « sulfur » a d'abord été admise ici comme britannique.
+    # La liste fermée du run tranche l'inverse (règle « aluminum / sulfur » de
+    # scripts/v2/checks/vocab_rules.json, M9) : le garde s'aligne dessus, sur
+    # les mêmes formes (les dérivés « sulfuric », « sulfurous » ne sont pas de
+    # la règle, la frontière de mot les exclut : ne pas les ajouter ici).
+    r"sulfur|sulfurs|sulfate|sulfates|sulfide|sulfides|"
     r"aluminum"
     r")\b"
 )

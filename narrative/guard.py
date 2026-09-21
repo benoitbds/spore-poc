@@ -10,7 +10,9 @@ Un échec de parsing, un doute exprimé, un verdict autre que ``accept``, une
 note absente, hors échelle ou sous le seuil, ou une erreur d'appel donnent
 ``rejected``. Le rapport suit ``guard_report_json`` du contrat de données ;
 ses ``reasons`` de premier niveau sont des codes produits ici, jamais du texte
-brut du LLM (le front affiche la décision, les contrôles et les raisons).
+brut du LLM (le front affiche la décision, les contrôles et les raisons). Les
+raisons libres du juge, gardées pour l'audit et jamais rendues, passent par le
+filtre de vocabulaire de ``narrative.checks`` avant d'être stockées.
 """
 
 from __future__ import annotations
@@ -29,6 +31,7 @@ from narrative.checks import (
     MechanicalSettings,
     coerce_year,
     normalise,
+    redact_free_texts,
     run_mechanical_checks,
     year_window,
 )
@@ -38,6 +41,12 @@ from narrative.llm import CostMeter, call_json
 from narrative.prompting import render_prompt
 
 logger = get_logger("narrative.guard")
+
+#: Bornes des raisons libres du juge conservées pour l'audit : longueur d'une
+#: raison, nombre de raisons. Le script de reprise
+#: (``scripts/v2/sanitize_guard_reports.py``) lit les mêmes bornes.
+JUDGE_REASON_MAX_CHARS = 300
+JUDGE_REASONS_MAX = 10
 
 #: Critères notés par le juge (clés de ``judge.scores``).
 JUDGE_CRITERIA: tuple[str, ...] = (
@@ -296,8 +305,13 @@ def evaluate_verdict(data: Any, config: NarrativeConfig) -> dict[str, Any]:
 
     judge_reasons = data.get("reasons")
     if isinstance(judge_reasons, list):
-        # Texte du juge conservé pour l'audit, hors des raisons affichées.
-        section["judge_reasons"] = [str(item)[:300] for item in judge_reasons][:10]
+        # Texte du juge conservé pour l'audit, hors des raisons affichées. Le
+        # rapport est du texte écrit par SPORE (D-017, niveau 1) : une raison
+        # qui porte du vocabulaire proscrit cède la place à son code, qui en
+        # garde le rang et la règle (narrative.checks.redact_free_text).
+        section["judge_reasons"] = redact_free_texts(
+            judge_reasons, max_chars=JUDGE_REASON_MAX_CHARS, max_items=JUDGE_REASONS_MAX
+        )
 
     section["passed"] = not reasons
     section["reasons"] = reasons
