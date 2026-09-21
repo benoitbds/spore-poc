@@ -6,21 +6,32 @@ par SPORE (D-017, niveau 1, tolérance nulle) : une raison qui porte un terme
 proscrit n'a pas sa place en base, et M9 (``scripts/v2/checks/m9_db.py``) la
 relève sur la colonne.
 
-``narrative.guard`` applique désormais le filtre mécanique
-(``narrative.checks.redact_free_text``) avant d'écrire. Ce script applique le
-même filtre, mot pour mot, aux lignes **déjà** écrites d'une copie de base.
+Les **codes** de raison (``reasons`` de premier niveau) posent le même
+problème par un autre chemin : le front les affiche tels quels dans les
+coulisses d'une idée dont aucune tentative n'est publiée, et un code de la
+forme ``mechanical:us_spelling:sulfur`` sert donc le mot en HTML — deux-points
+n'est pas un caractère de mot, la règle de M9 y lit une occurrence.
+
+``narrative.guard`` et ``narrative.checks`` appliquent désormais les deux
+traitements avant d'écrire : filtre mécanique sur les raisons libres, code
+technique (nombre de formes, identifiant ``vocab_<langue>_<règle>``) sur les
+raisons de premier niveau. Ce script applique les mêmes traitements, mot pour
+mot, aux lignes **déjà** écrites d'une copie de base.
 
 Propriétés :
 
-* **idempotent** : une raison déjà caviardée est un objet JSON, pas une
-  chaîne ; le script ne touche qu'aux chaînes, donc un second passage ne
-  change rien ;
+* **idempotent** : une raison libre déjà caviardée est un objet JSON, pas une
+  chaîne, et un code déjà technique est reconnu comme tel ; un second passage
+  ne change rien ;
 * **borné au rapport** : seule la colonne ``guard_report_json`` est réécrite,
-  et dans ce rapport seules les entrées de ``judge.judge_reasons``. Le texte
-  d'un récit (``body_md``, ``title``, ``mechanism``…) n'est jamais lu pour
-  écriture, ni son empreinte ``body_sha256`` ;
+  et dans ce rapport seules les raisons (``judge.judge_reasons`` et les codes
+  de ``reasons``). Le texte d'un récit (``body_md``, ``title``,
+  ``mechanism``…) n'est jamais lu pour écriture, ni son empreinte
+  ``body_sha256`` ;
 * **minimal** : une ligne dont aucune raison ne bouge n'est pas réécrite (ses
-  octets restent identiques) ;
+  octets restent identiques), et une ligne réécrite ne voit changer que la
+  colonne ``guard_report_json`` — ``updated_at`` compris, que le front lit
+  comme la date de publication ;
 * **sûr** : refuse une base de production (``narrative.safety``) hors
   ``SPORE_V2_PRODUCTION=1`` ; ``--dry-run`` ouvre la base en lecture seule et
   n'écrit rien.
@@ -49,7 +60,7 @@ if str(REPO_ROOT) not in sys.path:
 
 import structlog
 
-from narrative.checks import redact_free_text
+from narrative.checks import RULE_ID_PREFIX, redact_free_text, rule_id
 from narrative.guard import JUDGE_REASON_MAX_CHARS
 from narrative.safety import UnsafePathError, assert_safe_write_path
 from scripts.v2.backfill_narrative import _configure_logging
@@ -100,29 +111,97 @@ def sanitise_reasons(reasons: Sequence[Any]) -> tuple[list[Any], list[str]]:
     return out, rules
 
 
-def sanitise_report(report: Any) -> tuple[dict[str, Any] | None, list[str]]:
+def rewrite_code(code: str, lang: str) -> str:
+    """Code de raison rendu inoffensif pour un contrôle lexical.
+
+    Deux familles recopiaient un terme lisible derrière un deux-points, que le
+    front sert tel quel : ``mechanical:us_spelling:<formes>`` (mots du récit,
+    remplacés par leur nombre) et ``mechanical:proscribed_vocab:<catégories>``
+    (remplacées par leur identifiant technique ``vocab_<langue>_<règle>``, dont
+    le souligné interdit toute lecture en occurrence). Les autres codes sont
+    déjà des codes.
+
+    Args:
+        code: Code de raison stocké.
+        lang: Langue de la ligne (``fr`` ou ``en``).
+
+    Returns:
+        Le code, réécrit si besoin.
+    """
+    head, sep, payload = code.partition(":")
+    if head != "mechanical" or not sep:
+        return code
+    family, sep, payload = payload.partition(":")
+    if not sep or not payload:
+        return code
+    if family == "us_spelling":
+        if payload.isdigit():
+            return code
+        return f"mechanical:us_spelling:{len(payload.split(','))}"
+    if family == "proscribed_vocab":
+        names = [
+            name if name.startswith(f"{RULE_ID_PREFIX}_") else rule_id(lang or "fr", name)
+            for name in payload.split(",")
+        ]
+        return "mechanical:proscribed_vocab:" + ",".join(names)
+    return code
+
+
+def sanitise_codes(codes: Sequence[Any], lang: str) -> tuple[list[Any], int]:
+    """Passe les codes de raison d'un rapport à ``rewrite_code``.
+
+    Args:
+        codes: Contenu de ``reasons``.
+        lang: Langue de la ligne.
+
+    Returns:
+        ``(codes, nombre de codes réécrits)``.
+    """
+    out: list[Any] = []
+    rewritten = 0
+    for item in codes:
+        if not isinstance(item, str):
+            out.append(item)
+            continue
+        new = rewrite_code(item, lang)
+        rewritten += int(new != item)
+        out.append(new)
+    return out, rewritten
+
+
+def sanitise_report(report: Any, lang: str = "") -> tuple[dict[str, Any] | None, list[str], int]:
     """Rapport de garde corrigé, ou ``None`` s'il n'y avait rien à corriger.
 
     Tout le reste du rapport (``version``, ``lang``, ``mechanical``,
-    ``decision``, ``reasons``, ``jury``, et les autres champs de ``judge``)
-    est laissé intact, à sa place et dans son ordre.
+    ``decision``, ``jury``, et les autres champs de ``judge``) est laissé
+    intact, à sa place et dans son ordre ; seules les raisons bougent.
 
     Args:
         report: Rapport désérialisé.
+        lang: Langue de la ligne (défaut : celle du rapport).
 
     Returns:
-        ``(rapport corrigé | None, règles déclenchées)``.
+        ``(rapport corrigé | None, règles déclenchées, codes réécrits)``.
     """
     if not isinstance(report, dict):
-        return None, []
+        return None, [], 0
+    lang = lang or (report.get("lang") if isinstance(report.get("lang"), str) else "")
+    rules: list[str] = []
+    rewritten = 0
     judge = report.get("judge")
-    if not isinstance(judge, dict) or not isinstance(judge.get("judge_reasons"), list):
-        return None, []
-    cleaned, rules = sanitise_reasons(judge["judge_reasons"])
-    if not rules:
-        return None, []
-    judge["judge_reasons"] = cleaned
-    return report, rules
+    if isinstance(judge, dict) and isinstance(judge.get("judge_reasons"), list):
+        cleaned, rules = sanitise_reasons(judge["judge_reasons"])
+        if rules:
+            judge["judge_reasons"] = cleaned
+    for holder in (report, judge):
+        if isinstance(holder, dict) and isinstance(holder.get("reasons"), list):
+            codes, count = sanitise_codes(holder["reasons"], lang)
+            if count:
+                holder["reasons"] = codes
+                rewritten += count
+    if not rules and not rewritten:
+        return None, [], 0
+    return report, rules, rewritten
 
 
 def run(db_path: Path, *, dry_run: bool) -> dict[str, Any]:
@@ -133,10 +212,12 @@ def run(db_path: Path, *, dry_run: bool) -> dict[str, Any]:
         dry_run: Ne rien écrire.
 
     Returns:
-        Résumé JSON (lignes lues, lignes changées, raisons caviardées, règles).
+        Résumé JSON (lignes lues, lignes changées, raisons caviardées, codes
+        réécrits, règles).
     """
     changed_rows: list[dict[str, Any]] = []
     rule_counts: Counter[str] = Counter()
+    codes_rewritten = 0
     with narrative_db.connect(db_path, readonly=dry_run) as conn:
         if not narrative_db.table_exists(conn, "v2_stories"):
             return {"error": "table v2_stories absente", "rows": 0, "rows_changed": 0}
@@ -150,10 +231,11 @@ def run(db_path: Path, *, dry_run: bool) -> dict[str, Any]:
             except ValueError as exc:
                 logger.warning("sanitize_report_unreadable", story_id=int(row["id"]), error=str(exc)[:200])
                 continue
-            fixed, rules = sanitise_report(report)
+            fixed, rules, codes = sanitise_report(report, str(row["lang"] or ""))
             if fixed is None:
                 continue
             rule_counts.update(rules)
+            codes_rewritten += codes
             changed_rows.append(
                 {
                     "story_id": int(row["id"]),
@@ -161,24 +243,29 @@ def run(db_path: Path, *, dry_run: bool) -> dict[str, Any]:
                     "lang": row["lang"],
                     "attempt": int(row["attempt"]),
                     "status": row["status"],
+                    "reasons_redacted": len(rules),
+                    "codes_rewritten": codes,
                     "rules": sorted(set(rules)),
                 }
             )
             if not dry_run:
-                # Seule la colonne du rapport est écrite : le texte du récit
-                # et son empreinte ne sont pas touchés.
-                narrative_db.update_story(
-                    conn,
-                    int(row["id"]),
-                    guard_report_json=json.dumps(fixed, ensure_ascii=False),
-                )
+                # Une seule colonne est écrite, en SQL explicite : ni le texte
+                # du récit, ni son empreinte, ni ``updated_at`` — la ligne n'a
+                # pas été republiée, et le front lit cette date comme la date
+                # de publication (sitemap et chronologie des coulisses).
+                with conn:
+                    conn.execute(
+                        "UPDATE v2_stories SET guard_report_json = ? WHERE id = ?",
+                        (json.dumps(fixed, ensure_ascii=False), int(row["id"])),
+                    )
             logger.info(
-                "sanitize_report_redacted",
+                "sanitize_report_rewritten",
                 story_id=int(row["id"]),
                 brief_id=row["brief_id"],
                 lang=row["lang"],
                 attempt=int(row["attempt"]),
                 rules=sorted(set(rules)),
+                codes_rewritten=codes,
                 written=not dry_run,
             )
     return {
@@ -187,6 +274,7 @@ def run(db_path: Path, *, dry_run: bool) -> dict[str, Any]:
         "rows": len(rows),
         "rows_changed": len(changed_rows),
         "reasons_redacted": int(sum(rule_counts.values())),
+        "codes_rewritten": codes_rewritten,
         "rules": dict(sorted(rule_counts.items())),
         "changed": changed_rows,
     }

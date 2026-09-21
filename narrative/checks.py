@@ -196,6 +196,19 @@ FREE_TEXT_LANGS: tuple[str, ...] = ("fr", "en")
 REDACTED_REASON_CODE = "reason_redacted"
 
 
+def rule_id(lang: str, name: str) -> str:
+    """Identifiant technique d'une règle de vocabulaire.
+
+    Args:
+        lang: ``fr`` ou ``en``.
+        name: Catégorie rendue par ``proscribed_hits``.
+
+    Returns:
+        ``vocab_<lang>_<catégorie>``.
+    """
+    return f"{RULE_ID_PREFIX}_{lang}_{name}"
+
+
 def proscribed_rule_ids(text: str) -> list[str]:
     """Identifiants de règle du vocabulaire proscrit trouvés dans un texte libre.
 
@@ -211,7 +224,7 @@ def proscribed_rule_ids(text: str) -> list[str]:
     """
     ids: list[str] = []
     for lang in FREE_TEXT_LANGS:
-        ids.extend(f"{RULE_ID_PREFIX}_{lang}_{name}" for name in proscribed_hits(text, lang))
+        ids.extend(rule_id(lang, name) for name in proscribed_hits(text, lang))
     return ids
 
 
@@ -533,7 +546,11 @@ def run_mechanical_checks(story: Mapping[str, Any], settings: MechanicalSettings
     )
     checks["no_proscribed_vocab"] = not vocab
     if vocab:
-        reasons.append("mechanical:proscribed_vocab:" + ",".join(vocab))
+        # Le front affiche ces codes tels quels (coulisses d'un récit sans
+        # tentative publiée) : ils portent l'identifiant technique de la règle,
+        # jamais le terme nu, qui serait servi en HTML et relevé par M9.
+        ids = ",".join(rule_id(settings.lang, name) for name in vocab)
+        reasons.append("mechanical:proscribed_vocab:" + ids)
 
     identity = identity_check(texts, settings.denylist_path)
     checks["identity_denylist"] = identity.passed
@@ -546,7 +563,11 @@ def run_mechanical_checks(story: Mapping[str, Any], settings: MechanicalSettings
         spellings = us_spelling_hits(joined)
         checks["british_spelling"] = not spellings
         if spellings:
-            reasons.append("mechanical:us_spelling:" + ",".join(spellings[:10]))
+            # Le NOMBRE de formes, jamais les mots : un mot du récit recopié
+            # dans un code serait servi en HTML par les coulisses (revue
+            # pipeline-narrative-skeleton__r1). Les formes se relisent à tout
+            # moment sur ``body_md``, qui est dans la même ligne.
+            reasons.append(f"mechanical:us_spelling:{len(spellings)}")
         residue = french_residue_hits(joined)
         checks["no_french_residue"] = residue == 0
         if residue:
