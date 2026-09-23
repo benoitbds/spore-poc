@@ -5,7 +5,9 @@ l'interpréteur de production. Un ``SPORE_DB_PATH`` mal posé, ou un chemin de
 sortie hérité d'une colonne de la base (``briefs.brief_json_path`` pointe vers
 la production), suffirait à écrire dans la production. Ce module refuse, avant
 toute écriture, un chemin qui se résout sous un arbre de production, sauf si
-``SPORE_V2_PRODUCTION=1`` est posé explicitement (bascule).
+``SPORE_V2_PRODUCTION=1`` est posé explicitement (bascule), ou si le code
+lui-même s'exécute depuis cet arbre — la production qui écrit chez elle
+(v2.1, B-06).
 
 Il fournit aussi le chargement des seules clés LLM depuis le ``.env`` de
 production, par analyse programmatique : aucune autre variable n'est lue dans
@@ -83,8 +85,28 @@ def production_root_of(path: str | os.PathLike[str]) -> Path | None:
     return None
 
 
+def runs_from(root: Path) -> bool:
+    """Le code en cours d'exécution vit-il sous ``root`` ?
+
+    Args:
+        root: Racine d'un arbre de production, déjà résolue.
+
+    Returns:
+        ``True`` si le dépôt qui porte ce module est ``root`` ou l'un de ses
+        sous-répertoires : c'est alors la production qui écrit chez elle.
+    """
+    return REPO_ROOT == root or root in REPO_ROOT.parents
+
+
 def assert_safe_write_path(path: str | os.PathLike[str], *, what: str) -> Path:
     """Refuse un chemin d'écriture situé en production, hors bascule.
+
+    La garde protège la production contre le clone, pas la production contre
+    elle-même : le code qui s'exécute depuis un arbre de production écrit dans
+    cet arbre-là sans condition. Sans cette exception, la bascule avait rendu la
+    couche narrative muette — le 23/09 à 04:15 UTC, l'autopilot de production,
+    lancé par la crontab qui ne pose aucune variable, a vu l'écriture du récit
+    de SPR-2026-1440 refusée (v2.1, BLOCKERS.md B-06).
 
     Args:
         path: Chemin de base ou de fichier de sortie.
@@ -94,11 +116,14 @@ def assert_safe_write_path(path: str | os.PathLike[str], *, what: str) -> Path:
         Le chemin résolu, s'il est autorisé.
 
     Raises:
-        UnsafePathError: Le chemin se résout sous un arbre de production et
-            ``SPORE_V2_PRODUCTION`` ne vaut pas ``"1"``.
+        UnsafePathError: Le chemin se résout sous un arbre de production que
+            le code en cours n'habite pas, et ``SPORE_V2_PRODUCTION`` ne vaut
+            pas ``"1"``.
     """
     resolved = resolve_path(path)
     root = production_root_of(resolved)
+    if root is not None and runs_from(root):
+        return resolved
     if root is not None and not is_production_mode():
         logger.error(
             "narrative_unsafe_path_refused",

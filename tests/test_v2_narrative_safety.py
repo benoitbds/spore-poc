@@ -83,6 +83,40 @@ class PathGuardTests(unittest.TestCase):
                 [Path("/tmp/ok.json"), PROD_WEB / "public" / "briefs" / "x.json"],
             )
 
+    def test_production_writes_to_its_own_tree(self) -> None:
+        # v2.1 B-06 : l'autopilot de production, lancé par la crontab sans
+        # variable, doit pouvoir écrire dans sa propre base.
+        with mock.patch.object(safety, "REPO_ROOT", PROD_POC):
+            target = PROD_POC / "data" / "spore.db"
+            self.assertEqual(assert_safe_write_path(target, what="db"), target)
+
+    def test_production_code_still_cannot_write_elsewhere_in_production(self) -> None:
+        # L'exception vaut pour SON arbre, pas pour tous les arbres de production.
+        # Pas « spore-web/public/briefs » : c'est un lien vers spore-poc/outputs,
+        # donc réellement l'arbre du pipeline, et la garde a raison de l'admettre.
+        with (
+            mock.patch.object(safety, "REPO_ROOT", PROD_POC),
+            self.assertRaises(UnsafePathError),
+        ):
+            assert_safe_write_path(PROD_WEB / "data" / "stats.json", what="export")
+
+    def test_the_clone_still_cannot_write_to_production(self) -> None:
+        # La raison d'être de la garde, inchangée : le clone de développement
+        # n'écrit jamais sous l'arbre de production.
+        with (
+            mock.patch.object(safety, "REPO_ROOT", Path("/home/baq/Projects/spore-v2-poc")),
+            self.assertRaises(UnsafePathError),
+        ):
+            assert_safe_write_path(PROD_POC / "data" / "spore.db", what="db")
+
+    def test_a_sibling_with_a_similar_prefix_is_not_the_production_tree(self) -> None:
+        # « spore-poc-old » n'habite pas « spore-poc » : pas d'exception pour lui.
+        with (
+            mock.patch.object(safety, "REPO_ROOT", Path("/home/baq/Projects/spore-poc-old")),
+            self.assertRaises(UnsafePathError),
+        ):
+            assert_safe_write_path(PROD_POC / "data" / "spore.db", what="db")
+
     def test_only_the_exact_flag_allows_production(self) -> None:
         for value in ("0", "true", "yes", " 1", "1 "):
             with (
