@@ -66,6 +66,7 @@ github.com/devitocodes/devito | dépôt logiciel tiers cité dans les données d
 github.com/exoclime/VULCAN | dépôt logiciel tiers cité dans les données d'un brief publié
 github.com/rigetti/pyquil | dépôt logiciel tiers cité dans les données d'un brief publié
 github.com/theislab/Scanpy | dépôt logiciel tiers cité dans les données d'un brief publié
+github.com/thuml/Time-Series-Library | dépôt logiciel tiers (bibliothèque du groupe THUML, université Tsinghua) cité dans les données de SPR-2026-1440 ; confirmé comme dépôt tiers par l'opérateur le 24/09/2026
 github.com/ucl-pond/pySuStaIn | dépôt logiciel tiers cité dans les données d'un brief publié
 # URL complètes (littéral retiré seulement entre frontières : le dépôt seul ne couvre plus ses sous-chemins).
 # Relevées le 2026-09-19 dans public/briefs (SPR-2026-7B83, SPR-2026-F0FA), mêmes données que la base.
