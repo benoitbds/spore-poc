@@ -102,6 +102,65 @@ class GuardConfig:
 
 
 @dataclass(frozen=True)
+class AddendumConfig:
+    """Notes grand public de l'étage 2 (v2.1 B2, E-018).
+
+    Attributes:
+        writer: Étape LLM de rédaction (un appel par brief et par langue).
+        judge: Étape LLM du juge, distincte du rédacteur.
+        max_attempts: Tentatives par (brief, langue).
+        words: Bornes de longueur d'un bloc, en mots, par langue.
+        threshold: Note minimale du juge sur chaque critère.
+        score_min: Borne basse de l'échelle.
+        score_max: Borne haute de l'échelle.
+    """
+
+    writer: LLMStepConfig
+    judge: LLMStepConfig
+    max_attempts: int
+    words: Mapping[str, tuple[int, int]]
+    threshold: int
+    score_min: int
+    score_max: int
+
+
+def parse_addendum(raw: Mapping[str, Any]) -> AddendumConfig | None:
+    """Section ``addendum`` du YAML, absente des configurations antérieures à B2.
+
+    Args:
+        raw: YAML décodé.
+
+    Returns:
+        La configuration des notes, ou ``None`` si la section manque.
+
+    Raises:
+        NarrativeConfigError: Section présente mais invalide.
+    """
+    section = raw.get("addendum")
+    if section is None:
+        return None
+    if not isinstance(section, Mapping):
+        raise NarrativeConfigError("section 'addendum' invalide")
+    try:
+        config = AddendumConfig(
+            writer=_step(section, "writer"),
+            judge=_step(section, "judge"),
+            max_attempts=int(section["max_attempts"]),
+            words={str(k): (int(v[0]), int(v[1])) for k, v in section["words"].items()},
+            threshold=int(section["threshold"]),
+            score_min=int(section.get("score_min", 0)),
+            score_max=int(section.get("score_max", 10)),
+        )
+    except (KeyError, TypeError, ValueError, IndexError) as exc:
+        raise NarrativeConfigError(f"section 'addendum' invalide : {exc}") from exc
+    if not 1 <= config.max_attempts <= 3:
+        raise NarrativeConfigError("addendum.max_attempts doit être compris entre 1 et 3")
+    if set(config.words) != {"fr", "en"}:
+        raise NarrativeConfigError("addendum.words doit porter fr et en")
+    return config
+
+
+@dataclass(frozen=True)
 class NarrativeConfig:
     """Configuration complète de la couche.
 
@@ -181,6 +240,7 @@ class NarrativeConfig:
     vocab_rules_path: Path = DEFAULT_FLAG_RULES["vocab_rules"]
     status_rules_path: Path = DEFAULT_FLAG_RULES["status_rules"]
     vocab_allow_path: Path = DEFAULT_FLAG_RULES["vocab_allow"]
+    addendum: AddendumConfig | None = None
 
     def effective_run_label(self) -> str:
         """Étiquette de coût, variable d'environnement prioritaire.
@@ -298,6 +358,7 @@ def parse_config(raw: Mapping[str, Any]) -> NarrativeConfig:
             vocab_rules_path=_anchor(flag_rules.get("vocab_rules") or DEFAULT_FLAG_RULES["vocab_rules"]),
             status_rules_path=_anchor(flag_rules.get("status_rules") or DEFAULT_FLAG_RULES["status_rules"]),
             vocab_allow_path=_anchor(flag_rules.get("vocab_allow") or DEFAULT_FLAG_RULES["vocab_allow"]),
+            addendum=parse_addendum(raw),
         )
     except (KeyError, TypeError, ValueError, IndexError) as exc:
         if isinstance(exc, NarrativeConfigError):

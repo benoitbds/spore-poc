@@ -121,6 +121,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="charger DEEPSEEK_API_KEY / ANTHROPIC_API_KEY depuis le .env de production (hors --dry-run)",
     )
     parser.add_argument("--config", type=Path, default=None, help="configuration narrative")
+    parser.add_argument(
+        "--addenda-only",
+        action="store_true",
+        help="notes grand public de l'étage 2 seulement (v2.1 B2) : ni récit, ni lien, ni thème",
+    )
     return parser
 
 
@@ -504,6 +509,136 @@ async def run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, 
     }
 
 
+# ── Notes grand public de l'étage 2 (v2.1 B2, E-018) ───────────────
+
+#: Estimation d'un brief en notes seules (deux langues, rédaction et juge, une tentative).
+ADDENDA_ESTIMATED_USD_PER_BRIEF = 0.003
+
+
+def plan_addenda(conn: sqlite3.Connection, config: NarrativeConfig, *, only: Sequence[str], limit: int | None) -> list[dict[str, Any]]:
+    """Briefs complets publiés à qui il manque des notes publiées, tentatives non épuisées.
+
+    Args:
+        conn: Connexion.
+        config: Configuration (section ``addendum``).
+        only: Briefs imposés (``--brief``), sinon tous.
+        limit: Nombre maximal de briefs.
+
+    Returns:
+        ``[{"brief_id", "langs"}]`` dans l'ordre de publication.
+    """
+    assert config.addendum is not None
+    wanted = set(only)
+    plan: list[dict[str, Any]] = []
+    for row in narrative_db.list_published_briefs(conn):
+        if row["is_stub"] or (wanted and row["id"] not in wanted):
+            continue
+        langs = []
+        for lang in ("fr", "en"):
+            if narrative_db.published_addendum(conn, row["id"], lang) is not None:
+                continue
+            if narrative_db.next_addendum_attempt(conn, row["id"], lang) > config.addendum.max_attempts:
+                continue
+            langs.append(lang)
+        if langs:
+            plan.append({"brief_id": row["id"], "langs": langs})
+        if limit is not None and len(plan) >= limit:
+            break
+    return plan
+
+
+def addenda_dry_run(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, spend: dict[str, Any], cap: float) -> dict[str, Any]:
+    """Plan des notes, en lecture seule.
+
+    Args:
+        args: Arguments.
+        config: Configuration.
+        db_path: Base contrôlée.
+        spend: Dépense déjà enregistrée.
+        cap: Plafond de ce passage.
+
+    Returns:
+        Résumé JSON.
+    """
+    with narrative_db.connect(db_path, readonly=True) as conn:
+        present = narrative_db.table_exists(conn, "v2_explainer_addendum")
+        plan = plan_addenda(conn, config, only=args.brief, limit=args.limit) if present else [
+            {"brief_id": r["id"], "langs": ["fr", "en"]}
+            for r in narrative_db.list_published_briefs(conn)
+            if not r["is_stub"] and (not args.brief or r["id"] in args.brief)
+        ][: args.limit]
+    estimated = round(len(plan) * ADDENDA_ESTIMATED_USD_PER_BRIEF, 4)
+    return {
+        "mode": "addenda-dry-run",
+        "db": str(db_path),
+        "table_present": present,
+        "addenda": {"briefs_with_work": len(plan), "first": [p["brief_id"] for p in plan[:5]],
+                    "estimated_usd": estimated, "would_stop_at_cap": estimated > cap},
+        "budget": {"already_spent_usd": spend.get("total_usd"), "cap_this_run_usd": round(cap, 6)},
+    }
+
+
+async def run_addenda(args: argparse.Namespace, config: NarrativeConfig, db_path: Path, cap: float, spend_json: Path) -> dict[str, Any]:
+    """Notes grand public des briefs publiés qui n'en ont pas (écrit dans la copie de base).
+
+    Args:
+        args: Arguments.
+        config: Configuration.
+        db_path: Base contrôlée.
+        cap: Plafond de ce passage.
+        spend_json: Consolidation de dépense.
+
+    Returns:
+        Résumé JSON.
+    """
+    from narrative import addendum
+    from narrative.config import override_config
+
+    with narrative_db.connect(db_path) as conn:
+        narrative_db.ensure_narrative_schema(conn)
+        plan = plan_addenda(conn, config, only=args.brief, limit=args.limit)
+        start_cost_id = narrative_db.max_cost_id(conn)
+
+    rate = config.backfill_rate_limit_s if args.rate_limit is None else max(0.0, args.rate_limit)
+    processed: list[dict[str, Any]] = []
+    stopped: str | None = None
+    with override_config(config):
+        for index, item in enumerate(plan):
+            with narrative_db.connect(db_path, readonly=True) as conn:
+                spent_run = narrative_db.sum_costs(conn, None, since_id=start_cost_id)
+            if spent_run + ADDENDA_ESTIMATED_USD_PER_BRIEF > cap:
+                stopped = "budget_cap"
+                logger.warning("addenda_budget_cap_reached", spent_run=spent_run, cap=cap)
+                break
+            entry: dict[str, Any] = {"brief_id": item["brief_id"]}
+            for lang in item["langs"]:
+                result = await addendum.produce_addendum(
+                    db_path, item["brief_id"], lang, config=config, run_label=args.run_label
+                )
+                entry[lang] = result.get("status")
+            processed.append(entry)
+            if index + 1 < len(plan) and rate:
+                await asyncio.sleep(rate)
+
+    with narrative_db.connect(db_path, readonly=True) as conn:
+        spent_run = narrative_db.sum_costs(conn, None, since_id=start_cost_id)
+        tally = [dict(r) for r in conn.execute(
+            "SELECT lang, status, count(*) AS n FROM v2_explainer_addendum GROUP BY lang, status ORDER BY lang, status")]
+    final_spend = spend_status(db_path, spend_json, config)
+    if not args.no_spend_update:
+        write_spend_json(spend_json, final_spend)
+    return {
+        "mode": "addenda",
+        "db": str(db_path),
+        "addenda": {"planned": len(plan), "processed": processed, "stopped": stopped, "table": tally},
+        "budget": {
+            "spent_this_run_usd": round(spent_run, 6),
+            "cap_this_run_usd": round(cap, 6),
+            "run_total_usd": final_spend["total_usd"],
+        },
+    }
+
+
 def main(argv: Sequence[str] | None = None) -> int:
     """Point d'entrée.
 
@@ -541,10 +676,16 @@ def main(argv: Sequence[str] | None = None) -> int:
     remaining = max(0.0, RUN_CAP_USD - spend["total_usd"])
     cap = remaining if args.max_usd is None else min(max(0.0, args.max_usd), remaining)
 
+    if args.addenda_only and config.addendum is None:
+        raise SystemExit("--addenda-only : section « addendum » absente de la configuration narrative")
     if args.dry_run:
         if args.load_llm_keys:
             logger.warning("backfill_dry_run_ignores_llm_keys")
-        summary = dry_run(args, config, db_path, spend, cap, sidecars)
+        summary = (
+            addenda_dry_run(args, config, db_path, spend, cap)
+            if args.addenda_only
+            else dry_run(args, config, db_path, spend, cap, sidecars)
+        )
     else:
         if args.load_llm_keys:
             from narrative.safety import load_llm_keys
@@ -557,7 +698,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         except ImportError:  # pragma: no cover
             pass
         started = time.monotonic()
-        summary = asyncio.run(run(args, config, db_path, spend, cap, sidecars, spend_json))
+        summary = asyncio.run(
+            run_addenda(args, config, db_path, cap, spend_json)
+            if args.addenda_only
+            else run(args, config, db_path, spend, cap, sidecars, spend_json)
+        )
         summary["duration_s"] = round(time.monotonic() - started, 1)
     print(json.dumps(summary, indent=2, ensure_ascii=False, default=str))
     return 0

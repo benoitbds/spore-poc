@@ -10,7 +10,8 @@ câblé après ``validate_brief`` par un bloc additif de
     story_writer → story_guard ─published→ story_translate_en → story_guard_en
          ↑______rejected (≤ 2 nouvelles)┘│         ↑_____rejected (≤ 2)____┘│
                         épuisé / échec ──┴──→ theme_tagger ←── publié / épuisé
-                          → explainer_flags → brief_link → neighbours_refresh → END
+                          → explainer_flags → explainer_addendum → brief_link
+                          → neighbours_refresh → END
 
 Garanties :
 
@@ -41,7 +42,7 @@ from typing import Annotated, Any, TypedDict
 from langgraph.graph import END, StateGraph
 
 from logging_config import get_logger, log_context
-from narrative import explainer_flags, mechanical, story
+from narrative import addendum, explainer_flags, mechanical, story
 from narrative.config import NarrativeConfig, get_config
 from narrative.safety import assert_safe_write_path
 from storage import narrative_db
@@ -257,6 +258,35 @@ async def node_explainer_flags(state: NarrativeState) -> dict[str, Any]:
     return {"vocab_flags": summary.get("flags", {}), "events": ["explainer_flags:done"]}
 
 
+async def node_explainer_addendum(state: NarrativeState) -> dict[str, Any]:
+    """Notes grand public des trois blocs de l'étage 2, FR puis EN (v2.1 B2, E-018).
+
+    Rédaction, garde mécanique et juge par ``narrative.addendum`` ; chaque tentative est écrite
+    dans ``v2_explainer_addendum``. Non bloquant, comme ``explainer_flags`` : une panne est
+    journalisée et le sous-graphe continue ; le script de rattrapage reprend les briefs manqués.
+
+    Args:
+        state: État narratif.
+
+    Returns:
+        Événements par langue.
+    """
+    config = _config()
+    if config.addendum is None:
+        return {"events": ["explainer_addendum:not_configured"]}
+    # Le mode sans récit est le mode mécanique : aucun appel LLM, les notes non plus.
+    if not state.get("write_stories", True):
+        return {"events": ["explainer_addendum:skipped"]}
+    try:
+        result = await addendum.produce_all_langs(
+            state["db_path"], state["brief_id"], config=config, run_label=state["run_label"]
+        )
+    except Exception as exc:  # noqa: BLE001
+        logger.error("narrative_explainer_addendum_failed", brief_id=state.get("brief_id"), error=str(exc)[:300])
+        return {"events": ["explainer_addendum:error"]}
+    return {"events": [f"explainer_addendum:{lang}:{r.get('status')}" for lang, r in result.items()]}
+
+
 async def node_brief_link(state: NarrativeState) -> dict[str, Any]:
     """Lien brief ↔ hypothèse (``pipeline_state``).
 
@@ -352,6 +382,7 @@ def build_narrative_graph() -> StateGraph:
     workflow.add_node("story_guard_en", node_story_guard_en)
     workflow.add_node("theme_tagger", node_theme_tagger)
     workflow.add_node("explainer_flags", node_explainer_flags)
+    workflow.add_node("explainer_addendum", node_explainer_addendum)
     workflow.add_node("brief_link", node_brief_link)
     workflow.add_node("neighbours_refresh", node_neighbours_refresh)
 
@@ -373,7 +404,8 @@ def build_narrative_graph() -> StateGraph:
         {"story_translate_en": "story_translate_en", "theme_tagger": "theme_tagger"},
     )
     workflow.add_edge("theme_tagger", "explainer_flags")
-    workflow.add_edge("explainer_flags", "brief_link")
+    workflow.add_edge("explainer_flags", "explainer_addendum")
+    workflow.add_edge("explainer_addendum", "brief_link")
     workflow.add_edge("brief_link", "neighbours_refresh")
     workflow.add_edge("neighbours_refresh", END)
     return workflow

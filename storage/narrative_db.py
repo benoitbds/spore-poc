@@ -35,6 +35,7 @@ NARRATIVE_TABLES: tuple[str, ...] = (
     "v2_brief_neighbours",
     "v2_llm_costs",
     "v2_vocab_flags",
+    "v2_explainer_addendum",
 )
 
 #: DDL exact du contrat de données. Idempotent, strictement additif.
@@ -141,6 +142,40 @@ NARRATIVE_SCHEMA_STATEMENTS: tuple[str, ...] = (
     CREATE INDEX IF NOT EXISTS v2_vocab_flags_brief_idx
         ON v2_vocab_flags(brief_id, lang, field)
     """,
+    # v2.1 B2 (E-018) : notes grand public de l'étage 2, une ligne par (brief, langue,
+    # tentative), les trois blocs ensemble puisqu'un seul appel les rédige.
+    """
+    CREATE TABLE IF NOT EXISTS v2_explainer_addendum (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        brief_id TEXT NOT NULL,
+        lang TEXT NOT NULL,
+        attempt INTEGER NOT NULL,
+        status TEXT NOT NULL,
+        tuer TEXT,
+        ignore TEXT,
+        tester TEXT,
+        guard_report_json TEXT,
+        writer_model TEXT,
+        guard_model TEXT,
+        prompt_version TEXT,
+        guard_prompt_version TEXT,
+        body_sha256 TEXT,
+        cost_usd REAL,
+        tokens_in INTEGER,
+        tokens_out INTEGER,
+        run_label TEXT,
+        created_at TEXT,
+        updated_at TEXT
+    )
+    """,
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS ux_v2_explainer_addendum_brief_lang_attempt
+        ON v2_explainer_addendum(brief_id, lang, attempt)
+    """,
+    """
+    CREATE UNIQUE INDEX IF NOT EXISTS ux_v2_explainer_addendum_one_published
+        ON v2_explainer_addendum(brief_id, lang) WHERE status = 'published'
+    """,
 )
 
 #: Valeurs admises, contrôlées en Python (le contrat ne pose pas de CHECK).
@@ -173,6 +208,30 @@ _STORY_COLUMNS = frozenset(
         "mechanism",
         "limit_staged",
         "source_story_id",
+        "guard_report_json",
+        "writer_model",
+        "guard_model",
+        "prompt_version",
+        "guard_prompt_version",
+        "body_sha256",
+        "cost_usd",
+        "tokens_in",
+        "tokens_out",
+        "run_label",
+    }
+)
+
+#: Blocs de l'étage 2 couverts par une note grand public (v2.1 B2, E-018).
+ADDENDUM_BLOCS: tuple[str, ...] = ("tuer", "ignore", "tester")
+
+#: Colonnes de ``v2_explainer_addendum`` que les écritures acceptent.
+_ADDENDUM_COLUMNS = frozenset(
+    {
+        "brief_id",
+        "lang",
+        "attempt",
+        "status",
+        *ADDENDUM_BLOCS,
         "guard_report_json",
         "writer_model",
         "guard_model",
@@ -916,3 +975,79 @@ def open_vocab_flags(conn: sqlite3.Connection, brief_id: str | None = None) -> l
         params.append(brief_id)
     sql += " ORDER BY brief_id, lang, field, start, kind"
     return [dict(row) for row in conn.execute(sql, params)]
+
+
+# ── Notes grand public de l'étage 2 (v2.1 B2, E-018) ───────────────
+
+
+def insert_addendum(conn: sqlite3.Connection, **fields: Any) -> int:
+    """Écrit une tentative de notes grand public, publiée ou rejetée.
+
+    Args:
+        conn: Connexion en écriture.
+        **fields: Colonnes de ``v2_explainer_addendum`` (``brief_id``,
+            ``lang``, ``attempt`` et ``status`` obligatoires).
+
+    Returns:
+        Identifiant de la ligne.
+
+    Raises:
+        ValueError: Colonne inconnue, langue ou statut hors contrat.
+    """
+    unknown = set(fields) - _ADDENDUM_COLUMNS
+    if unknown:
+        raise ValueError(f"colonnes inconnues pour v2_explainer_addendum : {sorted(unknown)}")
+    for name in ("brief_id", "lang", "attempt", "status"):
+        if fields.get(name) in (None, ""):
+            raise ValueError(f"v2_explainer_addendum : {name} obligatoire")
+    if fields["lang"] not in STORY_LANGS:
+        raise ValueError(f"v2_explainer_addendum : langue hors contrat ({fields['lang']})")
+    if fields["status"] not in {"published", "rejected"}:
+        raise ValueError(f"v2_explainer_addendum : statut hors contrat ({fields['status']})")
+    now = utc_now()
+    columns = [*fields, "created_at", "updated_at"]
+    values = [*fields.values(), now, now]
+    placeholders = ", ".join("?" for _ in columns)
+    with conn:
+        cursor = conn.execute(
+            f"INSERT INTO v2_explainer_addendum ({', '.join(columns)}) VALUES ({placeholders})",
+            values,
+        )
+    return int(cursor.lastrowid)
+
+
+def published_addendum(conn: sqlite3.Connection, brief_id: str, lang: str) -> dict[str, Any] | None:
+    """Notes publiées d'un brief dans une langue.
+
+    Args:
+        conn: Connexion.
+        brief_id: Brief.
+        lang: ``fr`` ou ``en``.
+
+    Returns:
+        La ligne publiée, ou ``None``.
+    """
+    row = conn.execute(
+        "SELECT * FROM v2_explainer_addendum WHERE brief_id = ? AND lang = ? AND status = 'published'",
+        (brief_id, lang),
+    ).fetchone()
+    return dict(row) if row is not None else None
+
+
+def next_addendum_attempt(conn: sqlite3.Connection, brief_id: str, lang: str) -> int:
+    """Numéro de la prochaine tentative de notes pour ``(brief, langue)``.
+
+    Args:
+        conn: Connexion.
+        brief_id: Brief.
+        lang: ``fr`` ou ``en``.
+
+    Returns:
+        1 pour la première tentative.
+    """
+    row = conn.execute(
+        "SELECT MAX(attempt) FROM v2_explainer_addendum WHERE brief_id = ? AND lang = ?",
+        (brief_id, lang),
+    ).fetchone()
+    return int(row[0] or 0) + 1
+
