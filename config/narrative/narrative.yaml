@@ -431,8 +431,8 @@ addendum:
   max_attempts: 2
   # Longueur d'un bloc, en mots : deux à quatre phrases.
   words:
-    fr: [30, 110]
-    en: [28, 100]
+    fr: [30, 90]
+    en: [28, 85]
   threshold: 7
   score_min: 0
   score_max: 10
@@ -440,14 +440,14 @@ addendum:
     agent: addendum_writer
     provider: null
     model: null
-    prompt: addendum_writer_v1
+    prompt: addendum_writer_v2
     temperature: 0.3
     max_tokens: 1800
   judge:
     agent: addendum_guard
     provider: null
     model: null
-    prompt: addendum_guard_v1
+    prompt: addendum_guard_v2
     temperature: 0.0
     max_tokens: 1400
 
